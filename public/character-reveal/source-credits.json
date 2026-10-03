@@ -1,0 +1,52 @@
+{
+  "component": "Character Reveal Cards",
+  "retrieved": "2026-10-03",
+  "sourceRepository": "https://github.com/Ggayane/css-experiments/tree/master/cards",
+  "repositoryOwner": "Ggayane",
+  "titleArtworkCredit": "Chris Mason (credit printed in original title artwork)",
+  "note": "Original cover, title and transparent character artwork matches the supplied reference video. Resized to 560 pixels wide and optimized as WebP with alpha preserved. Component interaction independently implemented in React; descriptions are demo copy, not book synopses.",
+  "assets": [
+    {
+      "file": "dark_rider-cover.webp",
+      "source": "https://raw.githubusercontent.com/Ggayane/css-experiments/master/cards/dark_rider-cover.jpg",
+      "originalFile": "dark_rider-cover.jpg",
+      "sha256": "9a4e545b9953d720d68f04f30c6e1d8abbe8018d8b84365aeab87a429213f758",
+      "bytes": 37994
+    },
+    {
+      "file": "dark_rider-character.webp",
+      "source": "https://raw.githubusercontent.com/Ggayane/css-experiments/master/cards/dark_rider-character.webp",
+      "originalFile": "dark_rider-character.webp",
+      "sha256": "eb6182dcbeff2a7e8d61803ae830052db9c64cce3e4d09fe366a1c9617f85572",
+      "bytes": 39660
+    },
+    {
+      "file": "dark_rider-title.webp",
+      "source": "https://raw.githubusercontent.com/Ggayane/css-experiments/master/cards/dark_rider-title.png",
+      "originalFile": "dark_rider-title.png",
+      "sha256": "33618317fe7450046b2e41e5548b526e3d56f19ea9a5ce7e4aaee29805d07475",
+      "bytes": 41272
+    },
+    {
+      "file": "force_mage-cover.webp",
+      "source": "https://raw.githubusercontent.com/Ggayane/css-experiments/master/cards/force_mage-cover.jpg",
+      "originalFile": "force_mage-cover.jpg",
+      "sha256": "26a37360fd3387f862fa699976af4893c4bdc26c2c9cb13d2bb068bc83308b3c",
+      "bytes": 38060
+    },
+    {
+      "file": "force_mage-character.webp",
+      "source": "https://raw.githubusercontent.com/Ggayane/css-experiments/master/cards/force_mage-character.webp",
+      "originalFile": "force_mage-character.webp",
+      "sha256": "df8c2313ba5c0ef43da5eec5b575ef02769cbcfb77f26472730f343bcf088064",
+      "bytes": 89838
+    },
+    {
+      "file": "force_mage-title.webp",
+      "source": "https://raw.githubusercontent.com/Ggayane/css-experiments/master/cards/force_mage-title.png",
+      "originalFile": "force_mage-title.png",
+      "sha256": "733d659285c23a05027202f56dfc9bc5b48b9e3c8b9661d4fc07b40be6e17df7",
+      "bytes": 40118
+    }
+  ]
+}

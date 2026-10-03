@@ -1,0 +1,59 @@
+{
+  "design": {
+    "author": "Jamie Coulter",
+    "url": "https://codepen.io/jcoulterdesign/pen/ZxXbeP",
+    "note": "Visual reference; independently implemented React interactions and scoped CSS."
+  },
+  "planets": [
+    {
+      "file": "mercury.webp",
+      "source": "https://space.jpl.nasa.gov/tmaps/mercury.html",
+      "note": "Optimized from the NASA/JPL Space Simulator map archive. Original credit and limitations are on the linked page; several maps are artist illustrations."
+    },
+    {
+      "file": "venus.webp",
+      "source": "https://space.jpl.nasa.gov/tmaps/venus.html",
+      "note": "Optimized from the NASA/JPL Space Simulator map archive. Original credit and limitations are on the linked page; several maps are artist illustrations."
+    },
+    {
+      "file": "earth.webp",
+      "source": "https://space.jpl.nasa.gov/tmaps/earth.html",
+      "note": "Optimized from the NASA/JPL Space Simulator map archive. Original credit and limitations are on the linked page; several maps are artist illustrations."
+    },
+    {
+      "file": "mars.webp",
+      "source": "https://space.jpl.nasa.gov/tmaps/mars.html",
+      "note": "Optimized from the NASA/JPL Space Simulator map archive. Original credit and limitations are on the linked page; several maps are artist illustrations."
+    },
+    {
+      "file": "jupiter.webp",
+      "source": "https://space.jpl.nasa.gov/tmaps/jupiter.html",
+      "note": "Optimized from the NASA/JPL Space Simulator map archive. Original credit and limitations are on the linked page; several maps are artist illustrations."
+    },
+    {
+      "file": "saturn.webp",
+      "source": "https://space.jpl.nasa.gov/tmaps/saturn.html",
+      "note": "Optimized from the NASA/JPL Space Simulator map archive. Original credit and limitations are on the linked page; several maps are artist illustrations."
+    },
+    {
+      "file": "uranus.webp",
+      "source": "https://space.jpl.nasa.gov/tmaps/uranus.html",
+      "note": "Optimized from the NASA/JPL Space Simulator map archive. Original credit and limitations are on the linked page; several maps are artist illustrations."
+    },
+    {
+      "file": "neptune.webp",
+      "source": "https://space.jpl.nasa.gov/tmaps/neptune.html",
+      "note": "Optimized from the NASA/JPL Space Simulator map archive. Original credit and limitations are on the linked page; several maps are artist illustrations."
+    },
+    {
+      "file": "pluto.webp",
+      "source": "https://space.jpl.nasa.gov/tmaps/pluto.html",
+      "note": "Optimized from the NASA/JPL Space Simulator map archive. Original credit and limitations are on the linked page; several maps are artist illustrations."
+    }
+  ],
+  "moon": {
+    "file": "moon.webp",
+    "source": "User-supplied Solar Explorer video, frame at 5.3 seconds",
+    "note": "Cropped lunar artwork; reused as an illustrative satellite texture."
+  }
+}
