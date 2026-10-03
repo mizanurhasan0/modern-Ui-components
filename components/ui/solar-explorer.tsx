@@ -458,11 +458,14 @@ export function SolarExplorer({
 export function SolarExplorerThumbnail({
   className = "",
   planet: planetId = "earth",
+  previewStep = 0,
 }: {
   className?: string;
   planet?: SolarPlanetId;
+  previewStep?: number;
 }) {
-  const planet = PLANETS.find((item) => item.id === planetId) ?? PLANETS[2];
+  const initialIndex = Math.max(0, PLANETS.findIndex((item) => item.id === planetId));
+  const planet = PLANETS[(initialIndex + previewStep) % PLANETS.length];
   const nextPlanet = PLANETS[(PLANETS.indexOf(planet) + 1) % PLANETS.length];
 
   return (

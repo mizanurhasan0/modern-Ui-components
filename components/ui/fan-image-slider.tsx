@@ -201,15 +201,15 @@ export default function FanImageSlider({
 }
 
 /** Static artwork with no nested interactive elements for the gallery link. */
-export function FanImageSliderThumbnail({ className = "" }: { className?: string }) {
+export function FanImageSliderThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   return <div className={`fan-image-slider fis-thumbnail ${className}`} aria-hidden="true" inert>
     <style>{FAN_STYLES}</style>
     <div className="fis-stage">
-      <div className="fis-spread">{DEFAULT_IMAGES.map((item, index) => <div key={item.id} className="fis-card" style={positionStyle(index, 4, DEFAULT_IMAGES.length)}>
+      <div className="fis-spread">{DEFAULT_IMAGES.map((item, index) => <div key={item.id} className="fis-card" style={positionStyle(index, (4 + previewStep) % DEFAULT_IMAGES.length, DEFAULT_IMAGES.length)}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={item.src} alt="" draggable={false} />
       </div>)}</div>
-      <div className="fis-controls"><span className="fis-arrow"><Arrow /></span><div className="fis-dots">{DEFAULT_IMAGES.map((item,index)=><span key={item.id} className="fis-dot" aria-current={index===4 ? "true":undefined}><span /></span>)}</div><span className="fis-arrow"><Arrow next /></span></div>
+      <div className="fis-controls"><span className="fis-arrow"><Arrow /></span><div className="fis-dots">{DEFAULT_IMAGES.map((item,index)=><span key={item.id} className="fis-dot" aria-current={index===(4 + previewStep) % DEFAULT_IMAGES.length ? "true":undefined}><span /></span>)}</div><span className="fis-arrow"><Arrow next /></span></div>
     </div>
   </div>;
 }

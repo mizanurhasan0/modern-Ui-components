@@ -273,17 +273,17 @@ export default function GlowingLogin({
 }
 
 /** A static preview, with no inputs or buttons nested inside a gallery link. */
-export function GlowingLoginThumbnail({ className = "" }: { className?: string }) {
+export function GlowingLoginThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   return (
     <div className={`gl-stage gl-thumbnail relative flex h-full min-h-[260px] w-full items-center justify-center overflow-hidden ${className}`} aria-hidden="true" inert>
       <style>{STYLES}</style>
-      <div className="gl-box" data-open="true">
+      <div className="gl-box" data-open={previewStep % 3 !== 1}>
         <div className="gl-frame" />
         <div className="gl-inner">
           <div className="gl-content">
             <div className="gl-title"><span><LoginSymbol /><span>Login</span><LoginSymbol heart /></span></div>
             <div className="gl-body">
-              <div className="gl-fields"><span className="gl-static-field">Username</span><span className="gl-static-field">Password</span></div>
+              <div className="gl-fields"><span className="gl-static-field">{previewStep % 3 === 2 ? "alex.design" : "Username"}</span><span className="gl-static-field">{previewStep % 3 === 2 ? "••••••••" : "Password"}</span></div>
               <span className="gl-submit">Sign in</span>
               <div className="gl-links"><span>Forgot Password</span><span>Sign up</span></div>
             </div>

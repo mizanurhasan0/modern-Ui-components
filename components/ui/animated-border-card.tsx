@@ -200,11 +200,11 @@ export default function AnimatedBorderCard({
 }
 
 /** An inert, expanded preview that can safely be nested inside a gallery link. */
-export function AnimatedBorderCardThumbnail({ className = "" }: { className?: string }) {
+export function AnimatedBorderCardThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   return (
     <div className={`abc-stage abc-thumbnail relative flex h-full min-h-[260px] w-full items-center justify-center overflow-hidden ${className}`} aria-hidden="true" inert>
       <style>{STYLES}</style>
-      <div className="abc-card" data-expanded="true">
+      <div className="abc-card" data-expanded={previewStep % 3 !== 1}>
         <div className="abc-lines" />
         <Avatar imageSrc={DEFAULT_AVATAR} displayName="Mr. Skeleton" />
         <div className="abc-content">

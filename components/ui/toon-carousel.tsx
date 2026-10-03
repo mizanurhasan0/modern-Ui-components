@@ -397,14 +397,14 @@ export function ToonCarousel({
 }
 
 /** Inert artwork for gallery cards; it has no timers or nested interactive controls. */
-export function ToonCarouselThumbnail({ className = "" }: { className?: string }) {
+export function ToonCarouselThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   return (
-    <div className={`toon-carousel toon-thumbnail relative w-full overflow-hidden text-white ${className}`} style={{ "--toon-background": DEFAULT_SLIDES[0].background } as CSSProperties} aria-hidden="true">
+    <div className={`toon-carousel toon-thumbnail relative w-full overflow-hidden text-white ${className}`} style={{ "--toon-background": DEFAULT_SLIDES[previewStep % DEFAULT_SLIDES.length].background } as CSSProperties} aria-hidden="true">
       <ToonStyles />
       <div className="toon-stage relative w-full overflow-hidden">
         <span className="toon-wordmark absolute font-bold uppercase">Toonhub</span>
         <div className="toon-title absolute select-none">3D SHAPE</div>
-        {[DEFAULT_SLIDES[3], DEFAULT_SLIDES[0], DEFAULT_SLIDES[1]].map((slide, index) => (
+        {[-1, 0, 1].map((offset) => DEFAULT_SLIDES[(previewStep + offset + DEFAULT_SLIDES.length) % DEFAULT_SLIDES.length]).map((slide, index) => (
           <div key={slide.id} className="toon-figure absolute" data-position={index === 0 ? "previous" : index === 1 ? "active" : "next"}>
             <Artwork slide={slide} className="h-full w-full object-contain object-bottom" />
           </div>

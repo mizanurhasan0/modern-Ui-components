@@ -813,16 +813,22 @@ export default function DestinationCarousel({
 /** Static gallery artwork: no timer, controls, dialogs, or nested interactive elements. */
 export function DestinationCarouselThumbnail({
   className = "",
+  previewStep = 0,
 }: {
   className?: string;
+  previewStep?: number;
 }) {
+  const selected = previewStep % DEFAULT_SLIDES.length;
+  const active = DEFAULT_SLIDES[selected];
+  const upcoming = [1, 2, 3].map((offset) => DEFAULT_SLIDES[(selected + offset) % DEFAULT_SLIDES.length]);
   return (
     <div className={`dest-root dest-thumbnail ${className}`} aria-hidden="true">
       <style>{DESTINATION_STYLES}</style>
       <div className="dest-stage dest-thumbnail-stage">
         <div
+          key={active.id}
           className="dest-background"
-          style={photoStyle(DEFAULT_SLIDES[0])}
+          style={photoStyle(active)}
         />
         <div className="dest-shade" />
         <div className="dest-thumb-brand">
@@ -834,21 +840,21 @@ export function DestinationCarouselThumbnail({
         <div className="dest-details">
           <div className="dest-eyebrow">
             <span className="dest-small-rule" />
-            <p>{DEFAULT_SLIDES[0].country}</p>
+            <p>{active.country}</p>
           </div>
           <div className="dest-title">
-            <span>Saint</span>
-            <span>Antonien</span>
+            <span>{active.title[0]}</span>
+            <span>{active.title[1]}</span>
           </div>
           <p className="dest-description">
-            Find your next adventure in the heart of the Swiss Alps.
+            {active.experience}
           </p>
           <div className="dest-thumb-discover">
             <span />
             Discover location
           </div>
         </div>
-        {DEFAULT_SLIDES.slice(1, 4).map((slide, position) => (
+        {upcoming.map((slide, position) => (
           <div
             key={slide.id}
             className="dest-card"
@@ -875,7 +881,7 @@ export function DestinationCarouselThumbnail({
           <span>‹</span>
           <span>›</span>
           <i />
-          <b>01</b>
+          <b>{String(selected + 1).padStart(2, "0")}</b>
         </div>
       </div>
     </div>

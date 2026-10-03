@@ -36,7 +36,7 @@ export const componentPreviews: Partial<Record<string, ComponentType>> = {
 
 /** Thumbnails are optional; the gallery can fall back to a generic illustration. */
 export const componentThumbnails: Partial<
-  Record<string, ComponentType<{ className?: string }>>
+  Record<string, ComponentType<{ className?: string; previewStep?: number }>>
 > = {
   "glowing-login": GlowingLoginThumbnail,
   "character-reveal-cards": CharacterRevealCardsThumbnail,

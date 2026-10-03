@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { components } from "@/lib/component-registry";
-import { componentThumbnails } from "@/lib/component-previews";
-import { ArrowUpRight, CodeIcon } from "@/components/site/icons";
+import { GalleryThumbnail, getReducedMotion, subscribeReducedMotion } from "./gallery-thumbnail";
+import { ArrowUpRight } from "@/components/site/icons";
 
 const categories = [
   "All components",
@@ -14,6 +14,8 @@ const categories = [
 export function ComponentGallery() {
   const [category, setCategory] = useState("All components");
   const [query, setQuery] = useState("");
+  const [previewsPaused, setPreviewsPaused] = useState(false);
+  const reducedMotion = useSyncExternalStore(subscribeReducedMotion, getReducedMotion, () => true);
   const filtered = components.filter((item) => {
     const matchesCategory =
       category === "All components" || category === item.category;
@@ -89,12 +91,26 @@ export function ComponentGallery() {
           />
         </label>
       </div>
+      <div className="mb-5 flex items-center justify-between gap-3 text-[11px] text-[#858c99]">
+        <span>Little previews. A closer look inside.</span>
+        {reducedMotion ? <span>Reduced motion · previews paused</span> : (
+          <button
+            type="button"
+            aria-pressed={previewsPaused}
+            aria-label="Pause animated previews"
+            onClick={() => setPreviewsPaused((paused) => !paused)}
+            className="inline-flex shrink-0 items-center gap-2 rounded-md border border-[#dfe4ed] bg-white px-3 py-2 text-[#59657b] hover:bg-[#f2f4fa] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4866d9]"
+          >
+            <span aria-hidden="true">{previewsPaused ? "▶" : "Ⅱ"}</span>
+            {previewsPaused ? "Play previews" : "Pause previews"}
+          </button>
+        )}
+      </div>
       <p aria-live="polite" className="sr-only">
         {filtered.length} component{filtered.length === 1 ? "" : "s"} found.
       </p>
       <div className="grid items-stretch gap-6 md:grid-cols-2">
         {filtered.map((item) => {
-          const Thumbnail = componentThumbnails[item.slug];
           return (
             <Link
               key={item.slug}
@@ -102,13 +118,7 @@ export function ComponentGallery() {
               className="group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-[#e2e6ed] bg-white shadow-[0_3px_12px_#1c294803] transition-[box-shadow,border-color] duration-300 hover:border-[#cbd3e6] hover:shadow-[0_12px_40px_#28344e0b] motion-reduce:transition-none"
             >
               <div className="relative h-[310px] overflow-hidden bg-[#09090d] sm:h-[360px] md:h-[310px] lg:h-[350px]">
-                {Thumbnail ? (
-                  <Thumbnail className="h-full w-full transition-transform duration-700 motion-safe:group-hover:scale-[1.025] motion-reduce:transition-none" />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-white">
-                    <CodeIcon className="size-12" />
-                  </div>
-                )}
+                <GalleryThumbnail slug={item.slug} paused={previewsPaused || reducedMotion} />
                 <span className="absolute top-4 left-4 rounded-full border border-white/15 bg-black/30 px-2.5 py-1 font-mono text-[9px] tracking-[0.06em] text-white/75 backdrop-blur-md">
                   EXPERIMENT {item.number}
                 </span>

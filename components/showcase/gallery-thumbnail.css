@@ -1,0 +1,64 @@
+/* All animation overrides are limited to the homepage's inert thumbnails. */
+.gallery-thumbnail {
+  pointer-events: none;
+}
+
+.gallery-thumbnail .abc-thumbnail .abc-lines::before {
+  animation: abc-orbit 4s linear infinite;
+}
+
+.gallery-thumbnail .abc-thumbnail .abc-avatar::before {
+  animation: abc-orbit 6s linear infinite reverse;
+}
+
+.gallery-thumbnail .gl-thumbnail .gl-box::before,
+.gallery-thumbnail .gl-thumbnail .gl-box::after {
+  animation: gl-border-turn 4s linear infinite;
+}
+
+.gallery-thumbnail .gl-thumbnail .gl-box::after {
+  animation-delay: -1s;
+}
+
+.gallery-thumbnail .character-reveal-cards--thumbnail .cr-cover-wrap,
+.gallery-thumbnail .character-reveal-cards--thumbnail .cr-character,
+.gallery-thumbnail .character-reveal-cards--thumbnail .cr-title {
+  transition: transform 800ms ease, opacity 600ms ease, box-shadow 800ms ease !important;
+}
+
+.gallery-thumbnail .dest-thumbnail .dest-background {
+  animation: gallery-photo-enter 900ms ease both;
+}
+
+.gallery-thumbnail .cl-thumbnail .cl-character-layer {
+  animation: gallery-character-float 5.2s ease-in-out infinite;
+}
+
+@keyframes gallery-photo-enter {
+  from { opacity: .3; transform: scale(1.06); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes gallery-character-float {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-1.5%) rotate(-1deg); }
+}
+
+/* Stop existing component animations too, including pseudo-elements. */
+.gallery-thumbnail[data-running="false"] .character-reveal-cards--thumbnail *,
+.gallery-thumbnail[data-running="false"] *,
+.gallery-thumbnail[data-running="false"] *::before,
+.gallery-thumbnail[data-running="false"] *::after {
+  animation-play-state: paused !important;
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery-thumbnail[data-running] .character-reveal-cards--thumbnail *,
+  .gallery-thumbnail *,
+  .gallery-thumbnail *::before,
+  .gallery-thumbnail *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

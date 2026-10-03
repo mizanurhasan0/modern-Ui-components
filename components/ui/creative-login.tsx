@@ -318,7 +318,7 @@ export default function CreativeLogin({
 }
 
 /** Inert artwork: safe to nest inside a gallery link, with no inputs or buttons. */
-export function CreativeLoginThumbnail({ className = "" }: { className?: string }) {
+export function CreativeLoginThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   return (
     <div className={`creative-login cl-thumbnail relative isolate h-full w-full overflow-hidden ${className}`} aria-hidden="true">
       <CreativeLoginStyles />
@@ -333,12 +333,12 @@ export function CreativeLoginThumbnail({ className = "" }: { className?: string 
             <p className="cl-description">Secure your spot in our upcoming live webinar</p>
             <p className="cl-label">What’s your name? *</p>
             <div className="cl-name-fields flex flex-col">
-              <div className="cl-static-field flex items-center"><FormIcon name="person" /><span>Name</span></div>
-              <div className="cl-static-field flex items-center"><FormIcon name="person" /><span>Surname</span></div>
+              <div className="cl-static-field flex items-center"><FormIcon name="person" /><span>{previewStep % 4 >= 1 ? "Alex" : "Name"}</span></div>
+              <div className="cl-static-field flex items-center"><FormIcon name="person" /><span>{previewStep % 4 >= 2 ? "Morgan" : "Surname"}</span></div>
             </div>
             <p className="cl-label cl-email-label">Enter your email address *</p>
-            <div className="cl-static-field flex items-center"><FormIcon name="email" /><span>Ex. yourname@company.com</span></div>
-            <div className="cl-primary flex w-full items-center justify-center">Next</div>
+            <div className="cl-static-field flex items-center"><FormIcon name="email" /><span>{previewStep % 4 >= 3 ? "alex@example.com" : "Ex. yourname@company.com"}</span></div>
+            <div className="cl-primary flex w-full items-center justify-center">{previewStep % 4 === 3 ? "Ready to continue ✓" : "Next"}</div>
           </div>
         </div>
       </div>

@@ -137,13 +137,13 @@ export function CharacterRevealCards({
 }
 
 /** Inert gallery art, with one character already revealed to show the effect. */
-export function CharacterRevealCardsThumbnail({ className = "" }: { className?: string }) {
+export function CharacterRevealCardsThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   return (
     <div className={`character-reveal-cards character-reveal-cards--thumbnail ${className}`} aria-hidden="true">
       <style>{CHARACTER_REVEAL_STYLES}</style>
       <div className="cr-stage">
         {DEFAULT_CARDS.map((card, index) => (
-          <div key={card.id} className="cr-card" data-revealed={index === 0}>
+          <div key={card.id} className="cr-card" data-revealed={index === previewStep % 3}>
             <CharacterArtwork card={card} />
           </div>
         ))}

@@ -17,6 +17,8 @@ Built with Next.js 16.3.8, React 19, TypeScript, and Tailwind CSS 4.
 
 The home page shows every registered component in a responsive gallery, with search and category filters. Each component has a dedicated page that opens on **Preview**, with a **Code** tab for copying or downloading its exact source.
 
+Gallery thumbnails automatically cycle through sample states while at least 15% of the card is on screen. Playback pauses when the browser tab is hidden; **Pause previews** stops all thumbnails, and reduced-motion preferences keep them still. The lightweight, non-interactive thumbnails keep the whole card clickable. Their optional `previewStep` prop selects a sample state without changing the standalone component API.
+
 ## Run locally
 
 ```bash

@@ -292,11 +292,11 @@ export default function TrailheadCard({
 }
 
 /** Inert gallery preview, with no pointer handlers or nested focus targets. */
-export function TrailheadCardThumbnail({ className = "" }: { className?: string }) {
+export function TrailheadCardThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   return (
     <div className={`trailhead-stage trailhead-thumbnail relative isolate grid w-full place-items-center overflow-hidden ${className}`} aria-hidden="true">
       <TrailheadStyles />
-      <div className="trailhead-scene relative"><div className="trailhead-card relative h-full w-full">
+      <div className="trailhead-scene relative"><div className="trailhead-card relative h-full w-full" style={{ "--tilt-x": `${[5, -9, 8, -3][previewStep % 4]}deg`, "--tilt-y": `${[-8, 13, -12, 5][previewStep % 4]}deg`, "--lens-lift": previewStep % 2 ? 1 : .25 } as CSSProperties}>
         <CardLayers />
         <div className="trailhead-copy absolute"><p className="trailhead-title font-bold">Trailhead</p><p className="trailhead-description">{DEFAULT_DESCRIPTION}</p></div>
         <div className="trailhead-footer absolute flex items-center justify-between"><div className="flex items-center gap-2">{(["heart", "mountain", "download"] as const).map((name) => <span className="trailhead-action inline-flex items-center justify-center rounded-full" key={name}><TrailheadIcon name={name} /></span>)}</div><span className="trailhead-open inline-flex items-center gap-1 font-bold uppercase"><span>Open</span><TrailheadIcon name="chevron" /></span></div>

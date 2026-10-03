@@ -247,7 +247,7 @@ function digitStyle(index: number): CSSProperties {
 }
 
 /** A static, non-focusable illustration for component gallery cards. */
-export function GlassOtpThumbnail({ className = "" }: { className?: string }) {
+export function GlassOtpThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   return (
     <div
       className={`glass-otp otp-thumbnail relative isolate overflow-hidden ${className}`}
@@ -269,15 +269,15 @@ export function GlassOtpThumbnail({ className = "" }: { className?: string }) {
               Enter the 4-digit security code sent to your device
             </p>
             <div className="otp-code-track relative w-full flex-1">
-              {["5", "6", "", ""].map((digit, index) => (
+              {["5", "6", "2", "9"].map((digit, index) => index < (previewStep + 2) % 5 ? digit : "").map((digit, index) => (
                 <div
                   key={index}
                   style={digitStyle(index)}
-                  className={`otp-digit ${index < 2 ? "is-filled" : ""} ${index === 2 ? "is-focused" : ""}`}
+                  className={`otp-digit ${digit ? "is-filled" : ""} ${index === (previewStep + 2) % 5 ? "is-focused" : ""}`}
                 >
                   <span className="otp-static-digit">
                     {digit}
-                    {index === 2 && <span className="otp-static-caret" />}
+                    {index === (previewStep + 2) % 5 && <span className="otp-static-caret" />}
                   </span>
                 </div>
               ))}
