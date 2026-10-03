@@ -14,6 +14,325 @@ export type ComponentEntry = {
 
 /** The catalog drives the gallery, detail pages, and available source files. */
 export const components: ComponentEntry[] = [
+  {
+    "slug": "gallery-flip",
+    "title": "Gallery Flip",
+    "description": "A grid of city photographs flips tile by tile into one scene, then unfolds back into the collection.",
+    "category": "Galleries",
+    "tags": [
+      "Animated",
+      "Interactive"
+    ],
+    "sourceFile": "gallery-flip.tsx",
+    "fileName": "gallery-flip.tsx",
+    "number": "021",
+    "demoNote": "Interactive demo · Select a photo to reveal it across the grid; return to choose another.",
+    "features": [
+      {
+        "title": "A ripple of photographs",
+        "description": "A staggered three-dimensional flip travels through the photo grid."
+      },
+      {
+        "title": "Choose the moment",
+        "description": "Select individual tiles with a pointer, touch, or keyboard."
+      },
+      {
+        "title": "Make it personal",
+        "description": "Use your own images with the included standalone source."
+      }
+    ],
+    "usage": "import GalleryFlip from \"@/components/ui/gallery-flip\";\n\nexport default function Example() {\n  return <GalleryFlip />;\n}"
+  },
+  {
+    "slug": "sneaker-orbit",
+    "title": "Sneaker Orbit",
+    "description": "A rotating wall of sneakers turns a product catalog into a dimensional browsing experience.",
+    "category": "Commerce",
+    "tags": [
+      "Animated",
+      "Interactive"
+    ],
+    "sourceFile": "sneaker-orbit.tsx",
+    "fileName": "sneaker-orbit.tsx",
+    "number": "020",
+    "demoNote": "Interactive demo · Explore the collection, filter the shoes, and select a pair. Purchase actions are local demos until connected.",
+    "features": [
+      {
+        "title": "Products in perspective",
+        "description": "A cylindrical arrangement gives the sneaker collection depth and movement."
+      },
+      {
+        "title": "Find your pair",
+        "description": "Use filters and inspect an individual shoe without leaving the demo."
+      },
+      {
+        "title": "Connect your storefront",
+        "description": "Customize product data and connect the selection action to your own checkout."
+      }
+    ],
+    "usage": "import SneakerOrbit from \"@/components/ui/sneaker-orbit\";\n\nexport default function Example() {\n  return <SneakerOrbit />;\n}"
+  },
+  {
+    "slug": "scorpion-cursor",
+    "title": "Scorpion Cursor",
+    "description": "A fine white skeleton follows your pointer across a black canvas, bending its spine, legs, and curling tail.",
+    "category": "Effects",
+    "tags": [
+      "Animated",
+      "Interactive"
+    ],
+    "sourceFile": "scorpion-cursor.tsx",
+    "fileName": "scorpion-cursor.tsx",
+    "number": "019",
+    "demoNote": "Interactive demo · Move your pointer or touch the canvas to guide the creature.",
+    "features": [
+      {
+        "title": "An articulated creature",
+        "description": "A linked spine and branching legs follow the movement of the head."
+      },
+      {
+        "title": "Made for movement",
+        "description": "Guide the cursor with pointer or touch interactions."
+      },
+      {
+        "title": "Contained and reusable",
+        "description": "The effect stays within its component and respects reduced-motion preferences."
+      }
+    ],
+    "usage": "import ScorpionCursor from \"@/components/ui/scorpion-cursor\";\n\nexport default function Example() {\n  return <ScorpionCursor />;\n}"
+  },
+  {
+    "slug": "love-typography",
+    "title": "Love Typography",
+    "description": "A warm yellow stage transforms “I love you” into a tiny beating heart, framed by moving white bars.",
+    "category": "Typography",
+    "tags": [
+      "Animated",
+      "Interactive"
+    ],
+    "sourceFile": "love-typography.tsx",
+    "fileName": "love-typography.tsx",
+    "number": "018",
+    "demoNote": "Interactive demo · Watch the lettering transform, pause it, or replay the sequence.",
+    "features": [
+      {
+        "title": "Words become a heart",
+        "description": "Lettering gives way to a red heart through four choreographed phases."
+      },
+      {
+        "title": "Your pace",
+        "description": "Pause or replay the sequence; offscreen animation and background tabs pause automatically."
+      },
+      {
+        "title": "A small standalone animation",
+        "description": "Inline SVG hearts and scoped CSS travel with the component. No animation package is needed."
+      }
+    ],
+    "usage": "import LoveTypography from \"@/components/ui/love-typography\";\n\nexport default function Example() {\n  return <LoveTypography />;\n}"
+  },
+  {
+    "slug": "sliding-auth",
+    "title": "Sliding Auth",
+    "description": "A soft blue panel glides between login and registration, with a rounded silhouette that adapts to mobile.",
+    "category": "Forms",
+    "tags": [
+      "Animated",
+      "Interactive"
+    ],
+    "sourceFile": "sliding-auth.tsx",
+    "fileName": "sliding-auth.tsx",
+    "number": "017",
+    "demoNote": "Interactive demo · Switch between login and registration. Connect callbacks for real account operations.",
+    "features": [
+      {
+        "title": "A moving welcome",
+        "description": "A curved blue panel moves across the white form as the mode changes."
+      },
+      {
+        "title": "Desktop to mobile",
+        "description": "The horizontal composition becomes a vertical layout in narrow containers."
+      },
+      {
+        "title": "Complete form states",
+        "description": "Validation and submission feedback are included; connect your own authentication service."
+      }
+    ],
+    "usage": "import SlidingAuth from \"@/components/ui/sliding-auth\";\n\nexport default function Example() {\n  return <SlidingAuth />;\n}"
+  },
+  {
+    "slug": "delivery-button",
+    "title": "Delivery Button",
+    "description": "A complete-order button becomes a miniature delivery scene, loading a parcel and driving into a checked success state.",
+    "category": "Buttons",
+    "tags": [
+      "Animated",
+      "Interactive"
+    ],
+    "sourceFile": "delivery-button.tsx",
+    "fileName": "delivery-button.tsx",
+    "number": "016",
+    "demoNote": "Interactive demo · Click Complete Order to play the truck sequence. No real order is placed by the demo.",
+    "features": [
+      {
+        "title": "A delivery in miniature",
+        "description": "A parcel, opening truck doors, headlights, and road markings animate inside the button."
+      },
+      {
+        "title": "More than a click",
+        "description": "Pending, completion, and retry states support asynchronous order callbacks."
+      },
+      {
+        "title": "Easy to reuse",
+        "description": "The truck artwork and scoped animation styles are included in a single file."
+      }
+    ],
+    "usage": "import DeliveryButton from \"@/components/ui/delivery-button\";\n\nexport default function Example() {\n  return <DeliveryButton />;\n}"
+  },
+  {
+    "slug": "glass-product-card",
+    "title": "Glass Product Card",
+    "description": "A colorful sneaker floats over frosted glass with a pastel glow, color choices, and compact size controls.",
+    "category": "Commerce",
+    "tags": [
+      "Animated",
+      "Interactive"
+    ],
+    "sourceFile": "glass-product-card.tsx",
+    "fileName": "glass-product-card.tsx",
+    "number": "015",
+    "demoNote": "Interactive demo · Choose a color and size, then try the local cart action.",
+    "features": [
+      {
+        "title": "Floating product detail",
+        "description": "Layered translucent surfaces frame a shoe that lifts and tilts on interaction."
+      },
+      {
+        "title": "Try a variation",
+        "description": "Switch product colors and choose a size before adding to the cart."
+      },
+      {
+        "title": "Ready to connect",
+        "description": "Use your product imagery and connect the cart callback to your own store."
+      }
+    ],
+    "usage": "import GlassProductCard from \"@/components/ui/glass-product-card\";\n\nexport default function Example() {\n  return <GlassProductCard />;\n}"
+  },
+  {
+    "slug": "verso-auth",
+    "title": "Verso Auth",
+    "description": "Cream paper and deep forest green trade places through a diagonal transition between sign-in and account creation.",
+    "category": "Forms",
+    "tags": [
+      "Animated",
+      "Interactive"
+    ],
+    "sourceFile": "verso-auth.tsx",
+    "fileName": "verso-auth.tsx",
+    "number": "014",
+    "demoNote": "Interactive demo · Switch modes, reveal the password, and try the form. Account operations are local until callbacks are supplied.",
+    "features": [
+      {
+        "title": "A diagonal transition",
+        "description": "An angled green panel sweeps across the card while the form changes sides."
+      },
+      {
+        "title": "Editorial details",
+        "description": "Serif welcome copy, understated fields, and warm cream surfaces match the reference mood."
+      },
+      {
+        "title": "Usable form flows",
+        "description": "Validation, password visibility, and submission feedback are part of the component."
+      }
+    ],
+    "usage": "import VersoAuth from \"@/components/ui/verso-auth\";\n\nexport default function Example() {\n  return <VersoAuth />;\n}"
+  },
+  {
+    "slug": "hover-product-cards",
+    "title": "Hover Product Cards",
+    "description": "Two sneaker cards lift their product images to reveal sizes, color choices, and a purchase action.",
+    "category": "Commerce",
+    "tags": [
+      "Animated",
+      "Interactive"
+    ],
+    "sourceFile": "hover-product-cards.tsx",
+    "fileName": "hover-product-cards.tsx",
+    "number": "013",
+    "demoNote": "Interactive demo · Hover, focus, or tap a card, select options, and try its local purchase action.",
+    "features": [
+      {
+        "title": "Reveal the details",
+        "description": "The shoe rises as the colored background shifts and purchase controls appear."
+      },
+      {
+        "title": "Pick your style",
+        "description": "Independent size and color choices make each product card interactive."
+      },
+      {
+        "title": "Bring your products",
+        "description": "Customize the card data and supply an action for your own storefront."
+      }
+    ],
+    "usage": "import HoverProductCards from \"@/components/ui/hover-product-cards\";\n\nexport default function Example() {\n  return <HoverProductCards />;\n}"
+  },
+  {
+    "slug": "periodic-explorer",
+    "title": "Periodic Explorer",
+    "description": "The periodic table moves into a sphere, a helix, or a three-dimensional grid, with colorful element cards and details.",
+    "category": "Navigation",
+    "tags": [
+      "Animated",
+      "Interactive"
+    ],
+    "sourceFile": "periodic-explorer.tsx",
+    "fileName": "periodic-explorer.tsx",
+    "number": "012",
+    "demoNote": "Interactive demo · Change layouts, rotate the scene, and select an element to inspect it.",
+    "features": [
+      {
+        "title": "Four ways to explore",
+        "description": "Transition between the table, sphere, helix, and grid layouts."
+      },
+      {
+        "title": "Elements in focus",
+        "description": "Select an element to inspect its identifying information."
+      },
+      {
+        "title": "A reusable 3D scene",
+        "description": "CSS transforms create spatial movement without an extra rendering dependency."
+      }
+    ],
+    "usage": "import PeriodicExplorer from \"@/components/ui/periodic-explorer\";\n\nexport default function Example() {\n  return <PeriodicExplorer />;\n}"
+  },
+  {
+    "slug": "keyboard-cards",
+    "title": "Keyboard Cards",
+    "description": "Three mechanical keyboards rise above green, dark, and monochrome product cards with changing keycap colors.",
+    "category": "Cards",
+    "tags": [
+      "Animated",
+      "Interactive"
+    ],
+    "sourceFile": "keyboard-cards.tsx",
+    "fileName": "keyboard-cards.tsx",
+    "number": "011",
+    "demoNote": "Interactive demo · Hover or focus a keyboard, change its color swatches, and explore its details.",
+    "features": [
+      {
+        "title": "Keys with depth",
+        "description": "Detailed keyboard geometry floats above each product card."
+      },
+      {
+        "title": "Three personalities",
+        "description": "LeafKey, TopoKey, and PandaKey provide distinct palettes and compositions."
+      },
+      {
+        "title": "Choose your finish",
+        "description": "Change color variations and explore each card with pointer, touch, or keyboard."
+      }
+    ],
+    "usage": "import KeyboardCards from \"@/components/ui/keyboard-cards\";\n\nexport default function Example() {\n  return <KeyboardCards />;\n}"
+  },
 {
   "slug": "fan-image-slider",
   "title": "Fan Image Slider",

@@ -1,3 +1,14 @@
+import GalleryFlip, { GalleryFlipThumbnail } from "@/components/ui/gallery-flip";
+import SneakerOrbit, { SneakerOrbitThumbnail } from "@/components/ui/sneaker-orbit";
+import ScorpionCursor, { ScorpionCursorThumbnail } from "@/components/ui/scorpion-cursor";
+import LoveTypography, { LoveTypographyThumbnail } from "@/components/ui/love-typography";
+import SlidingAuth, { SlidingAuthThumbnail } from "@/components/ui/sliding-auth";
+import DeliveryButton, { DeliveryButtonThumbnail } from "@/components/ui/delivery-button";
+import GlassProductCard, { GlassProductCardThumbnail } from "@/components/ui/glass-product-card";
+import VersoAuth, { VersoAuthThumbnail } from "@/components/ui/verso-auth";
+import HoverProductCards, { HoverProductCardsThumbnail } from "@/components/ui/hover-product-cards";
+import PeriodicExplorer, { PeriodicExplorerThumbnail } from "@/components/ui/periodic-explorer";
+import KeyboardCards, { KeyboardCardsThumbnail } from "@/components/ui/keyboard-cards";
 import GlowingLogin, { GlowingLoginThumbnail } from "@/components/ui/glowing-login";
 import CharacterRevealCards, { CharacterRevealCardsThumbnail } from "@/components/ui/character-reveal-cards";
 import TrailheadCard, { TrailheadCardThumbnail } from "@/components/ui/trailhead-card";
@@ -22,6 +33,18 @@ import CreativeLogin, {
 
 /** Interactive demos are separate from serializable catalog metadata. */
 export const componentPreviews: Partial<Record<string, ComponentType>> = {
+  "gallery-flip": GalleryFlip,
+  "sneaker-orbit": SneakerOrbit,
+  "scorpion-cursor": ScorpionCursor,
+  "love-typography": LoveTypography,
+  "sliding-auth": SlidingAuth,
+  "delivery-button": DeliveryButton,
+  "glass-product-card": GlassProductCard,
+  "verso-auth": VersoAuth,
+  "hover-product-cards": HoverProductCards,
+  "periodic-explorer": PeriodicExplorer,
+  "keyboard-cards": KeyboardCards,
+
   "glowing-login": GlowingLogin,
   "character-reveal-cards": CharacterRevealCards,
   "trailhead-card": TrailheadCard,
@@ -38,6 +61,18 @@ export const componentPreviews: Partial<Record<string, ComponentType>> = {
 export const componentThumbnails: Partial<
   Record<string, ComponentType<{ className?: string; previewStep?: number }>>
 > = {
+  "gallery-flip": GalleryFlipThumbnail,
+  "sneaker-orbit": SneakerOrbitThumbnail,
+  "scorpion-cursor": ScorpionCursorThumbnail,
+  "love-typography": LoveTypographyThumbnail,
+  "sliding-auth": SlidingAuthThumbnail,
+  "delivery-button": DeliveryButtonThumbnail,
+  "glass-product-card": GlassProductCardThumbnail,
+  "verso-auth": VersoAuthThumbnail,
+  "hover-product-cards": HoverProductCardsThumbnail,
+  "periodic-explorer": PeriodicExplorerThumbnail,
+  "keyboard-cards": KeyboardCardsThumbnail,
+
   "glowing-login": GlowingLoginThumbnail,
   "character-reveal-cards": CharacterRevealCardsThumbnail,
   "trailhead-card": TrailheadCardThumbnail,

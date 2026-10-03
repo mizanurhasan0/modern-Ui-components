@@ -4,6 +4,271 @@
 
 Detailed setup, props, interaction notes, and artwork credits for every component.
 
+## Use Love Typography in your project
+
+Copy **Love Typography → Code** into `components/ui/love-typography.tsx`, then import the default `LoveTypography` component. Its SVG artwork and animation styles are included; no animation package is required.
+
+```tsx
+import LoveTypography from "@/components/ui/love-typography";
+
+export default function Example() {
+  return <LoveTypography duration={8000} />;
+}
+```
+
+The yellow scene cycles from “I LOVE YOU” to “I ♥ YOU”, “I ♥ U”, and a small heart. Pause and Replay control the sequence. Playback pauses offscreen and when the page is hidden; reduced motion shows a still frame.
+
+| Prop | Type | Default | Purpose |
+| --- | --- | --- | --- |
+| `autoPlay` | `boolean` | `true` | Start the sequence automatically. |
+| `duration` | `number` | `8000` | Milliseconds per loop; minimum 3000. |
+| `className` | `string` | — | Additional container classes. |
+
+`LoveTypographyThumbnail` accepts `className` and `previewStep` for inert gallery frames. The artwork and motion were recreated in SVG/CSS from supplied video 4.
+
+## Use Keyboard Cards in your project
+
+Copy **Keyboard Cards → Code** into `components/ui/keyboard-cards.tsx`. Import the default `KeyboardCards` component to display LeafKey, TopoKey, and PandaKey.
+
+```tsx
+import KeyboardCards from "@/components/ui/keyboard-cards";
+
+export default function Example() {
+  return <KeyboardCards />;
+}
+```
+
+On narrow screens, swipe horizontally through full-size keyboard cards. Hover or focus a card to lift its keyboard. Select a finish to change the keycap artwork, then select the keyboard to open its details. Escape or the close control dismisses the dialog and restores focus. These are illustrative keyboard concepts, with no checkout action.
+
+| Prop | Type | Purpose |
+| --- | --- | --- |
+| `keyboards` | `readonly KeyboardCard[]` | Replace the three default concepts. |
+| `onSelect` | `(keyboard: KeyboardCard, finish: KeyboardFinish) => void` | Replace the local details dialog. |
+| `className` | `string` | Additional container classes. |
+
+`KeyboardCard` contains `id`, `name`, `description`, `theme` (`leaf`, `topo`, or `panda`), and a `finishes` array of `{ name, color }` objects. `KeyboardCardsThumbnail` accepts `className` and `previewStep`. The detailed keyboards are procedural SVG recreations inspired by supplied video 11; they are not the original 3D model assets. No separate assets or packages are required.
+
+## Use Sliding Auth in your project
+
+Copy the complete source from the component’s **Code** tab. React, TypeScript, and Tailwind CSS 4 are required; styles and SVG artwork are included.
+
+```tsx
+import SlidingAuth from "@/components/ui/sliding-auth";
+export default function Page() { return <SlidingAuth />; }
+```
+
+| Prop | Type | Default / behavior |
+| --- | --- | --- |
+| `initialMode` | `"login" \| "register"` | `"login"` |
+| `onLogin` | `(values: SlidingLoginValues) => void \| Promise<void>` | Receives `{ username, password }`. Missing handler completes a local demo. |
+| `onRegister` | `(values: SlidingRegistrationValues) => void \| Promise<void>` | Receives `{ username, email, password }`. Registration requires an email and at least 8 password characters. |
+| `onResetPassword` | `(email: string) => void \| Promise<void>` | Forgot Password shows the email-reset flow. No default email is sent. |
+| `onSocialSignIn` | `(provider: SlidingSocialProvider) => void \| Promise<void>` | Provider is `google`, `facebook`, `github`, or `linkedin`. Without a handler, each button announces its demo selection and integration requirement. |
+| `className` | `string` | Optional container classes. |
+
+Exported types: `SlidingAuthMode`, `SlidingSocialProvider`, `SlidingLoginValues`, `SlidingRegistrationValues`, `SlidingAuthProps`.
+
+The blue panel expands across the card during the 900ms mode change. At a container width of 650px or below, the form becomes a vertical stack with the curved welcome panel moving between top and bottom. Invalid submission focuses the first invalid field; switching modes clears passwords and focuses the heading after the transition. Timers are cleaned up, pending submissions prevent duplicates, and reduced motion skips the transition delay.
+
+`SlidingAuthThumbnail({ className?, previewStep? })` is inert and has no inputs, buttons, hooks, or timers. `previewStep` alternates login (0) and registration (1); CSS transitions show panel movement.
+
+## Use Delivery Button in your project
+
+Copy the complete source from the component’s **Code** tab. React, TypeScript, and Tailwind CSS 4 are required; styles and SVG artwork are included.
+
+```tsx
+import DeliveryButton from "@/components/ui/delivery-button";
+export default function Page() { return <DeliveryButton />; }
+```
+
+| Prop | Type | Default / behavior |
+| --- | --- | --- |
+| `onOrder` | `() => void \| Promise<void>` | Missing handler plays a local demonstration and explicitly reports that no order was placed. |
+| `label` | `string` | `"Complete Order"` |
+| `successLabel` | `string` | `"Order Placed"` |
+| `disabled` | `boolean` | `false` |
+| `className` | `string` | Optional container classes. |
+
+Exported type: `DeliveryButtonProps`.
+
+Clicking loads a yellow parcel into a white truck with a red cab, closes the doors, lights the headlights, and reveals a dashed road before the green success check. Success waits for both the 7-second animation and `onOrder`; a longer callback shows Processing until it resolves. Rejection cancels animation timers and makes the button retryable. Duplicate orders are blocked while pending and after a successful real callback. The local demo offers Replay; real orders do not. Reduced motion skips animation delay and still awaits the callback. Unmounting cancels timers and ignores stale callback results.
+
+`DeliveryButtonThumbnail({ className?, previewStep? })` is inert and has no buttons, hooks, or timers. Its four states are idle (0), loading (1), driving (2), and success (3), with state-driven CSS transitions and no running keyframe animations.
+
+## Use Verso Auth in your project
+
+Copy the complete source from the component’s **Code** tab. React, TypeScript, and Tailwind CSS 4 are required; styles and SVG artwork are included.
+
+```tsx
+import VersoAuth from "@/components/ui/verso-auth";
+export default function Page() { return <VersoAuth />; }
+```
+
+| Prop | Type | Default / behavior |
+| --- | --- | --- |
+| `initialMode` | `"login" \| "register"` | `"login"` |
+| `brandName` | `string` | `"VERSO"` |
+| `onLogin` | `(values: VersoLoginValues) => void \| Promise<void>` | Receives `{ identifier, password, remember }`; identifier is the username-or-email field. |
+| `onRegister` | `(values: VersoRegisterValues) => void \| Promise<void>` | Receives `{ name, email, password }`. Password requires at least 8 characters. |
+| `onResetPassword` | `(email: string) => void \| Promise<void>` | Forgot Password opens the local reset form. No default email is sent. |
+| `className` | `string` | Optional container classes. |
+
+Exported types: `VersoAuthMode`, `VersoLoginValues`, `VersoRegisterValues`, `VersoAuthProps`.
+
+Cream fields, an angled forest-green panel, serif welcome copy, and an approximately 950ms diagonal sweep reproduce the reference composition. The responsive stack activates at 580px container width. Show/hide password, the initially checked Keep me signed in control, registration, and reset flows all work. Remember is passed to the login callback; the component does not persist credentials. Missing handlers explicitly complete local demos without authenticating, creating accounts, or sending email. Pending requests prevent duplicate submissions; failed requests show retry feedback; timers are cleaned up. Reduced motion removes the sweep and focus delay.
+
+`VersoAuthThumbnail({ className?, previewStep? })` is inert and has no inputs, buttons, hooks, or timers. Its two modes are login (0) and registration (1), using CSS clip-path and position transitions for the preview.
+
+## Use Scorpion Cursor in your project
+
+```tsx
+import ScorpionCursor from "@/components/ui/scorpion-cursor";
+
+<ScorpionCursor stroke="#e9eee9" initialPaused={false} />
+```
+
+Props: `className?: string`, `stroke?: string` (default `#e9eee9`), `initialPaused?: boolean` (default false).
+
+Canvas pointer/touch movement and arrow keys guide the head; Space toggles pause; Escape/Home and the Reset button reset the pose. Pause preserves the current pose. The loop stops when geometry settles, when outside the viewport, when the document is hidden, on pause, and under reduced motion. It cancels its frame and disconnects resize/intersection/media/visibility listeners on unmount.
+
+`ScorpionCursorThumbnail({className?, previewStep?})` renders inert SVG sample poses: no hooks, timers, canvas, or interactive controls. The artwork is a procedural interpretation of the supplied scorpion footage.
+
+## Use Periodic Explorer in your project
+
+```tsx
+import PeriodicExplorer, { type PeriodicElement } from "@/components/ui/periodic-explorer";
+
+<PeriodicExplorer
+  initialLayout="sphere"
+  onSelect={(element: PeriodicElement) => console.log(element.symbol)}
+/>
+```
+
+Props: `className?: string`, `initialLayout?: "table" | "sphere" | "helix" | "grid"` (default table), `onSelect?: (element: PeriodicElement) => void` (notification in addition to the built-in details dialog). `PeriodicElement` contains `number`, `symbol`, `name`, `mass`, `category`, and `configuration`.
+
+Drag empty scene space to rotate. Focus the scene and use the arrow keys to rotate or `+`/`-` to zoom; wheel zoom applies only after the scene or an element has focus, so ordinary page scrolling remains available before focusing it. Home and Reset restore the active layout. Tab into the element cards and use arrows or Home/End for roving keyboard navigation; Enter opens element details. Search matches element names, symbols, or atomic numbers and dims nonmatching cards.
+
+The native modal opens after the selected element has committed, supports Escape/backdrop/close, and restores focus to its element card. Reduced motion removes the morph transitions. No animation loop or timer is used. ResizeObserver and the nonpassive scene-wheel listener are cleaned up on unmount.
+
+`PeriodicExplorerThumbnail({className?, previewStep?})` renders inert CSS3D cards with transitions between sample states: the four preview steps correspond to table, sphere, helix, and grid.
+
+Element records were embedded from the [PubChem periodic-table API](https://pubchem.ncbi.nlm.nih.gov/rest/pug/periodictable/JSON). Each details card links to its primary PubChem element page. Table placement uses the conventional detached La–Lu and Ac–Lr rows, with explicit series placeholders in periods 6 and 7; group numbers are not assigned to the detached series. [IUPAC table conventions](https://iupac.org/what-we-do/periodic-table-of-elements/). Atomic masses are the values provided by PubChem; they are displayed as atomic mass in u, not as isotope-independent exact weights.
+
+## Use Hover Product Cards in your project
+
+```tsx
+import HoverProductCards from "@/components/ui/hover-product-cards";
+
+export default function ShopPreview() {
+  return <HoverProductCards />;
+}
+```
+
+Copy the entire single TSX file. Requires React, TypeScript, and Tailwind CSS; all scoped animation styles and default shoe artwork are included. No project imports, external image requests, or additional packages are required.
+
+| Prop | Type | Purpose |
+| --- | --- | --- |
+| `products` | `readonly HoverProduct[]` | Replace the two default shoe cards. |
+| `onBuy` | `(selection: HoverProductSelection) => void \| Promise<void>` | Handle `{ product, size, color }` in your application; reject to show retry feedback. |
+| `className` | `string` | Optional container classes. |
+
+Pass callbacks from a Client Component in Next.js. Without `onBuy`, Buy Now only records the current selection in component state and visibly reports that no purchase was made. The default does not create a cart, contact a checkout service, or charge anyone.
+
+`HoverProduct` fields:
+
+- Required: `id`, `name`, `image` strings, `sizes: readonly string[]`, and `colors: readonly HoverProductColor[]`.
+- Optional: `imageAlt`, `brand`, `background`, and `imageClipPath` strings.
+- `imageClipPath` is a CSS silhouette for the small original video crops; omit it for your own clean transparent product images.
+
+`HoverProductColor` fields:
+
+- Required: `name` and `color` strings.
+- Optional: `image` (variant image URL/data URL) and `imageFilter` (CSS image filter).
+
+`HoverProductSelection` contains the selected `product`, `size`, and `color`. All these interfaces and `HoverProductCardsProps` are exported.
+
+Hover or keyboard focus lifts the shoe and reveals controls; tapping its image pins the controls open for touch interaction. Select a size before buying. A missing size shows an error and focuses the first size button. Color selection updates the accent circle, shoe variant, and submitted selection. Controls are unavailable while the callback is pending; duplicate submission is blocked. Successful submission disables Buy Now until a size or color changes. Rejected callbacks retain the selected options and allow retry. State updates from an in-flight callback are ignored after unmount.
+
+The live layout wraps into full-size stacked cards in narrow containers, preserving legible copy and usable size/color targets. Reduced-motion preferences remove transitions.
+
+`HoverProductCardsThumbnail({ className?, previewStep? })` is inert, contains no buttons or inputs, and has no hooks or timers. Its four state samples show the blue card expanded, a cyan variant, the red card expanded, and a pink variant. The image lift, color circle, and controls transition between states. The gallery owns playback.
+
+Artwork provenance: the default blue and red Nike shoe pixels were cropped from the user's video 9 reference. The prepared transparent WebP crops are only 155×112 pixels; CSS polygons trim residual background fragments. Additional cyan/pink previews use CSS color filters on those same pixels. This limits sharpness at large display sizes; supply your own high-resolution transparent product images for larger production cards. No license claim is made.
+
+
+## Use Gallery Flip in your project
+
+Copy **Gallery Flip → Code** into `components/ui/gallery-flip.tsx`. Its scoped styles and 24 city photographs are embedded; no separate assets or packages are needed.
+
+```tsx
+import GalleryFlip from "@/components/ui/gallery-flip";
+
+export default function Example() {
+  return <GalleryFlip />;
+}
+```
+
+Select a tile to reveal its photograph across the grid through a wave of flips. Select again or press Escape to return. Arrow keys, Home, and End move focus; Enter or Space selects. Empty photo arrays show a placeholder, and incomplete rows retain the full expanded image.
+
+| Prop | Type | Purpose |
+| --- | --- | --- |
+| `photos` | `readonly GalleryFlipPhoto[]` | Replace the default 24 photographs with `{ id, src, alt }` objects. |
+| `title` | `string` | Heading; defaults to `Gallery Flip`. |
+| `className` | `string` | Additional container classes. |
+
+`GalleryFlipThumbnail` accepts `className` and `previewStep`, showing the mosaic, a partial flip, and expanded scenes. The reference photo collection is published at [kiyutink.github.io](https://kiyutink.github.io/). Individual image sources are preserved in the [asset provenance file](../public/reference-products/ATTRIBUTION.json).
+
+## Use Sneaker Orbit in your project
+
+Copy **Sneaker Orbit → Code** into `components/ui/sneaker-orbit.tsx`. The CSS 3D scene, controls, and embedded product photographs travel with the file.
+
+```tsx
+import SneakerOrbit from "@/components/ui/sneaker-orbit";
+
+export default function Example() {
+  return <SneakerOrbit />;
+}
+```
+
+Drag horizontally to rotate the shoe collection, or pause its automatic rotation. Arrow keys choose a product; Enter or Space opens its details. Brand, category, price, and color filters narrow the collection. The extra filter panel provides a labeled product selector. Escape, the backdrop, or the close control dismisses product details and restores focus.
+
+| Prop | Type | Purpose |
+| --- | --- | --- |
+| `products` | `readonly SneakerProduct[]` | Supply your own catalog. |
+| `autoRotate` | `boolean` | Allow automatic rotation; defaults to `true`. |
+| `onBuy` | `(product: SneakerProduct) => void \| Promise<void>` | Connect the product action to your cart; reject to show retry feedback. |
+| `className` | `string` | Additional container classes. |
+
+`SneakerProduct` contains string fields `id`, `name`, `image`, `brand`, `category`, and `color`, plus numeric `price`. Use unique IDs. Without `onBuy`, the action only reports an addition to a local preview bag. Default names and prices are illustrative fixtures. `SneakerOrbitThumbnail` accepts `className` and `previewStep` for inert rotation, filter, and product-focus samples.
+
+Fifteen photographs come from the supplied video, mostly around 90×60 pixels; larger product views therefore have limited sharpness. The additional [New Balance photograph from PNGimg.com](https://pngimg.com/image/5792) is supplied under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). Its attribution and processing notes are preserved in the source and [asset provenance file](../public/reference-products/ATTRIBUTION.json). Replace demonstration imagery with your own high-resolution product photographs when needed.
+
+## Use Glass Product Card in your project
+
+Copy **Glass Product Card → Code** into `components/ui/glass-product-card.tsx`. It includes the pastel glass styling and three transparent reference shoe images.
+
+```tsx
+import GlassProductCard from "@/components/ui/glass-product-card";
+
+export default function Example() {
+  return <GlassProductCard />;
+}
+```
+
+Hover or select a thumbnail to change the shoe. Hover over the main image or use its keyboard/touch toggle to enlarge it. Choose a size before adding to the cart; missing selection focuses the first size. Pending actions block duplicate submissions, and rejected callbacks show retry feedback. Without a callback, the component updates a local preview-cart count.
+
+| Prop | Type | Purpose |
+| --- | --- | --- |
+| `name` | `string` | Product heading; defaults to `Nike Air Zoom`. |
+| `variants` | `readonly GlassProductVariant[]` | Replace the three color variations. |
+| `sizes` | `readonly string[]` | Available sizes; defaults to `7`, `8`, `9`, and `10`. |
+| `onAddToCart` | `(selection: GlassCartSelection) => void \| Promise<void>` | Connect a cart service; reject to display an error. |
+| `className` | `string` | Additional container classes. |
+
+`GlassProductVariant` contains `{ id, name, image }` strings. `GlassCartSelection` contains `{ variant, size }`. Empty variants show a placeholder; no available sizes disables the cart action. `GlassProductCardThumbnail` accepts `className` and `previewStep` for inert variation and zoom samples.
+
+The exact publicly hosted reference images were optimized and embedded as WebP; source URLs are in the [asset provenance file](../public/reference-products/ATTRIBUTION.json). The original Gallery Flip and Glass Product Card images have no independently verified redistribution terms in this project. Use your own appropriately licensed artwork for reuse where needed. Pass all action callbacks from a Client Component in Next.js.
+
 ## Use Fan Image Slider in your project
 
 Open **Fan Image Slider → Code** and copy or download the complete source into `components/ui/fan-image-slider.tsx`. Use React, TypeScript, and Tailwind CSS 4; the styles, icons, and ten optimized landscape photos are embedded in that file, with no additional packages or asset files needed.

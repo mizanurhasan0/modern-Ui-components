@@ -1,6 +1,6 @@
 # Component Lab
 
-**10 interactive UI components for React and Next.js**, built with TypeScript and Tailwind CSS 4. A portfolio of animated cards, carousels, forms, and immersive navigation—with working demos and reusable source code.
+**21 interactive UI components for React and Next.js**, built with TypeScript and Tailwind CSS 4. A portfolio of animated cards, carousels, forms, and immersive navigation—with working demos and reusable source code.
 
 Browse the homepage’s animated thumbnails, open a component, try **Preview**, then switch to **Code** to copy or download it for your own project.
 
@@ -8,7 +8,7 @@ Browse the homepage’s animated thumbnails, open a component, try **Preview**, 
 
 ## Screenshots
 
-Selected views captured during development. These show the gallery layout and an individual component’s Preview/Code interface; the catalog below lists all 10 components.
+Selected views captured during development. These show the gallery layout and an individual component’s Preview/Code interface; the catalog below lists all 21 components.
 
 ### Browse the collection
 
@@ -26,6 +26,17 @@ Try the full interaction in **Preview**, check desktop or mobile sizing, then op
 
 | Component | Type | What it does |
 | --- | --- | --- |
+| [Gallery Flip](docs/component-guide.md#use-gallery-flip-in-your-project) | Galleries | A grid of city photographs flips tile by tile into one scene, then unfolds back into the collection. |
+| [Sneaker Orbit](docs/component-guide.md#use-sneaker-orbit-in-your-project) | Commerce | A rotating wall of sneakers turns a product catalog into a dimensional browsing experience. |
+| [Scorpion Cursor](docs/component-guide.md#use-scorpion-cursor-in-your-project) | Effects | A fine white skeleton follows your pointer across a black canvas, bending its spine, legs, and curling tail. |
+| [Love Typography](docs/component-guide.md#use-love-typography-in-your-project) | Typography | A warm yellow stage transforms “I love you” into a tiny beating heart, framed by moving white bars. |
+| [Sliding Auth](docs/component-guide.md#use-sliding-auth-in-your-project) | Forms | A soft blue panel glides between login and registration, with a rounded silhouette that adapts to mobile. |
+| [Delivery Button](docs/component-guide.md#use-delivery-button-in-your-project) | Buttons | A complete-order button becomes a miniature delivery scene, loading a parcel and driving into a checked success state. |
+| [Glass Product Card](docs/component-guide.md#use-glass-product-card-in-your-project) | Commerce | A colorful sneaker floats over frosted glass with a pastel glow, color choices, and compact size controls. |
+| [Verso Auth](docs/component-guide.md#use-verso-auth-in-your-project) | Forms | Cream paper and deep forest green trade places through a diagonal transition between sign-in and account creation. |
+| [Hover Product Cards](docs/component-guide.md#use-hover-product-cards-in-your-project) | Commerce | Two sneaker cards lift their product images to reveal sizes, color choices, and a purchase action. |
+| [Periodic Explorer](docs/component-guide.md#use-periodic-explorer-in-your-project) | Navigation | The periodic table moves into a sphere, a helix, or a three-dimensional grid, with colorful element cards and details. |
+| [Keyboard Cards](docs/component-guide.md#use-keyboard-cards-in-your-project) | Cards | Three mechanical keyboards rise above green, dark, and monochrome product cards with changing keycap colors. |
 | [Fan Image Slider](docs/component-guide.md#use-fan-image-slider-in-your-project) | Carousel | Fans out landscape photos with smooth selection, swipe and keyboard navigation, autoplay, and an enlarged image view. |
 | [Trailhead Card](docs/component-guide.md#use-trailhead-card-in-your-project) | Card | Tilts a layered glass card with your pointer; includes save, trail details, and a checklist download. |
 | [Character Reveal Cards](docs/component-guide.md#use-character-reveal-cards-in-your-project) | Cards | Lifts fantasy characters out of their covers on hover, focus, or touch, with a details dialog. |

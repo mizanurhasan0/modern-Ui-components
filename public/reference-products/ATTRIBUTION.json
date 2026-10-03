@@ -1,0 +1,169 @@
+{
+  "description": "Provenance for embedded demonstration assets in Gallery Flip, Sneaker Orbit, Glass Product Card, and Hover Product Cards. The TSX source embeds optimized WebP data URLs and has no runtime dependency on this file.",
+  "gallery-flip": {
+    "collectionPublisher": "kiyutink.github.io",
+    "collectionSource": "https://kiyutink.github.io/",
+    "referenceExample": "https://codepen.io/praiseofume/pen/JBvjXv",
+    "note": "24 original city photographs used by the reference gallery. Photographer authorship and a separate image redistribution license were not independently established. Replace demonstration images with your own licensed photographs for your deployment.",
+    "processing": "Resized to fit 600 by 400 pixels, encoded WebP at quality 64, embedded as data URLs.",
+    "images": [
+      {
+        "id": "nyc1",
+        "source": "https://kiyutink.github.io/nyc/nyc1.jpg"
+      },
+      {
+        "id": "nyc2",
+        "source": "https://kiyutink.github.io/nyc/nyc2.jpg"
+      },
+      {
+        "id": "nyc3",
+        "source": "https://kiyutink.github.io/nyc/nyc3.jpg"
+      },
+      {
+        "id": "nyc4",
+        "source": "https://kiyutink.github.io/nyc/nyc4.jpg"
+      },
+      {
+        "id": "nyc5",
+        "source": "https://kiyutink.github.io/nyc/nyc5.jpg"
+      },
+      {
+        "id": "london1",
+        "source": "https://kiyutink.github.io/london/london1.jpg"
+      },
+      {
+        "id": "london2",
+        "source": "https://kiyutink.github.io/london/london2.jpg"
+      },
+      {
+        "id": "london3",
+        "source": "https://kiyutink.github.io/london/london3.jpg"
+      },
+      {
+        "id": "madrid1",
+        "source": "https://kiyutink.github.io/madrid/madrid1.jpg"
+      },
+      {
+        "id": "madrid2",
+        "source": "https://kiyutink.github.io/madrid/madrid2.jpg"
+      },
+      {
+        "id": "madrid3",
+        "source": "https://kiyutink.github.io/madrid/madrid3.jpg"
+      },
+      {
+        "id": "beijing1",
+        "source": "https://kiyutink.github.io/beijing/beijing1.jpg"
+      },
+      {
+        "id": "beijing2",
+        "source": "https://kiyutink.github.io/beijing/beijing2.jpg"
+      },
+      {
+        "id": "beijing3",
+        "source": "https://kiyutink.github.io/beijing/beijing3.jpg"
+      },
+      {
+        "id": "moscow1",
+        "source": "https://kiyutink.github.io/moscow/moscow1.jpg"
+      },
+      {
+        "id": "moscow2",
+        "source": "https://kiyutink.github.io/moscow/moscow2.jpg"
+      },
+      {
+        "id": "moscow3",
+        "source": "https://kiyutink.github.io/moscow/moscow3.jpg"
+      },
+      {
+        "id": "sidney1",
+        "source": "https://kiyutink.github.io/sidney/sidney1.jpg"
+      },
+      {
+        "id": "sidney2",
+        "source": "https://kiyutink.github.io/sidney/sidney2.jpg"
+      },
+      {
+        "id": "sidney3",
+        "source": "https://kiyutink.github.io/sidney/sidney3.jpg"
+      },
+      {
+        "id": "tokyo1",
+        "source": "https://kiyutink.github.io/tokyo/tokyo1.jpg"
+      },
+      {
+        "id": "tokyo2",
+        "source": "https://kiyutink.github.io/tokyo/tokyo2.jpg"
+      },
+      {
+        "id": "tokyo3",
+        "source": "https://kiyutink.github.io/tokyo/tokyo3.jpg"
+      },
+      {
+        "id": "la3",
+        "source": "https://kiyutink.github.io/la/la3.jpg"
+      }
+    ]
+  },
+  "glass-product-card": {
+    "referenceExample": "https://www.web-leb.com/en/code/753",
+    "note": "The transparent Nike product images match the supplied reference. These public image hosts do not establish a separate redistribution license; configurable variants allow replacement.",
+    "images": [
+      {
+        "variant": "Volt and blue",
+        "source": "https://i.postimg.cc/50hrmyq2/shoes1.png"
+      },
+      {
+        "variant": "Coral and teal",
+        "source": "https://i.postimg.cc/hvV5Znpb/shoes2.png"
+      },
+      {
+        "variant": "Mint and pink",
+        "source": "https://i.postimg.cc/LXY7fLPW/shoes3.png"
+      }
+    ],
+    "processing": "Original transparent PNGs encoded as WebP quality 85."
+  },
+  "sneaker-orbit": {
+    "referenceVideo": "AQMf9f2sgk5WhNZzxByJi_4IB07BQsdGlJo-ceNZk9XhSG_zEdIrxm1ftLg2AgFg6UM0Bo2mEO1NQmR-snAOE3KZe8yBpWS0jhw7aVPb6rHCWg.mp4",
+    "videoImages": {
+      "count": 15,
+      "frameSeconds": 7,
+      "selectedOliveFrameSeconds": 4.8,
+      "note": "Distinct shoe images cropped from the user-supplied reference video, optimized as WebP. Small catalog images are approximately 90 by 60 pixels; the selected olive image is 178 by 111 pixels. High-resolution source catalog images were not available."
+    },
+    "additionalImage": {
+      "title": "Running shoes PNG image",
+      "publisher": "PNGimg.com",
+      "page": "https://pngimg.com/image/5792",
+      "source": "https://pngimg.com/uploads/running_shoes/running_shoes_PNG5792.png",
+      "license": "CC BY-NC 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "processing": "Cropped transparent margins, resized to fit 220 by 140 pixels, encoded WebP quality 82.",
+      "note": "This New Balance demonstration photograph is licensed for noncommercial use with attribution. Replace it for uses outside that license."
+    },
+    "productData": "Names and prices are local demonstration fixtures, not a live catalog. Repeated cylinder positions reuse the 16 distinct embedded photographs."
+  },
+  "hover-product-cards": {
+    "referenceVideo": "AQOWdyzKW8LBe3LNS9eyq4EHzB1XrgM4rz4BxODqAbxQ3DPb3y84lQZyqnlh6CimnyLsHJMxaqMBEfbrfxZROA2Mmfs7w1CGgRBLS-TzhJcSvA.mp4",
+    "note": "Blue and red shoe silhouettes cropped from expanded-card frames of the user-supplied video and masked to remove the surrounding UI. Small video resolution limits enlargement quality; configurable product images allow replacement.",
+    "framesSeconds": [
+      2.4,
+      4.7
+    ],
+    "initialCropPixels": {
+      "blue": [
+        185,
+        312,
+        340,
+        424
+      ],
+      "red": [
+        396,
+        312,
+        551,
+        424
+      ]
+    }
+  }
+}
