@@ -28,7 +28,7 @@ export function SiteHeader() {
             Components
           </Link>
           <Link
-            href="/#about"
+            href="/about"
             className="hidden text-[#858b97] transition-colors hover:text-[#4866e9] min-[380px]:block"
           >
             About
