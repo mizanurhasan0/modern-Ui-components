@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { ComponentPlayground } from "@/components/showcase/component-playground";
 import { componentPreviews } from "@/lib/component-previews";
 import { components, getComponent } from "@/lib/component-registry";
-import { getComponentSource } from "@/lib/component-source";
 
 type ComponentPageProps = {
   params: Promise<{ slug: string }>;
@@ -40,8 +39,6 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
   if (!entry || !Preview) {
     notFound();
   }
-
-  const source = getComponentSource(slug);
 
   return (
     <main
@@ -102,7 +99,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       </header>
 
       <ComponentPlayground
-        source={source}
+        slug={slug}
         fileName={entry.fileName}
         title={entry.title}
         usage={entry.usage}

@@ -2,16 +2,20 @@
 
 import {
   Fragment,
+  useEffect,
   useId,
   useRef,
   useState,
+  useTransition,
+  type FormEvent,
   type KeyboardEvent,
   type ReactNode,
 } from "react";
+import { unlockComponentSource } from "@/app/components/actions";
 import { CodeBlock } from "./code-block";
 
 type ComponentPlaygroundProps = {
-  source: string;
+  slug: string;
   fileName: string;
   title: string;
   usage: string;
@@ -79,7 +83,7 @@ const focusRing =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4666ee]";
 
 export function ComponentPlayground({
-  source,
+  slug,
   fileName,
   title,
   usage,
@@ -89,8 +93,53 @@ export function ComponentPlayground({
   const [activeTab, setActiveTab] = useState<Tab>("preview");
   const [viewport, setViewport] = useState<"desktop" | "mobile">("desktop");
   const [replay, setReplay] = useState(0);
+  const [unlockedSource, setUnlockedSource] = useState<string | null>(null);
+  const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [isCheckingPassword, startTransition] = useTransition();
   const id = useId();
   const tabRefs = useRef<Partial<Record<Tab, HTMLButtonElement | null>>>({});
+  const passwordDialogRef = useRef<HTMLDialogElement>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const dialog = passwordDialogRef.current;
+    if (!dialog) return;
+
+    if (activeTab === "code" && !unlockedSource && !dialog.open) {
+      dialog.showModal();
+      passwordInputRef.current?.focus();
+    } else if ((activeTab !== "code" || unlockedSource) && dialog.open) {
+      dialog.close();
+    }
+  }, [activeTab, unlockedSource]);
+
+  function handlePasswordSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setPasswordError("");
+
+    startTransition(async () => {
+      try {
+        const result = await unlockComponentSource(slug, password);
+
+        if (!result.success) {
+          setPasswordError("That password didn’t match. Try again.");
+          return;
+        }
+
+        setUnlockedSource(result.source);
+        setPassword("");
+      } catch {
+        setPasswordError("Couldn’t unlock the source. Please try again.");
+      }
+    });
+  }
+
+  function closePasswordDialog() {
+    setPassword("");
+    setPasswordError("");
+    setActiveTab("preview");
+  }
 
   function handleTabKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
     let nextTab: Tab;
@@ -176,7 +225,7 @@ export function ComponentPlayground({
           )}
           {activeTab === "code" && (
             <span className="hidden text-[11px] text-[#707b8e] sm:block">
-              Ready to make it yours
+              {unlockedSource ? "Source unlocked" : "Password required"}
             </span>
           )}
         </div>
@@ -220,15 +269,21 @@ export function ComponentPlayground({
           hidden={activeTab !== "code"}
           className="p-3 sm:p-5"
         >
-          {requiresThree && <ThreeDependencies />}
-          {activeTab === "code" && (
-            <CodeBlock source={source} fileName={fileName} />
+          {unlockedSource ? (
+            <>
+              {requiresThree && <ThreeDependencies />}
+              <CodeBlock source={unlockedSource} fileName={fileName} />
+              <p className="px-1 pt-4 pb-1 text-xs leading-5 text-[#6b7587]">
+                {requiresThree
+                  ? "One component file with its 3D assets included. Install Three.js, then copy or download the source."
+                  : "One self-contained component. Copy it into your project and make it your own."}
+              </p>
+            </>
+          ) : (
+            <p className="grid min-h-[280px] place-items-center text-center text-[12px] text-[#7c8493]">
+              Enter the password in the dialog to view this source.
+            </p>
           )}
-          <p className="px-1 pt-4 pb-1 text-xs leading-5 text-[#6b7587]">
-            {requiresThree
-              ? "One component file with its 3D assets included. Install Three.js, then copy or download the source."
-              : "One self-contained component. Copy it into your project and make it your own."}
-          </p>
         </div>
       </section>
 
@@ -267,6 +322,106 @@ export function ComponentPlayground({
           <CodeBlock source={usage} fileName="app/page.tsx" compact />
         </div>
       </details>
+
+      <dialog
+        ref={passwordDialogRef}
+        aria-labelledby={`${id}-password-title`}
+        aria-describedby={`${id}-password-description`}
+        onCancel={(event) => {
+          event.preventDefault();
+          closePasswordDialog();
+        }}
+        className="m-auto w-[calc(100%-2rem)] max-w-[420px] overflow-visible rounded-2xl border border-[#e2e6ef] bg-white p-0 text-[#252e40] shadow-[0_28px_90px_-24px_rgba(15,23,42,0.42)] backdrop:bg-[#111827]/45 backdrop:backdrop-blur-[3px]"
+      >
+        <form onSubmit={handlePasswordSubmit} className="p-6 sm:p-8">
+          <div className="flex items-start justify-between gap-4">
+            <span className="grid size-11 shrink-0 place-items-center rounded-xl border border-[#e3e8fa] bg-[#f0f3ff] text-[#5474ee]">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="size-5"
+                aria-hidden="true"
+              >
+                <rect x="4" y="10" width="16" height="11" rx="2" />
+                <path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2" />
+              </svg>
+            </span>
+            <button
+              type="button"
+              onClick={closePasswordDialog}
+              aria-label="Close password dialog"
+              className="grid size-8 place-items-center rounded-lg text-[#7b8494] transition-colors hover:bg-[#f2f4f8] hover:text-[#313a4b]"
+            >
+              <span aria-hidden="true" className="text-xl leading-none">×</span>
+            </button>
+          </div>
+          <h2
+            id={`${id}-password-title`}
+            className="mt-5 text-[19px] font-semibold tracking-[-0.04em]"
+          >
+            This source is password protected
+          </h2>
+          <p
+            id={`${id}-password-description`}
+            className="mt-2 text-[13px] leading-[1.8] text-[#737d90]"
+          >
+            Enter the password to view and copy the component source.
+          </p>
+          <label
+            htmlFor={`${id}-code-password`}
+            className="mt-6 block text-[11px] font-medium text-[#525d70]"
+          >
+            Password
+          </label>
+          <input
+            ref={passwordInputRef}
+            id={`${id}-code-password`}
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(event) => {
+              setPassword(event.target.value);
+              if (passwordError) setPasswordError("");
+            }}
+            aria-invalid={Boolean(passwordError)}
+            aria-describedby={passwordError ? `${id}-password-error` : undefined}
+            disabled={isCheckingPassword}
+            required
+            className="mt-2 h-11 w-full rounded-lg border border-[#dfe4ed] bg-white px-3.5 text-[13px] text-[#252e40] outline-none transition placeholder:text-[#a2a8b4] focus:border-[#8295ef] focus:ring-4 focus:ring-[#5474ee]/10 disabled:opacity-60"
+            placeholder="Enter password"
+          />
+          {passwordError && (
+            <p
+              id={`${id}-password-error`}
+              role="alert"
+              className="mt-2 text-[11px] text-[#c34949]"
+            >
+              {passwordError}
+            </p>
+          )}
+          <button
+            type="submit"
+            disabled={isCheckingPassword || !password}
+            className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#4866e9] px-4 text-[12px] font-semibold text-white transition-colors hover:bg-[#3454dc] disabled:cursor-not-allowed disabled:opacity-55"
+          >
+            {isCheckingPassword ? "Checking password…" : "Unlock source"}
+          </button>
+          <p className="mt-5 border-t border-[#edf0f4] pt-4 text-[12px] leading-[1.8] text-[#737d90]">
+            Don’t have the password? Email me at{" "}
+            <a
+              href="mailto:eng.mizanur.hasan@gmail.com"
+              className="font-medium text-[#4866e9] underline decoration-[#c9d3ff] underline-offset-4 transition-colors hover:text-[#3454dc]"
+            >
+              eng.mizanur.hasan@gmail.com
+            </a>
+            {" "}and I’ll help you get access.
+          </p>
+        </form>
+      </dialog>
     </div>
   );
 }
