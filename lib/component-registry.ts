@@ -15,6 +15,326 @@ export type ComponentEntry = {
 /** The catalog drives the gallery, detail pages, and available source files. */
 export const components: ComponentEntry[] = [
   {
+    "slug": "liquid-glass-playground",
+    "title": "Liquid Glass Playground",
+    "description": "A flowing teal workspace lets you drag refractive glass panels, fuse their surfaces, and adjust the material with live controls.",
+    "category": "Effects",
+    "tags": [
+      "Interactive",
+      "Animated",
+      "WebGL"
+    ],
+    "sourceFile": "liquid-glass-playground.tsx",
+    "fileName": "liquid-glass-playground.tsx",
+    "number": "031",
+    "demoNote": "Interactive demo · Drag a panel or focus it and use the arrow keys. Try the style, motion, and layout controls; click empty stage space to send a pulse.",
+    "features": [
+      {
+        "title": "A liquid surface",
+        "description": "The original Plasma UI shaders create rounded surface fusion, refraction, and luminous edges in a canvas contained within the component."
+      },
+      {
+        "title": "Shape the workspace",
+        "description": "Arrange, scatter, add, or remove panels and explore appearance presets, motion, tint, and material controls."
+      },
+      {
+        "title": "Ready to reuse",
+        "description": "The standalone source includes the renderer, fonts, styles, and license notices, with keyboard controls and a usable fallback when WebGL2 is unavailable."
+      }
+    ],
+    "usage": "import LiquidGlassPlayground from \"@/components/ui/liquid-glass-playground\";\n\nexport default function PlaygroundPage() {\n  return <LiquidGlassPlayground />;\n}"
+  },
+  {
+    "slug": "neumorphic-navbar",
+    "title": "Neumorphic Navbar",
+    "description": "A soft gray navigation bar combines raised surfaces, an inset link track, a sliding active highlight, and a rounded mobile menu.",
+    "category": "Navigation",
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Accessible"
+    ],
+    "sourceFile": "neumorphic-navbar.tsx",
+    "fileName": "neumorphic-navbar.tsx",
+    "number": "030",
+    "demoNote": "Interactive demo · Choose a navigation item, or switch to Mobile preview to open the menu. Supply your own URLs or callbacks to connect the logo and Get started action.",
+    "features": [
+      {
+        "title": "Soft depth",
+        "description": "Raised gray surfaces and an inset navigation track recreate the reference’s light and shadow, with a precisely measured sliding highlight."
+      },
+      {
+        "title": "A menu that fits",
+        "description": "A circular disclosure opens the mobile navigation. Selection, outside clicks, and Escape dismiss it with appropriate focus behavior."
+      },
+      {
+        "title": "Your destinations",
+        "description": "Use real links, typed callbacks, and controlled selection to connect the standalone navbar to your application."
+      }
+    ],
+    "usage": "import NeumorphicNavbar from \"@/components/ui/neumorphic-navbar\";\n\nexport default function Page() {\n  return <NeumorphicNavbar />;\n}"
+  },
+  {
+    "slug": "verification-code",
+    "title": "Verification Code",
+    "description": "Four glossy blue input tiles tumble together and become a bouncing green check when your verification code is complete.",
+    "category": "Forms",
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Accessible"
+    ],
+    "sourceFile": "verification-code.tsx",
+    "fileName": "verification-code.tsx",
+    "number": "029",
+    "demoNote": "Interactive demo \u00b7 Enter or paste any four digits to try the local demo. Supply onVerify and onResend callbacks to connect real verification.",
+    "features": [
+      {
+        "title": "From code to confirmation",
+        "description": "Blue input tiles merge and bounce into a glossy green success orb."
+      },
+      {
+        "title": "Thoughtful input behavior",
+        "description": "Paste a code, navigate with arrow keys, and move backward with Backspace."
+      },
+      {
+        "title": "Connect your verification",
+        "description": "Asynchronous verification, failure feedback, resend cooldown, and retry are included."
+      }
+    ],
+    "usage": "import VerificationCode from \"@/components/ui/verification-code\";\n\nexport default function Example() {\n  return <VerificationCode />;\n}"
+  },
+  {
+    "slug": "gooey-checkbox",
+    "title": "Gooey Checkbox",
+    "description": "A quiet gray ring bursts into a soft blue splash, pulls its droplets together, and draws a crisp white check.",
+    "category": "Controls",
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Accessible"
+    ],
+    "sourceFile": "gooey-checkbox.tsx",
+    "fileName": "gooey-checkbox.tsx",
+    "number": "028",
+    "demoNote": "Interactive demo \u00b7 Click the checkbox or use Tab and Space. It supports native form submission, validation, and form resets.",
+    "features": [
+      {
+        "title": "Fluid by design",
+        "description": "Six droplets stretch and merge around the circular checkbox as the check draws in."
+      },
+      {
+        "title": "A proper checkbox",
+        "description": "A native input provides keyboard behavior, labels, form values, and validation."
+      },
+      {
+        "title": "A small portable detail",
+        "description": "SVG artwork and scoped animation styles are included in one file, with reduced-motion support."
+      }
+    ],
+    "usage": "import GooeyCheckbox from \"@/components/ui/gooey-checkbox\";\n\nexport default function Example() {\n  return <GooeyCheckbox />;\n}"
+  },
+  {
+    "slug": "day-night-toggle",
+    "title": "Day / Night Toggle",
+    "description": "A cheerful sun slips behind the clouds as a sleepy moon brings stars, a nightcap, and a quiet indigo sky.",
+    "category": "Controls",
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Accessible"
+    ],
+    "sourceFile": "day-night-toggle.tsx",
+    "fileName": "day-night-toggle.tsx",
+    "number": "027",
+    "demoNote": "Interactive demo \u00b7 Click the switch or press Space to change modes. Enable the optional recording loop to watch the day and night sequence.",
+    "features": [
+      {
+        "title": "A little daydream",
+        "description": "A smiling sun, passing clouds, and a sleepy moon recreate the supplied interaction."
+      },
+      {
+        "title": "One switch, two moods",
+        "description": "The stage changes from icy blue daylight to a glowing star-filled night."
+      },
+      {
+        "title": "Make it your theme switch",
+        "description": "Use controlled or uncontrolled state and connect the change callback to your theme."
+      }
+    ],
+    "usage": "import DayNightToggle from \"@/components/ui/day-night-toggle\";\n\nexport default function Example() {\n  return <DayNightToggle />;\n}"
+  },
+  {
+    "slug": "hungry-delete",
+    "title": "Hungry Delete",
+    "description": "Two playful delete buttons swallow their letters into a hungry bin, then celebrate success or spit the word back out.",
+    "category": "Buttons",
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Accessible"
+    ],
+    "sourceFile": "hungry-delete.tsx",
+    "fileName": "hungry-delete.tsx",
+    "number": "026",
+    "demoNote": "Interactive demo \u00b7 Press either Delete button to see the success or failure sequence. Toggle sound for a tiny audio cue; actions run locally until you supply a callback.",
+    "features": [
+      {
+        "title": "Letters with personality",
+        "description": "Each letter jumps into the bin before the pill collapses into a loading circle."
+      },
+      {
+        "title": "Success and a second chance",
+        "description": "The black button completes its action; the blue button demonstrates failure and recovery."
+      },
+      {
+        "title": "Ready for your action",
+        "description": "Connect an asynchronous callback to your own action, with pending, success, and failure feedback."
+      }
+    ],
+    "usage": "import HungryDelete from \"@/components/ui/hungry-delete\";\n\nexport default function Example() {\n  return <HungryDelete />;\n}"
+  },
+  {
+    slug: "portrait-gallery",
+    title: "Portrait Gallery",
+    description:
+      "Five staggered anime portraits expand on hover, focus, or touch. The selected portrait gains color while a black name label slides into view.",
+    category: "Galleries",
+    tags: ["Interactive", "Animated", "Accessible"],
+    sourceFile: "portrait-gallery.tsx",
+    fileName: "portrait-gallery.tsx",
+    number: "025",
+    demoNote:
+      "Interactive demo · Hover a portrait to expand it, or tap to keep it selected. Use Left/Right and Home/End when the gallery has keyboard focus.",
+    features: [
+      {
+        title: "The reference composition",
+        description:
+          "Original portrait artwork, alternating vertical offsets, dimmed neighboring panels, and delayed name labels reproduce the supplied design.",
+      },
+      {
+        title: "Every way to explore",
+        description:
+          "Pointer hover previews a portrait; touch and keyboard selection keep it open. Arrow keys move through the collection.",
+      },
+      {
+        title: "One portable file",
+        description:
+          "Portraits, the Figtree font, and scoped styles are embedded. Pass your own items and selection callback without adding a package.",
+      },
+    ],
+    usage: `import PortraitGallery from "@/components/ui/portrait-gallery";
+
+export default function GalleryPage() {
+  return <PortraitGallery />;
+}`,
+  },
+  {
+    slug: "connect-social-bar",
+    title: "Connect Social Bar",
+    description:
+      "A glowing social bar reveals its links from a letter-spaced CONNECT pill. Hover or focus a channel to see its name and color.",
+    category: "Social",
+    tags: ["Interactive", "Accessible"],
+    sourceFile: "connect-social-bar.tsx",
+    fileName: "connect-social-bar.tsx",
+    number: "024",
+    demoNote:
+      "Interactive demo · Select CONNECT to reveal the links. Update the URLs and email in the component props for your profiles.",
+    features: [
+      {
+        title: "Reveal on demand",
+        description:
+          "A compact CONNECT pill opens into a row of seven social and contact links.",
+      },
+      {
+        title: "A glow for every channel",
+        description:
+          "Hover or keyboard focus reveals a tooltip and a matching accent glow.",
+      },
+      {
+        title: "Make the links yours",
+        description:
+          "Pass your profile URLs and email address through the component props.",
+      },
+    ],
+    usage: `import ConnectSocialBar from "@/components/ui/connect-social-bar";
+
+export default function Footer() {
+  return <ConnectSocialBar />;
+}`,
+  },
+  {
+    slug: "basketball-upload",
+    title: "Basketball Upload",
+    description:
+      "A playful file upload turns a dropped document into a basketball shot, with animated progress and a clear success state.",
+    category: "Uploads",
+    tags: ["Interactive", "Animated"],
+    sourceFile: "basketball-upload.tsx",
+    fileName: "basketball-upload.tsx",
+    number: "023",
+    demoNote:
+      "Interactive demo · Choose or drop a file, then aim and release it into the hoop. Upload feedback is simulated locally.",
+    features: [
+      {
+        title: "Drop it in",
+        description:
+          "Choose a file with the picker or drag it into the upload court.",
+      },
+      {
+        title: "A playful upload path",
+        description:
+          "A document flies toward the hoop before its progress and success states appear.",
+      },
+      {
+        title: "Ready to connect",
+        description:
+          "The included upload interaction is a local demo; connect the file callback to your storage service.",
+      },
+    ],
+    usage: `import BasketballUpload from "@/components/ui/basketball-upload";
+
+export default function UploadPage() {
+  return <BasketballUpload />;
+}`,
+  },
+  {
+    slug: "redbull-card",
+    title: "Red Bull Card",
+    description:
+      "A softly glowing product mark expands into a vivid Red Bull card, with a tilted can, product details, and a shop action.",
+    category: "Cards",
+    tags: ["Animated", "Interactive"],
+    sourceFile: "redbull-card.tsx",
+    fileName: "redbull-card.tsx",
+    number: "022",
+    demoNote:
+      "Interactive demo · Watch the mark expand and collapse, or select it to pause and control the card state.",
+    features: [
+      {
+        title: "From mark to product",
+        description:
+          "A compact glowing badge opens to reveal a product card and illustrative can.",
+      },
+      {
+        title: "Ambient motion",
+        description:
+          "Subtle stars and blue light add atmosphere while respecting reduced-motion preferences.",
+      },
+      {
+        title: "Connect your action",
+        description:
+          "Use the shop callback to connect the call to action to your own destination.",
+      },
+    ],
+    usage: `import RedBullCard from "@/components/ui/redbull-card";
+
+export default function ProductPage() {
+  return <RedBullCard />;
+}`,
+  },
+  {
     "slug": "gallery-flip",
     "title": "Gallery Flip",
     "description": "A grid of city photographs flips tile by tile into one scene, then unfolds back into the collection.",

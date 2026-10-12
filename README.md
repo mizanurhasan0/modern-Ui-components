@@ -1,6 +1,6 @@
 # Component Lab
 
-**21 interactive UI components for React and Next.js**, built with TypeScript and Tailwind CSS 4. A portfolio of animated cards, carousels, forms, and immersive navigation—with working demos and reusable source code.
+**31 interactive UI components for React and Next.js**, built with TypeScript and Tailwind CSS 4. A portfolio of animated cards, carousels, forms, and immersive navigation—with working demos and reusable source code.
 
 Browse the homepage’s animated thumbnails, open a component, try **Preview**, then switch to **Code** to copy or download it for your own project.
 
@@ -8,7 +8,9 @@ Browse the homepage’s animated thumbnails, open a component, try **Preview**, 
 
 ## Screenshots
 
-Selected views captured during development. These show the gallery layout and an individual component’s Preview/Code interface; the catalog below lists all 21 components.
+![Verification Code component with its live playground and Preview/Code controls](docs/screenshots/verification-code.png)
+
+Selected views captured during development. These show the gallery layout and an individual component’s Preview/Code interface; the catalog below lists all 31 components.
 
 ### Browse the collection
 
@@ -26,6 +28,16 @@ Try the full interaction in **Preview**, check desktop or mobile sizing, then op
 
 | Component | Type | What it does |
 | --- | --- | --- |
+| [Liquid Glass Playground](docs/component-guide.md#use-liquid-glass-playground-in-your-project) | Effects | Draggable glass panels fuse and refract a fluid background, with live layout, motion, and material controls. |
+| [Neumorphic Navbar](docs/component-guide.md#use-neumorphic-navbar-in-your-project) | Navigation | Soft raised navigation with a sliding active pill, real links or callbacks, and a rounded mobile disclosure. |
+| [Verification Code](docs/component-guide.md#use-verification-code-in-your-project) | Forms | Blue OTP tiles merge into a bouncing green check, with paste support, async validation, resend, and retry. |
+| [Gooey Checkbox](docs/component-guide.md#use-gooey-checkbox-in-your-project) | Controls | A native circular checkbox splashes into blue with six liquid droplets and a drawn check. |
+| [Day / Night Toggle](docs/component-guide.md#use-day--night-toggle-in-your-project) | Controls | A smiling sun glides into a sleepy moon with clouds, stars, a nightcap, and matching captions. |
+| [Hungry Delete](docs/component-guide.md#use-hungry-delete-in-your-project) | Buttons | Delete buttons eat their letters, collapse into a loading bin, and complete or spit the letters back. |
+| [Portrait Gallery](docs/component-guide.md#use-portrait-gallery-in-your-project) | Galleries | Five staggered anime portraits expand on hover, focus, or touch, with dimmed neighbors and sliding name labels. |
+| [Connect Social Bar](docs/component-guide.md#use-connect-social-bar-in-your-project) | Social | Opens from a glowing CONNECT pill into a seven-link bar with platform-colored hover and focus states. |
+| [Basketball Upload](docs/component-guide.md#use-basketball-upload-in-your-project) | Uploads | Turns file selection and drag-and-drop into a playful basketball shot with progress feedback. |
+| [Red Bull Card](docs/component-guide.md#use-red-bull-card-in-your-project) | Cards | Expands a glowing product mark into a vivid energy drink card with an illustrated can. |
 | [Gallery Flip](docs/component-guide.md#use-gallery-flip-in-your-project) | Galleries | A grid of city photographs flips tile by tile into one scene, then unfolds back into the collection. |
 | [Sneaker Orbit](docs/component-guide.md#use-sneaker-orbit-in-your-project) | Commerce | A rotating wall of sneakers turns a product catalog into a dimensional browsing experience. |
 | [Scorpion Cursor](docs/component-guide.md#use-scorpion-cursor-in-your-project) | Effects | A fine white skeleton follows your pointer across a black canvas, bending its spine, legs, and curling tail. |
@@ -71,6 +83,8 @@ Open [localhost:3000](http://localhost:3000), select a component, and try its pr
 ```bash
 npm run lint   # Check source quality
 npm run build  # Create a production build
+# If Turbopack workers are restricted by your sandbox:
+npm run build -- --webpack
 npm start      # Serve the production build
 ```
 

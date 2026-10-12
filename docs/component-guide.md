@@ -4,6 +4,233 @@
 
 Detailed setup, props, interaction notes, and artwork credits for every component.
 
+## Use Liquid Glass Playground in your project
+
+Copy **Liquid Glass Playground → Code** into `components/ui/liquid-glass-playground.tsx`. Its renderer, shaders, scoped styles, display fonts, and license notices are included in the exported file. No separate rendering package or asset folder is required.
+
+```tsx
+import LiquidGlassPlayground from "@/components/ui/liquid-glass-playground";
+
+export default function PlaygroundPage() {
+  return <LiquidGlassPlayground initialPreset="Lumen" />;
+}
+```
+
+Drag the Inbox, Tasks, Player, Notes, and Files panels to rearrange them. Their rounded glass surfaces fuse on contact and separate as you pull them apart. Keyboard users can focus a panel and move it with the arrow keys; hold Shift for larger steps. Escape cancels an active drag. The layout controls arrange or scatter the panels and add or remove them; material controls tune motion, tint, refraction, and the luminous glass edge. Click empty stage space to send a pulse.
+
+The six style presets are **Lumen, Studio, Slate, Aqua, Neon, and Entropy**. Motion presets include **Water, Gel, Honey, and Solid**. Both the background and surface renderer stay inside the component, including in a mobile-sized Preview.
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `initialPreset` | `LiquidGlassStyle` | `"Lumen"`; choose a starting appearance. |
+| `initialPanelCount` | `number` | `5`; starting number of panels, clamped to 1–available content (at most 10 custom panels). |
+| `panels` | `readonly LiquidGlassPanel[]` | Replace the default panel content with items containing unique `id`, `title`, and `description`. |
+| `quality` | `number` | `1.1`; maximum canvas pixel ratio, clamped to 0.65–1.5. Use a lower value to reduce GPU work. |
+| `onLayoutChange` | `(positions: { id: string; x: number; y: number }[]) => void` | Receives visible panel positions within the local stage after dragging, keyboard movement, layout actions, and adding/removing panels. |
+| `onSettingsChange` | `(settings: LiquidGlassSettings) => void` | Receives changes made with the appearance controls. |
+| `className` | `string` | Additional container classes. |
+
+Supply callbacks from a Client Component when using Next.js. `initialPreset` and `initialPanelCount` configure a newly mounted playground; they are not controlled values. Use stable unique panel IDs when replacing or reordering custom content. Use the existing Preview restart action to replay the starting configuration.
+
+`LiquidGlassPlaygroundThumbnail({ className?, previewStep? })` is a lightweight inert scene with no GPU context, buttons, handlers, or timers. The existing homepage controller cycles its sample layouts and pauses when hidden, offscreen, manually paused, or under reduced motion.
+
+The real lens/fusion effect requires **WebGL2**. A CSS glass fallback keeps the panels and controls usable when it is unavailable. Rendering pauses while offscreen or hidden; reduced motion removes continuous animation while keeping direct interactions usable. GPU resources and browser listeners are released when the component unmounts.
+
+Design and rendering source: [Plasma UI by Crux Garden](https://github.com/CruxGarden/plasma-ui), also shown in the [original playground](https://cruxgarden.github.io/plasma-ui/). The original MIT notice and both fonts’ SIL Open Font Licenses are retained in the standalone export. The source renderer was adapted from viewport coordinates to a component-local canvas so it can be embedded in this portfolio.
+
+## Use Neumorphic Navbar in your project
+
+Copy **Neumorphic Navbar → Code** into `components/ui/neumorphic-navbar.tsx`. The rounded surfaces, soft shadows, sliding active highlight, responsive menu, and icons are included in the file; no navigation package or asset folder is required.
+
+```tsx
+import NeumorphicNavbar from "@/components/ui/neumorphic-navbar";
+
+export default function Page() {
+  return <NeumorphicNavbar />;
+}
+```
+
+The default Brandly navigation contains Home, Products, Pricing, Blog, and Contact. Choosing a desktop item slides its raised highlight along the inset track. At a container width of 680px or less, the links and Get started action give way to a circular menu button. Opening it reveals a vertically stacked menu with an inset selected row. Selecting an item or clicking outside closes the menu; Escape closes it and returns focus to the menu button. Reduced motion removes transitions.
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `items` | `readonly NeumorphicNavItem[]` | Five demo items. Each has a unique `id`, `label`, and optional real `href`. |
+| `brand` | `string` | `"Brandly"`. |
+| `brandHref` | `string` | Optional logo destination. |
+| `onBrandClick` | `() => void` | Optional logo action. |
+| `defaultActiveId` | `string` | Uncontrolled initial selection; defaults to the first item. |
+| `activeId` | `string` | Controlled selection; update it in `onNavigate`. |
+| `onNavigate` | `(item: NeumorphicNavItem) => void` | Receives the chosen navigation item. |
+| `actionLabel` | `string \| null` | `"Get started"`; set `null` to hide the desktop action. |
+| `actionHref` | `string` | Optional destination for the action. |
+| `onAction` | `() => void` | Optional action callback. |
+| `ariaLabel` | `string` | `"Main navigation"`; accessible name for the navigation. |
+| `className` | `string` | Additional container classes. |
+
+Items without `href` are selection buttons. Items with `href` are native links and keep ordinary browser behavior. The default Get started action has no destination; supply `actionHref` or `onAction` to connect it. If you use callbacks in Next.js, pass them from a Client Component:
+
+```tsx
+"use client";
+
+import { useState } from "react";
+import NeumorphicNavbar, { type NeumorphicNavItem } from "@/components/ui/neumorphic-navbar";
+
+const items: NeumorphicNavItem[] = [
+  { id: "work", label: "Work", href: "#work" },
+  { id: "about", label: "About", href: "#about" },
+  { id: "contact", label: "Contact", href: "#contact" },
+];
+
+export default function PortfolioNavigation() {
+  const [activeId, setActiveId] = useState("work");
+  return (
+    <NeumorphicNavbar
+      brand="Your studio"
+      items={items}
+      activeId={activeId}
+      onNavigate={(item) => setActiveId(item.id)}
+      actionLabel="Get in touch"
+      actionHref="#contact"
+    />
+  );
+}
+```
+
+`NeumorphicNavbarThumbnail({ className?, previewStep? })` is inert and contains no buttons, links, hooks, handlers, or timers. Its sample frames cycle through desktop selection and the mobile menu. The homepage controller handles autoplay and pausing.
+
+The CSS and icons recreate the supplied **Neumorphism Navbar UI** video by **@wearepixelflow**. Brandly is the reference's demonstration brand.
+
+## Use Verification Code in your project
+
+Copy **Verification Code → Code** to `components/ui/verification-code.tsx`. The lock, input tiles, success orb, and scoped animation styles travel with the file; React and Tailwind CSS are the only requirements.
+
+```tsx
+import VerificationCode from "@/components/ui/verification-code";
+
+export default function Example() {
+  return <VerificationCode />;
+}
+```
+
+Type or paste any four digits for the local demo. Inputs advance automatically; arrows move between digits, and Backspace in an empty field clears the previous digit. Completed tiles merge and bounce into a green check. Retry clears the code and restores focus. The resend button has a 30-second cooldown.
+
+| Prop | Purpose |
+| --- | --- |
+| `onVerify(code)` | Return `boolean` or `Promise<boolean>` from your verification service. `false` shows a mismatch; throwing shows a retry message. Success animation starts only after validation returns `true`. |
+| `onResend()` | Send a new code through your own service; supports asynchronous completion and visible error feedback. |
+| `onVerified(code)` | Called after successful validation and the confirmation animation. |
+| `resendDelay` | Resend cooldown in seconds, default `30`. |
+| `className` | Additional container classes. |
+
+Without these callbacks the component runs a local demonstration. Pass callbacks from a Client Component in Next.js and perform actual code validation and delivery on your server. Reduced motion skips the success choreography. `VerificationCodeThumbnail({ className?, previewStep? })` provides inert gallery frames.
+
+## Use Gooey Checkbox in your project
+
+```tsx
+import GooeyCheckbox from "@/components/ui/gooey-checkbox";
+
+export default function Example() {
+  return <GooeyCheckbox name="accepted" value="yes" label="Accept terms" />;
+}
+```
+
+The gray ring becomes a `#4c95f7` liquid splash with six droplets and a white drawn check. A native checkbox supplies form submission, `required` validation, reset, keyboard focus, and Space toggling. `checked` and `onCheckedChange(checked)` support controlled usage; `defaultChecked` supplies the uncontrolled initial state. It also accepts `disabled`, `label`, `className`, and other native input attributes. SVG and styles are embedded, with reduced-motion support. `GooeyCheckboxThumbnail` is an inert gallery illustration.
+
+## Use Day / Night Toggle in your project
+
+```tsx
+import DayNightToggle from "@/components/ui/day-night-toggle";
+
+export default function Example() {
+  return <DayNightToggle />;
+}
+```
+
+A smiling sun, clouds, stars, moon craters, a purple nightcap, and rising Zs recreate the second supplied video. Click or press Space to toggle; the caption and scene follow the switch. The optional recording loop changes modes every 4.5 seconds; manually switching stops it. Reduced motion removes the loop and transitions.
+
+| Prop | Purpose |
+| --- | --- |
+| `checked` / `defaultChecked` | Controlled night state or uncontrolled initial state; `true` selects night. |
+| `onCheckedChange(checked)` | Connect the switch to your application's theme. |
+| `disabled` | Disable interaction. |
+| `showCaption` / `showControls` | Show the greeting and recording-loop control, both default `true`. |
+| `className` | Additional container classes. |
+
+The file includes its artwork and styles. `DayNightToggleThumbnail` provides inert gallery frames. Callbacks should be supplied from a Client Component in Next.js.
+
+## Use Hungry Delete in your project
+
+```tsx
+import HungryDelete from "@/components/ui/hungry-delete";
+
+export default function Example() {
+  return <HungryDelete />;
+}
+```
+
+The cream stage, lime title, black offset panel shadow, and black/blue pills follow the first supplied video. Letters leap into an opening bin, the pill contracts into a spinning circle, and success increments the counter. The blue button demonstrates failure by spitting the letters back. Sound can be toggled; both paths are replayable and support reduced motion.
+
+| Prop | Purpose |
+| --- | --- |
+| `onDelete()` | Async action for the black button; resolve for success, reject to restore the letters and show failure. Without it, the action is a local demo. |
+| `onError(error)` | Optional error reporting callback for your real delete action. |
+| `label` | Button text, default `"Delete"`. |
+| `disabled` | Disable the action buttons. |
+| `initialLettersEaten` | Initial counter, default `18`. |
+| `initialSoundEnabled` | Initial sound toggle, default `true`. Audio only starts after interaction. |
+| `className` | Additional container classes. |
+
+All bin artwork, audio synthesis, and styles live in the single file. `HungryDeleteThumbnail` provides deterministic gallery frames. Supply callbacks from a Client Component in Next.js.
+
+## Use Portrait Gallery in your project
+
+Copy **Portrait Gallery → Code** into `components/ui/portrait-gallery.tsx`, then import the default component. The five portraits, Figtree font, and scoped styles are included in that file; no image host, asset folder, or animation package is required.
+
+```tsx
+import PortraitGallery from "@/components/ui/portrait-gallery";
+
+export default function GalleryPage() {
+  return <PortraitGallery />;
+}
+```
+
+Hover or focus a portrait to expand it to three times the width of its neighbors. The other portraits become grayscale at 24% opacity, and its name slides into view after 400ms. Alternating vertical offsets and the black canvas follow the supplied video. Leaving the gallery restores the resting view unless a portrait was selected. Click, tap, Enter, or Space to keep one selected; Left/Right wrap through the portraits, and Home/End move to the first/last. Tab enters the group once and then moves out. Reduced motion removes transitions. Container-based sizing also works in the playground's mobile preview.
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `items` | `readonly PortraitGalleryItem[]` | The five reference portraits. Replace them with your own images and names; an empty array shows an empty state. |
+| `initialIndex` | `number \| null` | `null`, the equal-width resting view. Set `4` to start with Mitsui expanded. Applied on mount; finite indices are clamped to the collection. |
+| `onSelect` | `(item: PortraitGalleryItem, index: number) => void` | Receives click, tap, Enter, or Space selection. Hover/focus only preview the portrait and do not call it. |
+| `ariaLabel` | `string` | `"Character portrait gallery"`; accessible name for the collection. |
+| `className` | `string` | Additional container classes. |
+
+`PortraitGalleryItem` contains a unique `id`, `name`, `image` URL/data URL, and optional `imagePosition` (CSS `object-position`). IDs preserve selection if items reorder; removing a selected item restores a valid remaining preview or the resting state. Callbacks must be supplied from a Client Component in Next.js:
+
+```tsx
+"use client";
+
+import PortraitGallery, { type PortraitGalleryItem } from "@/components/ui/portrait-gallery";
+
+const portraits: PortraitGalleryItem[] = [
+  { id: "studio", name: "Studio", image: "/images/studio.jpg" },
+  { id: "garden", name: "Garden", image: "/images/garden.jpg", imagePosition: "50% 30%" },
+];
+
+export default function GalleryPage() {
+  return (
+    <PortraitGallery
+      items={portraits}
+      initialIndex={0}
+      onSelect={(item) => console.log("Selected:", item.name)}
+    />
+  );
+}
+```
+
+`PortraitGalleryThumbnail({ className?, previewStep? })` is inert and contains no buttons, hooks, handlers, or timers. The homepage controller cycles Mitsui → Tsuki → Kaito → Sora → Renji and already pauses when hidden, offscreen, manually paused, or under reduced motion.
+
+Design and default portrait sources: [Character Showcase Gallery by pleasedonotdisturb](https://codepen.io/pleasedonotdisturb/pen/poqrZLZ), matching the supplied video. The source identifies the portraits as AI-generated character artwork. Use your own artwork when adapting the gallery to your brand. [Figtree](https://github.com/erikdkennedy/figtree) is distributed under the SIL Open Font License; its license is preserved in the exported component.
+
 ## Use Love Typography in your project
 
 Copy **Love Typography → Code** into `components/ui/love-typography.tsx`, then import the default `LoveTypography` component. Its SVG artwork and animation styles are included; no animation package is required.
@@ -614,6 +841,76 @@ export default function VerificationForm() {
 The gallery also uses the named `GlassOtpThumbnail` export for its static preview. It accepts an optional `className`.
 
 Each thumbnail also accepts an optional `previewStep` number to select a sample frame. It stays static when this prop does not change; the homepage supplies changing frames through its shared playback controller.
+
+## Use Connect Social Bar in your project
+
+Import `ConnectSocialBar` from the standalone source. The component includes its SVG icons, responsive layout, colored hover/focus effects, and reduced-motion handling.
+
+```tsx
+import ConnectSocialBar from "@/components/ui/connect-social-bar";
+
+export default function Footer() {
+  return <ConnectSocialBar />;
+}
+```
+
+Selecting **CONNECT** reveals the seven links. Pass `links` to customize profile URLs and `email` to change the mail link. The default email is `eng.mizanur.hasan@gmail.com`; social URLs default to their platform home pages until replaced.
+
+| Prop | Type | Default / behavior |
+| --- | --- | --- |
+| `links` | `Partial<Record<SocialNetwork, string>>` | Optional URLs for GitHub, X, LinkedIn, Instagram, YouTube, and Discord. |
+| `email` | `string` | `eng.mizanur.hasan@gmail.com` |
+| `className` | `string` | Optional container classes. |
+
+Exported types: `ConnectSocialBarProps`, `SocialNetwork`.
+
+## Use Basketball Upload in your project
+
+Import `BasketballUpload` from the standalone source. It includes a file picker, drag-and-drop target, hoop artwork, and local progress feedback.
+
+```tsx
+import BasketballUpload from "@/components/ui/basketball-upload";
+
+export default function UploadPage() {
+  return <BasketballUpload />;
+}
+```
+
+Choose a file or drop it onto the court to play the upload animation. The default action is a local demonstration; pass `onUpload` to connect the selected file to your storage service.
+
+| Prop | Type | Default / behavior |
+| --- | --- | --- |
+| `onUpload` | `(file: File) => void \| Promise<void>` | Optional upload callback. Resolving marks the local item as uploaded; rejecting shows an error. |
+| `accept` | `string` | `"*/*"` |
+| `multiple` | `boolean` | `true` |
+| `initialUploadedCount` | `number` | `2` |
+| `className` | `string` | Optional container classes. |
+
+Exported type: `BasketballUploadProps`.
+
+## Use Red Bull Card in your project
+
+Import `RedBullCard` from the standalone source. The card uses inline SVG artwork and CSS effects, so it needs no image assets or animation package.
+
+```tsx
+import RedBullCard from "@/components/ui/redbull-card";
+
+export default function ProductPage() {
+  return <RedBullCard />;
+}
+```
+
+The glowing badge opens into a product card and collapses again. The animation respects reduced-motion preferences; select the card control to pause automatic playback and switch states manually. `onShopNow` runs when the shop action is selected.
+
+| Prop | Type | Default / behavior |
+| --- | --- | --- |
+| `title` | `string` | `"REDBULL"` |
+| `description` | `string` | Short energy drink product description. |
+| `autoPlay` | `boolean` | `true`; disabled automatically when reduced motion is requested. |
+| `onShopNow` | `() => void` | Optional shop action callback. |
+| `className` | `string` | Optional container classes. |
+
+Exported type: `RedBullCardProps`.
 
 ## Project structure
 

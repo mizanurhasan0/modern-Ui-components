@@ -1,18 +1,63 @@
-import GalleryFlip, { GalleryFlipThumbnail } from "@/components/ui/gallery-flip";
-import SneakerOrbit, { SneakerOrbitThumbnail } from "@/components/ui/sneaker-orbit";
-import ScorpionCursor, { ScorpionCursorThumbnail } from "@/components/ui/scorpion-cursor";
-import LoveTypography, { LoveTypographyThumbnail } from "@/components/ui/love-typography";
-import SlidingAuth, { SlidingAuthThumbnail } from "@/components/ui/sliding-auth";
-import DeliveryButton, { DeliveryButtonThumbnail } from "@/components/ui/delivery-button";
-import GlassProductCard, { GlassProductCardThumbnail } from "@/components/ui/glass-product-card";
+import LiquidGlassPlayground, { LiquidGlassPlaygroundThumbnail } from "@/components/ui/liquid-glass-playground";
+import NeumorphicNavbar, { NeumorphicNavbarThumbnail } from "@/components/ui/neumorphic-navbar";
+import HungryDelete, {
+  HungryDeleteThumbnail,
+} from "@/components/ui/hungry-delete";
+import DayNightToggle, {
+  DayNightToggleThumbnail,
+} from "@/components/ui/day-night-toggle";
+import GooeyCheckbox, {
+  GooeyCheckboxThumbnail,
+} from "@/components/ui/gooey-checkbox";
+import VerificationCode, {
+  VerificationCodeThumbnail,
+} from "@/components/ui/verification-code";
+import PortraitGallery, {
+  PortraitGalleryThumbnail,
+} from "@/components/ui/portrait-gallery";
+import GalleryFlip, {
+  GalleryFlipThumbnail,
+} from "@/components/ui/gallery-flip";
+import SneakerOrbit, {
+  SneakerOrbitThumbnail,
+} from "@/components/ui/sneaker-orbit";
+import ScorpionCursor, {
+  ScorpionCursorThumbnail,
+} from "@/components/ui/scorpion-cursor";
+import LoveTypography, {
+  LoveTypographyThumbnail,
+} from "@/components/ui/love-typography";
+import SlidingAuth, {
+  SlidingAuthThumbnail,
+} from "@/components/ui/sliding-auth";
+import DeliveryButton, {
+  DeliveryButtonThumbnail,
+} from "@/components/ui/delivery-button";
+import GlassProductCard, {
+  GlassProductCardThumbnail,
+} from "@/components/ui/glass-product-card";
 import VersoAuth, { VersoAuthThumbnail } from "@/components/ui/verso-auth";
-import HoverProductCards, { HoverProductCardsThumbnail } from "@/components/ui/hover-product-cards";
-import PeriodicExplorer, { PeriodicExplorerThumbnail } from "@/components/ui/periodic-explorer";
-import KeyboardCards, { KeyboardCardsThumbnail } from "@/components/ui/keyboard-cards";
-import GlowingLogin, { GlowingLoginThumbnail } from "@/components/ui/glowing-login";
-import CharacterRevealCards, { CharacterRevealCardsThumbnail } from "@/components/ui/character-reveal-cards";
-import TrailheadCard, { TrailheadCardThumbnail } from "@/components/ui/trailhead-card";
-import FanImageSlider, { FanImageSliderThumbnail } from "@/components/ui/fan-image-slider";
+import HoverProductCards, {
+  HoverProductCardsThumbnail,
+} from "@/components/ui/hover-product-cards";
+import PeriodicExplorer, {
+  PeriodicExplorerThumbnail,
+} from "@/components/ui/periodic-explorer";
+import KeyboardCards, {
+  KeyboardCardsThumbnail,
+} from "@/components/ui/keyboard-cards";
+import GlowingLogin, {
+  GlowingLoginThumbnail,
+} from "@/components/ui/glowing-login";
+import CharacterRevealCards, {
+  CharacterRevealCardsThumbnail,
+} from "@/components/ui/character-reveal-cards";
+import TrailheadCard, {
+  TrailheadCardThumbnail,
+} from "@/components/ui/trailhead-card";
+import FanImageSlider, {
+  FanImageSliderThumbnail,
+} from "@/components/ui/fan-image-slider";
 import type { ComponentType } from "react";
 import SolarExplorer, {
   SolarExplorerThumbnail,
@@ -30,9 +75,25 @@ import GlassOtp, { GlassOtpThumbnail } from "@/components/ui/glass-otp";
 import CreativeLogin, {
   CreativeLoginThumbnail,
 } from "@/components/ui/creative-login";
+import ConnectSocialBar, {
+  ConnectSocialBarThumbnail,
+} from "@/components/ui/connect-social-bar";
+import BasketballUpload from "@/components/ui/basketball-upload";
+import RedBullCard from "@/components/ui/redbull-card";
 
 /** Interactive demos are separate from serializable catalog metadata. */
 export const componentPreviews: Partial<Record<string, ComponentType>> = {
+  "liquid-glass-playground": LiquidGlassPlayground,
+  "neumorphic-navbar": NeumorphicNavbar,
+  "hungry-delete": HungryDelete,
+  "day-night-toggle": DayNightToggle,
+  "gooey-checkbox": GooeyCheckbox,
+  "verification-code": VerificationCode,
+
+  "portrait-gallery": PortraitGallery,
+  "connect-social-bar": ConnectSocialBar,
+  "basketball-upload": BasketballUpload,
+  "redbull-card": RedBullCard,
   "gallery-flip": GalleryFlip,
   "sneaker-orbit": SneakerOrbit,
   "scorpion-cursor": ScorpionCursor,
@@ -61,6 +122,14 @@ export const componentPreviews: Partial<Record<string, ComponentType>> = {
 export const componentThumbnails: Partial<
   Record<string, ComponentType<{ className?: string; previewStep?: number }>>
 > = {
+  "liquid-glass-playground": LiquidGlassPlaygroundThumbnail,
+  "neumorphic-navbar": NeumorphicNavbarThumbnail,
+  "hungry-delete": HungryDeleteThumbnail,
+  "day-night-toggle": DayNightToggleThumbnail,
+  "gooey-checkbox": GooeyCheckboxThumbnail,
+  "verification-code": VerificationCodeThumbnail,
+  "portrait-gallery": PortraitGalleryThumbnail,
+  "connect-social-bar": ConnectSocialBarThumbnail,
   "gallery-flip": GalleryFlipThumbnail,
   "sneaker-orbit": SneakerOrbitThumbnail,
   "scorpion-cursor": ScorpionCursorThumbnail,
