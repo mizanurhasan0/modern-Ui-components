@@ -1,3 +1,6 @@
+import LampLogin, { LampLoginThumbnail } from "@/components/ui/lamp-login";
+import TruckPayButton, { TruckPayButtonThumbnail } from "@/components/ui/truck-pay-button";
+import IsometricSocialIcons, { IsometricSocialIconsThumbnail } from "@/components/ui/isometric-social-icons";
 import CharacterDeckSlider, { CharacterDeckSliderThumbnail } from "@/components/ui/character-deck-slider";
 import HologramLogin, { HologramLoginThumbnail } from "@/components/ui/hologram-login";
 import NeonRingAuth, { NeonRingAuthThumbnail } from "@/components/ui/neon-ring-auth";
@@ -105,6 +108,9 @@ import RedBullCard, {
 
 /** Interactive demos are separate from serializable catalog metadata. */
 export const componentPreviews: Partial<Record<string, ComponentType>> = {
+  "lamp-login": LampLogin,
+  "truck-pay-button": TruckPayButton,
+  "isometric-social-icons": IsometricSocialIcons,
   "character-deck-slider": CharacterDeckSlider,
   "hologram-login": HologramLogin,
   "neon-ring-auth": NeonRingAuth,
@@ -154,6 +160,9 @@ export const componentPreviews: Partial<Record<string, ComponentType>> = {
 export const componentThumbnails: Partial<
   Record<string, ComponentType<{ className?: string; previewStep?: number }>>
 > = {
+  "lamp-login": LampLoginThumbnail,
+  "truck-pay-button": TruckPayButtonThumbnail,
+  "isometric-social-icons": IsometricSocialIconsThumbnail,
   "character-deck-slider": CharacterDeckSliderThumbnail,
   "hologram-login": HologramLoginThumbnail,
   "neon-ring-auth": NeonRingAuthThumbnail,

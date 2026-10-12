@@ -1,6 +1,6 @@
 # Component Lab
 
-**41 interactive UI components for React and Next.js**, built with TypeScript and Tailwind CSS 4. A portfolio of animated cards, carousels, forms, and immersive navigation—with working demos and reusable source code.
+**44 interactive UI components for React and Next.js**, built with TypeScript and Tailwind CSS 4. A portfolio of animated cards, carousels, forms, and immersive navigation—with working demos and reusable source code.
 
 Browse the homepage’s animated thumbnails, open a component, try **Preview**, then switch to **Code** to copy or download it for your own project.
 
@@ -12,7 +12,7 @@ Browse the homepage’s animated thumbnails, open a component, try **Preview**, 
 
 ![Verification Code component with its live playground and Preview/Code controls](docs/screenshots/verification-code.png)
 
-Selected views captured during development. These show the gallery layout and an individual component’s Preview/Code interface; the catalog below lists all 41 components.
+Selected views captured during development. These show the gallery layout and an individual component’s Preview/Code interface; the catalog below lists all 44 components.
 
 ### Browse the collection
 
@@ -30,6 +30,9 @@ Try the full interaction in **Preview**, check desktop or mobile sizing, then op
 
 | Component | Type | What it does |
 | --- | --- | --- |
+| [Lamp Login](docs/component-guide.md#use-lamp-login-in-your-project) | Forms | Pull a mushroom lamp's cord to light the room and reveal a frosted sign-in card with a gold button. |
+| [Truck Pay Button](docs/component-guide.md#use-truck-pay-button-in-your-project) | Buttons | A pill folds into a road, a delivery truck drives off, and the button returns with a drawn checkmark. |
+| [Isometric Social Icons](docs/component-guide.md#use-isometric-social-icons-in-your-project) | Social | Dark isometric tiles lift into colorful layered stacks on hover or keyboard focus. |
 | [Character Deck Slider](docs/component-guide.md#use-character-deck-slider-in-your-project) | Carousel | Anime portraits stack into a vertical deck; the active card blooms into color while grayscale neighbors peek above and below. |
 | [Hologram Login](docs/component-guide.md#use-hologram-login-in-your-project) | Forms | A floating cyan glass login panel is projected by a pulsing light cone from a glowing emitter. |
 | [Neon Ring Auth](docs/component-guide.md#use-neon-ring-auth-in-your-project) | Forms | A cyan-and-magenta ring frames login and sign-up forms, with rotating transitions and async authentication callbacks. |

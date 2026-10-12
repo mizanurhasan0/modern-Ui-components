@@ -4,6 +4,83 @@
 
 Detailed setup, props, interaction notes, and artwork credits for every component.
 
+## Use Lamp Login in your project
+
+Copy **Lamp Login → Code** into `components/ui/lamp-login.tsx`. The SVG lamp, pull cord, glow, glass form, and scoped styles are all inside the file; no image or package is required.
+
+```tsx
+import LampLogin from "@/components/ui/lamp-login";
+
+export default function LoginPage() {
+  return <LampLogin />;
+}
+```
+
+Drag the cord down and release (or click it, or focus it and press Enter/Space) to switch the lamp. When the light is on, the shade glows, a warm radial light fills the background, and the frosted sign-in card springs in; when it is off, the card fades out and is inert. The form includes required validation, a **Signing in…** state, an error alert, and a welcome view with **Sign out**.
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `defaultOn` | `boolean` | `false`; start with the light on and the form visible. |
+| `onToggle` | `(on: boolean) => void` | Called whenever the lamp is switched. |
+| `onSubmit` | `(values: LampLoginValues) => void \| Promise<void>` | Receives `username` and `password`. Resolve to show success; reject with an `Error` to display its message. |
+| `className` | `string` | Additional container classes. |
+
+Without `onSubmit`, sign-in is simulated locally. Reduced motion removes the cord spring and form entrance. `LampLoginThumbnail({ className?, previewStep? })` shows off, switched-on, typing, and hover frames.
+
+Visual reference: the supplied lamp login recording (CodeByGaurav). Its script was not shown, so the cord drag and spring are an original implementation of the visible behavior.
+
+## Use Truck Pay Button in your project
+
+Copy **Truck Pay Button → Code** into `components/ui/truck-pay-button.tsx`. The SVG truck, animation, and scoped styles are bundled; no package is required.
+
+```tsx
+import TruckPayButton from "@/components/ui/truck-pay-button";
+
+export default function CheckoutPage() {
+  return <TruckPayButton />;
+}
+```
+
+Pressing the pill folds it into a road line. A small delivery truck loads parcels, rocks with its headlight on, and drives off; the pill returns as **Redirected ✓** with a drawn check. The truck keeps driving until both the minimum animation and your `onPay` promise have settled. A rejection shows **Try again**.
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `label` | `string` | `"Yeah, I want that"`. |
+| `successLabel` | `string` | `"Redirected"`. |
+| `onPay` | `() => void \| Promise<void>` | Start your payment or redirect work; reject to show the retry state. |
+| `onComplete` | `() => void` | Called after the success state appears. |
+| `resetAfter` | `number \| null` | `2500` ms before returning to idle; `null` keeps the success state. |
+| `className` | `string` | Additional container classes. |
+
+The button stays focusable with `aria-disabled` during a run, repeated presses are ignored, and a polite live region announces progress and results. With reduced motion, the drive is skipped. `TruckPayButtonThumbnail({ className?, previewStep? })` shows idle, driving, leaving, and success frames.
+
+Visual reference: the supplied truck payment-button recording. The brand logo from the recording is replaced with a neutral mark.
+
+## Use Isometric Social Icons in your project
+
+Copy **Isometric Social Icons → Code** into `components/ui/isometric-social-icons.tsx`. Icons are inline SVG and styles are scoped; no icon font or package is required.
+
+```tsx
+import IsometricSocialIcons from "@/components/ui/isometric-social-icons";
+
+export default function SocialFooter() {
+  return <IsometricSocialIcons />;
+}
+```
+
+Four dark slabs sit on an isometric floor. Hovering or keyboard-focusing a link lifts its layer stack in its platform color in 0.3s; leaving lets it settle back over 1.5s.
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `links` | `IsometricSocialLink[]` | Facebook, Twitter, Instagram, and LinkedIn. Each link has `id`, `label`, `href`, `color`, and an `icon` node. |
+| `layers` | `number` | `5`; clamped from 2 to 8. |
+| `newTab` | `boolean` | `true`; opens links with `target="_blank"` and `rel="noopener noreferrer"`. |
+| `className` | `string` | Additional container classes. |
+
+`DEFAULT_ISOMETRIC_SOCIAL_LINKS` is exported for extending the defaults. Reduced motion makes state changes instant. On very narrow containers the row becomes a 2×2 grid. `IsometricSocialIconsThumbnail({ className?, previewStep? })` raises each tile in turn.
+
+Visual reference: the supplied isometric social icons recording (CodeByGaurav). Font Awesome glyphs are replaced with inline SVG paths.
+
 ## Use Character Deck Slider in your project
 
 Copy **Character Deck Slider → Code** into `components/ui/character-deck-slider.tsx`. The scoped styles and the five default anime portraits are embedded in the export, so no public folder or extra package is required.

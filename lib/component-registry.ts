@@ -15,6 +15,96 @@ export type ComponentEntry = {
 /** The catalog drives the gallery, detail pages, and available source files. */
 export const components: ComponentEntry[] = [
   {
+    "slug": "lamp-login",
+    "title": "Lamp Login",
+    "description": "Pull the cord of a cream mushroom lamp to bathe a dark room in warm light and reveal a frosted glass sign-in card with a gold button.",
+    "category": "Forms",
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Accessible"
+    ],
+    "sourceFile": "lamp-login.tsx",
+    "fileName": "lamp-login.tsx",
+    "number": "044",
+    "demoNote": "Interactive demo · Pull or click the lamp cord (or focus it and press Enter) to switch on the light, then sign in with any username and password. Sign-in runs locally until you connect onSubmit.",
+    "features": [
+      {
+        "title": "Light as the interaction",
+        "description": "Dragging the cord stretches it and springs back; the shade glows, warm light floods the room, and the form springs into view."
+      },
+      {
+        "title": "A complete sign-in",
+        "description": "Labelled fields, required validation, a signing-in state, error alerts, and a welcome view with sign-out are built in."
+      },
+      {
+        "title": "Ready to connect",
+        "description": "Typed onSubmit and onToggle callbacks, a defaultOn option, keyboard-operable cord, inert hidden form, and reduced-motion support."
+      }
+    ],
+    "usage": "import LampLogin from \"@/components/ui/lamp-login\";\n\nexport default function LoginPage() {\n  return <LampLogin />;\n}"
+  },
+  {
+    "slug": "truck-pay-button",
+    "title": "Truck Pay Button",
+    "description": "A bright pill folds into a road as a little delivery truck loads up, rolls off with its headlight on, and the button returns with a drawn checkmark.",
+    "category": "Buttons",
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Accessible"
+    ],
+    "sourceFile": "truck-pay-button.tsx",
+    "fileName": "truck-pay-button.tsx",
+    "number": "043",
+    "demoNote": "Interactive demo · Press the button to watch the delivery run. Payment is simulated locally until you connect onPay; a rejected promise shows Try again.",
+    "features": [
+      {
+        "title": "A tiny delivery story",
+        "description": "The pill squashes into a road line, parcels arc into the truck, and it speeds away before the button reappears."
+      },
+      {
+        "title": "Honest about async work",
+        "description": "The truck keeps driving until both the minimum animation and your onPay promise settle, with success and retry states."
+      },
+      {
+        "title": "Safe to reuse",
+        "description": "Run guards, timer cleanup, live announcements, configurable labels and reset timing, and a reduced-motion path without the drive."
+      }
+    ],
+    "usage": "import TruckPayButton from \"@/components/ui/truck-pay-button\";\n\nexport default function CheckoutPage() {\n  return <TruckPayButton />;\n}"
+  },
+  {
+    "slug": "isometric-social-icons",
+    "title": "Isometric Social Icons",
+    "description": "Four dark isometric tiles lift into colorful layered stacks on hover or focus, then settle slowly back into the floor.",
+    "category": "Social",
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Accessible"
+    ],
+    "sourceFile": "isometric-social-icons.tsx",
+    "fileName": "isometric-social-icons.tsx",
+    "number": "042",
+    "demoNote": "Interactive demo · Hover a tile, or Tab through the links, to raise its colored layer stack. Supply your own links, icons, and colors.",
+    "features": [
+      {
+        "title": "Depth from pure CSS",
+        "description": "A rotated, skewed row of slabs with shaded side faces creates an isometric floor without any 3D library."
+      },
+      {
+        "title": "Fast up, slow down",
+        "description": "Layers rise in a quick 0.3s burst and fade back over 1.5s, each tinted with its platform color."
+      },
+      {
+        "title": "Real links, any platform",
+        "description": "Semantic navigation, keyboard focus parity, configurable layer count, new-tab control, and typed link data."
+      }
+    ],
+    "usage": "import IsometricSocialIcons from \"@/components/ui/isometric-social-icons\";\n\nexport default function SocialFooter() {\n  return <IsometricSocialIcons />;\n}"
+  },
+  {
     "slug": "character-deck-slider",
     "title": "Character Deck Slider",
     "description": "A white character card stacks anime portraits into a vertical deck: the active card blooms into color while neighbors fade to grayscale above and below.",
