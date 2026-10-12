@@ -22,10 +22,10 @@ type FieldName = "username" | "email" | "password";
 const PROVIDERS: SlidingSocialProvider[] = ["google", "facebook", "github", "linkedin"];
 const PROVIDER_NAMES = { google: "Google", facebook: "Facebook", github: "GitHub", linkedin: "LinkedIn" };
 
-function SlidingIcon({ name }: { name: FieldName | SlidingSocialProvider }) {
-  if (name === "google") return <span className="sa-google">G</span>;
-  if (name === "facebook") return <span className="sa-facebook">f</span>;
-  if (name === "linkedin") return <span className="sa-linkedin">in</span>;
+function SlidingIcon({ name, thumbnail = false }: { name: FieldName | SlidingSocialProvider; thumbnail?: boolean }) {
+  if (name === "google") return <span className={thumbnail ? "text-[12px] font-[750]" : "text-[22px] font-[750]"}>G</span>;
+  if (name === "facebook") return <span className={thumbnail ? "[font:bold_12px_Arial]" : "[font:bold_24px_Arial]"}>f</span>;
+  if (name === "linkedin") return <span className={thumbnail ? "[font:bold_10px_Arial] tracking-[-1px]" : "[font:bold_18px_Arial] tracking-[-1px]"}>in</span>;
   return <svg width="18" height="18" viewBox="0 0 24 24" fill={name === "github" ? "currentColor" : "none"} stroke={name === "github" ? "none" : "currentColor"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     {name === "username" && <><circle cx="12" cy="7.5" r="3.3" fill="currentColor" stroke="none" /><path d="M5.5 20v-2.3a6.5 6.5 0 0 1 13 0V20Z" fill="currentColor" stroke="none" /></>}
     {name === "email" && <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m4 7 8 6 8-6" /></>}
@@ -116,59 +116,88 @@ export default function SlidingAuth({ initialMode = "login", onLogin, onRegister
 
   function field(name: FieldName) {
     const label = name === "username" ? "Username" : name === "email" ? "Email" : "Password";
-    return <div className="sa-field-group" key={name}>
-      <label className="sa-sr-only" htmlFor={`${id}-${name}`}>{label}</label>
-      <div className="sa-input-wrap"><input id={`${id}-${name}`} name={name} type={name === "password" ? "password" : name === "email" ? "email" : "text"} placeholder={label} autoComplete={name === "password" ? (registering ? "new-password" : "current-password") : name} maxLength={name === "password" ? 128 : name === "email" ? 254 : 80} value={values[name]} required disabled={pending} aria-invalid={Boolean(errors[name])} aria-describedby={errors[name] ? `${id}-${name}-error` : undefined} onChange={(event) => { setValues((current) => ({ ...current, [name]: event.target.value })); setErrors((current) => ({ ...current, [name]: undefined })); }} /><span aria-hidden="true"><SlidingIcon name={name} /></span></div>
-      {errors[name] && <p className="sa-error" id={`${id}-${name}-error`}>{errors[name]}</p>}
+    return <div className="mb-5" key={name}>
+      <label className="sr-only" htmlFor={`${id}-${name}`}>{label}</label>
+      <div className="relative flex min-h-12 items-center rounded-[7px] bg-[#f2f2f2] has-[input[aria-invalid=true]]:[box-shadow:inset_0_0_0_1px_#b64343]"><input className="w-full min-w-0 rounded-[7px] border-0 bg-transparent py-[15px] pr-11 pl-[18px] text-[14px] text-[#303030] placeholder:text-[#888]" id={`${id}-${name}`} name={name} type={name === "password" ? "password" : name === "email" ? "email" : "text"} placeholder={label} autoComplete={name === "password" ? (registering ? "new-password" : "current-password") : name} maxLength={name === "password" ? 128 : name === "email" ? 254 : 80} value={values[name]} required disabled={pending} aria-invalid={Boolean(errors[name])} aria-describedby={errors[name] ? `${id}-${name}-error` : undefined} onChange={(event) => { setValues((current) => ({ ...current, [name]: event.target.value })); setErrors((current) => ({ ...current, [name]: undefined })); }} /><span className="absolute right-4 flex" aria-hidden="true"><SlidingIcon name={name} /></span></div>
+      {errors[name] && <p className="mt-[7px] text-left text-[11px] leading-[1.5] text-[#b4323b]" id={`${id}-${name}-error`}>{errors[name]}</p>}
     </div>;
   }
 
-  return <section className={`sliding-auth relative w-full ${className}`} aria-label="Sliding login and registration">
+  // The colour panel sweeps across (or, in the compact layout, down) while the mode switches.
+  const slide = !switching ? "" : registering
+    ? "animate-[sa-slide-right_.9s_cubic-bezier(.65,0,.35,1)] [@container(max-width:650px)]:[animation-name:sa-slide-down]"
+    : "animate-[sa-slide-left_.9s_cubic-bezier(.65,0,.35,1)] [@container(max-width:650px)]:[animation-name:sa-slide-up]";
+
+  return <section className={`sliding-auth relative flex w-full min-w-0 flex-col isolate text-[#303030] [font-family:Arial,Helvetica,sans-serif] [--sa-blue:#7b9fe0] @container ${className}`} aria-label="Sliding login and registration">
     <ComponentStyles css={SLIDING_STYLES} />
-    <div className="sa-stage"><div className="sa-card" data-register={registering} data-switching={switching}>
-      <div className="sa-form-panel" inert={switching}>
-        <h2 className="sa-title" ref={headingRef} tabIndex={-1}>{completed ? "All set!" : title}</h2>
-        {completed ? <div className="sa-completed"><span className="sa-check" aria-hidden="true">✓</span><p role="status">{message}</p><button type="button" className="sa-primary" onClick={() => changeMode("login")}>Back to login</button></div> : <>
-          <form ref={formRef} onSubmit={submit} noValidate aria-busy={pending}>
-            {mode === "reset" && <p className="sa-reset-copy">Enter your email and we’ll help you get back in.</p>}
-            {mode !== "reset" && field("username")}
-            {mode !== "login" && field("email")}
-            {mode !== "reset" && field("password")}
-            {mode === "login" && <button type="button" className="sa-forgot" disabled={pending} onClick={() => changeMode("reset")}>Forgot Password?</button>}
-            <button type="submit" className="sa-primary" disabled={pending}>{pending ? "Please wait…" : registering ? "Register" : mode === "reset" ? "Send reset link" : "Login"}</button>
-          </form>
-          {mode === "reset" ? <button type="button" className="sa-forgot" disabled={pending} onClick={() => changeMode("login")}>Back to login</button> : <><p className="sa-social-copy">or {registering ? "register" : "login"} with social platforms</p><div className="sa-socials">{PROVIDERS.map((provider) => <button type="button" key={provider} disabled={pending} aria-label={`Continue with ${PROVIDER_NAMES[provider]}`} onClick={() => void runAction(onSocialSignIn ? () => onSocialSignIn(provider) : undefined, `${PROVIDER_NAMES[provider]} demo selected. Connect onSocialSignIn to continue with a provider.`, "Provider sign-in completed.", false)}><SlidingIcon name={provider} /></button>)}</div></>}
-          {message && <p className={failed ? "sa-error sa-feedback" : "sa-feedback"} role={failed ? "alert" : "status"}>{message}</p>}
-        </>}
+    <div className="grid min-h-[620px] flex-[1_0_auto] place-items-center bg-[linear-gradient(100deg,#e4e8eb,#e2e8fa)] px-6 py-[34px] [@container(max-width:650px)]:min-h-[750px] [@container(max-width:650px)]:px-4 [@container(max-width:650px)]:py-5">
+      <div className="relative min-h-[550px] w-full max-w-[850px] overflow-hidden rounded-[30px] bg-white [box-shadow:0_0_30px_#0002] [@container(max-width:650px)]:min-h-[710px] [@container(max-width:650px)]:max-w-[420px] [@container(max-width:650px)]:rounded-[24px]" data-register={registering} data-switching={switching}>
+        <div className="relative ml-[50%] flex min-h-[550px] w-1/2 flex-col justify-center p-10 text-center [transition:margin-left_.9s_cubic-bezier(.65,0,.35,1)] in-data-[register=true]:ml-0 in-data-[switching=true]:animate-[sa-content_.9s_both] [@container(max-width:650px)]:mt-[240px] [@container(max-width:650px)]:ml-0 [@container(max-width:650px)]:min-h-[470px] [@container(max-width:650px)]:w-full [@container(max-width:650px)]:px-7 [@container(max-width:650px)]:py-[35px] [@container(max-width:650px)]:in-data-[register=true]:mt-0 [@container(max-width:650px)]:in-data-[register=true]:mb-[240px]" inert={switching}>
+          <h2 className="sa-title mb-7 text-[34px] leading-[1.2] font-[750] tracking-[-1.2px] [@container(max-width:650px)]:text-[30px]" ref={headingRef} tabIndex={-1}>{completed ? "All set!" : title}</h2>
+          {completed ? <div><span className="inline-grid size-14 place-items-center rounded-[50%] bg-[#edf3ff] text-[28px] text-[#6087cf]" aria-hidden="true">✓</span><p className="my-5 text-[14px] leading-[1.8]" role="status">{message}</p><button type="button" className={PRIMARY_BUTTON} onClick={() => changeMode("login")}>Back to login</button></div> : <>
+            <form ref={formRef} onSubmit={submit} noValidate aria-busy={pending}>
+              {mode === "reset" && <p className="mb-[25px] text-[13px] leading-[1.7]">Enter your email and we’ll help you get back in.</p>}
+              {mode !== "reset" && field("username")}
+              {mode !== "login" && field("email")}
+              {mode !== "reset" && field("password")}
+              {mode === "login" && <button type="button" className={`-mt-px ${TEXT_BUTTON}`} disabled={pending} onClick={() => changeMode("reset")}>Forgot Password?</button>}
+              <button type="submit" className={PRIMARY_BUTTON} disabled={pending}>{pending ? "Please wait…" : registering ? "Register" : mode === "reset" ? "Send reset link" : "Login"}</button>
+            </form>
+            {mode === "reset" ? <button type="button" className={`mt-[18px] ${TEXT_BUTTON}`} disabled={pending} onClick={() => changeMode("login")}>Back to login</button> : <><p className="mt-[19px] mb-[15px] text-[12px] text-[#555]">or {registering ? "register" : "login"} with social platforms</p><div className="flex justify-center gap-3">{PROVIDERS.map((provider) => <button type="button" className={`grid h-[41px] w-[43px] place-items-center rounded-[7px] border border-[#d5d5d5] bg-white text-[#333] hover:border-(--sa-blue) hover:bg-[#f2f5fc] ${BUTTON_STATES}`} key={provider} disabled={pending} aria-label={`Continue with ${PROVIDER_NAMES[provider]}`} onClick={() => void runAction(onSocialSignIn ? () => onSocialSignIn(provider) : undefined, `${PROVIDER_NAMES[provider]} demo selected. Connect onSocialSignIn to continue with a provider.`, "Provider sign-in completed.", false)}><SlidingIcon name={provider} /></button>)}</div></>}
+            {message && <p className={failed ? "mt-4 text-left text-[12px] leading-[1.6] text-[#b4323b]" : "mt-4 text-[12px] leading-[1.6]"} role={failed ? "alert" : "status"}>{message}</p>}
+          </>}
+        </div>
+        <div className={`absolute inset-y-0 left-0 z-2 flex w-1/2 items-center justify-center rounded-[0_150px_150px_0] bg-(--sa-blue) text-white in-data-[register=true]:left-1/2 in-data-[register=true]:rounded-[150px_0_0_150px] [@container(max-width:650px)]:top-0 [@container(max-width:650px)]:bottom-auto [@container(max-width:650px)]:left-0 [@container(max-width:650px)]:h-[240px] [@container(max-width:650px)]:w-full [@container(max-width:650px)]:rounded-[0_0_95px_95px] [@container(max-width:650px)]:in-data-[register=true]:top-[calc(100%-240px)] [@container(max-width:650px)]:in-data-[register=true]:left-0 [@container(max-width:650px)]:in-data-[register=true]:rounded-[95px_95px_0_0] ${slide}`}>
+          <div className="sa-welcome w-full px-5 py-[30px] text-center in-data-[switching=true]:animate-[sa-content_.9s_both]" inert={switching}>
+            <h2 className="mb-[13px] text-[32px] leading-[1.15] font-[750] tracking-[-1px] [@container(max-width:650px)]:text-[29px]">{registering ? "Welcome Back!" : "Hello, Welcome!"}</h2>
+            <p className="mb-[23px] text-[13px] [@container(max-width:650px)]:mb-4">{registering ? "Already have an account?" : "Don’t have an account?"}</p>
+            <button type="button" className={`inline-flex min-h-[42px] min-w-[150px] items-center justify-center rounded-[8px] border-2 border-[#fffc] px-[25px] py-2.5 text-[14px] font-[650] text-white hover:bg-[#ffffff17] ${BUTTON_STATES}`} disabled={pending || switching} onClick={() => changeMode(registering ? "login" : "register")}>{registering ? "Login" : "Register"}</button>
+          </div>
+        </div>
       </div>
-      <div className="sa-color-panel"><div className="sa-welcome" inert={switching}>
-        <h2>{registering ? "Welcome Back!" : "Hello, Welcome!"}</h2>
-        <p>{registering ? "Already have an account?" : "Don’t have an account?"}</p>
-        <button type="button" disabled={pending || switching} onClick={() => changeMode(registering ? "login" : "register")}>{registering ? "Login" : "Register"}</button>
-      </div></div>
-    </div></div>
+    </div>
   </section>;
 }
 
 /** Static states for a gallery; no timers, forms, or interactive descendants. */
 export function SlidingAuthThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   const registering = Math.abs(Math.trunc(previewStep)) % 2 === 1;
-  return <div className={`sliding-auth sa-thumbnail ${className}`} aria-hidden="true" inert><ComponentStyles css={SLIDING_STYLES} /><div className="sa-stage"><div className="sa-card" data-register={registering}><div className="sa-form-panel"><h2 className="sa-title">{registering ? "Registration" : "Login"}</h2><div className="sa-input-wrap sa-fake-field">Username<SlidingIcon name="username" /></div>{registering && <div className="sa-input-wrap sa-fake-field">Email<SlidingIcon name="email" /></div>}<div className="sa-input-wrap sa-fake-field">Password<SlidingIcon name="password" /></div>{!registering && <span className="sa-forgot">Forgot Password?</span>}<span className="sa-primary">{registering ? "Register" : "Login"}</span><p className="sa-social-copy">or {registering ? "register" : "login"} with social platforms</p><div className="sa-socials">{PROVIDERS.map((provider) => <span key={provider}><SlidingIcon name={provider} /></span>)}</div></div><div className="sa-color-panel"><div className="sa-welcome"><h2>{registering ? "Welcome Back!" : "Hello, Welcome!"}</h2><p>{registering ? "Already have an account?" : "Don’t have an account?"}</p><span className="sa-switch-look">{registering ? "Login" : "Register"}</span></div></div></div></div></div>;
+  const fakeField = "relative mb-[11px] flex h-[25px] min-h-0 items-center justify-between rounded-[3px] bg-[#f2f2f2] px-2.5 py-[7px] text-[7px] text-[#888] [&>svg]:size-[9px]";
+  return <div className={`sliding-auth sa-thumbnail pointer-events-none flex h-full min-h-0 min-w-0 flex-col isolate text-[#303030] [font-family:Arial,Helvetica,sans-serif] [--sa-blue:#7b9fe0] @container ${className}`} aria-hidden="true" inert>
+    <ComponentStyles css={SLIDING_STYLES} />
+    <div className="grid h-full min-h-0 flex-[1_0_auto] place-items-center bg-[linear-gradient(100deg,#e4e8eb,#e2e8fa)] px-5 py-7">
+      <div className="relative min-h-[245px] w-full max-w-[430px] overflow-hidden rounded-[16px] bg-white [box-shadow:0_0_30px_#0002]" data-register={registering}>
+        <div className="relative ml-[50%] flex min-h-[245px] w-1/2 flex-col justify-center px-[15px] py-5 text-center [transition:margin-left_.9s_cubic-bezier(.65,0,.35,1)] in-data-[register=true]:ml-0">
+          <h2 className="mb-[15px] text-[17px] leading-[1.2] font-[750] tracking-[-0.4px]">{registering ? "Registration" : "Login"}</h2>
+          <div className={fakeField}>Username<SlidingIcon name="username" /></div>
+          {registering && <div className={fakeField}>Email<SlidingIcon name="email" /></div>}
+          <div className={fakeField}>Password<SlidingIcon name="password" /></div>
+          {!registering && <span className="mx-auto -mt-px mb-[9px] block text-[6px] text-[#555]">Forgot Password?</span>}
+          <span className="flex min-h-[23px] w-full items-center justify-center rounded-[3px] bg-(--sa-blue) p-[5px] text-[7px] font-[650] text-white [box-shadow:0_2px_5px_#0001]">{registering ? "Register" : "Login"}</span>
+          <p className="mt-[10px] mb-2 text-[6px] text-[#555]">or {registering ? "register" : "login"} with social platforms</p>
+          <div className="flex justify-center gap-[6px]">{PROVIDERS.map((provider) => <span className="grid size-[21px] place-items-center rounded-[4px] border border-[#d5d5d5] bg-white text-[#333] [&>svg]:size-[11px]" key={provider}><SlidingIcon name={provider} thumbnail /></span>)}</div>
+        </div>
+        <div className="absolute inset-y-0 left-0 z-2 flex w-1/2 items-center justify-center rounded-[0_70px_70px_0] bg-(--sa-blue) text-white [transition:left_.9s_cubic-bezier(.65,0,.35,1),border-radius_.9s] in-data-[register=true]:left-1/2 in-data-[register=true]:rounded-[70px_0_0_70px]">
+          <div className="w-full px-[9px] py-[15px] text-center">
+            <h2 className="mb-2 text-[17px] leading-[1.15] font-[750] tracking-[-0.5px]">{registering ? "Welcome Back!" : "Hello, Welcome!"}</h2>
+            <p className="mb-[13px] text-[7px]">{registering ? "Already have an account?" : "Don’t have an account?"}</p>
+            <span className="inline-flex min-h-[23px] min-w-[74px] items-center justify-center rounded-[4px] border border-[#fffc] px-2.5 py-[5px] text-[7px] font-[650] text-white">{registering ? "Login" : "Register"}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>;
 }
 
+const BUTTON_STATES = "cursor-pointer disabled:cursor-wait disabled:opacity-65";
+const PRIMARY_BUTTON = `flex min-h-[45px] w-full items-center justify-center rounded-[7px] bg-(--sa-blue) px-[15px] py-3 text-[14px] font-[650] text-white [box-shadow:0_2px_5px_#0001] hover:bg-[#6b90d1] ${BUTTON_STATES}`;
+const TEXT_BUTTON = `mx-auto mb-[17px] block text-[12px] text-[#555] hover:underline ${BUTTON_STATES}`;
+
+// Only what utilities cannot do stays here: focus rings must beat the host app's unlayered
+// global :focus-visible outline, keyframes, and a blanket reduced-motion reset.
 const SLIDING_STYLES = `
-.sliding-auth{--sa-blue:#7b9fe0;container-type:inline-size;font-family:Arial,Helvetica,sans-serif;color:#303030;isolation:isolate;min-width:0}
-.sliding-auth *{box-sizing:border-box}.sliding-auth button,.sliding-auth input{font:inherit}.sliding-auth button{cursor:pointer}.sliding-auth button:disabled{cursor:wait;opacity:.65}.sliding-auth button:focus-visible,.sliding-auth input:focus-visible{outline:3px solid #3c63b5;outline-offset:4px}.sliding-auth .sa-title:focus{outline:none}
-.sliding-auth .sa-stage{display:grid;place-items:center;min-height:620px;padding:34px 24px;background:linear-gradient(100deg,#e4e8eb,#e2e8fa)}
-.sliding-auth .sa-card{position:relative;width:100%;max-width:850px;min-height:550px;background:#fff;border-radius:30px;box-shadow:0 0 30px #0002;overflow:hidden}
-.sliding-auth .sa-form-panel{position:relative;display:flex;flex-direction:column;justify-content:center;min-height:550px;width:50%;margin-left:50%;padding:40px;transition:margin-left .9s cubic-bezier(.65,0,.35,1);text-align:center}
-.sliding-auth .sa-card[data-register=true] .sa-form-panel{margin-left:0}.sliding-auth .sa-title{font-size:34px;line-height:1.2;font-weight:750;margin:0 0 28px;letter-spacing:-1.2px}.sliding-auth .sa-field-group{margin:0 0 20px}.sliding-auth .sa-input-wrap{position:relative;display:flex;align-items:center;min-height:48px;background:#f2f2f2;border-radius:7px}.sliding-auth .sa-input-wrap input{width:100%;min-width:0;border:0;border-radius:7px;background:transparent;padding:15px 44px 15px 18px;font-size:14px;color:#303030;outline-offset:2px}.sliding-auth .sa-input-wrap input::placeholder{color:#888}.sliding-auth .sa-input-wrap>span{position:absolute;right:16px;display:flex}.sliding-auth .sa-input-wrap:has(input[aria-invalid=true]){box-shadow:inset 0 0 0 1px #b64343}
-.sliding-auth .sa-forgot{display:block;border:0;background:none;font-size:12px;color:#555;margin:-1px auto 17px;padding:0;text-decoration:none}.sliding-auth button.sa-forgot:hover{text-decoration:underline}.sliding-auth .sa-primary{display:flex;align-items:center;justify-content:center;min-height:45px;width:100%;border:0;border-radius:7px;background:var(--sa-blue);box-shadow:0 2px 5px #0001;color:#fff;font-size:14px;font-weight:650;padding:12px 15px}.sliding-auth .sa-primary:hover{background:#6b90d1}.sliding-auth .sa-social-copy{margin:19px 0 15px;font-size:12px;color:#555}.sliding-auth .sa-socials{display:flex;justify-content:center;gap:12px}.sliding-auth .sa-socials>button,.sliding-auth .sa-socials>span{display:grid;place-items:center;width:43px;height:41px;border:1px solid #d5d5d5;border-radius:7px;background:#fff;color:#333}.sliding-auth .sa-socials>button:hover{background:#f2f5fc;border-color:var(--sa-blue)}.sliding-auth .sa-google{font-weight:750;font-size:22px}.sliding-auth .sa-facebook{font:bold 24px Arial}.sliding-auth .sa-linkedin{font:bold 18px Arial;letter-spacing:-1px}
-.sliding-auth .sa-color-panel{position:absolute;z-index:2;inset:0 auto 0 0;width:50%;background:var(--sa-blue);border-radius:0 150px 150px 0;display:flex;align-items:center;justify-content:center;color:#fff}.sliding-auth .sa-card[data-register=true] .sa-color-panel{left:50%;border-radius:150px 0 0 150px}.sliding-auth .sa-welcome{width:100%;text-align:center;padding:30px 20px}.sliding-auth .sa-welcome h2{font-size:32px;font-weight:750;letter-spacing:-1px;line-height:1.15;margin:0 0 13px}.sliding-auth .sa-welcome p{font-size:13px;margin:0 0 23px}.sliding-auth .sa-welcome button,.sliding-auth .sa-switch-look{display:inline-flex;align-items:center;justify-content:center;min-width:150px;min-height:42px;border:2px solid #fffc;border-radius:8px;padding:10px 25px;background:transparent;color:#fff;font-size:14px;font-weight:650}.sliding-auth .sa-welcome button:hover{background:#ffffff17}.sliding-auth .sa-welcome button:focus-visible{outline-color:#fff}
-.sliding-auth .sa-card[data-switching=true][data-register=true] .sa-color-panel{animation:sa-slide-right .9s cubic-bezier(.65,0,.35,1)}.sliding-auth .sa-card[data-switching=true][data-register=false] .sa-color-panel{animation:sa-slide-left .9s cubic-bezier(.65,0,.35,1)}.sliding-auth .sa-card[data-switching=true] .sa-form-panel,.sliding-auth .sa-card[data-switching=true] .sa-welcome{animation:sa-content .9s both}.sliding-auth .sa-error{margin:7px 0 0;color:#b4323b;text-align:left;font-size:11px;line-height:1.5}.sliding-auth .sa-feedback{margin:16px 0 0;font-size:12px;line-height:1.6}.sliding-auth .sa-completed p{font-size:14px;line-height:1.8;margin:20px 0}.sliding-auth .sa-check{display:inline-grid;place-items:center;width:56px;height:56px;border-radius:50%;background:#edf3ff;color:#6087cf;font-size:28px}.sliding-auth .sa-reset-copy{font-size:13px;line-height:1.7;margin:0 0 25px}.sliding-auth .sa-sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.sliding-auth .sa-form-panel>button.sa-forgot{margin-top:18px}
+.sliding-auth button:focus-visible,.sliding-auth input:focus-visible{outline:3px solid #3c63b5;outline-offset:4px}.sliding-auth input:focus-visible{outline-offset:2px}.sliding-auth .sa-welcome button:focus-visible{outline-color:#fff}.sliding-auth .sa-title:focus{outline:none}
 @keyframes sa-slide-right{0%{left:0;width:50%;border-radius:0 150px 150px 0}45%{left:0;width:100%;border-radius:0}100%{left:50%;width:50%;border-radius:150px 0 0 150px}}@keyframes sa-slide-left{0%{left:50%;width:50%;border-radius:150px 0 0 150px}45%{left:0;width:100%;border-radius:0}100%{left:0;width:50%;border-radius:0 150px 150px 0}}@keyframes sa-content{0%,46%{opacity:0}100%{opacity:1}}
-@container(max-width:650px){.sliding-auth:not(.sa-thumbnail) .sa-stage{padding:20px 16px;min-height:750px}.sliding-auth:not(.sa-thumbnail) .sa-card{min-height:710px;max-width:420px;border-radius:24px}.sliding-auth:not(.sa-thumbnail) .sa-form-panel{width:100%;min-height:470px;margin:240px 0 0;padding:35px 28px}.sliding-auth:not(.sa-thumbnail) .sa-card[data-register=true] .sa-form-panel{margin:0 0 240px}.sliding-auth:not(.sa-thumbnail) .sa-color-panel{width:100%;height:240px;left:0;top:0;bottom:auto;border-radius:0 0 95px 95px}.sliding-auth:not(.sa-thumbnail) .sa-card[data-register=true] .sa-color-panel{left:0;top:calc(100% - 240px);border-radius:95px 95px 0 0}.sliding-auth:not(.sa-thumbnail) .sa-welcome h2{font-size:29px}.sliding-auth:not(.sa-thumbnail) .sa-welcome p{margin-bottom:16px}.sliding-auth:not(.sa-thumbnail) .sa-card[data-switching=true][data-register=true] .sa-color-panel{animation-name:sa-slide-down}.sliding-auth:not(.sa-thumbnail) .sa-card[data-switching=true][data-register=false] .sa-color-panel{animation-name:sa-slide-up}.sliding-auth:not(.sa-thumbnail) .sa-title{font-size:30px}}
 @keyframes sa-slide-down{0%{top:0;height:240px;border-radius:0 0 95px 95px}45%{top:0;height:100%;border-radius:0}100%{top:calc(100% - 240px);height:240px;border-radius:95px 95px 0 0}}@keyframes sa-slide-up{0%{top:calc(100% - 240px);height:240px;border-radius:95px 95px 0 0}45%{top:0;height:100%;border-radius:0}100%{top:0;height:240px;border-radius:0 0 95px 95px}}
-.sliding-auth.sa-thumbnail{height:100%;min-height:0;pointer-events:none}.sliding-auth.sa-thumbnail .sa-stage{height:100%;min-height:0;padding:28px 20px}.sliding-auth.sa-thumbnail .sa-card{min-height:245px;max-width:430px;border-radius:16px}.sliding-auth.sa-thumbnail .sa-form-panel{min-height:245px;padding:20px 15px}.sliding-auth.sa-thumbnail .sa-title{font-size:17px;letter-spacing:-.4px;margin-bottom:15px}.sliding-auth.sa-thumbnail .sa-fake-field{font-size:7px;height:25px;min-height:0;padding:7px 10px;margin-bottom:11px;justify-content:space-between;color:#888;border-radius:3px}.sliding-auth.sa-thumbnail .sa-fake-field svg{width:9px;height:9px}.sliding-auth.sa-thumbnail .sa-primary{min-height:23px;padding:5px;font-size:7px;border-radius:3px}.sliding-auth.sa-thumbnail .sa-forgot{font-size:6px;margin-bottom:9px}.sliding-auth.sa-thumbnail .sa-social-copy{font-size:6px;margin:10px 0 8px}.sliding-auth.sa-thumbnail .sa-socials{gap:6px}.sliding-auth.sa-thumbnail .sa-socials>span{width:21px;height:21px;border-radius:4px}.sliding-auth.sa-thumbnail .sa-socials svg{width:11px;height:11px}.sliding-auth.sa-thumbnail .sa-google,.sliding-auth.sa-thumbnail .sa-facebook{font-size:12px}.sliding-auth.sa-thumbnail .sa-linkedin{font-size:10px}.sliding-auth.sa-thumbnail .sa-welcome{padding:15px 9px}.sliding-auth.sa-thumbnail .sa-welcome h2{font-size:17px;letter-spacing:-.5px;margin-bottom:8px}.sliding-auth.sa-thumbnail .sa-welcome p{font-size:7px;margin-bottom:13px}.sliding-auth.sa-thumbnail .sa-switch-look{min-width:74px;min-height:23px;padding:5px 10px;font-size:7px;border-width:1px;border-radius:4px}.sliding-auth.sa-thumbnail .sa-color-panel{border-radius:0 70px 70px 0;transition:left .9s cubic-bezier(.65,0,.35,1),border-radius .9s}.sliding-auth.sa-thumbnail .sa-card[data-register=true] .sa-color-panel{border-radius:70px 0 0 70px}
 @media(prefers-reduced-motion:reduce){.sliding-auth *,.sliding-auth *::before,.sliding-auth *::after{animation:none!important;transition:none!important}}
 `;

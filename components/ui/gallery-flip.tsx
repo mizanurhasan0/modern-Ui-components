@@ -174,14 +174,14 @@ export default function GalleryFlip({ photos = DEFAULT_PHOTOS, title = "Gallery 
     event.preventDefault(); setFocused(next); refs.current[next]?.focus();
   }
 
-  return <section className={`gallery-flip relative flex w-full flex-col items-center justify-center ${className}`} aria-labelledby={`${id}-title`}>
+  return <section className={`gallery-flip ${SURFACE} relative flex min-h-[640px] w-full flex-col items-center justify-center px-[28px] pt-[56px] pb-[44px] [@media(max-width:480px)]:min-h-[510px] [@media(max-width:480px)]:px-[16px] [@media(max-width:480px)]:py-[42px] ${className}`} aria-labelledby={`${id}-title`}>
     <ComponentStyles css={STYLES} />
-    <h2 id={`${id}-title`} className="gf-title">{title} <span aria-hidden="true">🏙️</span></h2>
-    <p className="gf-help" id={`${id}-help`}>{expanded ? "Click any tile to get back" : "Choose a photo and watch the gallery unfold"}</p>
-    {photos.length ? <div className="gf-grid" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, "--gf-photo": `url(${JSON.stringify(photos[active].src)})` } as CSSProperties}>
+    <h2 id={`${id}-title`} className={`${TITLE} mb-[66px] text-[length:clamp(48px,3.6cqw,66px)] tracking-[-1.2px] [@container(max-width:480px)]:mb-[44px] [@container(max-width:480px)]:text-[38px]`}>{title} <span className={EMOJI} aria-hidden="true">🏙️</span></h2>
+    <p className={`${HELP} mb-[8px] text-[14px] [@container(max-width:480px)]:text-[12px]`} id={`${id}-help`}>{expanded ? "Click any tile to get back" : "Choose a photo and watch the gallery unfold"}</p>
+    {photos.length ? <div className={`${GRID} w-[min(100%,max(570px,min(52cqw,calc((100svh-300px)*1.5))))] gap-[2px] p-[2px]`} style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, "--gf-photo": `url(${JSON.stringify(photos[active].src)})` } as CSSProperties}>
       {photos.map((photo, index) => <button
         key={`${photo.id}-${index}`} ref={(node) => { refs.current[index] = node; }}
-        type="button" className="gf-tile" data-expanded={expanded}
+        type="button" className={`${TILE} cursor-pointer`} data-expanded={expanded}
         style={tileStyle(index, active, columns, rows, expanded)}
         tabIndex={index === (expanded ? active : Math.min(focused, photos.length - 1)) ? 0 : -1}
         aria-label={expanded ? `Return to gallery from ${photos[active].alt}` : `Expand ${photo.alt}`}
@@ -189,48 +189,45 @@ export default function GalleryFlip({ photos = DEFAULT_PHOTOS, title = "Gallery 
         onFocus={() => setFocused(index)} onKeyDown={(event) => navigate(event, index)}
         onClick={() => { if (expanded) { setExpanded(false); setFocused(index); } else { setSelected(index); setExpanded(true); } }}
       >
-        <span className="gf-front" style={{ backgroundImage: `url(${JSON.stringify(photo.src)})` }} />
-        <span className="gf-back" />
+        <span className={FRONT} style={{ backgroundImage: `url(${JSON.stringify(photo.src)})` }} />
+        <span className={BACK} />
       </button>)}
-      {Array.from({ length: columns * rows - photos.length }, (_, extra) => <div key={`filler-${extra}`} className="gf-tile gf-filler" data-expanded={expanded} style={tileStyle(photos.length + extra, active, columns, rows, expanded)} aria-hidden="true"><span className="gf-front" /><span className="gf-back" /></div>)}
-    </div> : <p className="gf-empty">Add photos to build your gallery.</p>}
-    <p className="gf-sr" role="status">{expanded && photos[active] ? photos[active].alt : `${photos.length} photographs. Use arrow keys to browse.`}</p>
+      {Array.from({ length: columns * rows - photos.length }, (_, extra) => <div key={`filler-${extra}`} className={`${TILE} cursor-default`} data-expanded={expanded} style={tileStyle(photos.length + extra, active, columns, rows, expanded)} aria-hidden="true"><span className={`${FRONT_FACE} bg-[#4e4a78]`} /><span className={BACK} /></div>)}
+    </div> : <p className="grid min-h-[250px] place-items-center text-[14px]">Add photos to build your gallery.</p>}
+    <p className="sr-only" role="status">{expanded && photos[active] ? photos[active].alt : `${photos.length} photographs. Use arrow keys to browse.`}</p>
   </section>;
 }
 
 export function GalleryFlipThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   const step = Math.abs(Math.trunc(previewStep)) % 4;
   const active = step === 3 ? 16 : 8;
-  return <div className={`gallery-flip gf-thumbnail ${className}`} aria-hidden="true" inert>
-    <ComponentStyles css={STYLES} /><h3 className="gf-title">Gallery Flip <span>🏙️</span></h3>
-    <p className="gf-help">{step ? "Click any tile to get back" : "Choose a photo and watch the gallery unfold"}</p>
-    <div className="gf-grid" style={{ "--gf-photo": `url(${JSON.stringify(DEFAULT_PHOTOS[active].src)})` } as CSSProperties}>{DEFAULT_PHOTOS.map((photo, index) => <div key={photo.id} className="gf-tile" data-expanded={step === 2 || step === 3 || (step === 1 && index % 6 < 3)} style={tileStyle(index, active, 6, 4, false)}><span className="gf-front" style={{ backgroundImage: `url(${JSON.stringify(photo.src)})` }} /><span className="gf-back" /></div>)}</div>
+  return <div className={`gallery-flip gf-thumbnail ${SURFACE} flex h-full min-h-0 flex-col items-center justify-center px-[12px] pt-[24px] pb-[18px] ${className}`} aria-hidden="true" inert>
+    <ComponentStyles css={STYLES} /><h3 className={`${TITLE} mb-[18px] text-[length:7cqw] tracking-[-0.2px]`}>Gallery Flip <span className={EMOJI}>🏙️</span></h3>
+    <p className={`${HELP} mb-[3px] text-[length:2cqw]`}>{step ? "Click any tile to get back" : "Choose a photo and watch the gallery unfold"}</p>
+    <div className={`${GRID} w-[76%] max-w-[350px] gap-px p-px`} style={{ "--gf-photo": `url(${JSON.stringify(DEFAULT_PHOTOS[active].src)})` } as CSSProperties}>{DEFAULT_PHOTOS.map((photo, index) => <div key={photo.id} className={`${THUMBNAIL_TILE} cursor-pointer`} data-expanded={step === 2 || step === 3 || (step === 1 && index % 6 < 3)} style={tileStyle(index, active, 6, 4, false)}><span className={FRONT} style={{ backgroundImage: `url(${JSON.stringify(photo.src)})` }} /><span className={BACK} /></div>)}</div>
   </div>;
 }
 
+// Shared Tailwind class lists (complete literals so Tailwind can scan them).
+const SURFACE = "@container isolate bg-[#4e4a78] text-center font-[family-name:Arial,Helvetica,sans-serif] text-white";
+const TITLE = "font-[family-name:Georgia,'Times_New_Roman',serif] font-normal leading-[1.15]";
+const EMOJI = "align-[4px] text-[length:.76em] tracking-[0]";
+const HELP = "font-[family-name:'Arial_Narrow',Arial,sans-serif] leading-[1.5] text-white";
+const GRID = "mx-auto grid grid-cols-6 rounded-[4px] bg-[#e9e8eb] perspective-[1100px]";
+/** A flip card: the front photo turns away and the back shows its slice of the selected photo. */
+const TILE_BASE = "gf-tile group relative block aspect-square min-w-0 rounded-[2px] border-none bg-transparent p-0 transform-3d data-[expanded=true]:rotate-y-180";
+const TILE = `${TILE_BASE} [transition:transform_.42s_ease-in-out]`;
+const THUMBNAIL_TILE = `${TILE_BASE} [transition:transform_.6s_ease-in-out]`;
+const FACE = "absolute inset-0 block overflow-hidden rounded-[2px] backface-hidden";
+// group-[:hover] matches plain :hover (Tailwind's hover: variant only applies on (hover: hover) devices).
+const FRONT_FACE = `${FACE} rotate-y-0 brightness-[.55] [transition:filter_.2s,scale_.2s] group-[:hover]:scale-[.96] group-[:hover]:brightness-100 group-focus-visible:scale-[.96] group-focus-visible:brightness-100`;
+const FRONT = `${FRONT_FACE} bg-cover bg-center`;
+const BACK = `${FACE} rotate-y-180 bg-[image:var(--gf-photo)] bg-[length:var(--gf-back-size)] bg-[position:var(--gf-back-position)]`;
+
+// Kept as raw CSS: the tile ring must beat the host page's unlayered :focus-visible
+// outline (Tailwind utilities live in a cascade layer), and reduced motion switches off
+// every transition in the component, including the per-tile inline transition delays.
 const STYLES = `
-.gallery-flip{container-type:inline-size;min-height:640px;padding:56px 28px 44px;background:#4e4a78;color:#fff;text-align:center;isolation:isolate;font-family:Arial,Helvetica,sans-serif}
-.gallery-flip *{box-sizing:border-box}
-.gf-title{margin:0 0 66px;font:normal 48px/1.15 Georgia,"Times New Roman",serif;letter-spacing:-1.2px}
-.gf-title>span{font-size:.76em;vertical-align:4px;letter-spacing:0}
-.gf-help{margin:0 0 8px;font:14px/1.5 "Arial Narrow",Arial,sans-serif;color:#fff}
-.gf-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));width:min(100%,570px);margin:0 auto;padding:2px;gap:2px;background:#e9e8eb;border-radius:4px;perspective:1100px}
-.gf-tile{display:block;position:relative;aspect-ratio:1;padding:0;border:0;border-radius:2px;background:transparent;transform-style:preserve-3d;transition:transform .42s ease-in-out;cursor:pointer;min-width:0}
-.gf-tile[data-expanded="true"]{transform:rotateY(180deg)}
-.gf-front,.gf-back{position:absolute;inset:0;display:block;backface-visibility:hidden;border-radius:2px;background-position:center;background-size:cover;overflow:hidden}
-.gf-front{transform:rotateY(0deg);transition:filter .2s,scale .2s;filter:brightness(.55)}
-.gf-tile:hover .gf-front,.gf-tile:focus-visible .gf-front{filter:brightness(1);scale:.96}
-.gf-back{transform:rotateY(180deg);background-image:var(--gf-photo);background-size:var(--gf-back-size);background-position:var(--gf-back-position)}
-.gf-filler{cursor:default}.gf-filler .gf-front{background:#4e4a78}
 .gf-tile:focus-visible{outline:3px solid #ffdd98;outline-offset:2px;z-index:2}
-.gf-empty{min-height:250px;display:grid;place-items:center;font-size:14px}
-.gf-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-.gf-thumbnail{height:100%;min-height:0;padding:24px 12px 18px;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.gf-thumbnail .gf-title{font-size:7cqw;margin:0 0 18px;letter-spacing:-.2px}
-.gf-thumbnail .gf-help{font-size:2cqw;margin-bottom:3px}
-.gf-thumbnail .gf-grid{width:76%;gap:1px;padding:1px;max-width:350px}
-.gf-thumbnail .gf-tile{transition:transform .6s ease-in-out}
-@container(max-width:480px){.gallery-flip:not(.gf-thumbnail) .gf-title{font-size:38px;margin-bottom:44px}.gallery-flip:not(.gf-thumbnail) .gf-help{font-size:12px}}
-@media(max-width:480px){.gallery-flip:not(.gf-thumbnail){min-height:510px;padding:42px 16px}}
 @media(prefers-reduced-motion:reduce){.gallery-flip *{transition:none!important;animation:none!important}}
 `;

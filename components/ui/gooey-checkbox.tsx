@@ -16,7 +16,7 @@ export interface GooeyCheckboxProps extends Omit<
 function CheckboxArtwork({ filterId }: { filterId: string }) {
   return (
     <svg
-      className="gc-artwork"
+      className="gc-artwork pointer-events-none absolute top-[-60px] left-[-60px] size-[240px] overflow-visible peer-focus-visible:rounded-[50%] peer-focus-visible:outline-3 peer-focus-visible:outline-offset-[-45px] peer-focus-visible:outline-[#86b6f9]"
       viewBox="0 0 240 240"
       fill="none"
       aria-hidden="true"
@@ -39,23 +39,37 @@ function CheckboxArtwork({ filterId }: { filterId: string }) {
         </filter>
       </defs>
       <circle
-        className="gc-ring"
+        className="gc-ring [transition:opacity_.15s_ease,stroke_.2s_ease] group-data-checked/gc:opacity-0 group-has-checked/gc:opacity-0 group-[:hover:not([data-disabled=true])]/gc:stroke-[#8b9bae] motion-reduce:transition-none"
         cx="120"
         cy="120"
         r="55"
         stroke="#a5a5a5"
         strokeWidth="8"
       />
-      <g className="gc-ink" fill="#4c95f7" filter={`url(#${filterId})`}>
-        <circle className="gc-body" cx="120" cy="120" r="60" />
+      <g
+        className="gc-ink opacity-0 [transition:opacity_.15s_ease] group-data-checked/gc:opacity-100 group-has-checked/gc:opacity-100 motion-reduce:transition-none"
+        fill="#4c95f7"
+        filter={`url(#${filterId})`}
+      >
+        <circle
+          className="gc-body origin-center [transform-box:fill-box] group-data-checked/gc:animate-[gc-squash_.6s_ease_both] group-has-checked/gc:animate-[gc-squash_.6s_ease_both] motion-reduce:animate-none!"
+          cx="120"
+          cy="120"
+          r="60"
+        />
         {[0, 60, 120, 180, 240, 300].map((angle) => (
           <g key={angle} transform={`rotate(${angle} 120 120)`}>
-            <circle className="gc-drop" cx="120" cy="120" r="20" />
+            <circle
+              className="gc-drop origin-center [transform-box:fill-box] [transform:scale(0)] group-data-checked/gc:animate-[gc-splash_.6s_ease_both] group-has-checked/gc:animate-[gc-splash_.6s_ease_both] motion-reduce:hidden"
+              cx="120"
+              cy="120"
+              r="20"
+            />
           </g>
         ))}
       </g>
       <path
-        className="gc-tick"
+        className="gc-tick opacity-0 [stroke-dasharray:1] [stroke-dashoffset:1] [transition:stroke-dashoffset_.4s_ease,opacity_.15s_ease] group-data-checked/gc:opacity-100 group-data-checked/gc:[stroke-dashoffset:0] group-has-checked/gc:opacity-100 group-has-checked/gc:[stroke-dashoffset:0] motion-reduce:transition-none"
         d="m94 125 19 17 34-47"
         pathLength="1"
         stroke="white"
@@ -84,14 +98,18 @@ export default function GooeyCheckbox({
 
   return (
     <div
-      className={`gooey-checkbox gc-stage grid w-full place-items-center bg-white ${className}`}
+      className={`gooey-checkbox gc-stage @container isolate grid min-h-[420px] w-full min-w-0 place-items-center bg-white px-6 py-[70px] [@container(max-width:420px)]:min-h-[350px] ${className}`}
     >
       <ComponentStyles css={GOOEY_CHECKBOX_STYLES} />
-      <label className="gc-control" htmlFor={inputId} data-disabled={disabled}>
+      <label
+        className="gc-control group/gc relative block size-[120px] cursor-pointer [-webkit-tap-highlight-color:transparent] data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-45 [@container(max-width:420px)]:scale-80 @min-[1000px]:scale-140"
+        htmlFor={inputId}
+        data-disabled={disabled}
+      >
         <input
           {...inputProps}
           id={inputId}
-          className="gc-input"
+          className="gc-input peer absolute inset-0 z-1 m-0 size-full cursor-[inherit] opacity-0"
           type="checkbox"
           checked={checked}
           defaultChecked={checked === undefined ? defaultChecked : undefined}
@@ -119,15 +137,15 @@ export function GooeyCheckboxThumbnail({
   const step = Math.abs(Math.trunc(previewStep)) % 4;
   return (
     <div
-      className={`gooey-checkbox gc-stage gc-thumbnail grid w-full place-items-center bg-white ${className}`}
+      className={`gooey-checkbox gc-stage gc-thumbnail pointer-events-none @container isolate grid h-full min-h-0 w-full min-w-0 place-items-center bg-white p-[30px] ${className}`}
       aria-hidden="true"
       inert
     >
       <ComponentStyles css={GOOEY_CHECKBOX_STYLES} />
+      {/* Frames 1-2 are checked; entering frame 1 plays the live splash. */}
       <div
-        className="gc-control"
-        data-checked={step === 1 || step === 2}
-        data-splash={step === 1}
+        className="gc-control group/gc relative block size-[120px] scale-70"
+        data-checked={step === 1 || step === 2 || undefined}
       >
         <CheckboxArtwork
           filterId={`gooey-thumbnail-${generatedId.replace(/:/g, "")}`}
@@ -137,31 +155,8 @@ export function GooeyCheckboxThumbnail({
   );
 }
 
+// Only the keyframes stay raw; every other style is a Tailwind utility above.
 const GOOEY_CHECKBOX_STYLES = `
-.gooey-checkbox{container-type:inline-size;isolation:isolate;min-width:0}
-.gooey-checkbox.gc-stage{min-height:420px;padding:70px 24px;background:#fff}
-.gooey-checkbox .gc-control{position:relative;display:block;width:120px;height:120px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.gooey-checkbox .gc-input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:inherit;z-index:1}
-.gooey-checkbox .gc-artwork{position:absolute;top:-60px;left:-60px;width:240px;height:240px;overflow:visible;pointer-events:none}
-.gooey-checkbox .gc-ring{transition:opacity .15s ease,stroke .2s ease}
-.gooey-checkbox .gc-ink{opacity:0;transition:opacity .15s ease}
-.gooey-checkbox .gc-body,.gooey-checkbox .gc-drop{transform-box:fill-box;transform-origin:center}
-.gooey-checkbox .gc-drop{transform:scale(0)}
-.gooey-checkbox .gc-tick{stroke-dasharray:1;stroke-dashoffset:1;opacity:0;transition:stroke-dashoffset .4s ease,opacity .15s ease}
-.gooey-checkbox .gc-control:is([data-checked=true],:has(>.gc-input:checked)) .gc-ring{opacity:0}
-.gooey-checkbox .gc-control:is([data-checked=true],:has(>.gc-input:checked)) .gc-ink{opacity:1}
-.gooey-checkbox .gc-control:is([data-checked=true],:has(>.gc-input:checked)) .gc-body{animation:gc-squash .6s ease both}
-.gooey-checkbox .gc-control:is([data-checked=true],:has(>.gc-input:checked)) .gc-drop{animation:gc-splash .6s ease both}
-.gooey-checkbox .gc-control:is([data-checked=true],:has(>.gc-input:checked)) .gc-tick{stroke-dashoffset:0;opacity:1}
-.gooey-checkbox .gc-control:hover:not([data-disabled=true]) .gc-ring{stroke:#8b9bae}
-.gooey-checkbox .gc-input:focus-visible+.gc-artwork{outline:3px solid #86b6f9;outline-offset:-45px;border-radius:50%}
-.gooey-checkbox .gc-control[data-disabled=true]{opacity:.45;cursor:not-allowed}
 @keyframes gc-squash{0%{transform:scale(.88)}22%{transform:scale(.97,1.08)}45%{transform:scale(1.07,.94)}72%{transform:scale(.98,1.02)}100%{transform:scale(1)}}
 @keyframes gc-splash{0%{transform:translateY(0) scale(0)}22%{transform:translateY(-59px) scale(.75)}46%{transform:translateY(-83px) scale(1)}70%{transform:translateY(-106px) scale(.55)}100%{transform:translateY(-116px) scale(0)}}
-@container(max-width:420px){.gooey-checkbox.gc-stage{min-height:350px}.gooey-checkbox .gc-control{scale:.8}}
-.gooey-checkbox.gc-thumbnail{height:100%;min-height:0;padding:30px;pointer-events:none}
-.gooey-checkbox.gc-thumbnail .gc-control{scale:.7}
-.gooey-checkbox.gc-thumbnail .gc-body,.gooey-checkbox.gc-thumbnail .gc-drop{animation:none}
-.gooey-checkbox.gc-thumbnail .gc-control[data-splash=true] .gc-drop{transform:translateY(-83px) scale(1)}
-@media(prefers-reduced-motion:reduce){.gooey-checkbox .gc-body,.gooey-checkbox .gc-drop{animation:none!important}.gooey-checkbox .gc-ring,.gooey-checkbox .gc-ink,.gooey-checkbox .gc-tick{transition:none!important}.gooey-checkbox .gc-drop{display:none}}
 `;

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ComponentStyles } from "./component-styles";
 
 export interface LuxuryClockProps {
   className?: string;
@@ -66,7 +65,7 @@ function readClock(instant: number | null, zone: string): ClockReading {
 function Crown() {
   return (
     <svg
-      className="lux-clock-crown"
+      className="lux-clock-crown absolute top-[20.5%] left-1/2 h-[calc(var(--lux-clock-size)*.054)] w-[calc(var(--lux-clock-size)*.065)] -translate-x-1/2 text-[#9f8522] drop-shadow-[0_0_2px_rgba(255,215,0,.2)]"
       viewBox="0 0 46 31"
       fill="currentColor"
       aria-hidden="true"
@@ -82,48 +81,82 @@ function Crown() {
   );
 }
 
+/** Every dial measurement scales from --lux-clock-size, set by the stage or thumbnail. */
+const NUMBER_CLASS =
+  "lux-clock-number absolute [font:700_calc(var(--lux-clock-size)*.069)/1_Arial,sans-serif] tracking-[-.035em] text-[#f8df67] text-shadow-[0_0_9px_rgba(255,215,0,.55)]";
+const HAND_CLASS =
+  "lux-clock-hand pointer-events-none absolute bottom-1/2 left-1/2 origin-bottom rounded-[10px]";
+
 function ClockDial({
   reading,
   brand,
-  className = "",
+  thumbnail = false,
 }: {
   reading: ClockReading;
   brand: string;
-  className?: string;
+  thumbnail?: boolean;
 }) {
   const hour =
     (reading.hours % 12) * 30 + reading.minutes * 0.5 + reading.seconds / 120;
   const minute = reading.minutes * 6 + reading.seconds * 0.1;
   const second = reading.seconds * 6;
+  // Gallery frames step the hands, so only the thumbnail eases between positions.
+  const handMotion = thumbnail
+    ? "[transition:transform_.7s_ease] motion-reduce:[transition:none]"
+    : "";
   return (
-    <div className={`lux-clock-dial ${className}`}>
-      <div className="lux-clock-face">
-        <span className="lux-clock-number lux-clock-twelve">12</span>
-        <span className="lux-clock-number lux-clock-three">3</span>
-        <span className="lux-clock-number lux-clock-six">6</span>
-        <span className="lux-clock-number lux-clock-nine">9</span>
-        <Crown />
-        <span className="lux-clock-brand">{brand}</span>
+    <div className="lux-clock-dial size-(--lux-clock-size) rounded-[50%] bg-[#252525] p-[calc(var(--lux-clock-size)*.022)] shadow-[10px_14px_25px_rgba(0,0,0,.42),-4px_-3px_14px_rgba(255,255,255,.025)]">
+      <div className="lux-clock-face relative size-full rounded-[50%] bg-[#101010] shadow-[inset_0_0_10px_rgba(0,0,0,.15)]">
         <span
-          className="lux-clock-hand lux-clock-hour"
+          className={`${NUMBER_CLASS} top-[4.5%] left-1/2 -translate-x-1/2`}
+        >
+          12
+        </span>
+        <span
+          className={`${NUMBER_CLASS} top-1/2 right-[4.4%] -translate-y-1/2`}
+        >
+          3
+        </span>
+        <span
+          className={`${NUMBER_CLASS} bottom-[4.4%] left-1/2 -translate-x-1/2`}
+        >
+          6
+        </span>
+        <span
+          className={`${NUMBER_CLASS} top-1/2 left-[4.4%] -translate-y-1/2`}
+        >
+          9
+        </span>
+        <Crown />
+        <span
+          className={`lux-clock-brand absolute top-[27.3%] left-1/2 -translate-x-1/2 tracking-[.01em] text-[#006039] ${thumbnail ? "[font:700_calc(var(--lux-clock-size)*.048)/1_Georgia,serif]" : "[font:700_calc(var(--lux-clock-size)*.047)/1_Georgia,serif]"}`}
+        >
+          {brand}
+        </span>
+        <span
+          className={`${HAND_CLASS} z-1 h-[23.333%] w-[calc(var(--lux-clock-size)*.021)] bg-[#fff] opacity-90 ${handMotion}`}
           data-hand="hour"
           style={{ transform: `translateX(-50%) rotate(${hour}deg)` }}
         />
         <span
-          className="lux-clock-hand lux-clock-minute"
+          className={`${HAND_CLASS} z-2 h-[33.333%] w-[calc(var(--lux-clock-size)*.015)] bg-[#f1f1f1] ${handMotion}`}
           data-hand="minute"
           style={{ transform: `translateX(-50%) rotate(${minute}deg)` }}
         />
         <span
-          className="lux-clock-hand lux-clock-second"
+          className={`${HAND_CLASS} z-3 h-[40%] w-[calc(var(--lux-clock-size)*.0075)] bg-[#ffd700] shadow-[0_0_15px_#ffd700] ${handMotion}`}
           data-hand="second"
           style={{ transform: `translateX(-50%) rotate(${second}deg)` }}
         />
-        <span className="lux-clock-pin" />
+        <span className="lux-clock-pin absolute top-1/2 left-1/2 z-4 size-[calc(var(--lux-clock-size)*.052)] -translate-x-1/2 -translate-y-1/2 rounded-[50%] bg-[#ffd700] shadow-[0_0_14px_rgba(255,215,0,.55)]" />
       </div>
     </div>
   );
 }
+
+/** Shared backdrop; the root is the container the stage breakpoints query. */
+const ROOT_CLASS =
+  "lux-clock-root @container relative isolate flex w-full items-center justify-center overflow-hidden bg-[image:radial-gradient(ellipse_at_55%_48%,rgba(27,57,66,.24),transparent_70%),linear-gradient(135deg,#0f2027,#203a43_55%,#2c5364)] text-[#f8df67]";
 
 /** A gold-accented analog clock. Only a visible live clock owns a one-second timer. */
 export default function LuxuryClock({
@@ -183,20 +216,16 @@ export default function LuxuryClock({
   }, [fixed, timeZone]);
 
   return (
-    <div
-      ref={rootRef}
-      className={`lux-clock-root relative isolate flex w-full items-center justify-center overflow-hidden ${className}`}
-    >
-      <ComponentStyles css={LUXURY_CLOCK_CSS} />
+    <div ref={rootRef} className={`${ROOT_CLASS} ${className}`}>
       <div
-        className="lux-clock-stage"
+        className="lux-clock-stage grid min-h-[580px] w-full place-items-center self-stretch [container-type:size] [--lux-clock-size:max(min(390px,74cqw),min(66cqh,74cqw,760px))] @max-[520px]:min-h-[450px] @max-[520px]:[--lux-clock-size:max(min(340px,78cqw),min(66cqh,78cqw))] @max-[380px]:min-h-[390px] @max-[380px]:[--lux-clock-size:78cqw]"
         role="img"
         aria-label={`${ariaLabel}: ${reading.label}${display.instant === null ? "" : ` (${display.zone})`}`}
       >
         <ClockDial reading={reading} brand={brand} />
       </div>
       <time
-        className="lux-clock-sr-only"
+        className="lux-clock-sr-only sr-only"
         dateTime={
           display.instant === null
             ? undefined
@@ -221,18 +250,14 @@ export function LuxuryClockThumbnail({
   const second = (((step * 9) % 60) + 60) % 60;
   return (
     <div
-      className={`lux-clock-root lux-clock-thumbnail ${className}`}
+      className={`${ROOT_CLASS} lux-clock-thumbnail h-full min-h-[250px] [--lux-clock-size:min(242px,66cqw)] ${className}`}
       aria-hidden="true"
     >
-      <ComponentStyles css={LUXURY_CLOCK_CSS} />
       <ClockDial
         reading={{ hours: 10, minutes: 8, seconds: second, label: "" }}
         brand="ROLEX"
+        thumbnail
       />
     </div>
   );
 }
-
-const LUXURY_CLOCK_CSS = `
-.lux-clock-root{container-type:inline-size;position:relative;isolation:isolate;display:flex;align-items:center;justify-content:center;width:100%;overflow:hidden;background:radial-gradient(ellipse at 55% 48%,rgba(27,57,66,.24),transparent 70%),linear-gradient(135deg,#0f2027,#203a43 55%,#2c5364);color:#f8df67;--lux-clock-size:min(390px,74cqw)}.lux-clock-root *{box-sizing:border-box}.lux-clock-stage{width:100%;min-height:580px;display:grid;place-items:center}.lux-clock-dial{width:var(--lux-clock-size);height:var(--lux-clock-size);padding:calc(var(--lux-clock-size)*.022);border-radius:50%;background:#252525;box-shadow:10px 14px 25px rgba(0,0,0,.42),-4px -3px 14px rgba(255,255,255,.025)}.lux-clock-face{position:relative;width:100%;height:100%;border-radius:50%;background:#101010;box-shadow:inset 0 0 10px rgba(0,0,0,.15)}.lux-clock-number{position:absolute;font:700 calc(var(--lux-clock-size)*.069)/1 Arial,sans-serif;letter-spacing:-.035em;color:#f8df67;text-shadow:0 0 9px rgba(255,215,0,.55)}.lux-clock-twelve{top:4.5%;left:50%;transform:translateX(-50%)}.lux-clock-three{right:4.4%;top:50%;transform:translateY(-50%)}.lux-clock-six{bottom:4.4%;left:50%;transform:translateX(-50%)}.lux-clock-nine{left:4.4%;top:50%;transform:translateY(-50%)}.lux-clock-crown{position:absolute;width:calc(var(--lux-clock-size)*.065);height:calc(var(--lux-clock-size)*.054);top:20.5%;left:50%;transform:translateX(-50%);color:#9f8522;filter:drop-shadow(0 0 2px rgba(255,215,0,.2))}.lux-clock-brand{position:absolute;top:27.3%;left:50%;transform:translateX(-50%);font:700 calc(var(--lux-clock-size)*.047)/1 Georgia,serif;color:#006039;letter-spacing:.01em}.lux-clock-hand{position:absolute;left:50%;bottom:50%;transform-origin:50% 100%;border-radius:10px;pointer-events:none}.lux-clock-hour{height:23.333%;width:calc(var(--lux-clock-size)*.021);background:#fff;opacity:.9;z-index:1}.lux-clock-minute{height:33.333%;width:calc(var(--lux-clock-size)*.015);background:#f1f1f1;z-index:2}.lux-clock-second{height:40%;width:calc(var(--lux-clock-size)*.0075);background:#ffd700;box-shadow:0 0 15px #ffd700;z-index:3}.lux-clock-pin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:calc(var(--lux-clock-size)*.052);height:calc(var(--lux-clock-size)*.052);border-radius:50%;background:#ffd700;box-shadow:0 0 14px rgba(255,215,0,.55);z-index:4}.lux-clock-sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.lux-clock-thumbnail{min-height:250px;height:100%;--lux-clock-size:min(242px,66cqw)}.lux-clock-thumbnail .lux-clock-hand{transition:transform .7s ease}.lux-clock-thumbnail .lux-clock-brand{font-size:calc(var(--lux-clock-size)*.048)}@container(max-width:520px){.lux-clock-stage{min-height:450px;--lux-clock-size:min(340px,78cqw)}}@container(max-width:380px){.lux-clock-stage{min-height:390px;--lux-clock-size:78cqw}}@media(prefers-reduced-motion:reduce){.lux-clock-thumbnail .lux-clock-hand{transition:none}}
-`;

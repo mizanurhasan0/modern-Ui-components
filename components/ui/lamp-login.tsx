@@ -37,17 +37,72 @@ const FIELDS: { name: Field; label: string; placeholder: string }[] = [
   { name: "password", label: "Password", placeholder: "Enter Password" },
 ];
 
+/*
+ * Shared Tailwind class lists. The stage is the theme root (`group/ll`, data-on) and the
+ * container for every `@max-[…]`/`@min-[…]` query; the lamp is `group/lamp` (data-dragging, data-tug).
+ */
+const STAGE =
+  "ll-stage group/ll @container relative isolate box-border flex w-full min-w-0 items-center justify-center overflow-hidden " +
+  "[--accent-color:#d4a373] [--bg-color:#121417] [--error-color:#f28b82] [--glow-color:rgba(255,214,110,.3)] [--lamp-base:#d1ccc2] [--lamp-shade:#f5f0e6] " +
+  "bg-(--bg-color) font-[Inter,system-ui,-apple-system,sans-serif] text-white " +
+  // Warm room glow that fades in with the light.
+  "before:pointer-events-none before:absolute before:inset-0 before:-z-1 before:bg-[radial-gradient(circle_at_50%_40%,var(--glow-color),transparent_70%)] " +
+  "before:opacity-0 before:transition-opacity before:duration-500 before:ease-in-out before:content-[''] data-[on=true]:before:opacity-100";
+const LAMP = "ll-lamp group/lamp relative h-[400px] w-[280px] flex-none select-none [--ll-pull:0]";
+/** The cord stretches with `--ll-pull` (inline, from JS) and springs back; the thumbnail plays a keyframed tug. */
+const CORD_MOTION =
+  "transition-[transform] duration-550 ease-[cubic-bezier(.34,1.56,.64,1)] group-data-[dragging]/lamp:transition-none motion-reduce:transition-none";
+const PANEL = "ll-panel relative w-[340px] max-w-full flex-none";
+const CARD =
+  "ll-card pointer-events-none relative w-full rounded-[30px] border border-[rgba(255,255,255,.1)] bg-[rgba(255,255,255,.05)] p-10 " +
+  "opacity-0 shadow-[0_20px_40px_rgba(0,0,0,.3)] backdrop-blur-[20px] transition-[opacity,translate] duration-700 ease-[cubic-bezier(.175,.885,.32,1.275)] " +
+  "motion-safe:translate-y-[30px] group-data-[on=true]/ll:pointer-events-auto group-data-[on=true]/ll:translate-y-0 group-data-[on=true]/ll:opacity-100 " +
+  // Reduced motion: no slide, only a short fade.
+  "motion-reduce:transition-opacity motion-reduce:duration-300 motion-reduce:ease-[ease]";
+const TITLE = "ll-title block text-center text-2xl leading-[1.3] font-medium text-white";
+const FIELD = "ll-field mb-[1.2rem]";
+const LABEL = "ll-label mb-2 ml-[5px] block text-[.85rem] leading-[1.3] text-[#999]";
+const INPUT =
+  "ll-input block w-full rounded-[15px] border border-transparent bg-[rgba(255,255,255,.07)] px-[18px] py-[14px] text-base leading-[1.25] " +
+  "transition-[border-color,background-color] duration-300 ease-[ease]";
+/** Thumbnail stand-in for an input: placeholder grey until "typed", accent border while "focused". */
+const STATIC_INPUT =
+  `${INPUT} ll-input-static overflow-hidden whitespace-nowrap text-[#767a80] data-[filled=true]:text-white ` +
+  "data-[focus=true]:border-(--accent-color) data-[focus=true]:bg-[rgba(255,255,255,.12)]";
+const BUTTON =
+  "ll-btn mt-2.5 block w-full rounded-[15px] border-none bg-[linear-gradient(135deg,#bf953f,#fcf6ba,#b38728,#fcf6ba,#aa771c)] p-[15px] " +
+  "text-center text-base leading-[1.25] font-semibold text-[#121417] transition-[scale,background] duration-300 ease-[ease]";
+const BUTTON_LIVE =
+  `${BUTTON} cursor-pointer enabled:hover:bg-none enabled:hover:bg-(--lamp-shade) motion-safe:enabled:hover:scale-[1.02] disabled:cursor-wait disabled:opacity-80`;
+
 /** Mushroom desk lamp: dome shade, stem, base and a pull cord with a bead. */
 function LampArt() {
   return (
-    <svg className="ll-lamp-svg" viewBox="0 0 280 400" aria-hidden="true" focusable="false">
-      <ellipse className="ll-inner-glow" cx="140" cy="160" rx="88" ry="16" />
-      <rect className="ll-lamp-base" x="129" y="150" width="23" height="192" />
-      <rect className="ll-lamp-base" x="86" y="336" width="108" height="17" rx="8.5" />
-      <line className="ll-cord-line" x1="180.5" y1="152" x2="180.5" y2="248" />
-      <circle className="ll-cord-bead" cx="180.5" cy="255" r="8" />
+    <svg className="ll-lamp-svg block size-full overflow-visible" viewBox="0 0 280 400" aria-hidden="true" focusable="false">
+      <ellipse
+        className="ll-inner-glow fill-[#ffdb8a] opacity-0 blur-[15px] transition-opacity duration-500 ease-in-out group-data-[on=true]/ll:opacity-60"
+        cx="140"
+        cy="160"
+        rx="88"
+        ry="16"
+      />
+      <rect className="ll-lamp-base fill-(--lamp-base)" x="129" y="150" width="23" height="192" />
+      <rect className="ll-lamp-base fill-(--lamp-base)" x="86" y="336" width="108" height="17" rx="8.5" />
+      <line
+        className={`ll-cord-line origin-top stroke-[#555] stroke-2 transform-fill [transform:scaleY(calc(1_+_var(--ll-pull)_/_96))] motion-safe:group-data-[tug=true]/lamp:animate-[ll-tug-line_.7s_ease-out] ${CORD_MOTION}`}
+        x1="180.5"
+        y1="152"
+        x2="180.5"
+        y2="248"
+      />
+      <circle
+        className={`ll-cord-bead fill-(--accent-color) [transform:translateY(calc(var(--ll-pull)_*_1px))] motion-safe:group-data-[tug=true]/lamp:animate-[ll-tug-bead_.7s_ease-out] ${CORD_MOTION}`}
+        cx="180.5"
+        cy="255"
+        r="8"
+      />
       <path
-        className="ll-lamp-shade"
+        className="ll-lamp-shade fill-(--lamp-shade) [filter:drop-shadow(0_0_30px_rgba(255,255,200,0))] transition-[fill,filter] duration-500 ease-in-out group-data-[on=true]/ll:fill-white group-data-[on=true]/ll:[filter:drop-shadow(0_0_30px_rgba(255,255,200,.4))]"
         d="M45 141C45 102 88 84 140 84S235 102 235 141C235 149 233 153 226 154.5Q140 168 54 154.5C47 153 45 149 45 141Z"
       />
     </svg>
@@ -197,13 +252,18 @@ export default function LampLogin({ className = "", defaultOn = false, onToggle,
   }
 
   return (
-    <section className={`ll-stage relative w-full overflow-hidden ${className}`} data-on={on} aria-label="Lamp login">
+    <section
+      className={`${STAGE} min-h-[600px] px-4 py-10 @max-[640px]:before:bg-[radial-gradient(circle_at_50%_28%,var(--glow-color),transparent_70%)] ${className}`}
+      data-on={on}
+      aria-label="Lamp login"
+    >
       <ComponentStyles css={LAMP_LOGIN_CSS} />
-      <div className="ll-scene">
-        <div className="ll-lamp" ref={lamp}>
+      {/* Narrow containers stack the lamp above the card. */}
+      <div className="ll-scene flex w-full items-center justify-center gap-[clamp(28px,6cqw,56px)] @max-[640px]:flex-col @max-[640px]:gap-0">
+        <div className={`${LAMP} @max-[640px]:-mt-12 @max-[640px]:-mb-3 @max-[640px]:h-[280px] @max-[640px]:w-[196px]`} ref={lamp}>
           <LampArt />
           <button
-            className="ll-cord-button"
+            className="ll-cord-button absolute top-[37.5%] left-[64.5%] h-[35%] w-[max(15.7%,44px)] -translate-x-1/2 rounded-[22px] bg-transparent touch-none [-webkit-tap-highlight-color:transparent]"
             type="button"
             aria-pressed={on}
             aria-label="Lamp light"
@@ -215,30 +275,41 @@ export default function LampLogin({ className = "", defaultOn = false, onToggle,
           />
         </div>
 
-        <div className="ll-panel">
-          <p className="ll-hint" aria-hidden={on}>Pull the cord to switch on the light</p>
-          <div className="ll-card" data-state={status} inert={!on}>
+        <div className={PANEL}>
+          <p
+            className="ll-hint pointer-events-none absolute inset-0 flex items-center justify-center px-6 text-center text-[.9rem] leading-normal text-[#6b7078] select-none transition-opacity duration-500 ease-in-out group-data-[on=true]/ll:opacity-0 @max-[640px]:items-start @max-[640px]:pt-8"
+            aria-hidden={on}
+          >
+            Pull the cord to switch on the light
+          </p>
+          <div className={`${CARD} @max-[380px]:rounded-[26px] @max-[380px]:px-6 @max-[380px]:py-8`} data-state={status} inert={!on}>
             {status === "success" ? (
-              <div className="ll-success">
-                <h2 className="ll-title ll-welcome" tabIndex={-1} ref={successHeading}>
-                  Welcome back, <span className="ll-welcome-name">{welcomeName}</span>
+              <div className="ll-success text-center">
+                <h2
+                  className={`${TITLE} ll-welcome mb-3 wrap-anywhere focus-visible:rounded-[6px]`}
+                  tabIndex={-1}
+                  ref={successHeading}
+                >
+                  Welcome back, <span className="ll-welcome-name text-(--accent-color)">{welcomeName}</span>
                 </h2>
-                <p className="ll-note">{onSubmit ? "You’re signed in." : "Demo only — no account was signed in."}</p>
-                <button className="ll-btn" type="button" onClick={signOut}>Sign out</button>
+                <p className="ll-note mb-5 text-[.9rem] leading-normal text-[#999]">
+                  {onSubmit ? "You’re signed in." : "Demo only — no account was signed in."}
+                </p>
+                <button className={BUTTON_LIVE} type="button" onClick={signOut}>Sign out</button>
               </div>
             ) : (
               <>
-                <h2 className="ll-title" id={`${id}-title`}>Welcome</h2>
+                <h2 className={`${TITLE} mb-6`} id={`${id}-title`}>Welcome</h2>
                 <form className="ll-form" onSubmit={submit} noValidate aria-labelledby={`${id}-title`} aria-busy={pending}>
                   {FIELDS.map(({ name, label, placeholder }) => {
                     const error = errors[name];
                     return (
-                      <div className="ll-field" key={name}>
-                        <label className="ll-label" htmlFor={`${id}-${name}`}>{label}</label>
+                      <div className={FIELD} key={name}>
+                        <label className={LABEL} htmlFor={`${id}-${name}`}>{label}</label>
                         <input
                           id={`${id}-${name}`}
                           ref={(element) => { fields.current[name] = element; }}
-                          className="ll-input"
+                          className={`${INPUT} text-white placeholder:text-[#767a80] focus:border-(--accent-color) focus:bg-[rgba(255,255,255,.12)] aria-invalid:border-(--error-color) disabled:cursor-wait disabled:opacity-60`}
                           name={name}
                           type={name === "password" ? "password" : "text"}
                           autoComplete={name === "password" ? "current-password" : "username"}
@@ -253,14 +324,25 @@ export default function LampLogin({ className = "", defaultOn = false, onToggle,
                           disabled={pending}
                           onChange={(event) => updateField(name, event.target.value)}
                         />
-                        {error && <p className="ll-field-error" id={`${id}-${name}-error`}>{error}</p>}
+                        {error && (
+                          <p className="ll-field-error mt-[6px] ml-[5px] text-[.8rem] leading-[1.4] text-(--error-color)" id={`${id}-${name}-error`}>
+                            {error}
+                          </p>
+                        )}
                       </div>
                     );
                   })}
-                  <button className="ll-btn" type="submit" disabled={pending} aria-busy={pending}>
+                  <button className={BUTTON_LIVE} type="submit" disabled={pending} aria-busy={pending}>
                     {pending ? "Signing in…" : "Sign In"}
                   </button>
-                  {submitError && <p className="ll-submit-error" role="alert">{submitError}</p>}
+                  {submitError && (
+                    <p
+                      className="ll-submit-error mt-[14px] rounded-xl border border-[rgba(242,139,130,.35)] bg-[rgba(242,139,130,.1)] px-3 py-2.5 text-center text-[.85rem] leading-[1.45] text-[#f9c4bf]"
+                      role="alert"
+                    >
+                      {submitError}
+                    </p>
+                  )}
                 </form>
               </>
             )}
@@ -278,27 +360,33 @@ export function LampLoginThumbnail({ className = "", previewStep = 0 }: { classN
   const typing = step >= 2;
 
   return (
-    <div className={`ll-stage ll-thumbnail relative h-full w-full overflow-hidden ${className}`} data-on={on} aria-hidden="true" inert>
+    <div className={`${STAGE} ll-thumbnail h-full min-h-0 ${className}`} data-on={on} aria-hidden="true" inert>
       <ComponentStyles css={LAMP_LOGIN_CSS} />
-      <div className="ll-scene">
-        <div className="ll-lamp" data-tug={step === 1}>
+      {/* The desktop scene, scaled to fit the gallery card. */}
+      <div className="ll-scene flex w-[720px] flex-none scale-50 items-center justify-center gap-[52px] @max-[380px]:scale-[.44] @min-[480px]:scale-60">
+        <div className={LAMP} data-tug={step === 1}>
           <LampArt />
         </div>
-        <div className="ll-panel">
-          <div className="ll-card">
-            <span className="ll-title">Welcome</span>
+        <div className={PANEL}>
+          <div className={CARD}>
+            <span className={`${TITLE} mb-6`}>Welcome</span>
             <div className="ll-form">
-              <div className="ll-field">
-                <span className="ll-label">Username</span>
-                <span className="ll-input ll-input-static" data-filled={typing}>{typing ? "alex" : "Enter name"}</span>
+              <div className={FIELD}>
+                <span className={LABEL}>Username</span>
+                <span className={STATIC_INPUT} data-filled={typing}>{typing ? "alex" : "Enter name"}</span>
               </div>
-              <div className="ll-field">
-                <span className="ll-label">Password</span>
-                <span className="ll-input ll-input-static" data-filled={typing} data-focus={step === 2}>
+              <div className={FIELD}>
+                <span className={LABEL}>Password</span>
+                <span className={STATIC_INPUT} data-filled={typing} data-focus={step === 2}>
                   {typing ? "••••••••" : "Enter Password"}
                 </span>
               </div>
-              <span className="ll-btn" data-hover={step === 3}>Sign In</span>
+              <span
+                className={`${BUTTON} data-[hover=true]:bg-none data-[hover=true]:bg-(--lamp-shade) motion-safe:data-[hover=true]:scale-[1.02]`}
+                data-hover={step === 3}
+              >
+                Sign In
+              </span>
             </div>
           </div>
         </div>
@@ -307,100 +395,23 @@ export function LampLoginThumbnail({ className = "", previewStep = 0 }: { classN
   );
 }
 
+/*
+ * Only what Tailwind can't express cleanly stays here:
+ * - cord cursors and focus outlines: the site's unlayered `button:not(:disabled)` cursor and
+ *   `:focus-visible` outline rules would beat layered utilities;
+ * - Chrome autofill colours on the -webkit-autofill pseudo-class;
+ * - the keyframes referenced by the thumbnail's tug animation.
+ */
 const LAMP_LOGIN_CSS = `
-.ll-stage {
-  --bg-color: #121417;
-  --lamp-shade: #f5f0e6;
-  --lamp-base: #d1ccc2;
-  --glow-color: rgba(255, 214, 110, .3);
-  --accent-color: #d4a373;
-  --error-color: #f28b82;
-  --on: 0;
-  --transition: .5s cubic-bezier(.4, 0, .2, 1);
-  box-sizing: border-box; container-type: inline-size; display: flex; align-items: center; justify-content: center;
-  min-width: 0; min-height: 600px; padding: 40px 16px; background: var(--bg-color); color: #fff;
-  font-family: "Inter", system-ui, -apple-system, sans-serif; isolation: isolate;
-}
-.ll-stage[data-on="true"] { --on: 1; }
-.ll-stage *, .ll-stage *::before, .ll-stage *::after { box-sizing: border-box; }
-.ll-stage::before { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(circle at 50% 40%, var(--glow-color), transparent 70%); opacity: var(--on); transition: opacity var(--transition); pointer-events: none; }
-.ll-stage .ll-scene { display: flex; align-items: center; justify-content: center; gap: clamp(28px, 6cqw, 56px); width: 100%; }
-
-/* Lamp */
-.ll-stage .ll-lamp { --ll-pull: 0; position: relative; flex: none; width: 280px; height: 400px; -webkit-user-select: none; user-select: none; }
-.ll-stage .ll-lamp-svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.ll-stage .ll-lamp-shade { fill: var(--lamp-shade); filter: drop-shadow(0 0 30px rgba(255, 255, 200, 0)); transition: fill var(--transition), filter var(--transition); }
-.ll-stage[data-on="true"] .ll-lamp-shade { fill: #fff; filter: drop-shadow(0 0 30px rgba(255, 255, 200, .4)); }
-.ll-stage .ll-lamp-base { fill: var(--lamp-base); }
-.ll-stage .ll-inner-glow { fill: #ffdb8a; opacity: 0; filter: blur(15px); transition: opacity var(--transition); }
-.ll-stage[data-on="true"] .ll-inner-glow { opacity: .6; }
-.ll-stage .ll-cord-line { stroke: #555; stroke-width: 2; transform-box: fill-box; transform-origin: 50% 0; transform: scaleY(calc(1 + var(--ll-pull) / 96)); }
-.ll-stage .ll-cord-bead { fill: var(--accent-color); transform: translateY(calc(var(--ll-pull) * 1px)); }
-.ll-stage .ll-cord-line, .ll-stage .ll-cord-bead { transition: transform .55s cubic-bezier(.34, 1.56, .64, 1); }
-.ll-stage .ll-lamp[data-dragging] .ll-cord-line, .ll-stage .ll-lamp[data-dragging] .ll-cord-bead { transition: none; }
-.ll-stage .ll-lamp[data-tug="true"] .ll-cord-line { animation: ll-tug-line .7s ease-out; }
-.ll-stage .ll-lamp[data-tug="true"] .ll-cord-bead { animation: ll-tug-bead .7s ease-out; }
-.ll-stage .ll-cord-button { position: absolute; left: 64.5%; top: 37.5%; width: max(15.7%, 44px); height: 35%; transform: translateX(-50%); margin: 0; padding: 0; border: 0; border-radius: 22px; background: transparent; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent; }
+.ll-stage .ll-cord-button { cursor: grab; }
 .ll-stage .ll-lamp[data-dragging] .ll-cord-button { cursor: grabbing; }
 .ll-stage .ll-cord-button:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 2px; }
-
-/* Login card */
-.ll-stage .ll-panel { position: relative; flex: none; width: 340px; max-width: 100%; }
-.ll-stage .ll-hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; margin: 0; padding: 0 24px; color: #6b7078; font-size: .9rem; line-height: 1.5; text-align: center; -webkit-user-select: none; user-select: none; transition: opacity var(--transition); pointer-events: none; }
-.ll-stage[data-on="true"] .ll-hint { opacity: 0; }
-.ll-stage .ll-card { position: relative; width: 100%; padding: 2.5rem; border: 1px solid rgba(255, 255, 255, .1); border-radius: 30px; background: rgba(255, 255, 255, .05); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: 0 20px 40px rgba(0, 0, 0, .3); opacity: 0; transform: translateY(30px); pointer-events: none; transition: opacity .7s cubic-bezier(.175, .885, .32, 1.275), transform .7s cubic-bezier(.175, .885, .32, 1.275); }
-.ll-stage[data-on="true"] .ll-card { opacity: 1; transform: translateY(0); pointer-events: auto; }
-.ll-stage .ll-title { display: block; margin: 0 0 1.5rem; color: #fff; font-size: 1.5rem; line-height: 1.3; font-weight: 500; text-align: center; }
-.ll-stage .ll-form { margin: 0; }
-.ll-stage .ll-field { margin-bottom: 1.2rem; }
-.ll-stage .ll-label { display: block; margin: 0 0 .5rem 5px; color: #999; font-size: .85rem; line-height: 1.3; }
-
-.ll-stage .ll-input { display: block; width: 100%; margin: 0; padding: 14px 18px; border: 1px solid transparent; border-radius: 15px; outline: none; background: rgba(255, 255, 255, .07); color: #fff; font: inherit; font-size: 1rem; line-height: 1.25; transition: border-color .3s, background-color .3s; }
-.ll-stage .ll-input::placeholder { color: #767a80; opacity: 1; }
-.ll-stage .ll-input:focus, .ll-stage .ll-input[data-focus="true"] { border-color: var(--accent-color); background: rgba(255, 255, 255, .12); }
-.ll-stage .ll-input[aria-invalid="true"] { border-color: var(--error-color); }
-.ll-stage .ll-input:disabled { opacity: .6; cursor: wait; }
-.ll-stage .ll-input:-webkit-autofill { -webkit-text-fill-color: #fff; -webkit-box-shadow: inset 0 0 0 100px #2b2c2e; caret-color: #fff; }
-.ll-stage .ll-input-static { color: #767a80; white-space: nowrap; overflow: hidden; }
-.ll-stage .ll-input-static[data-filled="true"] { color: #fff; }
-
-.ll-stage .ll-btn { display: block; width: 100%; margin: 10px 0 0; padding: 15px; border: none; border-radius: 15px; background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fcf6ba, #aa771c); color: #121417; font: inherit; font-size: 1rem; line-height: 1.25; font-weight: 600; text-align: center; transition: transform .3s, background .3s; }
-.ll-stage button.ll-btn { cursor: pointer; }
-.ll-stage button.ll-btn:hover:not(:disabled), .ll-stage .ll-btn[data-hover="true"] { transform: scale(1.02); background: var(--lamp-shade); }
-.ll-stage button.ll-btn:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 3px; }
-.ll-stage button.ll-btn:disabled { cursor: wait; opacity: .8; }
-
-.ll-stage .ll-field-error { margin: 6px 0 0 5px; color: var(--error-color); font-size: .8rem; line-height: 1.4; }
-.ll-stage .ll-submit-error { margin: 14px 0 0; padding: 10px 12px; border: 1px solid rgba(242, 139, 130, .35); border-radius: 12px; background: rgba(242, 139, 130, .1); color: #f9c4bf; font-size: .85rem; line-height: 1.45; text-align: center; }
-.ll-stage .ll-success { text-align: center; }
-.ll-stage .ll-welcome { margin-bottom: .75rem; overflow-wrap: anywhere; }
+.ll-stage .ll-btn:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 3px; }
 .ll-stage .ll-welcome:focus { outline: none; }
-.ll-stage .ll-welcome:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 4px; border-radius: 6px; }
-.ll-stage .ll-welcome-name { color: var(--accent-color); }
-.ll-stage .ll-note { margin: 0 0 1.25rem; color: #999; font-size: .9rem; line-height: 1.5; }
-
-/* Gallery thumbnail: the desktop scene, scaled to fit the card. */
-.ll-stage.ll-thumbnail { min-height: 0; padding: 0; }
-.ll-stage.ll-thumbnail .ll-scene { flex: none; width: 720px; gap: 52px; transform: scale(.5); }
-@container (max-width: 380px) { .ll-stage.ll-thumbnail .ll-scene { transform: scale(.44); } }
-@container (min-width: 480px) { .ll-stage.ll-thumbnail .ll-scene { transform: scale(.6); } }
+.ll-stage .ll-welcome:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 4px; }
+.ll-stage .ll-input { outline: none; }
+.ll-stage .ll-input:-webkit-autofill { -webkit-text-fill-color: #fff; -webkit-box-shadow: inset 0 0 0 100px #2b2c2e; caret-color: #fff; }
 
 @keyframes ll-tug-line { 0% { transform: scaleY(1); } 25% { transform: scaleY(1.27); } 55% { transform: scaleY(.95); } 100% { transform: scaleY(1); } }
 @keyframes ll-tug-bead { 0% { transform: translateY(0); } 25% { transform: translateY(26px); } 55% { transform: translateY(-5px); } 100% { transform: translateY(0); } }
-
-/* Narrow containers: stack the lamp above the card. */
-@container (max-width: 640px) {
-  .ll-stage:not(.ll-thumbnail) .ll-scene { flex-direction: column; gap: 0; }
-  .ll-stage:not(.ll-thumbnail) .ll-lamp { width: 196px; height: 280px; margin: -48px 0 -12px; }
-  .ll-stage:not(.ll-thumbnail) .ll-hint { align-items: flex-start; padding-top: 32px; }
-  .ll-stage:not(.ll-thumbnail)::before { background: radial-gradient(circle at 50% 28%, var(--glow-color), transparent 70%); }
-}
-@container (max-width: 380px) {
-  .ll-stage:not(.ll-thumbnail) .ll-card { padding: 2rem 1.5rem; border-radius: 26px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .ll-stage .ll-cord-line, .ll-stage .ll-cord-bead { transition: none; animation: none !important; }
-  .ll-stage .ll-card { transform: none !important; transition: opacity .3s ease; }
-  .ll-stage button.ll-btn:hover:not(:disabled), .ll-stage .ll-btn[data-hover="true"] { transform: none; }
-}
 `;

@@ -104,7 +104,7 @@ function wrapIndex(index: number, length: number) {
   return ((Math.trunc(index) % length) + length) % length;
 }
 
-function Arrow({ direction = "right" }: { direction?: "left" | "right" }) {
+function Arrow({ direction = "right", className }: { direction?: "left" | "right"; className?: string }) {
   return (
     <svg
       width="20"
@@ -116,6 +116,7 @@ function Arrow({ direction = "right" }: { direction?: "left" | "right" }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
+      className={className}
       style={{ transform: direction === "left" ? "rotate(180deg)" : undefined }}
     >
       <path d="M5 12h14m-5-5 5 5-5 5" />
@@ -128,6 +129,43 @@ function Artwork({ slide, className = "" }: { slide: ToonSlide; className?: stri
   // eslint-disable-next-line @next/next/no-img-element
   return <img src={slide.image} alt="" draggable={false} className={className} />;
 }
+
+type FigurePosition = "active" | "previous" | "next" | "hidden";
+
+/*
+ * Tailwind classes are kept as complete literals so they are picked up by the class scanner.
+ * The root is an inline-size container named "toon"; sizes in `cqw` scale with its width,
+ * and `@max-[480px]/toon:` switches the carousel to its compact, portrait layout.
+ */
+const ROOT =
+  "toon-carousel @container/toon relative w-full touch-pan-y overflow-hidden bg-(--toon-background) font-[family-name:Arial,Helvetica,sans-serif] text-white transition-[background-color] duration-700 ease-[ease]";
+const WORDMARK = "absolute top-[3.2%] left-[2.8%] text-[0.85cqw] font-bold tracking-[.14em] uppercase";
+const TITLE =
+  "absolute top-[13.5%] left-[-20%] w-[140%] scale-x-[.84] text-center font-[family-name:Impact,'Arial_Narrow',sans-serif] text-[31cqw] leading-[.96] font-black tracking-[-.035em] whitespace-nowrap text-[#fffdf5] select-none";
+const FIGURE =
+  "pointer-events-none absolute bottom-[-27%] left-1/2 h-[117%] w-[60%] origin-bottom will-change-transform [transition:translate_700ms_cubic-bezier(.22,.8,.2,1),scale_700ms_cubic-bezier(.22,.8,.2,1),opacity_500ms_ease]";
+/** Where each figure rests; changing position animates between these transforms. */
+const FIGURE_POSITION: Record<FigurePosition, string> = {
+  active: "z-3 -translate-x-1/2 scale-100",
+  previous: "z-2 -translate-x-[84%] -translate-y-[34%] scale-[.18]",
+  next: "z-2 -translate-x-[16%] -translate-y-[34%] scale-[.18]",
+  hidden: "invisible z-1 -translate-x-1/2 -translate-y-[13%] scale-[.08] opacity-0",
+};
+const FIGURE_POSITION_COMPACT: Record<FigurePosition, string> = {
+  active: "",
+  previous: "@max-[480px]/toon:-translate-x-[97%] @max-[480px]/toon:-translate-y-[16%] @max-[480px]/toon:scale-[.2]",
+  next: "@max-[480px]/toon:-translate-x-[3%] @max-[480px]/toon:-translate-y-[16%] @max-[480px]/toon:scale-[.2]",
+  hidden: "",
+};
+const DESCRIPTION = "absolute bottom-[8.4%] left-[6.8%] z-20 w-[24%]";
+const LABEL = "text-[1.38cqw] leading-[1.3] font-bold tracking-[.16em] uppercase";
+const MICROCOPY = "mt-[1cqw] text-[.91cqw] leading-[1.5] text-[rgba(255,255,255,.9)]";
+const CONTROLS = "mt-[1.25cqw] flex items-center gap-[.75cqw]";
+const CONTROL = "inline-flex size-[4.5cqw] items-center justify-center rounded-full border border-white/70";
+const CONTROL_BUTTON = `${CONTROL} shrink-0 transition-colors hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40 @max-[480px]/toon:size-[36px]`;
+const CONTROL_ICON = "size-[2.55cqw]";
+const DISCOVER =
+  "absolute right-[3.3%] bottom-[8.1%] z-20 flex items-center gap-1.5 font-[family-name:Impact,'Arial_Narrow',sans-serif] text-[3.2cqw] leading-[1.1] font-black tracking-[-.025em] uppercase";
 
 /** A self-contained, responsive character carousel. Requires React and Tailwind CSS. */
 export function ToonCarousel({
@@ -229,7 +267,7 @@ export function ToonCarousel({
   return (
     <section
       ref={carousel}
-      className={`toon-carousel relative isolate w-full overflow-hidden text-white ${className}`}
+      className={`${ROOT} isolate flex flex-col ${className}`}
       style={{ "--toon-background": current.background } as CSSProperties}
       role="region"
       aria-roledescription="carousel"
@@ -253,22 +291,23 @@ export function ToonCarousel({
       <p id={`${id}-instructions`} className="sr-only">
         Use the previous and next buttons, the left and right arrow keys, or swipe to explore the characters.
       </p>
-      <div className="toon-stage relative w-full overflow-hidden">
-        <span className="toon-wordmark absolute z-20 font-bold uppercase">Toonhub</span>
-        <div className="toon-title pointer-events-none absolute select-none" aria-hidden="true">
+      {/* In a taller host (e.g. full screen) the stage stays centered; in a wider one it shrinks to fit. */}
+      <div className="relative my-auto aspect-[1.6] w-full flex-[0_1_auto] overflow-hidden @max-[480px]/toon:aspect-[4/5]">
+        <span className={`${WORDMARK} z-20 @max-[480px]/toon:top-[4%] @max-[480px]/toon:left-[6%] @max-[480px]/toon:text-[1.8cqw]`}>Toonhub</span>
+        <div className={`${TITLE} pointer-events-none @max-[480px]/toon:top-[13%] @max-[480px]/toon:text-[32cqw]`} aria-hidden="true">
           3D SHAPE
         </div>
 
-        <div className="toon-characters absolute inset-0">
+        <div className="absolute inset-0">
           {items.map((slide, slideIndex) => {
             const offset = wrapIndex(slideIndex - currentIndex, items.length);
-            const position = offset === 0 ? "active" : offset === 1 ? "next" :
+            const position: FigurePosition = offset === 0 ? "active" : offset === 1 ? "next" :
               offset === items.length - 1 ? "previous" : "hidden";
             const isNeighbor = position === "next" || position === "previous";
             return (
               <div
                 key={slide.id}
-                className="toon-figure absolute"
+                className={`${FIGURE} ${FIGURE_POSITION[position]} @max-[480px]/toon:bottom-[23%] @max-[480px]/toon:h-[67%] @max-[480px]/toon:w-[73%] ${FIGURE_POSITION_COMPACT[position]}`}
                 data-position={position}
                 role={position === "active" ? "group" : undefined}
                 aria-roledescription={position === "active" ? "slide" : undefined}
@@ -279,7 +318,7 @@ export function ToonCarousel({
                 {isNeighbor && (
                   <button
                     type="button"
-                    className="toon-character-button absolute inset-0 cursor-pointer rounded-[20%]"
+                    className="toon-character-button pointer-events-auto absolute inset-0 cursor-pointer rounded-[20%] outline-offset-10"
                     onClick={() => {
                       selectSlide(slideIndex);
                       carousel.current?.focus({ preventScroll: true });
@@ -292,31 +331,31 @@ export function ToonCarousel({
           })}
         </div>
 
-        <div className="toon-description absolute z-20">
-          <h2 className="toon-label font-bold uppercase">Toonhub figurines</h2>
-          <p className="toon-microcopy">
+        <div className={`${DESCRIPTION} @max-[480px]/toon:bottom-[5.2%] @max-[480px]/toon:left-[6%] @max-[480px]/toon:w-[54%]`}>
+          <h2 className={`${LABEL} @max-[480px]/toon:text-[2.3cqw]`}>Toonhub figurines</h2>
+          <p className={`${MICROCOPY} @max-[480px]/toon:mt-[1.8cqw] @max-[480px]/toon:max-w-[155px] @max-[480px]/toon:text-[1.65cqw]`}>
             A little character. A whole lot of personality.<br />
             Thoughtfully shaped. Made to stand out.<br />
             Find the one that feels like you.
           </p>
-          <div className="toon-controls flex items-center">
+          <div className={`${CONTROLS} @max-[480px]/toon:mt-[3cqw] @max-[480px]/toon:gap-[1.8cqw]`}>
             <button
               type="button"
-              className="toon-control inline-flex shrink-0 items-center justify-center rounded-full border border-white/70 transition-colors hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
+              className={CONTROL_BUTTON}
               aria-label="Previous character"
               onClick={() => selectSlide(currentIndex - 1)}
               disabled={!hasMultiple}
             >
-              <Arrow direction="left" />
+              <Arrow direction="left" className={`${CONTROL_ICON} @max-[480px]/toon:size-[17px]`} />
             </button>
             <button
               type="button"
-              className="toon-control inline-flex shrink-0 items-center justify-center rounded-full border border-white/70 transition-colors hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
+              className={CONTROL_BUTTON}
               aria-label="Next character"
               onClick={() => selectSlide(currentIndex + 1)}
               disabled={!hasMultiple}
             >
-              <Arrow />
+              <Arrow className={`${CONTROL_ICON} @max-[480px]/toon:size-[17px]`} />
             </button>
           </div>
         </div>
@@ -324,7 +363,7 @@ export function ToonCarousel({
         {autoPlay && hasMultiple && (
           <button
             type="button"
-            className="toon-playback absolute z-20 flex items-center justify-center rounded-full border border-white/40 transition-colors hover:bg-white/20 disabled:opacity-50"
+            className="absolute top-[3.1%] right-[2.7%] z-20 flex size-[25px] items-center justify-center rounded-full border border-white/40 transition-colors hover:bg-white/20 disabled:opacity-50 @max-[480px]/toon:top-[3%] @max-[480px]/toon:right-[5%] @max-[480px]/toon:size-[30px]"
             aria-label={reducedMotion ? "Autoplay disabled by reduced motion preference" : paused ? "Play carousel" : "Pause carousel"}
             title={reducedMotion ? "Autoplay is off: reduced motion is enabled" : paused ? "Play carousel" : "Pause carousel"}
             onClick={() => setPaused((previous) => !previous)}
@@ -339,12 +378,12 @@ export function ToonCarousel({
         <button
           ref={discoverButton}
           type="button"
-          className="toon-discover absolute z-20 flex items-center gap-1.5 rounded-sm uppercase transition-opacity hover:opacity-75"
+          className={`${DISCOVER} rounded-sm transition-opacity hover:opacity-75 @max-[480px]/toon:right-[6%] @max-[480px]/toon:bottom-[6%] @max-[480px]/toon:text-[4.8cqw]`}
           onClick={discover}
           aria-label={`Discover ${current.name}`}
         >
           <span>Discover it</span>
-          <Arrow />
+          <Arrow className="size-[2cqw] @max-[480px]/toon:size-[3cqw]" />
         </button>
       </div>
 
@@ -352,7 +391,7 @@ export function ToonCarousel({
 
       <dialog
         ref={dialog}
-        className="toon-dialog fixed m-auto overflow-hidden rounded-3xl border-0 bg-[#faf8f3] p-0 text-[#25251f] shadow-2xl"
+        className="fixed m-auto max-h-[min(90dvh,700px)] w-[min(720px,calc(100vw_-_32px))] overflow-x-hidden overflow-y-auto rounded-3xl border-0 bg-[#faf8f3] p-0 text-[#25251f] shadow-2xl open:grid open:grid-cols-[.85fr_1fr] max-[600px]:open:block backdrop:bg-[rgba(23,24,32,.65)] backdrop:backdrop-blur-[9px]"
         aria-labelledby={`${id}-details-title`}
         aria-describedby={`${id}-details-description`}
         onClose={() => {
@@ -370,17 +409,17 @@ export function ToonCarousel({
       >
         <button
           type="button"
-          className="toon-close absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/70 text-xl text-[#25251f] transition-colors hover:bg-white"
+          className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/70 text-xl text-[#25251f] transition-colors hover:bg-white"
           aria-label="Close character details"
           onClick={() => dialog.current?.close()}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6" /></svg>
         </button>
-        <div className="toon-details-art relative overflow-hidden" style={{ backgroundColor: current.background }}>
+        <div className="relative min-h-[420px] overflow-hidden max-[600px]:h-[220px] max-[600px]:min-h-0" style={{ backgroundColor: current.background }}>
           <span className="absolute left-6 top-6 text-[9px] font-bold uppercase tracking-[0.22em] text-white">Toonhub / 0{currentIndex + 1}</span>
-          <Artwork slide={current} className="absolute bottom-0 left-1/2 h-[87%] w-[88%] -translate-x-1/2 object-contain object-bottom" />
+          <Artwork slide={current} className="absolute bottom-0 left-1/2 h-[87%] w-[88%] -translate-x-1/2 object-contain object-bottom max-[600px]:h-[95%] max-[600px]:w-[65%]" />
         </div>
-        <div className="toon-details-copy flex flex-col justify-center p-7 sm:p-9">
+        <div className="flex flex-col justify-center p-7 sm:p-9">
           <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: current.accent ?? "#50504a" }}>Meet your next favorite</p>
           <h2 id={`${id}-details-title`} className="text-3xl font-semibold tracking-[-0.055em] sm:text-4xl">{current.name}</h2>
           <p className="mt-3 text-sm font-medium leading-relaxed">{current.eyebrow}</p>
@@ -401,101 +440,43 @@ export function ToonCarousel({
 /** Inert artwork for gallery cards; it has no timers or nested interactive controls. */
 export function ToonCarouselThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   return (
-    <div className={`toon-carousel toon-thumbnail relative w-full overflow-hidden text-white ${className}`} style={{ "--toon-background": DEFAULT_SLIDES[previewStep % DEFAULT_SLIDES.length].background } as CSSProperties} aria-hidden="true">
+    <div className={`${ROOT} toon-thumbnail pointer-events-none ${className}`} style={{ "--toon-background": DEFAULT_SLIDES[previewStep % DEFAULT_SLIDES.length].background } as CSSProperties} aria-hidden="true">
       <ToonStyles />
-      <div className="toon-stage relative w-full overflow-hidden">
-        <span className="toon-wordmark absolute font-bold uppercase">Toonhub</span>
-        <div className="toon-title absolute select-none">3D SHAPE</div>
-        {[-1, 0, 1].map((offset) => DEFAULT_SLIDES[(previewStep + offset + DEFAULT_SLIDES.length) % DEFAULT_SLIDES.length]).map((slide, index) => (
-          <div key={slide.id} className="toon-figure absolute" data-position={index === 0 ? "previous" : index === 1 ? "active" : "next"}>
-            <Artwork slide={slide} className="h-full w-full object-contain object-bottom" />
-          </div>
-        ))}
-        <div className="toon-description absolute z-20">
-          <p className="toon-label font-bold uppercase">Toonhub figurines</p>
-          <p className="toon-microcopy">A little character. A whole lot of personality.<br />Thoughtfully shaped. Made to stand out.</p>
-          <div className="toon-controls flex items-center">
-            <span className="toon-control inline-flex items-center justify-center rounded-full border border-white/70"><Arrow direction="left" /></span>
-            <span className="toon-control inline-flex items-center justify-center rounded-full border border-white/70"><Arrow /></span>
+      <div className="relative aspect-[1.6] w-full overflow-hidden">
+        <span className={WORDMARK}>Toonhub</span>
+        <div className={TITLE}>3D SHAPE</div>
+        {[-1, 0, 1].map((offset) => DEFAULT_SLIDES[(previewStep + offset + DEFAULT_SLIDES.length) % DEFAULT_SLIDES.length]).map((slide, index) => {
+          const position: FigurePosition = index === 0 ? "previous" : index === 1 ? "active" : "next";
+          return (
+            <div key={slide.id} className={`${FIGURE} ${FIGURE_POSITION[position]}`} data-position={position}>
+              <Artwork slide={slide} className="h-full w-full object-contain object-bottom" />
+            </div>
+          );
+        })}
+        <div className={DESCRIPTION}>
+          <p className={LABEL}>Toonhub figurines</p>
+          <p className={MICROCOPY}>A little character. A whole lot of personality.<br />Thoughtfully shaped. Made to stand out.</p>
+          <div className={CONTROLS}>
+            <span className={CONTROL}><Arrow direction="left" className={CONTROL_ICON} /></span>
+            <span className={CONTROL}><Arrow className={CONTROL_ICON} /></span>
           </div>
         </div>
-        <span className="toon-discover absolute z-20 flex items-center gap-1.5 uppercase">Discover it <Arrow /></span>
+        <span className={DISCOVER}>Discover it <Arrow className="size-[2cqw]" /></span>
       </div>
     </div>
   );
 }
 
+/*
+ * Only what Tailwind utilities cannot do lives here. These rules are unlayered on purpose:
+ * the focus rings must beat a host page's global `:focus-visible` style, and reduced motion
+ * must switch off every transition in the subtree.
+ */
 function ToonStyles() {
   return (
     <ComponentStyles css={`
-      .toon-carousel {
-        container-type: inline-size;
-        container-name: toon-carousel;
-        background: var(--toon-background);
-        font-family: Arial, Helvetica, sans-serif;
-        transition: background-color 700ms ease;
-        touch-action: pan-y;
-      }
-      .toon-carousel .toon-stage { aspect-ratio: 1.6; }
-      .toon-carousel .toon-wordmark { top: 3.2%; left: 2.8%; font-size: 0.85cqw; letter-spacing: .14em; }
-      .toon-carousel .toon-title {
-        top: 13.5%; left: -20%; width: 140%;
-        color: #fffdf5;
-        font-family: Impact, 'Arial Narrow', sans-serif;
-        font-size: 31cqw; font-weight: 900; line-height: .96;
-        letter-spacing: -.035em; white-space: nowrap;
-        text-align: center; transform: scaleX(.84);
-      }
-      .toon-carousel .toon-figure {
-        left: 50%; bottom: -27%; width: 60%; height: 117%;
-        pointer-events: none;
-        transform-origin: center bottom;
-        transition: transform 700ms cubic-bezier(.22,.8,.2,1), opacity 500ms ease;
-        will-change: transform;
-      }
-      .toon-carousel .toon-figure[data-position='active'] { z-index: 3; transform: translateX(-50%) scale(1); }
-      .toon-carousel .toon-figure[data-position='previous'] { z-index: 2; transform: translate(-84%, -34%) scale(.18); }
-      .toon-carousel .toon-figure[data-position='next'] { z-index: 2; transform: translate(-16%, -34%) scale(.18); }
-      .toon-carousel .toon-figure[data-position='hidden'] { z-index: 1; opacity: 0; transform: translate(-50%, -13%) scale(.08); pointer-events: none; visibility: hidden; }
-      .toon-carousel .toon-character-button { pointer-events: auto; outline-offset: 10px; }
-      .toon-carousel .toon-description { bottom: 8.4%; left: 6.8%; width: 24%; }
-      .toon-carousel .toon-label { font-size: 1.38cqw; line-height: 1.3; letter-spacing: .16em; }
-      .toon-carousel .toon-microcopy { margin-top: 1cqw; font-size: .91cqw; line-height: 1.5; color: rgba(255,255,255,.9); }
-      .toon-carousel .toon-controls { gap: .75cqw; margin-top: 1.25cqw; }
-      .toon-carousel .toon-control { width: 4.5cqw; height: 4.5cqw; }
-      .toon-carousel .toon-control svg { width: 2.55cqw; height: 2.55cqw; }
-      .toon-carousel .toon-playback { top: 3.1%; right: 2.7%; width: 25px; height: 25px; }
-      .toon-carousel .toon-discover { right: 3.3%; bottom: 8.1%; font-family: Impact, 'Arial Narrow', sans-serif; font-size: 3.2cqw; font-weight: 900; letter-spacing: -.025em; line-height: 1.1; }
-      .toon-carousel .toon-discover svg { width: 2cqw; height: 2cqw; }
       .toon-carousel:focus-visible { outline: 3px solid #222; outline-offset: 4px; }
       .toon-carousel button:focus-visible { outline: 2px solid currentColor; outline-offset: 5px; }
-      .toon-carousel .toon-dialog { width: min(720px, calc(100vw - 32px)); max-height: min(90dvh, 700px); overflow-y: auto; }
-      .toon-carousel .toon-dialog[open] { display: grid; grid-template-columns: .85fr 1fr; }
-      .toon-carousel .toon-dialog::backdrop { background: rgba(23,24,32,.65); backdrop-filter: blur(9px); }
-      .toon-carousel .toon-details-art { min-height: 420px; }
-      .toon-carousel.toon-thumbnail { pointer-events: none; }
-      @container toon-carousel (max-width: 480px) {
-        .toon-carousel:not(.toon-thumbnail) .toon-stage { aspect-ratio: 4 / 5; }
-        .toon-carousel:not(.toon-thumbnail) .toon-wordmark { top: 4%; left: 6%; font-size: 1.8cqw; }
-        .toon-carousel:not(.toon-thumbnail) .toon-title { top: 13%; font-size: 32cqw; }
-        .toon-carousel:not(.toon-thumbnail) .toon-figure { height: 67%; width: 73%; bottom: 23%; }
-        .toon-carousel:not(.toon-thumbnail) .toon-figure[data-position='previous'] { transform: translate(-97%, -16%) scale(.2); }
-        .toon-carousel:not(.toon-thumbnail) .toon-figure[data-position='next'] { transform: translate(-3%, -16%) scale(.2); }
-        .toon-carousel:not(.toon-thumbnail) .toon-description { left: 6%; bottom: 5.2%; width: 54%; }
-        .toon-carousel:not(.toon-thumbnail) .toon-label { font-size: 2.3cqw; }
-        .toon-carousel:not(.toon-thumbnail) .toon-microcopy { max-width: 155px; margin-top: 1.8cqw; font-size: 1.65cqw; }
-        .toon-carousel:not(.toon-thumbnail) .toon-controls { margin-top: 3cqw; gap: 1.8cqw; }
-        .toon-carousel:not(.toon-thumbnail) .toon-control { width: 36px; height: 36px; }
-        .toon-carousel:not(.toon-thumbnail) .toon-control svg { width: 17px; height: 17px; }
-        .toon-carousel:not(.toon-thumbnail) .toon-discover { right: 6%; bottom: 6%; font-size: 4.8cqw; }
-        .toon-carousel:not(.toon-thumbnail) .toon-discover svg { width: 3cqw; height: 3cqw; }
-        .toon-carousel:not(.toon-thumbnail) .toon-playback { top: 3%; right: 5%; width: 30px; height: 30px; }
-      }
-      @media (max-width: 600px) {
-        .toon-carousel .toon-dialog[open] { display: block; overflow-y: auto; }
-        .toon-carousel .toon-details-art { min-height: 0; height: 220px; }
-        .toon-carousel .toon-details-art img { width: 65%; height: 95%; }
-      }
       @media (prefers-reduced-motion: reduce) {
         .toon-carousel, .toon-carousel *, .toon-carousel *::before, .toon-carousel *::after { animation: none !important; transition: none !important; }
       }

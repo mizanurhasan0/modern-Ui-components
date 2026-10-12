@@ -89,9 +89,33 @@ function describe(item: CharacterDeckItem) {
   return item.alt ?? `${item.name}, ${item.title}`;
 }
 
+/*
+ * Tailwind class sets shared by the interactive deck and its homepage thumbnail.
+ * Narrow-width rules query the stage container (`@max-[560px]/cds-stage:`) and are
+ * added to the interactive deck only; `cqw` lengths resolve against the card container.
+ */
+const STAGE_CLASS =
+  "cds-stage @container/cds-stage grid w-full place-items-center bg-[#182f44] font-['Segoe_UI','Lucida_Grande',system-ui,-apple-system,'Helvetica_Neue',Arial,sans-serif] text-[#2b2b2b] antialiased [--cds-ease:cubic-bezier(0.25,0.46,0.45,0.94)]";
+const CARD_CLASS =
+  "cds-card @container/cds-card relative grid aspect-[1.62] max-w-[1040px] grid-cols-[50%_50%] overflow-hidden rounded-[20px] bg-[#f3f3f3] shadow-[0_20px_40px_rgba(0,0,0,0.15)]";
+const DECK_CLASS = "cds-deck relative h-full min-w-0 touch-pan-x select-none";
+const INFO_CLASS = "cds-info flex min-w-0 flex-col items-center justify-center p-[0_1cqw_0_9cqw] text-center";
+const CONTROLS_CLASS = "cds-controls flex gap-[clamp(14px,2.6cqw,24px)]";
+const NAV_CLASS =
+  "cds-nav grid aspect-square w-[clamp(30px,4.1cqw,38px)] cursor-pointer place-items-center rounded-[50%] border transition-[translate,background-color,border-color,color,box-shadow] duration-250 ease-[ease] motion-reduce:transition-none";
+const NAV_PREV_CLASS = "cds-nav--prev border-[#efcfd3] bg-[rgba(226,76,82,0.03)] text-[#bea5a9]";
+const NAV_NEXT_CLASS = "cds-nav--next border-[#e24c52] bg-[#e24c52] text-white shadow-[0_6px_14px_rgba(226,76,82,0.3)]";
+const NAV_BUTTON_CLASS =
+  "not-aria-disabled:hover:-translate-y-px aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:shadow-none";
+const PAGINATION_CLASS = "cds-pagination mt-[clamp(20px,6cqw,52px)] flex flex-col items-center";
+const LINE_CLASS = "cds-line relative block h-[clamp(9px,1.31cqw,12px)] w-[clamp(96px,16.6cqw,150px)]";
+/* Each card reads its slot (y, scale, z, opacity) from the --cds-* properties set by slotStyle. */
+const SLIDE_CLASS =
+  "cds-slide absolute top-1/2 left-1/2 z-(--cds-z) aspect-[1.28] w-[41cqw] overflow-hidden rounded-[clamp(10px,1.75cqw,14px)] bg-[#dcdcde] opacity-(--cds-opacity) shadow-[0_20px_40px_rgba(0,0,0,0.15)] grayscale will-change-transform [transform:translate(-50%,-50%)_translateY(var(--cds-y))_scale(var(--cds-scale))] transition-[transform,filter,opacity,box-shadow] duration-800 ease-(--cds-ease) motion-reduce:transition-none data-[active=false]:data-[visible=true]:hover:grayscale-55 data-[active=true]:grayscale-0 data-[visible=false]:pointer-events-none data-[visible=false]:shadow-none";
+
 function Chevron({ direction }: { direction: "up" | "down" }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+    <svg className="size-[42%]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
       <path d={direction === "up" ? "m6 15 6-6 6 6" : "m6 9 6 6 6-6"} />
     </svg>
   );
@@ -109,6 +133,9 @@ function DeckSlides({
   loop: boolean;
   onSelect?: (index: number) => void;
 }) {
+  const slideClass = onSelect
+    ? `${SLIDE_CLASS} cursor-pointer data-[active=true]:cursor-grab @max-[560px]/cds-stage:w-[64cqw]`
+    : `${SLIDE_CLASS} cursor-default`;
   return items.map((item, index) => {
     const offset = deckOffset(index, active, items.length, loop);
     const isActive = offset === 0;
@@ -116,7 +143,7 @@ function DeckSlides({
     return (
       <div
         key={item.id}
-        className="cds-slide"
+        className={slideClass}
         role="group"
         aria-roledescription="slide"
         aria-label={`${index + 1} of ${items.length}`}
@@ -127,7 +154,7 @@ function DeckSlides({
         onClick={onSelect && !isActive && isVisible ? () => onSelect(index) : undefined}
       >
         <img
-          className="cds-image"
+          className="cds-image pointer-events-none block h-full w-full max-w-none object-cover object-[50%_16%] [-webkit-user-drag:none]"
           src={item.image}
           alt={isActive ? describe(item) : ""}
           draggable={false}
@@ -140,13 +167,21 @@ function DeckSlides({
 }
 
 /** Name with flanking rules and the subtitle; re-keyed per item so it animates in. */
-function CharacterCopy({ item }: { item: CharacterDeckItem }) {
+function CharacterCopy({ item, thumbnail = false }: { item: CharacterDeckItem; thumbnail?: boolean }) {
   return (
-    <div className="cds-copy">
-      <div className="cds-title-row">
-        <h3 className="cds-name">{item.name}</h3>
+    <div className="cds-copy mt-[clamp(22px,5.6cqw,50px)] w-full animate-[cds-copy-in_0.6s_var(--cds-ease)_both] motion-reduce:animate-none">
+      <div className="cds-title-row flex items-center justify-center gap-[clamp(8px,1.75cqw,16px)] before:h-px before:flex-[0_1_clamp(28px,6.7cqw,60px)] before:bg-[#e9b6bc] before:content-[''] after:h-px after:flex-[0_1_clamp(28px,6.7cqw,60px)] after:bg-[#e9b6bc] after:content-['']">
+        <h3
+          className={`cds-name max-w-full flex-none overflow-hidden text-[length:clamp(15px,2.6cqw,24px)] leading-[1.2] font-semibold tracking-[0.01em] text-ellipsis whitespace-nowrap text-[#c44a55] ${thumbnail ? "" : "@max-[560px]/cds-stage:text-[20px]"}`}
+        >
+          {item.name}
+        </h3>
       </div>
-      <p className="cds-subtitle">{item.title}</p>
+      <p
+        className={`cds-subtitle mt-[clamp(3px,0.8cqw,7px)] text-[length:clamp(9px,1.3cqw,12px)] leading-[1.4] font-medium text-[#8e8e93] uppercase ${thumbnail ? "tracking-[0.12em] whitespace-nowrap" : "tracking-[0.2em] @max-[560px]/cds-stage:text-[10px]"}`}
+      >
+        {item.title}
+      </p>
     </div>
   );
 }
@@ -244,7 +279,7 @@ export function CharacterDeckSlider({
 
   return (
     <section
-      className={`cds-stage ${className}`}
+      className={`${STAGE_CLASS} p-[clamp(16px,4.5%,44px)] ${className}`}
       role="region"
       aria-roledescription="carousel"
       aria-label="Character deck"
@@ -252,15 +287,15 @@ export function CharacterDeckSlider({
       onKeyDown={handleKeyDown}
     >
       <ComponentStyles css={CHARACTER_DECK_CSS} />
-      <p id={`${id}-instructions`} className="cds-sr-only">
+      <p id={`${id}-instructions`} className="sr-only">
         Use the arrow keys, Home, or End, swipe the cards vertically, or choose a line to change character.
       </p>
-      <p className="cds-sr-only" aria-live="polite" aria-atomic="true">{announcement}</p>
+      <p className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</p>
 
-      <div className="cds-card">
+      <div className={`${CARD_CLASS} w-full @max-[560px]/cds-stage:aspect-auto @max-[560px]/cds-stage:grid-cols-[minmax(0,1fr)]`}>
         <div
           id={deckId}
-          className="cds-deck"
+          className={`${DECK_CLASS} focus-visible:rounded-[20px] focus-visible:shadow-[inset_0_0_0_2px_#e24c52] @max-[560px]/cds-stage:h-[98cqw]`}
           tabIndex={0}
           aria-label="Character cards"
           onPointerDown={handlePointerDown}
@@ -271,11 +306,11 @@ export function CharacterDeckSlider({
           <DeckSlides items={items} active={active} loop={loop} onSelect={selectCard} />
         </div>
 
-        <div className="cds-info">
-          <div className="cds-controls">
+        <div className={`${INFO_CLASS} @max-[560px]/cds-stage:p-[4px_16px_36px]`}>
+          <div className={CONTROLS_CLASS}>
             <button
               type="button"
-              className="cds-nav cds-nav--prev"
+              className={`${NAV_CLASS} ${NAV_PREV_CLASS} ${NAV_BUTTON_CLASS} not-aria-disabled:hover:border-[#e24c52] not-aria-disabled:hover:text-[#e24c52]`}
               aria-label="Previous character"
               aria-controls={deckId}
               aria-disabled={canGoPrevious ? undefined : true}
@@ -285,7 +320,7 @@ export function CharacterDeckSlider({
             </button>
             <button
               type="button"
-              className="cds-nav cds-nav--next"
+              className={`${NAV_CLASS} ${NAV_NEXT_CLASS} ${NAV_BUTTON_CLASS} not-aria-disabled:hover:bg-[#d63f46]`}
               aria-label="Next character"
               aria-controls={deckId}
               aria-disabled={canGoNext ? undefined : true}
@@ -297,12 +332,12 @@ export function CharacterDeckSlider({
 
           <CharacterCopy key={current.id} item={current} />
 
-          <div className="cds-pagination" role="group" aria-label="Choose a character">
+          <div className={PAGINATION_CLASS} role="group" aria-label="Choose a character">
             {items.map((item, itemIndex) => (
               <button
                 key={item.id}
                 type="button"
-                className="cds-line"
+                className={`${LINE_CLASS} cursor-pointer`}
                 aria-label={`${item.name}, ${itemIndex + 1} of ${count}`}
                 aria-controls={deckId}
                 aria-current={itemIndex === active ? "true" : undefined}
@@ -327,21 +362,21 @@ export function CharacterDeckSliderThumbnail({
   const active = ((step % items.length) + items.length) % items.length;
 
   return (
-    <div className={`cds-stage cds-thumbnail ${className}`} aria-hidden="true" inert>
+    <div className={`${STAGE_CLASS} cds-thumbnail h-full p-4 ${className}`} aria-hidden="true" inert>
       <ComponentStyles css={CHARACTER_DECK_CSS} />
-      <div className="cds-card">
-        <div className="cds-deck">
+      <div className={`${CARD_CLASS} w-[min(100%,450px)]`}>
+        <div className={DECK_CLASS}>
           <DeckSlides items={items} active={active} loop />
         </div>
-        <div className="cds-info">
-          <div className="cds-controls">
-            <span className="cds-nav cds-nav--prev"><Chevron direction="up" /></span>
-            <span className="cds-nav cds-nav--next"><Chevron direction="down" /></span>
+        <div className={INFO_CLASS}>
+          <div className={CONTROLS_CLASS}>
+            <span className={`${NAV_CLASS} ${NAV_PREV_CLASS}`}><Chevron direction="up" /></span>
+            <span className={`${NAV_CLASS} ${NAV_NEXT_CLASS}`}><Chevron direction="down" /></span>
           </div>
-          <CharacterCopy key={items[active].id} item={items[active]} />
-          <div className="cds-pagination">
+          <CharacterCopy key={items[active].id} item={items[active]} thumbnail />
+          <div className={PAGINATION_CLASS}>
             {items.map((item, itemIndex) => (
-              <span key={item.id} className="cds-line" data-active={itemIndex === active} />
+              <span key={item.id} className={LINE_CLASS} data-active={itemIndex === active} />
             ))}
           </div>
         </div>
@@ -352,194 +387,15 @@ export function CharacterDeckSliderThumbnail({
 
 export default CharacterDeckSlider;
 
+/*
+ * Only what utilities cannot express cleanly: focus outlines (they must outrank a host
+ * page's unlayered :focus-visible rule), the pagination line's two pseudo-element layers
+ * (hairline track + accent bar that grows when active), and the copy keyframes.
+ */
 const CHARACTER_DECK_CSS = `
-  .cds-stage {
-    --cds-navy: #182f44;
-    --cds-surface: #f3f3f3;
-    --cds-accent: #e24c52;
-    --cds-ink: #c44a55;
-    --cds-muted: #8e8e93;
-    --cds-rule: #e9b6bc;
-    --cds-track: #eccfd4;
-    --cds-ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    --cds-duration: 0.8s;
-    container: cds-stage / inline-size;
-    box-sizing: border-box;
-    display: grid;
-    place-items: center;
-    width: 100%;
-    padding: clamp(16px, 4.5%, 44px);
-    background: var(--cds-navy);
-    color: #2b2b2b;
-    font-family: "Segoe UI", "Lucida Grande", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
-  .cds-stage *,
-  .cds-stage *::before,
-  .cds-stage *::after { box-sizing: border-box; }
+  .cds-stage .cds-deck { outline: none; }
+  .cds-stage button:focus-visible { outline: 2px solid #e24c52; outline-offset: 3px; }
 
-  /* The white card is its own container, so every measurement scales with it. */
-  .cds-stage .cds-card {
-    container: cds-card / inline-size;
-    position: relative;
-    display: grid;
-    grid-template-columns: 50% 50%;
-    width: 100%;
-    max-width: 1040px;
-    aspect-ratio: 1.62;
-    overflow: hidden;
-    border-radius: 20px;
-    background: var(--cds-surface);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-  }
-
-  .cds-stage .cds-deck {
-    position: relative;
-    min-width: 0;
-    height: 100%;
-    touch-action: pan-x;
-    user-select: none;
-    -webkit-user-select: none;
-    outline: none;
-  }
-  .cds-stage .cds-deck:focus-visible {
-    box-shadow: inset 0 0 0 2px var(--cds-accent);
-    border-radius: 20px;
-  }
-
-  /* Each card reads its slot from --cds-* custom properties set per offset. */
-  .cds-stage .cds-slide {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 41cqw;
-    aspect-ratio: 1.28;
-    overflow: hidden;
-    border-radius: clamp(10px, 1.75cqw, 14px);
-    background: #dcdcde;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-    opacity: var(--cds-opacity, 1);
-    z-index: var(--cds-z, 1);
-    transform: translate(-50%, -50%) translateY(var(--cds-y, 0%)) scale(var(--cds-scale, 1));
-    filter: grayscale(1);
-    cursor: pointer;
-    transition:
-      transform var(--cds-duration) var(--cds-ease),
-      filter var(--cds-duration) var(--cds-ease),
-      opacity var(--cds-duration) var(--cds-ease),
-      box-shadow var(--cds-duration) var(--cds-ease);
-    will-change: transform;
-  }
-  .cds-stage .cds-slide[data-active="true"] { filter: grayscale(0); cursor: grab; }
-  .cds-stage .cds-slide[data-visible="false"] { pointer-events: none; box-shadow: none; }
-  .cds-stage .cds-image {
-    display: block;
-    width: 100%;
-    height: 100%;
-    max-width: none;
-    object-fit: cover;
-    object-position: 50% 16%;
-    pointer-events: none;
-    -webkit-user-drag: none;
-  }
-  @media (hover: hover) {
-    .cds-stage .cds-slide[data-active="false"][data-visible="true"]:hover { filter: grayscale(0.55); }
-  }
-
-  .cds-stage .cds-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-width: 0;
-    padding: 0 1cqw 0 9cqw;
-    text-align: center;
-  }
-
-  .cds-stage .cds-controls { display: flex; gap: clamp(14px, 2.6cqw, 24px); }
-  .cds-stage .cds-nav {
-    display: grid;
-    place-items: center;
-    width: clamp(30px, 4.1cqw, 38px);
-    aspect-ratio: 1;
-    padding: 0;
-    border: 1px solid #efcfd3;
-    border-radius: 50%;
-    background: rgba(226, 76, 82, 0.03);
-    color: #bea5a9;
-    cursor: pointer;
-    transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
-  }
-  .cds-stage .cds-nav svg { width: 42%; height: 42%; }
-  .cds-stage .cds-nav--next {
-    border-color: var(--cds-accent);
-    background: var(--cds-accent);
-    color: #fff;
-    box-shadow: 0 6px 14px rgba(226, 76, 82, 0.3);
-  }
-  .cds-stage button.cds-nav:not([aria-disabled="true"]):hover { transform: translateY(-1px); }
-  .cds-stage button.cds-nav--prev:not([aria-disabled="true"]):hover { border-color: var(--cds-accent); color: var(--cds-accent); }
-  .cds-stage button.cds-nav--next:not([aria-disabled="true"]):hover { background: #d63f46; }
-  .cds-stage .cds-nav[aria-disabled="true"] { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
-  .cds-stage button:focus-visible { outline: 2px solid var(--cds-accent); outline-offset: 3px; }
-
-  .cds-stage .cds-copy {
-    width: 100%;
-    margin-top: clamp(22px, 5.6cqw, 50px);
-    animation: cds-copy-in 0.6s var(--cds-ease) both;
-  }
-  .cds-stage .cds-title-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: clamp(8px, 1.75cqw, 16px);
-  }
-  .cds-stage .cds-title-row::before,
-  .cds-stage .cds-title-row::after {
-    content: "";
-    flex: 0 1 clamp(28px, 6.7cqw, 60px);
-    height: 1px;
-    background: var(--cds-rule);
-  }
-  .cds-stage .cds-name {
-    flex: 0 0 auto;
-    max-width: 100%;
-    margin: 0;
-    overflow: hidden;
-    color: var(--cds-ink);
-    font-size: clamp(15px, 2.6cqw, 24px);
-    font-weight: 600;
-    line-height: 1.2;
-    letter-spacing: 0.01em;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-  .cds-stage .cds-subtitle {
-    margin: clamp(3px, 0.8cqw, 7px) 0 0;
-    color: var(--cds-muted);
-    font-size: clamp(9px, 1.3cqw, 12px);
-    font-weight: 500;
-    line-height: 1.4;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-  }
-
-  .cds-stage .cds-pagination {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: clamp(20px, 6cqw, 52px);
-  }
-  .cds-stage .cds-line {
-    position: relative;
-    display: block;
-    width: clamp(96px, 16.6cqw, 150px);
-    height: clamp(9px, 1.31cqw, 12px);
-    padding: 0;
-    border: 0;
-    background: transparent;
-  }
-  .cds-stage button.cds-line { cursor: pointer; }
   .cds-stage .cds-line::before,
   .cds-stage .cds-line::after {
     content: "";
@@ -549,56 +405,23 @@ const CHARACTER_DECK_CSS = `
     right: 0;
     transform-origin: left center;
   }
-  .cds-stage .cds-line::before { height: 1px; background: var(--cds-track); transform: translateY(-50%); }
+  .cds-stage .cds-line::before { height: 1px; background: #eccfd4; transform: translateY(-50%); }
   .cds-stage .cds-line::after {
     height: 2px;
-    background: var(--cds-ink);
+    background: #c44a55;
     transform: translateY(-50%) scaleX(0);
-    transition: transform var(--cds-duration) var(--cds-ease);
+    transition: transform 0.8s var(--cds-ease);
   }
   .cds-stage .cds-line[data-active="true"]::after { transform: translateY(-50%) scaleX(1); }
   .cds-stage button.cds-line:hover::before { background: #e2a9b0; }
-
-  .cds-stage .cds-sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-    border: 0;
-  }
 
   @keyframes cds-copy-in {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: none; }
   }
 
-  /* Narrow widths: stack the info panel under the deck. */
-  @container cds-stage (max-width: 559px) {
-    .cds-stage:not(.cds-thumbnail) .cds-card {
-      grid-template-columns: minmax(0, 1fr);
-      aspect-ratio: auto;
-    }
-    .cds-stage:not(.cds-thumbnail) .cds-deck { height: 98cqw; }
-    .cds-stage:not(.cds-thumbnail) .cds-slide { width: 64cqw; }
-    .cds-stage:not(.cds-thumbnail) .cds-info { padding: 4px 16px 36px; }
-    .cds-stage:not(.cds-thumbnail) .cds-name { font-size: 20px; }
-    .cds-stage:not(.cds-thumbnail) .cds-subtitle { font-size: 10px; }
-  }
-
-  .cds-stage.cds-thumbnail { height: 100%; padding: 16px; }
-  .cds-stage.cds-thumbnail .cds-card { width: min(100%, 450px); }
-  .cds-stage.cds-thumbnail .cds-slide { cursor: default; }
-  .cds-stage.cds-thumbnail .cds-subtitle { letter-spacing: 0.12em; white-space: nowrap; }
-
   @media (prefers-reduced-motion: reduce) {
-    .cds-stage .cds-slide,
-    .cds-stage .cds-nav,
     .cds-stage .cds-line::after { transition: none; }
-    .cds-stage .cds-copy { animation: none; }
   }
 `;
 

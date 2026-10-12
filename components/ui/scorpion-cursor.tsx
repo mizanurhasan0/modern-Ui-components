@@ -58,6 +58,8 @@ function wireGeometry(points: Point[], scale: number, phase: number): WireGeomet
   return { ribs, legs, joints, spine: points.map((point, index) => `${index ? "L" : "M"}${pair(point)}`).join(" ") };
 }
 
+const buttonClass = "scorpion-button rounded-[5px] border border-[#ffffff24] bg-[#ffffff06] px-[10px] py-[6px] font-[ui-monospace,monospace] text-[10px] leading-[normal] font-normal text-[#b7beb8] not-italic hover:bg-[#ffffff15] hover:text-white aria-pressed:bg-[#ffffff15] aria-pressed:text-white";
+
 /** An articulated canvas creature. Animation runs only while visible and moving. */
 export default function ScorpionCursor({ className = "", stroke = "#e9eee9", initialPaused = false }: ScorpionCursorProps) {
   const [paused, setPaused] = useState(initialPaused);
@@ -190,23 +192,24 @@ export default function ScorpionCursor({ className = "", stroke = "#e9eee9", ini
     target.current = { x: clamp(target.current.x + delta[event.key].x, 25, bounds.width - 25), y: clamp(target.current.y + delta[event.key].y, 25, bounds.height - 25) };
     wake.current();
   }
-  return <section className={`scorpion-stage relative w-full overflow-hidden bg-black text-white ${className}`} aria-label="Scorpion cursor experiment">
+  return <section className={`scorpion-stage @container/scorpion relative flex w-full flex-col overflow-hidden bg-black text-white ${className}`} aria-label="Scorpion cursor experiment">
     <ScorpionStyles />
-    <canvas ref={canvas} className="scorpion-canvas block w-full" tabIndex={0} role="img" aria-label="A thin, articulated white scorpion that follows your pointer" aria-describedby={`${id}-help`} onPointerMove={guide} onPointerDown={guide} onKeyDown={handleKey} />
-    <div className="scorpion-footer absolute inset-x-0 bottom-0 flex items-center justify-between gap-4 px-5 py-4">
+    <canvas ref={canvas} className="scorpion-canvas block h-[480px] w-full flex-[1_0_auto] touch-pan-y [@container_scorpion_(max-width:500px)]:h-[390px]" tabIndex={0} role="img" aria-label="A thin, articulated white scorpion that follows your pointer" aria-describedby={`${id}-help`} onPointerMove={guide} onPointerDown={guide} onKeyDown={handleKey} />
+    <div className="scorpion-footer absolute inset-x-0 bottom-0 flex items-center justify-between gap-4 bg-[linear-gradient(transparent,#000)] px-5 py-4">
       <p className="text-[10px] tracking-[.08em] text-white/40" id={`${id}-help`}>Move or touch to guide<span className="sr-only">. Arrow keys also move it. Space pauses. Home resets. Reduced motion keeps the creature still.</span></p>
-      <div className="flex gap-2"><button type="button" className="scorpion-button" aria-pressed={paused} onClick={() => setPaused((value) => !value)}>{paused ? "Resume" : "Pause"}</button><button type="button" className="scorpion-button" onClick={() => reset.current()}>Reset</button></div>
+      <div className="flex gap-2"><button type="button" className={buttonClass} aria-pressed={paused} onClick={() => setPaused((value) => !value)}>{paused ? "Resume" : "Pause"}</button><button type="button" className={buttonClass} onClick={() => reset.current()}>Reset</button></div>
     </div>
   </section>;
 }
 
 export function ScorpionCursorThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   const geometry = wireGeometry(restingSpine(760, 460, previewStep % 6), 1, previewStep);
-  return <div className={`scorpion-stage scorpion-thumbnail relative w-full overflow-hidden bg-black ${className}`} aria-hidden="true"><ScorpionStyles /><svg viewBox="0 0 760 460" className="h-full w-full" fill="none" stroke="#dde5df" strokeWidth=".9"><path d={geometry.spine} opacity=".4" />{geometry.ribs.map((path, index) => <path d={path} key={`rib-${index}`} opacity=".63" />)}{geometry.legs.map((path, index) => <path d={path} key={`leg-${index}`} opacity=".6" />)}</svg></div>;
+  return <div className={`scorpion-stage scorpion-thumbnail @container/scorpion relative grid h-full min-h-0 w-full place-items-center overflow-hidden bg-black ${className}`} aria-hidden="true"><ScorpionStyles /><svg viewBox="0 0 760 460" className="block h-full min-h-0 w-full *:transition-[d] *:duration-[650ms] *:ease-[ease] motion-reduce:*:transition-none motion-reduce:*:duration-0" fill="none" stroke="#dde5df" strokeWidth=".9"><path d={geometry.spine} opacity=".4" />{geometry.ribs.map((path, index) => <path d={path} key={`rib-${index}`} opacity=".63" />)}{geometry.legs.map((path, index) => <path d={path} key={`leg-${index}`} opacity=".6" />)}</svg></div>;
 }
 
+/** Kept raw: it must outrank the unlayered global `:focus-visible` ring in app/globals.css. */
 function ScorpionStyles() {
-  return <ComponentStyles css={`.scorpion-stage{container-type:inline-size;container-name:scorpion}.scorpion-stage .scorpion-canvas{height:480px;touch-action:pan-y}.scorpion-stage .scorpion-canvas:focus-visible{outline:1px solid #a9b6aa;outline-offset:-10px}.scorpion-stage .scorpion-footer{background:linear-gradient(transparent,#000)}.scorpion-stage .scorpion-button{border:1px solid #ffffff24;border-radius:5px;background:#ffffff06;color:#b7beb8;padding:6px 10px;font:10px ui-monospace,monospace}.scorpion-stage .scorpion-button:hover,.scorpion-stage .scorpion-button[aria-pressed=true]{background:#ffffff15;color:#fff}.scorpion-stage.scorpion-thumbnail{height:100%;min-height:0;display:grid;place-items:center}.scorpion-stage.scorpion-thumbnail svg{display:block;width:100%;height:100%;min-height:0}.scorpion-thumbnail path{transition:d 650ms ease}@media(prefers-reduced-motion:reduce){.scorpion-thumbnail path{transition:none}}@container scorpion (max-width:500px){.scorpion-stage .scorpion-canvas{height:390px}}`} />;
+  return <ComponentStyles css={`.scorpion-stage .scorpion-canvas:focus-visible{outline:1px solid #a9b6aa;outline-offset:-10px}`} />;
 }
 
 export { ScorpionCursor };

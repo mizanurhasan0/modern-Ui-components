@@ -21,16 +21,36 @@ export interface OrbitLoginProps {
 type OrbitNotice = { kind: "success" | "error"; message: string };
 const SOCIAL_PROVIDERS: readonly OrbitSocialProvider[] = ["facebook", "x", "google"];
 const SOCIAL_NAMES = { facebook: "Facebook", x: "X", google: "Google" } as const;
+const SOCIAL_COLORS = { facebook: "ol-facebook bg-[#3b5998]", x: "ol-x bg-black", google: "ol-google bg-[#db4437]" } as const;
+
+/* Class lists shared by the live panel and its inert thumbnail. */
+const ROOT = "orbit-login @container/orbit relative isolate w-full min-w-0 overflow-hidden bg-[linear-gradient(135deg,#1e293b,#263b49)] text-[#cbd2db] [font-family:Arial,Helvetica,sans-serif]";
+const STAGE = "ol-stage relative flex w-full items-center justify-center";
+const DIAL = "ol-dial pointer-events-none absolute top-1/2 left-1/2 aspect-square -translate-x-1/2 -translate-y-1/2";
+const PANEL = "ol-panel relative z-1 w-[280px] rounded-[20px] bg-[rgba(29,42,56,.78)] px-7 pt-[30px] pb-8 shadow-[0_20px_40px_#0005] backdrop-blur-[4px]";
+const TITLE = "m-0 mb-[25px] text-center text-[27px] leading-[1.2] font-semibold tracking-[1px] text-[#ffbc3c]";
+const FIELDS = "ol-fields m-0 flex min-w-0 flex-col gap-5 border-0 p-0";
+const FIELD = "ol-field relative flex h-[38px] w-full items-center rounded-[25px] border border-[#ffffff40] bg-[#ffffff1a] p-0 [transition:border-color_.2s,box-shadow_.2s] focus-within:border-[#ffbc3c] focus-within:shadow-[0_0_12px_#ffa50033] data-[preview-active=true]:border-[#ffbc3c] data-[preview-active=true]:shadow-[0_0_12px_#ffa50033] motion-reduce:transition-none";
+const INPUT = "block size-full rounded-[inherit] border-0 bg-transparent py-2.5 pr-[38px] pl-[13px] text-[12px] leading-none text-white placeholder:text-[#cbd2db] placeholder:opacity-100";
+const FIELD_ICON = "ol-field-icon absolute top-1/2 right-3 grid h-5 w-[17px] -translate-y-1/2 place-items-center text-[#b7c1ce]";
+const FORGOT = "ol-forgot mt-[13px] mr-0 mb-[21px] ml-auto block border-0 bg-transparent p-0 text-right text-[10px] leading-[1.3] text-[#d6dbe3] hover:text-[#ffbc3c]";
+const SUBMIT = "ol-submit relative mt-[25px] flex min-h-10 w-full items-center justify-center overflow-hidden rounded-[25px] border border-[#ffc354] bg-[linear-gradient(90deg,#ffa500,#ff8c00)] px-3.5 py-[11px] text-center text-[14px] leading-[1.2] font-semibold tracking-[.3px] text-white shadow-[0_7px_25px_#ffa50033] [transition:transform_.2s,box-shadow_.2s] hover:[transform:translateY(-2px)] hover:shadow-[0_8px_28px_#ffa50077] data-[preview-active=true]:[transform:translateY(-2px)] data-[preview-active=true]:shadow-[0_8px_28px_#ffa50077] motion-reduce:transition-none [.ol-forgot+&]:mt-0";
+const SOCIAL = "ol-social mt-6 text-center";
+const SOCIAL_LABEL = "m-0 mb-3 text-[14px] leading-[1.3]";
+const SOCIAL_ROW = "flex justify-center gap-[13px]";
+const SOCIAL_BUTTON = "ol-social-button grid size-[34px] place-items-center rounded-[50%] border-0 p-0 text-[14px] leading-none text-white [transition:transform_.2s,box-shadow_.2s] hover:[transform:translateY(-3px)] hover:shadow-[0_6px_15px_#0005] motion-reduce:transition-none";
+const THUMB_VALUE = "pl-[13px] text-[12px] leading-none text-[#cbd2db]";
+const SWITCH = "ol-switch mx-auto mt-[25px] mb-0 block w-fit border-0 bg-transparent p-0 text-center text-[12px] leading-[1.3] text-[#ffbc3c] hover:underline hover:underline-offset-3";
 
 function OrbitIcon({ name }: { name: "email" | "password" | "name" }) {
-  return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="currentColor">
+  return <svg className="size-3.5" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="currentColor">
     {name === "email" ? <path d="M3 4h18a1 1 0 0 1 1 1v1L12 13 2 6V5a1 1 0 0 1 1-1Zm-1 4.4V19a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V8.4l-9.4 6.4a1 1 0 0 1-1.2 0L2 8.4Z" /> : name === "password" ? <path d="M7 10V7a5 5 0 0 1 10 0v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h1Zm2 0h6V7a3 3 0 0 0-6 0v3Z" /> : <><circle cx="12" cy="7" r="4" /><path d="M4 21v-3a8 8 0 0 1 16 0v3H4Z" /></>}
   </svg>;
 }
 
 function OrbitTicks({ offset = 0, thumbnail = false }: { offset?: number; thumbnail?: boolean }) {
-  return <svg className="ol-ticks" data-static={thumbnail} viewBox="0 0 560 560" fill="none" aria-hidden="true" focusable="false" style={thumbnail ? { transform: `rotate(${offset}deg)` } : undefined}>
-    {Array.from({ length: 60 }, (_, index) => <line key={index} className="ol-tick" data-lit={index >= 45 && index < 55} x1="280" y1="12" x2="280" y2="34" strokeWidth="7" strokeLinecap="round" transform={`rotate(${index * 6} 280 280)`} />)}
+  return <svg className="ol-ticks block size-full origin-center overflow-visible animate-[ol-orbit-turn_18s_linear_infinite] data-[static=true]:animate-none group-data-[running=false]/orbit:[animation-play-state:paused] motion-reduce:animate-none" data-static={thumbnail} viewBox="0 0 560 560" fill="none" aria-hidden="true" focusable="false" style={thumbnail ? { transform: `rotate(${offset}deg)` } : undefined}>
+    {Array.from({ length: 60 }, (_, index) => <line key={index} className="stroke-[#4a5f7f] opacity-65 data-[lit=true]:stroke-[#ffa500] data-[lit=true]:opacity-100 data-[lit=true]:[filter:drop-shadow(0_0_6px_#ffa500b3)]" data-lit={index >= 45 && index < 55} x1="280" y1="12" x2="280" y2="34" strokeWidth="7" strokeLinecap="round" transform={`rotate(${index * 6} 280 280)`} />)}
   </svg>;
 }
 
@@ -134,25 +154,25 @@ export default function OrbitLogin({ onLogin, onSignUp, onResetPassword, onSocia
     }
   }
 
-  return <section ref={rootRef} className={`orbit-login relative flex w-full items-center justify-center ${className}`} aria-label="Orbit authentication">
+  return <section ref={rootRef} className={`${ROOT} group/orbit flex items-center justify-center ${className}`} aria-label="Orbit authentication">
     <ComponentStyles css={ORBIT_LOGIN_STYLES} />
-    <div className="ol-stage"><div className="ol-dial"><OrbitTicks /></div>
-      <div className="ol-panel">
-        <h2 id={`${id}-title`}>{view === "signup" ? "SIGN UP" : view === "reset" ? "RESET PASSWORD" : "LOGIN"}</h2>
+    <div className={`${STAGE} min-h-[640px] px-6 py-[70px] [@container_orbit_(max-width:520px)]:min-h-[590px] [@container_orbit_(max-width:520px)]:py-16`}><div className={`${DIAL} w-[560px] [@container_orbit_(max-width:520px)]:w-[500px]`}><OrbitTicks /></div>
+      <div className={`${PANEL} max-w-full`}>
+        <h2 id={`${id}-title`} className={TITLE}>{view === "signup" ? "SIGN UP" : view === "reset" ? "RESET PASSWORD" : "LOGIN"}</h2>
         <form aria-labelledby={`${id}-title`} onSubmit={submit}>
-          <fieldset disabled={pending} className="ol-fields">
-            {view === "signup" && <label className="ol-field"><span className="ol-sr-only">Full name</span><input ref={firstInputRef} name="fullName" type="text" autoComplete="name" placeholder="Full Name" required minLength={2} value={fullName} onChange={(event) => setFullName(event.target.value)} /><span className="ol-field-icon"><OrbitIcon name="name" /></span></label>}
-            <label className="ol-field"><span className="ol-sr-only">Email address</span><input ref={view === "signup" ? undefined : firstInputRef} name="email" type="email" autoComplete="email" placeholder="Email" required value={email} onChange={(event) => setEmail(event.target.value)} /><span className="ol-field-icon"><OrbitIcon name="email" /></span></label>
-            {view !== "reset" && <label className="ol-field"><span className="ol-sr-only">Password</span><input name="password" aria-label="Password" type={visiblePassword ? "text" : "password"} autoComplete={view === "signup" ? "new-password" : "current-password"} placeholder="Password" required minLength={view === "signup" ? 8 : undefined} value={password} onChange={(event) => setPassword(event.target.value)} /><button className="ol-field-icon ol-password-toggle" type="button" aria-label={visiblePassword ? "Hide password" : "Show password"} aria-pressed={visiblePassword} onClick={() => setVisiblePassword((visible) => !visible)}><OrbitIcon name="password" /></button></label>}
+          <fieldset disabled={pending} className={`${FIELDS} disabled:opacity-70`}>
+            {view === "signup" && <label className={FIELD}><span className="sr-only">Full name</span><input ref={firstInputRef} name="fullName" type="text" className={INPUT} autoComplete="name" placeholder="Full Name" required minLength={2} value={fullName} onChange={(event) => setFullName(event.target.value)} /><span className={FIELD_ICON}><OrbitIcon name="name" /></span></label>}
+            <label className={FIELD}><span className="sr-only">Email address</span><input ref={view === "signup" ? undefined : firstInputRef} name="email" type="email" className={INPUT} autoComplete="email" placeholder="Email" required value={email} onChange={(event) => setEmail(event.target.value)} /><span className={FIELD_ICON}><OrbitIcon name="email" /></span></label>
+            {view !== "reset" && <label className={FIELD}><span className="sr-only">Password</span><input name="password" aria-label="Password" type={visiblePassword ? "text" : "password"} className={INPUT} autoComplete={view === "signup" ? "new-password" : "current-password"} placeholder="Password" required minLength={view === "signup" ? 8 : undefined} value={password} onChange={(event) => setPassword(event.target.value)} /><button className={`${FIELD_ICON} ol-password-toggle cursor-pointer border-0 bg-transparent p-0`} type="button" aria-label={visiblePassword ? "Hide password" : "Show password"} aria-pressed={visiblePassword} onClick={() => setVisiblePassword((visible) => !visible)}><OrbitIcon name="password" /></button></label>}
           </fieldset>
-          {view === "login" && <button className="ol-forgot" type="button" onClick={() => changeView("reset")}>Forget Your Password ?</button>}
-          {view === "reset" && <p className="ol-reset-copy">Enter your email to request a password reset.</p>}
-          <button className="ol-submit" type="submit" disabled={pending} aria-busy={pending}>{pending ? "Please wait…" : view === "signup" ? "CREATE ACCOUNT" : view === "reset" ? "SEND RESET LINK" : "LOGIN"}</button>
+          {view === "login" && <button className={`${FORGOT} cursor-pointer`} type="button" onClick={() => changeView("reset")}>Forget Your Password ?</button>}
+          {view === "reset" && <p className="ol-reset-copy mx-0 mt-[18px] mb-[22px] text-center text-[12px] leading-[1.5] text-[#cbd2db]">Enter your email to request a password reset.</p>}
+          <button className={`${SUBMIT} cursor-pointer disabled:cursor-wait disabled:[transform:none] disabled:opacity-70`} type="submit" disabled={pending} aria-busy={pending}>{pending ? "Please wait…" : view === "signup" ? "CREATE ACCOUNT" : view === "reset" ? "SEND RESET LINK" : "LOGIN"}</button>
         </form>
-        {view === "login" && socialProviders.length > 0 && <div className="ol-social"><p>log in with</p><div>{socialProviders.map((provider) => <button key={provider} className={`ol-social-button ol-${provider}`} type="button" disabled={pending} aria-label={`Continue with ${SOCIAL_NAMES[provider]}`} onClick={() => void runAction((signal) => onSocialAuth?.(provider, signal), onSocialAuth ? `${SOCIAL_NAMES[provider]} sign-in complete.` : `${SOCIAL_NAMES[provider]} selected in this local demo.`)}>{provider === "facebook" ? "F" : provider === "google" ? "G" : "X"}</button>)}</div></div>}
-        <button className="ol-switch" type="button" onClick={() => changeView(view === "login" ? "signup" : "login")}>{view === "login" ? "Sign Up" : "Back to Login"}</button>
-        {notice && <p className="ol-notice" data-kind={notice.kind} role={notice.kind === "error" ? "alert" : "status"}>{notice.message}</p>}
-        {pending && <button className="ol-cancel" type="button" onClick={cancel}>Cancel</button>}
+        {view === "login" && socialProviders.length > 0 && <div className={SOCIAL}><p className={SOCIAL_LABEL}>log in with</p><div className={SOCIAL_ROW}>{socialProviders.map((provider) => <button key={provider} className={`${SOCIAL_BUTTON} ${SOCIAL_COLORS[provider]} cursor-pointer disabled:cursor-wait disabled:opacity-60`} type="button" disabled={pending} aria-label={`Continue with ${SOCIAL_NAMES[provider]}`} onClick={() => void runAction((signal) => onSocialAuth?.(provider, signal), onSocialAuth ? `${SOCIAL_NAMES[provider]} sign-in complete.` : `${SOCIAL_NAMES[provider]} selected in this local demo.`)}>{provider === "facebook" ? "F" : provider === "google" ? "G" : "X"}</button>)}</div></div>}
+        <button className={`${SWITCH} cursor-pointer`} type="button" onClick={() => changeView(view === "login" ? "signup" : "login")}>{view === "login" ? "Sign Up" : "Back to Login"}</button>
+        {notice && <p className="ol-notice mx-0 mt-[18px] mb-0 rounded-[10px] border border-[#ffbc3c55] p-2.5 text-center text-[12px] leading-[1.5] text-[#fbd181] [overflow-wrap:anywhere] data-[kind=error]:border-[#ff787866] data-[kind=error]:text-[#ffb9b9]" data-kind={notice.kind} role={notice.kind === "error" ? "alert" : "status"}>{notice.message}</p>}
+        {pending && <button className="ol-cancel mx-auto mt-3 mb-0 block cursor-pointer border-0 bg-transparent p-0.5 text-[11px] text-[#cbd2db] underline" type="button" onClick={cancel}>Cancel</button>}
       </div>
     </div>
   </section>;
@@ -163,65 +183,19 @@ export function OrbitLoginThumbnail({ className = "", previewStep = 0 }: { class
   const step = Number.isFinite(previewStep) ? Math.max(0, Math.floor(previewStep)) % 6 : 0;
   const signup = step === 4;
   const reset = step === 5;
-  return <div className={`orbit-login ol-thumbnail ${className}`} aria-hidden="true" inert><ComponentStyles css={ORBIT_LOGIN_STYLES} /><div className="ol-stage"><div className="ol-dial"><OrbitTicks thumbnail offset={step * 54} /></div><div className="ol-panel"><h3>{signup ? "SIGN UP" : reset ? "RESET PASSWORD" : "LOGIN"}</h3><div className="ol-fields">
-    {signup && <span className="ol-field"><span>Full Name</span><span className="ol-field-icon"><OrbitIcon name="name" /></span></span>}
-    <span className="ol-field" data-preview-active={step === 1}><span>{step >= 1 && step <= 3 ? "hello@example.com" : "Email"}</span><span className="ol-field-icon"><OrbitIcon name="email" /></span></span>
-    {!reset && <span className="ol-field" data-preview-active={step === 2}><span>{step === 2 || step === 3 ? "••••••••" : "Password"}</span><span className="ol-field-icon"><OrbitIcon name="password" /></span></span>}
-  </div>{!signup && !reset && <span className="ol-forgot">Forget Your Password ?</span>}<span className="ol-submit" data-preview-active={step === 3}>{signup ? "CREATE ACCOUNT" : reset ? "SEND RESET LINK" : "LOGIN"}</span>{!signup && !reset && <div className="ol-social"><p>log in with</p><div>{SOCIAL_PROVIDERS.map((provider) => <span key={provider} className={`ol-social-button ol-${provider}`}>{provider === "facebook" ? "F" : provider === "google" ? "G" : "X"}</span>)}</div></div>}<span className="ol-switch">{signup || reset ? "Back to Login" : "Sign Up"}</span></div></div></div>;
+  return <div className={`${ROOT} ol-thumbnail h-full min-h-0 ${className}`} aria-hidden="true" inert><ComponentStyles css={ORBIT_LOGIN_STYLES} /><div className={`${STAGE} h-full min-h-0 p-4`}><div className={`${DIAL} w-[330px]`}><OrbitTicks thumbnail offset={step * 54} /></div><div className={`${PANEL} max-w-none shrink-0 scale-65`}><h3 className={TITLE}>{signup ? "SIGN UP" : reset ? "RESET PASSWORD" : "LOGIN"}</h3><div className={FIELDS}>
+    {signup && <span className={FIELD}><span className={THUMB_VALUE}>Full Name</span><span className={FIELD_ICON}><OrbitIcon name="name" /></span></span>}
+    <span className={FIELD} data-preview-active={step === 1}><span className={THUMB_VALUE}>{step >= 1 && step <= 3 ? "hello@example.com" : "Email"}</span><span className={FIELD_ICON}><OrbitIcon name="email" /></span></span>
+    {!reset && <span className={FIELD} data-preview-active={step === 2}><span className={THUMB_VALUE}>{step === 2 || step === 3 ? "••••••••" : "Password"}</span><span className={FIELD_ICON}><OrbitIcon name="password" /></span></span>}
+  </div>{!signup && !reset && <span className={`${FORGOT} cursor-default`}>Forget Your Password ?</span>}<span className={`${SUBMIT} cursor-default`} data-preview-active={step === 3}>{signup ? "CREATE ACCOUNT" : reset ? "SEND RESET LINK" : "LOGIN"}</span>{!signup && !reset && <div className={SOCIAL}><p className={SOCIAL_LABEL}>log in with</p><div className={SOCIAL_ROW}>{SOCIAL_PROVIDERS.map((provider) => <span key={provider} className={`${SOCIAL_BUTTON} ${SOCIAL_COLORS[provider]} cursor-default`}>{provider === "facebook" ? "F" : provider === "google" ? "G" : "X"}</span>)}</div></div>}<span className={`${SWITCH} cursor-default`}>{signup || reset ? "Back to Login" : "Sign Up"}</span></div></div></div>;
 }
 
+/* Only what utilities cannot express: keyframes, focus rules that must stay unlayered to
+   override the host page's unlayered :focus-visible outline, and the submit shine sweep. */
 const ORBIT_LOGIN_STYLES = `
-.orbit-login{container:orbit-login / inline-size;position:relative;isolation:isolate;width:100%;min-width:0;overflow:hidden;background:linear-gradient(135deg,#1e293b,#263b49);color:#cbd2db;font-family:Arial,Helvetica,sans-serif}
-.orbit-login *{box-sizing:border-box}
-.orbit-login :where(button,input){font-family:inherit}
-.ol-stage{position:relative;display:flex;align-items:center;justify-content:center;width:100%;min-height:640px;padding:70px 24px}
-.ol-dial{position:absolute;left:50%;top:50%;width:560px;aspect-ratio:1;transform:translate(-50%,-50%);pointer-events:none}
-.ol-ticks{display:block;width:100%;height:100%;overflow:visible;transform-origin:center;animation:ol-orbit-turn 18s linear infinite}
-.ol-ticks[data-static=true]{animation:none}
-.ol-tick{stroke:#4a5f7f;opacity:.65}
-.ol-tick[data-lit=true]{stroke:#ffa500;opacity:1;filter:drop-shadow(0 0 6px #ffa500b3)}
-.ol-panel{position:relative;z-index:1;width:280px;max-width:100%;padding:30px 28px 32px;border-radius:20px;background:rgba(29,42,56,.78);box-shadow:0 20px 40px #0005;backdrop-filter:blur(4px)}
-.ol-panel h2,.ol-panel h3{margin:0 0 25px;color:#ffbc3c;font-size:27px;font-weight:600;line-height:1.2;letter-spacing:1px;text-align:center}
-.ol-fields{display:flex;flex-direction:column;gap:20px;min-width:0;padding:0;margin:0;border:0}
-.ol-field{position:relative;display:flex;align-items:center;width:100%;height:38px;padding:0;border:1px solid #ffffff40;border-radius:25px;background:#ffffff1a;transition:border-color .2s,box-shadow .2s}
-.ol-field:focus-within,.ol-field[data-preview-active=true]{border-color:#ffbc3c;box-shadow:0 0 12px #ffa50033}
-.ol-field input{display:block;width:100%;height:100%;padding:10px 38px 10px 13px;border:0;border-radius:inherit;background:transparent;color:#fff;font-size:12px;line-height:1;outline:0}
-.ol-field input::placeholder{color:#cbd2db;opacity:1}
-.ol-fields:disabled{opacity:.7}
-.ol-field-icon{position:absolute;right:12px;top:50%;display:grid;place-items:center;width:17px;height:20px;transform:translateY(-50%);color:#b7c1ce}
-.ol-field-icon svg{width:14px;height:14px}
-.ol-password-toggle{padding:0;border:0;background:transparent;cursor:pointer}
-.ol-forgot{display:block;margin:13px 0 21px auto;padding:0;border:0;background:transparent;color:#d6dbe3;font-size:10px;line-height:1.3;text-align:right;cursor:pointer}
-.ol-forgot:hover{color:#ffbc3c}
-.ol-reset-copy{margin:18px 0 22px;color:#cbd2db;font-size:12px;line-height:1.5;text-align:center}
-.ol-submit{position:relative;display:flex;align-items:center;justify-content:center;width:100%;min-height:40px;margin-top:25px;padding:11px 14px;border:1px solid #ffc354;border-radius:25px;background:linear-gradient(90deg,#ffa500,#ff8c00);color:white;font-size:14px;font-weight:600;line-height:1.2;letter-spacing:.3px;text-align:center;cursor:pointer;overflow:hidden;box-shadow:0 7px 25px #ffa50033;transition:transform .2s,box-shadow .2s}
-.ol-forgot+.ol-submit{margin-top:0}
-.ol-submit:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,#ffffff40,transparent);transform:translateX(-110%);transition:transform .6s}
-.ol-submit:hover,.ol-submit[data-preview-active=true]{transform:translateY(-2px);box-shadow:0 8px 28px #ffa50077}
-.ol-submit:hover:before{transform:translateX(110%)}
-.ol-submit:disabled{cursor:wait;opacity:.7;transform:none}
-.ol-social{margin-top:24px;text-align:center}
-.ol-social p{margin:0 0 12px;font-size:14px;line-height:1.3}
-.ol-social>div{display:flex;justify-content:center;gap:13px}
-.ol-social-button{display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;border-radius:50%;color:#fff;font-size:14px;line-height:1;cursor:pointer;transition:transform .2s,box-shadow .2s}
-.ol-social-button:hover{transform:translateY(-3px);box-shadow:0 6px 15px #0005}
-.ol-social-button:disabled{opacity:.6;cursor:wait}
-.ol-facebook{background:#3b5998}.ol-x{background:#000}.ol-google{background:#db4437}
-.ol-switch{display:block;width:fit-content;margin:25px auto 0;padding:0;border:0;background:transparent;color:#ffbc3c;font-size:12px;line-height:1.3;text-align:center;cursor:pointer}
-.ol-switch:hover{text-decoration:underline;text-underline-offset:3px}
-.ol-notice{margin:18px 0 0;padding:10px;border:1px solid #ffbc3c55;border-radius:10px;color:#fbd181;font-size:12px;line-height:1.5;text-align:center;overflow-wrap:anywhere}
-.ol-notice[data-kind=error]{border-color:#ff787866;color:#ffb9b9}
-.ol-cancel{display:block;margin:12px auto 0;padding:2px;border:0;background:transparent;color:#cbd2db;font-size:11px;text-decoration:underline;cursor:pointer}
-.orbit-login button:focus-visible{outline:2px solid #ffbc3c;outline-offset:4px}
-.ol-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 @keyframes ol-orbit-turn{to{transform:rotate(360deg)}}
-.orbit-login[data-running=false] .ol-ticks{animation-play-state:paused}
-@container orbit-login (max-width:520px){.orbit-login:not(.ol-thumbnail) .ol-stage{min-height:590px;padding:64px 24px}.orbit-login:not(.ol-thumbnail) .ol-dial{width:500px}.orbit-login:not(.ol-thumbnail) .ol-panel{width:280px}}
-.ol-thumbnail{height:100%;min-height:0}
-.ol-thumbnail .ol-stage{height:100%;min-height:0;padding:16px}
-.ol-thumbnail .ol-dial{width:330px}
-.ol-thumbnail .ol-panel{width:280px;flex-shrink:0;max-width:none;transform:scale(.65);padding:30px 28px 32px}
-.ol-thumbnail .ol-fields>.ol-field>span:first-child{padding-left:13px;font-size:12px;line-height:1;color:#cbd2db}
-.ol-thumbnail .ol-submit,.ol-thumbnail .ol-social-button,.ol-thumbnail .ol-switch,.ol-thumbnail .ol-forgot{cursor:default}
-@media(prefers-reduced-motion:reduce){.orbit-login *{animation:none!important;transition:none!important}}
+.orbit-login button:focus-visible{outline:2px solid #ffbc3c;outline-offset:4px}
+.ol-field input{outline:0}
+.ol-submit:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,#ffffff40,transparent);transform:translateX(-110%);transition:transform .6s}
+.ol-submit:hover:before{transform:translateX(110%)}
 `;

@@ -53,6 +53,39 @@ function getServerMotionPreference() {
   return false;
 }
 
+/**
+ * Tailwind class lists. Large scenes scale with the 640 × 404 artwork (cqi of
+ * the scene container); compact scenes (`@max-[500px]/cl-scene:`, under 500px)
+ * switch to fixed pixels. Every class is written in full so Tailwind can find it.
+ */
+const styles = {
+  root: "creative-login relative isolate w-full overflow-hidden bg-[#4b6bff] font-['Creative_Login_Fira_Sans','Fira_Sans',Arial,sans-serif] text-white [font-synthesis:none] [-webkit-font-smoothing:antialiased] @container/creative-login",
+  frame: "after:pointer-events-none after:absolute after:inset-0 after:z-5 after:rounded-[.46875cqi] after:border-[.15625cqi] after:border-[#ffffffd9] after:content-['']",
+  scene: "relative isolate flow-root min-h-[63.125cqi] w-full @container/cl-scene",
+  characterLayer: "cl-character-layer pointer-events-none absolute top-0 left-0 z-2 h-[63.125cqi] w-full overflow-hidden",
+  formPosition: "cl-form-position relative left-[34.0625%] z-1 mt-[14.6875cqi] mb-[10.9375cqi] w-[40%] origin-top-left",
+  form: "cl-form relative w-full text-center",
+  heading: "cl-heading text-[2.8125cqi] leading-[3.75cqi] font-bold tracking-normal wrap-anywhere",
+  headingCompact: "@max-[500px]/cl-scene:text-[18px] @max-[500px]/cl-scene:leading-[24px]",
+  description: "cl-description mt-[.625cqi] mb-[1.5625cqi] text-[1.5625cqi] leading-[2.1875cqi] font-normal text-[#eef2ff]",
+  descriptionCompact: "@max-[500px]/cl-scene:mt-[4px] @max-[500px]/cl-scene:mb-[10px] @max-[500px]/cl-scene:text-[10px] @max-[500px]/cl-scene:leading-[14px]",
+  label: "cl-label mb-[.78125cqi] block w-full text-center text-[1.5625cqi] leading-[2.1875cqi] font-normal text-[#f3f5ff]",
+  labelCompact: "@max-[500px]/cl-scene:mb-[5px] @max-[500px]/cl-scene:text-[10px] @max-[500px]/cl-scene:leading-[14px]",
+  nameFields: "cl-name-fields flex flex-col gap-[1.40625cqi]",
+  primary: "cl-primary mt-[2.03125cqi] flex min-h-[4.375cqi] w-full cursor-pointer items-center justify-center gap-[.9375cqi] rounded-[.3125cqi] border-[.15625cqi] border-[#55d3a1] bg-[#19b780] px-[1.5625cqi] py-[.625cqi] text-[1.5625cqi] leading-[2.1875cqi] font-bold text-white transition-[background,transform] duration-150 ease-[ease] [&_svg]:size-[2.1875cqi] [&_svg]:shrink-0",
+  primaryStates: "enabled:hover:bg-[#12a672] enabled:active:[transform:translateY(.15625cqi)] disabled:cursor-wait disabled:opacity-65",
+  primaryCompact: "@max-[500px]/cl-scene:mt-[13px] @max-[500px]/cl-scene:min-h-[32px] @max-[500px]/cl-scene:gap-[6px] @max-[500px]/cl-scene:rounded-[2px] @max-[500px]/cl-scene:border-[1px] @max-[500px]/cl-scene:px-[8px] @max-[500px]/cl-scene:py-[5px] @max-[500px]/cl-scene:text-[11px] @max-[500px]/cl-scene:leading-[18px] @max-[500px]/cl-scene:[&_svg]:size-[13px]",
+  field: "cl-field relative flex min-h-[4.53125cqi] items-center rounded-[.46875cqi] bg-white text-[#707780] shadow-[0_.15625cqi_.15625cqi_#18295514] @max-[500px]/cl-scene:min-h-[32px] @max-[500px]/cl-scene:rounded-[3px]",
+  fieldIcon: "cl-field-icon pointer-events-none absolute left-[1.09375cqi] flex [&_svg]:size-[2.03125cqi] @max-[500px]/cl-scene:left-[7px] @max-[500px]/cl-scene:[&_svg]:size-[13px]",
+  input: "block h-[4.53125cqi] w-full min-w-0 rounded-[.46875cqi] border-[.15625cqi] border-[#dfe4ed] py-[.625cqi] pr-[1.25cqi] pl-[3.90625cqi] text-[1.328125cqi] leading-[2.03125cqi] font-normal text-[#333c49] transition-[border-color,box-shadow] duration-150 ease-[ease] placeholder:text-[#707985] placeholder:opacity-100 focus:border-[#a4ffce] focus:shadow-[0_0_0_.46875cqi_#c7ffe14d] aria-invalid:border-[#ffb5b5] aria-invalid:shadow-[0_0_0_.3125cqi_#ffb5b54d]",
+  inputCompact: "@max-[500px]/cl-scene:h-[32px] @max-[500px]/cl-scene:rounded-[3px] @max-[500px]/cl-scene:border-[1px] @max-[500px]/cl-scene:py-[5px] @max-[500px]/cl-scene:pr-[8px] @max-[500px]/cl-scene:pl-[25px] @max-[500px]/cl-scene:text-[12px] @max-[500px]/cl-scene:leading-[20px]",
+  fieldError: "cl-field-error mt-[.625cqi] text-left text-[1.5625cqi] leading-[2.1875cqi] text-[#fff2d6] wrap-anywhere @max-[500px]/cl-scene:mt-[4px] @max-[500px]/cl-scene:text-[10px] @max-[500px]/cl-scene:leading-[14px]",
+  staticField: "cl-static-field flex h-[4.53125cqi] items-center gap-[.78125cqi] rounded-[.46875cqi] border-[.15625cqi] border-[#dfe4ed] bg-white px-[1.09375cqi] py-[.625cqi] text-left text-[1.328125cqi] leading-[2.03125cqi] text-[#707985] [&_svg]:size-[2.03125cqi] [&_svg]:shrink-0",
+  staticText: "min-w-0 overflow-hidden whitespace-nowrap",
+  reviewTerm: "mb-[.625cqi] text-[1.5625cqi] leading-[2.1875cqi] text-[#e7ecff] @max-[500px]/cl-scene:mb-[4px] @max-[500px]/cl-scene:text-[10px] @max-[500px]/cl-scene:leading-[14px]",
+  reviewValue: "text-[1.875cqi] leading-[2.65625cqi] text-white wrap-anywhere @max-[500px]/cl-scene:text-[12px] @max-[500px]/cl-scene:leading-[17px]",
+} as const;
+
 function FormIcon({ name }: { name: "person" | "email" | "check" | "arrow" }) {
   return (
     <svg
@@ -200,8 +233,8 @@ export default function CreativeLogin({
     const isEmail = field === "email";
     return (
       <div className="cl-field-group">
-        <div className="cl-field relative flex items-center" data-invalid={!!errors[field]}>
-          <span className="cl-field-icon pointer-events-none absolute">
+        <div className={styles.field} data-invalid={!!errors[field]}>
+          <span className={styles.fieldIcon}>
             <FormIcon name={isEmail ? "email" : "person"} />
           </span>
           <label className="sr-only" htmlFor={`${id}-${field}`}>
@@ -223,10 +256,11 @@ export default function CreativeLogin({
             aria-invalid={!!errors[field]}
             aria-describedby={errors[field] ? `${id}-${field}-error` : undefined}
             required
+            className={`${styles.input} ${styles.inputCompact}`}
           />
         </div>
         {errors[field] && (
-          <p id={`${id}-${field}-error`} className="cl-field-error" role="alert">
+          <p id={`${id}-${field}-error`} className={styles.fieldError} role="alert">
             {errors[field]}
           </p>
         )}
@@ -235,10 +269,11 @@ export default function CreativeLogin({
   }
 
   return (
-    <div className={`creative-login cl-stage relative isolate w-full overflow-hidden ${className}`} data-intro={ready ? "settled" : phase}>
+    <div className={`${styles.root} ${styles.frame} cl-stage group/login flex min-h-0 flex-col aspect-auto ${className}`} data-intro={ready ? "settled" : phase}>
       <CreativeLoginStyles />
-      <div className="cl-scene">
-        <div className="cl-character-layer" aria-hidden="true">
+      {/* Never taller than the screen: short, wide viewports letterbox the artwork instead. */}
+      <div className={`cl-scene ${styles.scene} m-auto max-w-[calc(100svh*640/404)]`}>
+        <div className={`${styles.characterLayer} @max-[500px]/cl-scene:top-[calc(max(44px,14.6875cqi)-94px)] @max-[500px]/cl-scene:left-[calc(34.0625%-218px)] @max-[500px]/cl-scene:h-[404px] @max-[500px]/cl-scene:w-[640px]`} aria-hidden="true">
           {sceneError ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src="/creative-login/poster.png" alt="" className="h-full w-full object-contain" />
@@ -247,51 +282,63 @@ export default function CreativeLogin({
               onError={() => { setSceneError(true); setPhase("settled"); }} />
           )}
         </div>
-        <div ref={formPosition} className="cl-form-position" data-step={step} inert={!ready}>
+        {/* At 640px: x218, y94, width256. In-flow content can grow on validation. */}
+        <div
+          ref={formPosition}
+          className={`${styles.formPosition} @max-[500px]/cl-scene:mt-[max(44px,14.6875cqi)] @max-[500px]/cl-scene:mb-[max(38px,10.9375cqi)] @max-[500px]/cl-scene:w-[58%] group-data-[intro=revealing]/login:motion-safe:pointer-events-none group-data-[intro=waiting]/login:motion-safe:pointer-events-none group-data-[intro=waiting]/login:motion-safe:invisible`}
+          data-step={step}
+          inert={!ready}
+        >
           {step === "details" ? (
             <form
               key="details"
-              className="cl-form cl-enter"
+              className={`${styles.form} cl-enter`}
               onSubmit={reviewDetails}
               aria-labelledby={`${id}-title`}
               noValidate
             >
-              <h2 id={`${id}-title`} className="cl-heading">Register now</h2>
-              <p className="cl-description">Secure your spot in our upcoming live webinar</p>
+              <h2 id={`${id}-title`} className={`${styles.heading} ${styles.headingCompact}`}>Register now</h2>
+              <p className={`${styles.description} ${styles.descriptionCompact}`}>Secure your spot in our upcoming live webinar</p>
               <fieldset className="m-0 min-w-0 border-0 p-0">
-                <legend className="cl-label">What’s your name? <span aria-hidden="true">*</span></legend>
-                <div className="cl-name-fields flex flex-col">
+                <legend className={`${styles.label} ${styles.labelCompact}`}>What’s your name? <span aria-hidden="true">*</span></legend>
+                <div className={`${styles.nameFields} @max-[500px]/cl-scene:gap-[9px]`}>
                   {renderField("firstName", "Name")}
                   {renderField("surname", "Surname")}
                 </div>
               </fieldset>
-              <p className="cl-label cl-email-label" aria-hidden="true">Enter your email address <span>*</span></p>
+              <p className={`${styles.label} ${styles.labelCompact} cl-email-label mt-[1.875cqi] @max-[500px]/cl-scene:mt-[12px]`} aria-hidden="true">Enter your email address <span>*</span></p>
               {renderField("email", "Ex. yourname@company.com")}
-              <button className="cl-primary flex w-full items-center justify-center" type="submit">
+              <button className={`${styles.primary} ${styles.primaryStates} ${styles.primaryCompact}`} type="submit">
                 Next
               </button>
             </form>
           ) : step === "review" ? (
             <form
               key="review"
-              className="cl-form cl-step-enter"
+              className={`${styles.form} cl-step-enter animate-[cl-step-entrance_.22s_ease-out_both]`}
               onSubmit={completeRegistration}
               aria-labelledby={`${id}-review-title`}
               aria-busy={submitting}
             >
-              <h2 ref={heading} tabIndex={-1} id={`${id}-review-title`} className="cl-heading">One last check</h2>
-              <p className="cl-description">Everything looking good?</p>
-              <dl className="cl-review text-left">
-                <div><dt>Your name</dt><dd>{values.firstName} {values.surname}</dd></div>
-                <div><dt>Email address</dt><dd>{values.email}</dd></div>
+              <h2 ref={heading} tabIndex={-1} id={`${id}-review-title`} className={`${styles.heading} ${styles.headingCompact}`}>One last check</h2>
+              <p className={`${styles.description} ${styles.descriptionCompact}`}>Everything looking good?</p>
+              <dl className="cl-review mt-[2.1875cqi] rounded-[.625cqi] border-[.15625cqi] border-[#ffffff38] bg-[#ffffff0d] p-[2.1875cqi] text-left @max-[500px]/cl-scene:mt-[14px] @max-[500px]/cl-scene:rounded-[4px] @max-[500px]/cl-scene:border-[1px] @max-[500px]/cl-scene:p-[12px]">
+                <div><dt className={styles.reviewTerm}>Your name</dt><dd className={styles.reviewValue}>{values.firstName} {values.surname}</dd></div>
+                <div className="mt-[2.1875cqi] @max-[500px]/cl-scene:mt-[14px]"><dt className={styles.reviewTerm}>Email address</dt><dd className={styles.reviewValue}>{values.email}</dd></div>
               </dl>
-              {submitError && <p className="cl-submit-error" role="alert">{submitError}</p>}
-              <button type="submit" className="cl-primary flex w-full items-center justify-center gap-2" disabled={submitting}>
-                {submitting ? <><span className="cl-spinner" aria-hidden="true" /> Registering…</> : <>Complete registration <FormIcon name="arrow" /></>}
+              {submitError && (
+                <p className="cl-submit-error mt-[1.5625cqi] text-[1.5625cqi] leading-[2.34375cqi] text-[#fff2d6] wrap-anywhere @max-[500px]/cl-scene:mt-[10px] @max-[500px]/cl-scene:text-[10px] @max-[500px]/cl-scene:leading-[15px]" role="alert">
+                  {submitError}
+                </p>
+              )}
+              <button type="submit" className={`${styles.primary} ${styles.primaryStates} ${styles.primaryCompact}`} disabled={submitting}>
+                {submitting ? (
+                  <><span className="cl-spinner size-[1.875cqi] animate-[cl-spin_.75s_linear_infinite] rounded-[50%] border-[.3125cqi] border-[#ffffff40] border-t-white @max-[500px]/cl-scene:size-[12px] @max-[500px]/cl-scene:border-[2px]" aria-hidden="true" /> Registering…</>
+                ) : <>Complete registration <FormIcon name="arrow" /></>}
               </button>
               <button
                 type="button"
-                className="cl-secondary"
+                className="cl-secondary mt-[1.09375cqi] inline-block cursor-pointer p-[1.25cqi] text-[1.5625cqi] leading-[2.1875cqi] text-white underline underline-offset-[.46875cqi] hover:text-[#daffe8] disabled:cursor-wait disabled:opacity-65 @max-[500px]/cl-scene:mt-[7px] @max-[500px]/cl-scene:p-[8px] @max-[500px]/cl-scene:text-[11px] @max-[500px]/cl-scene:leading-[16px]"
                 disabled={submitting}
                 onClick={() => { setSubmitError(""); setStep("details"); }}
               >
@@ -299,17 +346,32 @@ export default function CreativeLogin({
               </button>
             </form>
           ) : (
-            <div className="cl-form cl-step-enter cl-success text-center" aria-labelledby={`${id}-success-title`}>
-              <span className="cl-success-icon mx-auto flex items-center justify-center"><FormIcon name="check" /></span>
-              <h2 ref={heading} tabIndex={-1} id={`${id}-success-title`} className="cl-heading">You’re all set, {values.firstName}!</h2>
-              <p className="cl-description">{onSubmit ? "Your registration is complete. See you there!" : "Your preview registration is complete."}</p>
-              <button type="button" className="cl-primary w-full" onClick={startAgain}>Start again</button>
+            <div className={`${styles.form} cl-step-enter cl-success animate-[cl-step-entrance_.22s_ease-out_both] pt-[1.875cqi] @max-[500px]/cl-scene:pt-[12px]`} aria-labelledby={`${id}-success-title`}>
+              <span className="cl-success-icon mx-auto mb-[2.8125cqi] flex size-[6.5625cqi] items-center justify-center rounded-[50%] bg-[#19b780] shadow-[0_0_0_1.09375cqi_#ffffff0a] [&_svg]:size-[3.4375cqi] @max-[500px]/cl-scene:mb-[18px] @max-[500px]/cl-scene:size-[42px] @max-[500px]/cl-scene:[&_svg]:size-[22px]">
+                <FormIcon name="check" />
+              </span>
+              <h2 ref={heading} tabIndex={-1} id={`${id}-success-title`} className={`${styles.heading} ${styles.headingCompact}`}>You’re all set, {values.firstName}!</h2>
+              <p className={`${styles.description} ${styles.descriptionCompact}`}>{onSubmit ? "Your registration is complete. See you there!" : "Your preview registration is complete."}</p>
+              <button type="button" className={`${styles.primary} ${styles.primaryStates} ${styles.primaryCompact}`} onClick={startAgain}>Start again</button>
             </div>
           )}
-          <button type="button" className="cl-replay" aria-label="Replay character entrance" onClick={() => { setPhase(intro ? "waiting" : "settled"); setReplay((value) => value + 1); }}>
+          {/* Optional unobtrusive replay control and an accurate creator credit. */}
+          <button
+            type="button"
+            className="cl-replay absolute top-[-3.59375cqi] right-[-2.8125cqi] flex size-[5cqi] cursor-pointer items-center justify-center text-[#ffffff80] hover:text-white [&_svg]:size-[.9375cqi] @max-[500px]/cl-scene:top-[-23px] @max-[500px]/cl-scene:right-[-12px] @max-[500px]/cl-scene:size-[32px] @max-[500px]/cl-scene:[&_svg]:size-[7px]"
+            aria-label="Replay character entrance"
+            onClick={() => { setPhase(intro ? "waiting" : "settled"); setReplay((value) => value + 1); }}
+          >
             <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" aria-hidden="true"><path d="m1 1 8 8M9 1 1 9" /></svg>
           </button>
-          <a className="cl-credit" href="https://www.visme.co/" target="_blank" rel="noreferrer">Character by Visme</a>
+          <a
+            className="cl-credit absolute top-[calc(100%+3.59375cqi)] right-[-2.03125cqi] flex h-[2.1875cqi] min-w-[10.9375cqi] items-center justify-center rounded-[.15625cqi] border-[.15625cqi] border-[#d9dde6] bg-white px-[.46875cqi] py-[.3125cqi] text-[.859375cqi] leading-[1.25cqi] font-normal whitespace-nowrap text-[#697180] @max-[500px]/cl-scene:top-[calc(100%+14px)] @max-[500px]/cl-scene:right-0 @max-[500px]/cl-scene:h-[13px] @max-[500px]/cl-scene:min-w-[66px] @max-[500px]/cl-scene:border-[1px] @max-[500px]/cl-scene:px-[3px] @max-[500px]/cl-scene:py-[2px] @max-[500px]/cl-scene:text-[5.5px] @max-[500px]/cl-scene:leading-[8px]"
+            href="https://www.visme.co/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Character by Visme
+          </a>
         </div>
       </div>
       <span className="sr-only" role="status" aria-live="polite">
@@ -322,25 +384,26 @@ export default function CreativeLogin({
 /** Inert artwork: safe to nest inside a gallery link, with no inputs or buttons. */
 export function CreativeLoginThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   return (
-    <div className={`creative-login cl-thumbnail relative isolate h-full w-full overflow-hidden ${className}`} aria-hidden="true">
+    <div className={`${styles.root} cl-thumbnail flex h-full min-h-0 w-full items-center justify-center ${className}`} aria-hidden="true">
       <CreativeLoginStyles />
-      <div className="cl-thumbnail-scene relative">
-        <div className="cl-character-layer">
+      {/* Gallery artwork retains the canonical ratio at every card width. */}
+      <div className={`cl-thumbnail-scene ${styles.scene} ${styles.frame} shrink-0`}>
+        <div className={styles.characterLayer}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/creative-login/poster.png" alt="" className="h-full w-full object-contain" />
         </div>
-        <div className="cl-form-position absolute">
-          <div className="cl-form">
-            <p className="cl-heading">Register now</p>
-            <p className="cl-description">Secure your spot in our upcoming live webinar</p>
-            <p className="cl-label">What’s your name? *</p>
-            <div className="cl-name-fields flex flex-col">
-              <div className="cl-static-field flex items-center"><FormIcon name="person" /><span>{previewStep % 4 >= 1 ? "Alex" : "Name"}</span></div>
-              <div className="cl-static-field flex items-center"><FormIcon name="person" /><span>{previewStep % 4 >= 2 ? "Morgan" : "Surname"}</span></div>
+        <div className={styles.formPosition}>
+          <div className={styles.form}>
+            <p className={styles.heading}>Register now</p>
+            <p className={styles.description}>Secure your spot in our upcoming live webinar</p>
+            <p className={styles.label}>What’s your name? *</p>
+            <div className={styles.nameFields}>
+              <div className={styles.staticField}><FormIcon name="person" /><span className={styles.staticText}>{previewStep % 4 >= 1 ? "Alex" : "Name"}</span></div>
+              <div className={styles.staticField}><FormIcon name="person" /><span className={styles.staticText}>{previewStep % 4 >= 2 ? "Morgan" : "Surname"}</span></div>
             </div>
-            <p className="cl-label cl-email-label">Enter your email address *</p>
-            <div className="cl-static-field flex items-center"><FormIcon name="email" /><span>{previewStep % 4 >= 3 ? "alex@example.com" : "Ex. yourname@company.com"}</span></div>
-            <div className="cl-primary flex w-full items-center justify-center">{previewStep % 4 === 3 ? "Ready to continue ✓" : "Next"}</div>
+            <p className={`${styles.label} cl-email-label mt-[1.875cqi]`}>Enter your email address *</p>
+            <div className={styles.staticField}><FormIcon name="email" /><span className={styles.staticText}>{previewStep % 4 >= 3 ? "alex@example.com" : "Ex. yourname@company.com"}</span></div>
+            <div className={styles.primary}>{previewStep % 4 === 3 ? "Ready to continue ✓" : "Next"}</div>
           </div>
         </div>
       </div>
@@ -348,288 +411,18 @@ export function CreativeLoginThumbnail({ className = "", previewStep = 0 }: { cl
   );
 }
 
+/** Only what utilities cannot express: fonts, keyframes, and cascade-sensitive rules. */
 function CreativeLoginStyles() {
   return (
     <ComponentStyles css={`
       @font-face { font-family: "Creative Login Fira Sans"; src: url("/creative-login/font-regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
       @font-face { font-family: "Creative Login Fira Sans"; src: url("/creative-login/font-bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
-      .creative-login {
-        --cl-blue: #4b6bff;
-        color: #fff;
-        background: var(--cl-blue);
-        font-family: "Creative Login Fira Sans", "Fira Sans", Arial, sans-serif;
-        font-synthesis: none;
-        -webkit-font-smoothing: antialiased;
-        container: creative-login / inline-size;
-      }
-      .creative-login *,
-      .creative-login *::before,
-      .creative-login *::after { box-sizing: border-box; }
-      .creative-login.cl-stage { min-height: 0; aspect-ratio: auto; }
-      .creative-login .cl-scene,
-      .creative-login .cl-thumbnail-scene {
-        position: relative;
-        isolation: isolate;
-        display: flow-root;
-        width: 100%;
-        min-height: 63.125cqi;
-        container: creative-login-scene / inline-size;
-      }
-      .creative-login .cl-scene::after,
-      .creative-login .cl-thumbnail-scene::after {
-        content: "";
-        position: absolute;
-        z-index: 5;
-        inset: 0;
-        border: .15625cqi solid #ffffffd9;
-        border-radius: .46875cqi;
-        pointer-events: none;
-      }
 
-      /* The artwork always uses the original 640 × 404 coordinate plane. */
-      .creative-login .cl-character-layer {
-        position: absolute;
-        z-index: 2;
-        inset: 0 auto auto 0;
-        width: 100%;
-        height: 63.125cqi;
-        overflow: hidden;
-        pointer-events: none;
-      }
-      .creative-login .cl-character-layer canvas {
-        display: block;
-        width: 100%;
-        height: 100%;
-      }
-      /* At 640px: x218, y94, width256. In-flow content can grow on validation. */
-      .creative-login .cl-form-position {
-        position: relative;
-        z-index: 1;
-        top: auto;
-        left: 34.0625%;
-        width: 40%;
-        max-width: none;
-        margin: 14.6875cqi 0 10.9375cqi;
-        transform-origin: 0 0;
-      }
-      .creative-login .cl-form {
-        position: relative;
-        width: 100%;
-        text-align: center;
-        transform-origin: 50% 50%;
-        backface-visibility: visible;
-      }
-      .creative-login .cl-heading {
-        margin: 0;
-        font-size: 2.8125cqi;
-        font-weight: 700;
-        line-height: 3.75cqi;
-        letter-spacing: 0;
-        overflow-wrap: anywhere;
-      }
-      .creative-login .cl-description {
-        margin: .625cqi 0 1.5625cqi;
-        color: #eef2ff;
-        font-size: 1.5625cqi;
-        font-weight: 400;
-        line-height: 2.1875cqi;
-      }
-      .creative-login .cl-label {
-        display: block;
-        width: 100%;
-        margin: 0 0 .78125cqi;
-        padding: 0;
-        color: #f3f5ff;
-        font-size: 1.5625cqi;
-        font-weight: 400;
-        line-height: 2.1875cqi;
-        text-align: center;
-      }
-      .creative-login .cl-form fieldset {
-        min-width: 0;
-        margin: 0;
-        padding: 0;
-        border: 0;
-      }
-      .creative-login .cl-name-fields {
-        display: flex;
-        flex-direction: column;
-        gap: 1.40625cqi;
-      }
-      .creative-login .cl-field {
-        position: relative;
-        display: flex;
-        align-items: center;
-        min-height: 4.53125cqi;
-        color: #707780;
-        background: #fff;
-        border-radius: .46875cqi;
-        box-shadow: 0 .15625cqi .15625cqi #18295514;
-      }
-      .creative-login .cl-field-icon {
-        position: absolute;
-        left: 1.09375cqi;
-        display: flex;
-        pointer-events: none;
-      }
-      .creative-login .cl-field-icon svg {
-        width: 2.03125cqi;
-        height: 2.03125cqi;
-      }
-      .creative-login .cl-field input {
-        display: block;
-        width: 100%;
-        min-width: 0;
-        height: 4.53125cqi;
-        margin: 0;
-        padding: .625cqi 1.25cqi .625cqi 3.90625cqi;
-        border: .15625cqi solid #dfe4ed;
-        border-radius: .46875cqi;
-        outline: none;
-        background: transparent;
-        color: #333c49;
-        font-family: inherit;
-        font-size: 1.328125cqi;
-        font-weight: 400;
-        line-height: 2.03125cqi;
-        transition: border-color .15s, box-shadow .15s;
-      }
-      .creative-login .cl-field input::placeholder { color: #707985; opacity: 1; }
-      .creative-login .cl-field input:focus {
-        border-color: #a4ffce;
-        box-shadow: 0 0 0 .46875cqi #c7ffe14d;
-      }
-      .creative-login .cl-field[data-invalid="true"] input {
-        border-color: #ffb5b5;
-        box-shadow: 0 0 0 .3125cqi #ffb5b54d;
-      }
-      .creative-login .cl-field-error {
-        margin: .625cqi 0 0;
-        color: #fff2d6;
-        font-size: 1.5625cqi;
-        line-height: 2.1875cqi;
-        overflow-wrap: anywhere;
-        text-align: left;
-      }
-      .creative-login .cl-email-label { margin-top: 1.875cqi; }
-      .creative-login .cl-primary {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: .9375cqi;
-        width: 100%;
-        min-height: 4.375cqi;
-        margin-top: 2.03125cqi;
-        padding: .625cqi 1.5625cqi;
-        border: .15625cqi solid #55d3a1;
-        border-radius: .3125cqi;
-        background: #19b780;
-        color: #fff;
-        font-family: inherit;
-        font-size: 1.5625cqi;
-        font-weight: 700;
-        line-height: 2.1875cqi;
-        cursor: pointer;
-        transition: background .15s, transform .15s;
-      }
-      .creative-login .cl-primary:not(:disabled):hover { background: #12a672; }
-      .creative-login .cl-primary:not(:disabled):active { transform: translateY(.15625cqi); }
-      .creative-login .cl-primary svg { width: 2.1875cqi; height: 2.1875cqi; flex-shrink: 0; }
-      .creative-login button:disabled { opacity: .65; cursor: wait; }
+      /* Focus styles stay unlayered so they outrank the app's global :focus-visible ring. */
+      .creative-login .cl-field input { outline: none; }
       .creative-login button:focus-visible { outline: max(2px, .3125cqi) solid #fff; outline-offset: max(3px, .46875cqi); }
       .creative-login .cl-heading:focus { outline: none; }
       .creative-login .cl-heading:focus-visible { outline: max(2px, .3125cqi) solid #ffffff80; outline-offset: max(3px, .46875cqi); }
-
-      /* Optional unobtrusive replay control and an accurate creator credit. */
-      .creative-login .cl-replay {
-        position: absolute;
-        top: -3.59375cqi;
-        right: -2.8125cqi;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 5cqi;
-        height: 5cqi;
-        padding: 0;
-        border: 0;
-        background: transparent;
-        color: #ffffff80;
-        cursor: pointer;
-      }
-      .creative-login .cl-replay svg { width: .9375cqi; height: .9375cqi; }
-      .creative-login .cl-replay:hover { color: #fff; }
-      .creative-login .cl-credit {
-        position: absolute;
-        top: calc(100% + 3.59375cqi);
-        right: -2.03125cqi;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 10.9375cqi;
-        height: 2.1875cqi;
-        padding: .3125cqi .46875cqi;
-        border: .15625cqi solid #d9dde6;
-        border-radius: .15625cqi;
-        background: #fff;
-        color: #697180;
-        font-size: .859375cqi;
-        font-weight: 400;
-        line-height: 1.25cqi;
-        white-space: nowrap;
-      }
-
-      .creative-login .cl-review {
-        margin: 2.1875cqi 0 0;
-        padding: 2.1875cqi;
-        border: .15625cqi solid #ffffff38;
-        border-radius: .625cqi;
-        background: #ffffff0d;
-        text-align: left;
-      }
-      .creative-login .cl-review div + div { margin-top: 2.1875cqi; }
-      .creative-login .cl-review dt { margin: 0 0 .625cqi; color: #e7ecff; font-size: 1.5625cqi; line-height: 2.1875cqi; }
-      .creative-login .cl-review dd { margin: 0; color: #fff; font-size: 1.875cqi; line-height: 2.65625cqi; overflow-wrap: anywhere; }
-      .creative-login .cl-secondary {
-        display: inline-block;
-        margin-top: 1.09375cqi;
-        padding: 1.25cqi;
-        border: 0;
-        background: transparent;
-        color: #fff;
-        font-family: inherit;
-        font-size: 1.5625cqi;
-        line-height: 2.1875cqi;
-        text-decoration: underline;
-        text-underline-offset: .46875cqi;
-        cursor: pointer;
-      }
-      .creative-login .cl-secondary:hover { color: #daffe8; }
-      .creative-login .cl-submit-error { margin: 1.5625cqi 0 0; color: #fff2d6; font-size: 1.5625cqi; line-height: 2.34375cqi; overflow-wrap: anywhere; }
-      .creative-login .cl-success { padding-top: 1.875cqi; }
-      .creative-login .cl-success-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 6.5625cqi;
-        height: 6.5625cqi;
-        margin: 0 auto 2.8125cqi;
-        border-radius: 50%;
-        background: #19b780;
-        box-shadow: 0 0 0 1.09375cqi #ffffff0a;
-      }
-      .creative-login .cl-success-icon svg { width: 3.4375cqi; height: 3.4375cqi; }
-      .creative-login .cl-spinner {
-        width: 1.875cqi;
-        height: 1.875cqi;
-        border: .3125cqi solid #ffffff40;
-        border-top-color: #fff;
-        border-radius: 50%;
-        animation: cl-spin .75s linear infinite;
-      }
-
-      .creative-login[data-intro="waiting"] .cl-form-position { visibility: hidden; pointer-events: none; }
-      .creative-login[data-intro="revealing"] .cl-form-position { pointer-events: none; }
-      .creative-login .cl-step-enter { animation: cl-step-entrance .22s ease-out both; }
 
       @keyframes cl-step-entrance {
         from { opacity: 0; transform: translateY(1.09375cqi); }
@@ -637,94 +430,10 @@ function CreativeLoginStyles() {
       }
       @keyframes cl-spin { to { transform: rotate(360deg); } }
 
-      /* Gallery artwork retains the canonical ratio at every card width. */
-      .creative-login.cl-thumbnail {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        min-height: 0;
-      }
-      .creative-login .cl-thumbnail-scene { flex-shrink: 0; transform: none; }
-      .creative-login .cl-static-field {
-        display: flex;
-        align-items: center;
-        gap: .78125cqi;
-        height: 4.53125cqi;
-        padding: .625cqi 1.09375cqi;
-        border: .15625cqi solid #dfe4ed;
-        border-radius: .46875cqi;
-        background: #fff;
-        color: #707985;
-        font-size: 1.328125cqi;
-        line-height: 2.03125cqi;
-        text-align: left;
-      }
-      .creative-login .cl-static-field svg { width: 2.03125cqi; height: 2.03125cqi; flex-shrink: 0; }
-      .creative-login .cl-static-field span { min-width: 0; overflow: hidden; white-space: nowrap; }
-
-      @container creative-login-scene (max-width: 499px) {
-        .creative-login.cl-stage .cl-character-layer {
-          width: 640px;
-          height: 404px;
-          left: calc(34.0625% - 218px);
-          top: calc(max(44px, 14.6875cqi) - 94px);
-        }
-        .creative-login.cl-stage .cl-form-position {
-          left: 34.0625%;
-          width: 58%;
-          margin-top: max(44px, 14.6875cqi);
-          margin-bottom: max(38px, 10.9375cqi);
-        }
-        .creative-login.cl-stage .cl-heading { font-size: 18px; line-height: 24px; }
-        .creative-login.cl-stage .cl-description { margin: 4px 0 10px; font-size: 10px; line-height: 14px; }
-        .creative-login.cl-stage .cl-label { margin-bottom: 5px; font-size: 10px; line-height: 14px; }
-        .creative-login.cl-stage .cl-name-fields { gap: 9px; }
-        .creative-login.cl-stage .cl-field { min-height: 32px; border-radius: 3px; }
-        .creative-login.cl-stage .cl-field-icon { left: 7px; }
-        .creative-login.cl-stage .cl-field-icon svg { width: 13px; height: 13px; }
-        .creative-login.cl-stage .cl-field input {
-          height: 32px;
-          padding: 5px 8px 5px 25px;
-          border-width: 1px;
-          border-radius: 3px;
-          font-size: 12px;
-          line-height: 20px;
-        }
-        .creative-login.cl-stage .cl-field-error { margin-top: 4px; font-size: 10px; line-height: 14px; }
-        .creative-login.cl-stage .cl-email-label { margin-top: 12px; }
-        .creative-login.cl-stage .cl-primary {
-          gap: 6px;
-          min-height: 32px;
-          margin-top: 13px;
-          padding: 5px 8px;
-          border-width: 1px;
-          border-radius: 2px;
-          font-size: 11px;
-          line-height: 18px;
-        }
-        .creative-login.cl-stage .cl-primary svg { width: 13px; height: 13px; }
-        .creative-login.cl-stage .cl-review { margin-top: 14px; padding: 12px; border-width: 1px; border-radius: 4px; }
-        .creative-login.cl-stage .cl-review div + div { margin-top: 14px; }
-        .creative-login.cl-stage .cl-review dt { margin-bottom: 4px; font-size: 10px; line-height: 14px; }
-        .creative-login.cl-stage .cl-review dd { font-size: 12px; line-height: 17px; }
-        .creative-login.cl-stage .cl-secondary { margin-top: 7px; padding: 8px; font-size: 11px; line-height: 16px; }
-        .creative-login.cl-stage .cl-submit-error { margin-top: 10px; font-size: 10px; line-height: 15px; }
-        .creative-login.cl-stage .cl-success { padding-top: 12px; }
-        .creative-login.cl-stage .cl-success-icon { width: 42px; height: 42px; margin-bottom: 18px; }
-        .creative-login.cl-stage .cl-success-icon svg { width: 22px; height: 22px; }
-        .creative-login.cl-stage .cl-spinner { width: 12px; height: 12px; border-width: 2px; }
-        .creative-login.cl-stage .cl-replay { top: -23px; right: -12px; width: 32px; height: 32px; }
-        .creative-login.cl-stage .cl-replay svg { width: 7px; height: 7px; }
-        .creative-login.cl-stage .cl-credit { top: calc(100% + 14px); right: 0; min-width: 66px; height: 13px; padding: 2px 3px; border-width: 1px; font-size: 5.5px; line-height: 8px; }
-      }
       @media (prefers-reduced-motion: reduce) {
         .creative-login *,
         .creative-login *::before,
         .creative-login *::after { animation: none !important; transition: none !important; }
-        .creative-login[data-intro="waiting"] .cl-form-position { visibility: visible; pointer-events: auto; }
-        .creative-login[data-intro="revealing"] .cl-form-position { pointer-events: auto; }
       }
     `} />
   );

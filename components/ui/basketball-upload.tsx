@@ -51,9 +51,76 @@ function acceptsFile(file: File, accept: string) {
   });
 }
 
+/* Tailwind classes shared by the live component and its gallery thumbnail. */
+const ui = {
+  stage: "grid flex-auto place-items-center bg-[#eceef2]",
+  card: "group/card relative flex aspect-[492/612] w-full flex-col overflow-hidden rounded-[5.3cqw] border border-[#e5e8ef] bg-[#f7f8fc] p-[5.69cqw] shadow-[0_20px_35px_#4a536714,0_3px_8px_#58637c0a]",
+  header: "mb-[5.1cqw] flex flex-none items-start justify-between gap-[1.6cqw]",
+  title: "m-0 text-[4.47cqw] font-bold tracking-[-.04em] text-[#252832]",
+  subtitle:
+    "mx-0 mt-[1.62cqw] mb-0 text-[2.44cqw] leading-[1.4] text-[#858b99]",
+  headerActions: "mt-[.2cqw] flex items-center gap-[1.6cqw]",
+  sound:
+    "bu-sound grid size-[6.1cqw] flex-[0_0_6.1cqw] cursor-pointer place-items-center rounded-[50%] border border-[#e5e8ef] bg-[#f0f2f7] p-0 text-[#8490a2]",
+  soundIcon:
+    "size-[3.25cqw] fill-none stroke-current stroke-[1.5] [stroke-linecap:round] [stroke-linejoin:round]",
+  count:
+    "inline-flex items-center gap-[.8cqw] rounded-[999px] border border-[#d3d9e5] bg-[#e0e6ef] px-[2.44cqw] py-[1.83cqw] text-[2.24cqw] leading-none whitespace-nowrap text-[#5d687b] group-data-[state=success]/card:border-[#bbc4ef] group-data-[state=success]/card:bg-[#e4e7ff]",
+  countValue: "font-bold text-[#505a6d]",
+  dropzone:
+    "bu-dropzone group/drop relative block h-[44.72cqw] w-full flex-[0_0_44.72cqw] cursor-pointer overflow-visible rounded-[4.47cqw] border-2 border-dashed border-[#d1d5df] bg-[#ffffffc9] p-[2cqw] text-center text-inherit transition-[border-color,background,box-shadow] duration-200 ease-[ease] hover:border-[#9a9ae7] focus-visible:border-[#9a9ae7] disabled:cursor-not-allowed disabled:opacity-55 data-[dragging=true]:border-[#8889e6] data-[dragging=true]:bg-[#f6f7ff] data-[dragging=true]:shadow-[0_0_0_4px_#6575ef18]",
+  dropCopy:
+    "pointer-events-none absolute inset-x-[1.6cqw] top-[4.47cqw] z-1 flex flex-col items-center gap-[1.42cqw] text-[2.44cqw] text-[#737b8b]",
+  dropIcon:
+    "mb-[.6cqw] size-[4.47cqw] fill-none stroke-[#222b3c] stroke-[1.7] [stroke-linecap:round] [stroke-linejoin:round]",
+  dropTitle: "text-[2.85cqw] font-bold text-[#252a35]",
+  dropHint: "text-[2.44cqw] text-[#a0a5b1]",
+  hoop: "pointer-events-none absolute top-[calc(100%-15.24cqw)] left-1/2 z-5 h-[25.2cqw] w-[22.76cqw] [filter:drop-shadow(0_4px_3px_#272d3a08)] [transform:translateX(-50%)] group-data-[state=launching]/card:animate-[bu-hoop-pop_.38s_.7s_ease-out_both]",
+  uploadRow:
+    "absolute inset-x-[1.62cqw] top-[1.62cqw] z-6 flex min-h-[12.2cqw] animate-[bu-row-in_.2s_ease_both] items-start gap-[1.22cqw] rounded-[2.85cqw] border border-[#e8eaf0] bg-white px-[1.83cqw] py-[1.62cqw] text-left shadow-[0_4px_9px_#343c5210] group-data-[state=success]/drop:border-[#d9efe3]",
+  fileBadge:
+    "relative mt-[.2cqw] grid h-[2.24cqw] w-[3.86cqw] flex-[0_0_3.86cqw] place-items-center rounded-[.6cqw] border-none bg-[#eef2ff] p-0",
+  fileBadgeLabel:
+    "relative z-1 max-w-none overflow-hidden rounded-[2px] bg-transparent p-0 text-[1.42cqw] leading-none font-bold text-ellipsis text-[#586bc5]",
+  uploadInfo: "flex min-w-0 flex-1 flex-col gap-[1.02cqw]",
+  uploadLine: "flex min-w-0 items-center justify-between gap-[1.02cqw]",
+  uploadName: "truncate text-[1.83cqw] font-semibold text-[#3d4555]",
+  progressValue: "min-w-[4.27cqw] text-right text-[1.62cqw]",
+  progressTrack:
+    "ml-[-5.08cqw] block h-[.81cqw] w-[calc(100%+5.08cqw)] overflow-hidden rounded-[99px] bg-[#e8eaf2]",
+  progressBar:
+    "block h-full rounded-[inherit] bg-[#6555ef] transition-[width] duration-100 ease-linear group-data-[state=success]/drop:bg-[#30ae72]",
+  uploadCaption:
+    "ml-[-5.08cqw] text-[1.62cqw] group-data-[state=success]/drop:text-[#27925f]",
+  uploadSize: "flex-none text-[1.62cqw] text-[#a0a5b1]",
+  footer: "relative flex min-h-0 flex-1 items-end justify-center px-[1.02cqw]",
+  footerText: "m-0 text-center text-[2.24cqw] leading-[1.5] text-[#929aa8]",
+  overlay:
+    "pointer-events-none absolute inset-0 z-4 size-full overflow-visible",
+  trajectoryPath:
+    "fill-none stroke-[#7e83eb] stroke-[2.1] opacity-70 [stroke-dasharray:0_23] [stroke-linecap:round]",
+  fileTile:
+    "bu-file-tile absolute z-7 block h-[10.57cqw] w-[8.13cqw] touch-none rounded-[1.02cqw] border border-[#e7e9ef] bg-[linear-gradient(145deg,#fff_0_78%,#e8ebf2_79%)] p-0 shadow-[0_6px_10px_#272d3a1c]",
+  fileTileRest:
+    "top-[83.33%] left-[14.63%] [transform:translate(-50%,-50%)_rotate(-6deg)]",
+  fileFold:
+    "absolute top-0 right-0 size-[2.44cqw] border-b border-l border-b-[#e7e9ef] border-l-[#e7e9ef] bg-[linear-gradient(45deg,#e9ecf3_50%,#fff_51%)]",
+  fileLines:
+    "absolute top-[2.44cqw] left-[1.22cqw] h-[2.24cqw] w-[4.47cqw] border-y border-y-[#dce0e8]",
+  fileTag:
+    "absolute bottom-[1.22cqw] left-[1.02cqw] rounded-[.6cqw] bg-[#4267d9] px-[.61cqw] py-[.4cqw] text-[1.42cqw] leading-none font-bold text-white",
+};
+
+const rootClass =
+  "basketball-upload flex min-w-0 flex-col isolate bg-[#eceef2] font-[Arial,Helvetica,sans-serif] text-[#252832]";
+
 function BasketballHoop() {
   return (
-    <svg viewBox="0 0 112 124" fill="none">
+    <svg
+      viewBox="0 0 112 124"
+      fill="none"
+      className="size-full overflow-visible"
+    >
       <path d="M28 4h56v44H28z" fill="#fff" stroke="#d9deeb" strokeWidth="2" />
       <path
         d="M35 11h42v31H35z"
@@ -403,21 +470,23 @@ export default function BasketballUpload({
 
   return (
     <section
-      className={`basketball-upload ${className}`}
+      className={`${rootClass} @container ${className}`}
       aria-label="Basketball file upload"
     >
       <ComponentStyles css={BASKETBALL_UPLOAD_STYLES} />
-      <div className="bu-stage">
-        <div className="bu-card-shell">
-          <div ref={cardRef} className="bu-card" data-state={uploadState}>
-            <header className="bu-header">
+      <div
+        className={`${ui.stage} min-h-[698px] px-5 pt-10 pb-[46px] [@container(max-width:560px)]:min-h-0 [@container(max-width:560px)]:pt-6 [@container(max-width:560px)]:pb-6`}
+      >
+        <div className="@container w-[min(492px,calc(100cqw-40px))] [@container(max-width:560px)]:w-[calc(100cqw-40px)]">
+          <div ref={cardRef} className={ui.card} data-state={uploadState}>
+            <header className={ui.header}>
               <div>
-                <h2>Upload files</h2>
-                <p>Drag and drop, or take the shot.</p>
+                <h2 className={ui.title}>Upload files</h2>
+                <p className={ui.subtitle}>Drag and drop, or take the shot.</p>
               </div>
-              <div className="bu-header-actions">
+              <div className={ui.headerActions}>
                 <button
-                  className="bu-sound"
+                  className={ui.sound}
                   type="button"
                   onClick={toggleSound}
                   aria-label={
@@ -428,7 +497,11 @@ export default function BasketballUpload({
                     soundEnabled ? "Mute sound effects" : "Enable sound effects"
                   }
                 >
-                  <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <svg
+                    className={ui.soundIcon}
+                    viewBox="0 0 20 20"
+                    aria-hidden="true"
+                  >
                     <path d="M3 8v4h3l4 3V5L6 8H3Z" />
                     <path
                       d={
@@ -440,11 +513,12 @@ export default function BasketballUpload({
                   </svg>
                 </button>
                 <span
-                  className="bu-count"
+                  className={ui.count}
                   aria-label={`${uploadedCount} files uploaded`}
                 >
-                  <span className="bu-count-dot" aria-hidden="true" />
-                  Uploaded <strong>{uploadedCount}</strong>
+                  <span className="hidden" aria-hidden="true" />
+                  Uploaded{" "}
+                  <strong className={ui.countValue}>{uploadedCount}</strong>
                 </span>
               </div>
             </header>
@@ -452,7 +526,7 @@ export default function BasketballUpload({
             <input
               ref={inputRef}
               id={inputId}
-              className="bu-file-input"
+              className="absolute -m-px h-px w-px overflow-hidden p-0 whitespace-nowrap [border:0] [clip:rect(0,0,0,0)]"
               type="file"
               accept={accept}
               multiple={multiple}
@@ -463,7 +537,7 @@ export default function BasketballUpload({
             />
 
             <button
-              className="bu-dropzone"
+              className={ui.dropzone}
               type="button"
               data-dragging={isDragging}
               data-state={uploadState}
@@ -488,34 +562,40 @@ export default function BasketballUpload({
               aria-label="Choose files or drag files here to upload"
               aria-busy={isUploading}
             >
-              <span className="bu-drop-copy">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
+              <span className={ui.dropCopy}>
+                <svg
+                  className={ui.dropIcon}
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
                   <path d="M12 15V4m0 0L8 8m4-4 4 4M5 14v5h14v-5" />
                 </svg>
-                <strong>
+                <strong className={ui.dropTitle}>
                   {isDragging
                     ? "Release to shoot!"
                     : uploadState === "error"
                       ? "Try another shot"
                       : "Drop files here"}
                 </strong>
-                <span id={`${inputId}-hint`}>or take the shot</span>
+                <span className={ui.dropHint} id={`${inputId}-hint`}>
+                  or take the shot
+                </span>
               </span>
-              <span className="bu-hoop" aria-hidden="true">
+              <span className={ui.hoop} aria-hidden="true">
                 <BasketballHoop />
               </span>
               {showUploadRow && (
-                <span className="bu-upload-row" aria-hidden="true">
-                  <span className="bu-file-icon bu-file-icon-small">
-                    <span>{fileExtension}</span>
+                <span className={ui.uploadRow} aria-hidden="true">
+                  <span className={ui.fileBadge}>
+                    <span className={ui.fileBadgeLabel}>{fileExtension}</span>
                   </span>
-                  <span className="bu-upload-info">
-                    <span className="bu-upload-line">
-                      <span className="bu-upload-name">
+                  <span className={ui.uploadInfo}>
+                    <span className={ui.uploadLine}>
+                      <span className={ui.uploadName}>
                         {fileName || "document.pdf"}
                       </span>
                       <span
-                        className={`bu-progress-value${uploadState === "success" ? " bu-done" : ""}`}
+                        className={`${ui.progressValue} ${uploadState === "success" ? "text-[#27925f]" : "text-[#6c76da]"}`}
                       >
                         {uploadState === "success"
                           ? "Done"
@@ -524,12 +604,15 @@ export default function BasketballUpload({
                             : `${progress}%`}
                       </span>
                     </span>
-                    <span className="bu-progress-track">
-                      <span style={{ width: `${progress}%` }} />
-                    </span>
-                    <span className="bu-upload-line">
+                    <span className={ui.progressTrack}>
                       <span
-                        className={`bu-upload-caption${uploadState === "error" ? " bu-upload-error" : ""}`}
+                        className={ui.progressBar}
+                        style={{ width: `${progress}%` }}
+                      />
+                    </span>
+                    <span className={ui.uploadLine}>
+                      <span
+                        className={`${ui.uploadCaption} ${uploadState === "error" ? "text-[#c6535d]" : "text-[#747de0]"}`}
                       >
                         {uploadState === "success"
                           ? isDemoUpload
@@ -539,35 +622,38 @@ export default function BasketballUpload({
                             ? "Upload failed. Try again."
                             : "Uploading file…"}
                       </span>
-                      <span className="bu-upload-size">{fileSize}</span>
+                      <span className={ui.uploadSize}>{fileSize}</span>
                     </span>
                   </span>
                 </span>
               )}
             </button>
 
-            <div className="bu-footer">
-              <p>
+            <div className={ui.footer}>
+              <p className={ui.footerText}>
                 {isAiming
                   ? "Release to shoot!"
                   : "Aim the file & release to shoot into the basket"}
               </p>
               {queuedCount > 0 && (
-                <span className="bu-queue-count" aria-hidden="true">
+                <span
+                  className="absolute bottom-[9.76cqw] left-[10.16cqw] grid size-[2.64cqw] place-items-center rounded-[50%] bg-[#e8ebff] text-[1.22cqw] font-bold text-[#5969df]"
+                  aria-hidden="true"
+                >
                   +{queuedCount}
                 </span>
               )}
             </div>
 
             <svg
-              className="bu-trajectory"
+              className={`${ui.overlay} opacity-0 group-data-[state=aiming]/card:opacity-100`}
               viewBox="0 0 492 612"
               aria-hidden="true"
             >
-              <path d={aimPath} />
+              <path className={ui.trajectoryPath} d={aimPath} />
             </svg>
             <button
-              className="bu-file-tile"
+              className={`${ui.fileTile} ${ui.fileTileRest} data-[aiming=true]:shadow-[0_10px_20px_#272d3a25] ${uploadState === "launching" ? "pointer-events-none opacity-0" : "disabled:opacity-55"}`}
               type="button"
               aria-label="Drag the sample file, then release to shoot it into the basket"
               data-aiming={isAiming}
@@ -595,24 +681,24 @@ export default function BasketballUpload({
                   : undefined
               }
             >
-              <span className="bu-file-fold" />
-              <span className="bu-file-lines" />
-              <span className="bu-file-tag">PDF</span>
+              <span className={ui.fileFold} />
+              <span className={ui.fileLines} />
+              <span className={ui.fileTag}>PDF</span>
             </button>
             <svg
-              className="bu-shot-trail"
+              className={`${ui.overlay} opacity-0 group-data-[state=launching]/card:animate-[bu-trail_.9s_linear_both]`}
               viewBox="0 0 492 612"
               aria-hidden="true"
             >
-              <path d={shotPath} />
+              <path className={ui.trajectoryPath} d={shotPath} />
             </svg>
             {uploadState === "launching" && (
               <svg
-                className="bu-file-flight"
+                className={`${ui.overlay} motion-reduce:hidden`}
                 viewBox="0 0 492 612"
                 aria-hidden="true"
               >
-                <g>
+                <g className="animate-[bu-shot-fade_.88s_linear_both] [filter:drop-shadow(0_6px_9px_#3a3e5324)]">
                   <animateMotion
                     dur=".85s"
                     path={shotPath}
@@ -660,7 +746,7 @@ export default function BasketballUpload({
               </svg>
             )}
             <p
-              className="bu-live"
+              className="absolute h-px w-px overflow-hidden whitespace-nowrap [clip:rect(0,0,0,0)]"
               role={uploadState === "error" ? "alert" : "status"}
               aria-live="polite"
             >
@@ -687,88 +773,109 @@ export function BasketballUploadThumbnail({
   const progress = step === 3 ? 100 : 65;
   return (
     <div
-      className={`basketball-upload bu-thumbnail ${className}`}
+      className={`${rootClass} bu-thumbnail pointer-events-none h-full min-h-0 [container-type:size] ${className}`}
       aria-hidden="true"
       inert
     >
       <ComponentStyles css={BASKETBALL_UPLOAD_STYLES} />
-      <div className="bu-stage">
-        <div className="bu-card-shell">
-          <div className="bu-card" data-state={state}>
-            <header className="bu-header">
+      <div className={`${ui.stage} h-full min-h-0 px-4 py-3`}>
+        <div className="@container w-[min(250px,calc(100cqw-32px),80cqh)]">
+          <div className={ui.card} data-state={state}>
+            <header className={ui.header}>
               <div>
-                <h2>Upload files</h2>
-                <p>Drag and drop, or take the shot.</p>
+                <h2 className={ui.title}>Upload files</h2>
+                <p className={ui.subtitle}>Drag and drop, or take the shot.</p>
               </div>
-              <div className="bu-header-actions">
-                <span className="bu-sound">
-                  <svg viewBox="0 0 20 20">
+              <div className={ui.headerActions}>
+                <span className={ui.sound}>
+                  <svg className={ui.soundIcon} viewBox="0 0 20 20">
                     <path d="M3 8v4h3l4 3V5L6 8H3Z" />
                     <path d="m13 8 4 4m0-4-4 4" />
                   </svg>
                 </span>
-                <span className="bu-count">
-                  Uploaded <strong>{step === 3 ? 3 : 2}</strong>
+                <span className={ui.count}>
+                  Uploaded{" "}
+                  <strong className={ui.countValue}>
+                    {step === 3 ? 3 : 2}
+                  </strong>
                 </span>
               </div>
             </header>
-            <div className="bu-dropzone" data-state={state}>
-              <span className="bu-drop-copy">
-                <svg viewBox="0 0 24 24">
+            <div className={ui.dropzone} data-state={state}>
+              <span className={ui.dropCopy}>
+                <svg className={ui.dropIcon} viewBox="0 0 24 24">
                   <path d="M12 15V4m0 0L8 8m4-4 4 4M5 14v5h14v-5" />
                 </svg>
-                <strong>Drop files here</strong>
-                <span>or take the shot</span>
+                <strong className={ui.dropTitle}>Drop files here</strong>
+                <span className={ui.dropHint}>or take the shot</span>
               </span>
-              <span className="bu-hoop">
+              <span className={ui.hoop}>
                 <BasketballHoop />
               </span>
               {step >= 2 && (
-                <span className="bu-upload-row">
-                  <span className="bu-file-icon bu-file-icon-small">
-                    <span>PDF</span>
+                <span className={ui.uploadRow}>
+                  <span className={ui.fileBadge}>
+                    <span className={ui.fileBadgeLabel}>PDF</span>
                   </span>
-                  <span className="bu-upload-info">
-                    <span className="bu-upload-line">
-                      <span className="bu-upload-name">document.pdf</span>
+                  <span className={ui.uploadInfo}>
+                    <span className={ui.uploadLine}>
+                      <span className={ui.uploadName}>document.pdf</span>
                       <span
-                        className={`bu-progress-value${step === 3 ? " bu-done" : ""}`}
+                        className={`${ui.progressValue} ${step === 3 ? "text-[#27925f]" : "text-[#6c76da]"}`}
                       >
                         {step === 3 ? "Done" : `${progress}%`}
                       </span>
                     </span>
-                    <span className="bu-progress-track">
-                      <span style={{ width: `${progress}%` }} />
+                    <span className={ui.progressTrack}>
+                      <span
+                        className={ui.progressBar}
+                        style={{ width: `${progress}%` }}
+                      />
                     </span>
-                    <span className="bu-upload-line">
-                      <span className="bu-upload-caption">
+                    <span className={ui.uploadLine}>
+                      <span className={`${ui.uploadCaption} text-[#747de0]`}>
                         {step === 3
                           ? "✓ File uploaded successfully"
                           : "Uploading file…"}
                       </span>
-                      <span className="bu-upload-size">2.4 MB</span>
+                      <span className={ui.uploadSize}>2.4 MB</span>
                     </span>
                   </span>
                 </span>
               )}
             </div>
-            <div className="bu-footer">
-              <p>
+            <div className={ui.footer}>
+              <p className={ui.footerText}>
                 {step === 0
                   ? "Release to shoot!"
                   : "Aim the file & release to shoot into the basket"}
               </p>
             </div>
-            <svg className="bu-trajectory" viewBox="0 0 492 612">
-              <path d="M 72 510 C 117 220, 224 116, 246 320" />
+            <svg
+              className={`${ui.overlay} opacity-0 group-data-[state=aiming]/card:opacity-100`}
+              viewBox="0 0 492 612"
+            >
+              <path
+                className={ui.trajectoryPath}
+                d="M 72 510 C 117 220, 224 116, 246 320"
+              />
             </svg>
-            <span className="bu-file-tile">
-              <span className="bu-file-fold" />
-              <span className="bu-file-lines" />
-              <span className="bu-file-tag">PDF</span>
+            {/* The thumbnail freezes the launch mid-flight instead of animating it. */}
+            <span
+              className={`${ui.fileTile} ${state === "launching" ? "top-[32%] left-[43%] [transform:translate(-50%,-50%)_rotate(15deg)]" : ui.fileTileRest}`}
+            >
+              <span className={ui.fileFold} />
+              <span className={ui.fileLines} />
+              <span className={ui.fileTag}>PDF</span>
             </span>
-            <svg className="bu-shot-trail" viewBox="0 0 492 612">
-              <path d="M 72 510 C 117 220, 224 116, 246 320 L 246 360" />
+            <svg
+              className={`${ui.overlay} ${state === "launching" ? "opacity-50" : "opacity-0"}`}
+              viewBox="0 0 492 612"
+            >
+              <path
+                className={ui.trajectoryPath}
+                d="M 72 510 C 117 220, 224 116, 246 320 L 246 360"
+              />
             </svg>
           </div>
         </div>
@@ -777,86 +884,24 @@ export function BasketballUploadThumbnail({
   );
 }
 
+/*
+ * Only what Tailwind utilities cannot express (or cannot win against) stays here:
+ * keyframes, the descendant-wide thumbnail/reduced-motion resets, and the focus rings
+ * and tile cursors, which must outrank the host app's unlayered `:focus-visible` and
+ * `button:not(:disabled)` rules that layered utilities always lose to.
+ */
 const BASKETBALL_UPLOAD_STYLES = `
-.basketball-upload{container-type:inline-size;min-width:0;background:#eceef2;color:#252832;font-family:Arial,Helvetica,sans-serif;isolation:isolate}
 .basketball-upload *{box-sizing:border-box}
-.basketball-upload .bu-stage{min-height:698px;display:grid;place-items:center;padding:40px 20px 46px;background:#eceef2}
-.basketball-upload .bu-card-shell{container-type:inline-size;width:min(492px,calc(100cqw - 40px))}
-.basketball-upload .bu-card{position:relative;display:flex;width:100%;aspect-ratio:492/612;flex-direction:column;padding:5.69cqw;border:1px solid #e5e8ef;border-radius:5.3cqw;background:#f7f8fc;box-shadow:0 20px 35px #4a536714,0 3px 8px #58637c0a;overflow:hidden}
-.basketball-upload .bu-header{display:flex;flex:0 0 auto;align-items:flex-start;justify-content:space-between;gap:1.6cqw;margin-bottom:5.1cqw}
-.basketball-upload .bu-header h2{margin:0;color:#252832;font-size:4.47cqw;font-weight:700;letter-spacing:-.04em}
-.basketball-upload .bu-header p{margin:1.62cqw 0 0;color:#858b99;font-size:2.44cqw;line-height:1.4}
-.basketball-upload .bu-header-actions{display:flex;align-items:center;gap:1.6cqw;margin-top:.2cqw}
-.basketball-upload .bu-sound{display:grid;width:6.1cqw;height:6.1cqw;flex:0 0 6.1cqw;place-items:center;border:1px solid #e5e8ef;border-radius:50%;background:#f0f2f7;color:#8490a2;padding:0;cursor:pointer}
 .basketball-upload .bu-sound:hover,.basketball-upload .bu-sound:focus-visible{color:#5265e8;outline:2px solid #6779ef;outline-offset:2px}
-.basketball-upload .bu-sound svg{width:3.25cqw;height:3.25cqw;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.basketball-upload .bu-count{display:inline-flex;align-items:center;gap:.8cqw;white-space:nowrap;border:1px solid #d3d9e5;border-radius:999px;background:#e0e6ef;padding:1.83cqw 2.44cqw;color:#5d687b;font-size:2.24cqw;line-height:1}
-.basketball-upload .bu-count strong{color:#505a6d;font-weight:700}
-.basketball-upload .bu-card[data-state=success] .bu-count{background:#e4e7ff;border-color:#bbc4ef}
-.basketball-upload .bu-count-dot{display:none}
-.basketball-upload .bu-file-input{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-.basketball-upload .bu-dropzone{position:relative;display:block;width:100%;height:44.72cqw;flex:0 0 44.72cqw;padding:2cqw;border:2px dashed #d1d5df;border-radius:4.47cqw;background:#ffffffc9;color:inherit;text-align:center;cursor:pointer;transition:border-color .2s ease,background .2s ease,box-shadow .2s ease;overflow:visible}
-.basketball-upload .bu-dropzone:hover,.basketball-upload .bu-dropzone:focus-visible{border-color:#9a9ae7;outline:none}
 .basketball-upload .bu-dropzone:focus-visible{outline:2px solid #6575ef;outline-offset:3px}
-.basketball-upload .bu-dropzone[data-dragging=true]{border-color:#8889e6;background:#f6f7ff;box-shadow:0 0 0 4px #6575ef18}
-.basketball-upload .bu-drop-copy{position:absolute;top:4.47cqw;left:1.6cqw;right:1.6cqw;z-index:1;display:flex;flex-direction:column;align-items:center;gap:1.42cqw;color:#737b8b;font-size:2.44cqw;pointer-events:none}
-.basketball-upload .bu-drop-copy svg{width:4.47cqw;height:4.47cqw;margin-bottom:.6cqw;fill:none;stroke:#222b3c;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.basketball-upload .bu-drop-copy strong{color:#252a35;font-size:2.85cqw;font-weight:700}
-.basketball-upload .bu-drop-copy span{font-size:2.44cqw;color:#a0a5b1}
-.basketball-upload .bu-hoop{position:absolute;z-index:5;left:50%;top:calc(100% - 15.24cqw);width:22.76cqw;height:25.2cqw;transform:translateX(-50%);pointer-events:none;filter:drop-shadow(0 4px 3px #272d3a08)}
-.basketball-upload .bu-hoop svg{width:100%;height:100%;overflow:visible}
-.basketball-upload .bu-file-icon{position:relative;display:grid;place-items:end center;width:20px;height:27px;padding-bottom:2px;border:1px solid #e7e9ef;border-radius:3px;background:linear-gradient(145deg,#fff 0 79%,#e8ebf2 80%);box-shadow:0 3px 6px #272d3a16}
-.basketball-upload .bu-file-icon::before,.basketball-upload .bu-file-icon::after{position:absolute;left:4px;right:5px;height:1px;background:#dce0e8;content:""}
-.basketball-upload .bu-file-icon::before{top:7px}.basketball-upload .bu-file-icon::after{top:10px}
-.basketball-upload .bu-file-icon>span{position:relative;z-index:1;max-width:17px;overflow:hidden;text-overflow:ellipsis;border-radius:2px;background:#4267d9;padding:1px 2px;color:#fff;font-size:4px;font-weight:700;line-height:1}
-.basketball-upload .bu-file-flight,.basketball-upload .bu-trajectory,.basketball-upload .bu-shot-trail{position:absolute;inset:0;z-index:4;width:100%;height:100%;pointer-events:none;overflow:visible}
-.basketball-upload .bu-file-flight g{filter:drop-shadow(0 6px 9px #3a3e5324);animation:bu-shot-fade .88s linear both}
-.basketball-upload .bu-trajectory path,.basketball-upload .bu-shot-trail path{fill:none;stroke:#7e83eb;stroke-width:2.1;stroke-linecap:round;stroke-dasharray:0 23;opacity:.7}
-.basketball-upload .bu-trajectory{opacity:0}
-.basketball-upload .bu-card[data-state=aiming] .bu-trajectory{opacity:1}
-.basketball-upload .bu-shot-trail{opacity:0}
-.basketball-upload .bu-card[data-state=launching] .bu-shot-trail{animation:bu-trail .9s linear both}
-.basketball-upload .bu-card[data-state=launching] .bu-hoop{animation:bu-hoop-pop .38s .7s ease-out both}
-.basketball-upload .bu-upload-row{position:absolute;z-index:6;top:1.62cqw;left:1.62cqw;right:1.62cqw;display:flex;align-items:flex-start;gap:1.22cqw;min-height:12.2cqw;padding:1.62cqw 1.83cqw;border:1px solid #e8eaf0;border-radius:2.85cqw;background:#fff;box-shadow:0 4px 9px #343c5210;text-align:left;animation:bu-row-in .2s ease both}
-.basketball-upload .bu-file-icon-small{display:grid;place-items:center;width:3.86cqw;height:2.24cqw;flex:0 0 3.86cqw;border:0;border-radius:.6cqw;padding:0;margin-top:.2cqw;background:#eef2ff;box-shadow:none}
-.basketball-upload .bu-file-icon-small::before,.basketball-upload .bu-file-icon-small::after{display:none}
-.basketball-upload .bu-file-icon-small>span{max-width:none;padding:0;color:#586bc5;background:transparent;font-size:1.42cqw}
-.basketball-upload .bu-upload-info{display:flex;min-width:0;flex:1;flex-direction:column;gap:1.02cqw}
-.basketball-upload .bu-upload-line{display:flex;min-width:0;align-items:center;justify-content:space-between;gap:1.02cqw}
-.basketball-upload .bu-upload-name{overflow:hidden;color:#3d4555;font-size:1.83cqw;font-weight:600;text-overflow:ellipsis;white-space:nowrap}
-.basketball-upload .bu-progress-track{display:block;width:calc(100% + 5.08cqw);height:.81cqw;margin-left:-5.08cqw;overflow:hidden;border-radius:99px;background:#e8eaf2}
-.basketball-upload .bu-progress-track>span{display:block;height:100%;border-radius:inherit;background:#6555ef;transition:width .1s linear}
-.basketball-upload .bu-upload-caption{margin-left:-5.08cqw;color:#747de0;font-size:1.62cqw}
-.basketball-upload .bu-upload-error{color:#c6535d}
-.basketball-upload .bu-upload-size{flex:0 0 auto;color:#a0a5b1;font-size:1.62cqw}
-.basketball-upload .bu-progress-value{min-width:4.27cqw;color:#6c76da;font-size:1.62cqw;text-align:right}
-.basketball-upload .bu-progress-value.bu-done{color:#27925f}
-.basketball-upload .bu-dropzone[data-state=success] .bu-upload-row{border-color:#d9efe3}
-.basketball-upload .bu-dropzone[data-state=success] .bu-progress-track>span{background:#30ae72}
-.basketball-upload .bu-dropzone[data-state=success] .bu-upload-caption{color:#27925f}
-.basketball-upload .bu-footer{position:relative;display:flex;flex:1;min-height:0;align-items:flex-end;justify-content:center;padding:0 1.02cqw}
-.basketball-upload .bu-footer p{margin:0;color:#929aa8;font-size:2.24cqw;line-height:1.5;text-align:center}
-.basketball-upload .bu-file-tile{position:absolute;z-index:7;left:14.63%;top:83.33%;display:block;width:8.13cqw;height:10.57cqw;padding:0;border:1px solid #e7e9ef;border-radius:1.02cqw;background:linear-gradient(145deg,#fff 0 78%,#e8ebf2 79%);box-shadow:0 6px 10px #272d3a1c;transform:translate(-50%,-50%) rotate(-6deg);cursor:grab;touch-action:none}
+.basketball-upload .bu-file-tile{cursor:grab}
 .basketball-upload .bu-file-tile:focus-visible{outline:2px solid #6b69e2;outline-offset:5px}
-.basketball-upload .bu-file-tile[data-aiming=true]{cursor:grabbing;box-shadow:0 10px 20px #272d3a25}
-.basketball-upload .bu-card[data-state=launching] .bu-file-tile{opacity:0;pointer-events:none}
-.basketball-upload .bu-file-fold{position:absolute;right:0;top:0;width:2.44cqw;height:2.44cqw;background:linear-gradient(45deg,#e9ecf3 50%,#fff 51%);border-left:1px solid #e7e9ef;border-bottom:1px solid #e7e9ef}
-.basketball-upload .bu-file-lines{position:absolute;top:2.44cqw;left:1.22cqw;width:4.47cqw;height:2.24cqw;border-top:1px solid #dce0e8;border-bottom:1px solid #dce0e8}
-.basketball-upload .bu-file-tag{position:absolute;bottom:1.22cqw;left:1.02cqw;border-radius:.6cqw;background:#4267d9;padding:.4cqw .61cqw;color:#fff;font-size:1.42cqw;font-weight:700;line-height:1}
-.basketball-upload .bu-queue-count{position:absolute;left:10.16cqw;bottom:9.76cqw;display:grid;place-items:center;width:2.64cqw;height:2.64cqw;border-radius:50%;background:#e8ebff;color:#5969df;font-size:1.22cqw;font-weight:700}
-.basketball-upload .bu-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.basketball-upload .bu-file-tile[data-aiming=true]{cursor:grabbing}
+.basketball-upload .bu-file-tile[aria-disabled=true]{cursor:wait}
 @keyframes bu-shot-fade{0%,86%{opacity:1}100%{opacity:0}}
 @keyframes bu-trail{0%{opacity:.7}70%{opacity:.6}100%{opacity:0}}
 @keyframes bu-hoop-pop{0%{transform:translateX(-50%) scale(1)}45%{transform:translateX(-50%) scale(1.04,.92)}100%{transform:translateX(-50%) scale(1)}}
 @keyframes bu-row-in{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
-@container(max-width:560px){.basketball-upload .bu-stage{min-height:0;padding:24px 20px}.basketball-upload .bu-card-shell{width:calc(100cqw - 40px)}}
- .basketball-upload .bu-dropzone:disabled,.basketball-upload .bu-file-tile:disabled{cursor:not-allowed;opacity:.55}
-.basketball-upload .bu-file-tile[aria-disabled=true]{cursor:wait}
-.basketball-upload.bu-thumbnail{container-type:size;height:100%;min-height:0;pointer-events:none}
-.basketball-upload.bu-thumbnail .bu-stage{height:100%;min-height:0;padding:12px 16px}
-.basketball-upload.bu-thumbnail .bu-card-shell{width:min(250px,calc(100cqw - 32px),80cqh)}
 .basketball-upload.bu-thumbnail *{animation:none!important;transition:none!important}
-.basketball-upload.bu-thumbnail .bu-card[data-state=launching] .bu-file-tile{opacity:1;left:43%;top:32%;transform:translate(-50%,-50%) rotate(15deg)}
-.basketball-upload.bu-thumbnail .bu-card[data-state=launching] .bu-shot-trail{opacity:.5}
-@media(prefers-reduced-motion:reduce){.basketball-upload *,.basketball-upload *::before,.basketball-upload *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}.basketball-upload .bu-file-flight{display:none}}
+@media(prefers-reduced-motion:reduce){.basketball-upload *,.basketball-upload *::before,.basketball-upload *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 `;

@@ -56,6 +56,15 @@ function KeyboardArtwork({ theme, accent }: { theme: KeyboardCard["theme"]; acce
   );
 }
 
+/* Shared by the interactive cards and the gallery thumbnail; each adds its own sizing. */
+const ROOT_CLASS = "kc-root @container flex flex-col overflow-hidden bg-[#ededee] font-[Arial,Helvetica,sans-serif] text-[#131318] **:box-border";
+const STAGE_CLASS = "kc-stage flex flex-auto flex-wrap justify-center perspective-[1000px]";
+const CARD_CLASS = "kc-card relative isolate max-w-[220px] flex-[0_0_28%] rounded-[2px] bg-[#80b568] text-white shadow-[0_14px_17px_#52695036] [--kc-pointer:0deg] data-[theme=panda]:bg-[#fbfbfc] data-[theme=panda]:text-[#17171b] data-[theme=panda]:shadow-[0_14px_17px_#0002] data-[theme=topo]:bg-[#202020] data-[theme=topo]:shadow-[0_14px_17px_#0003]";
+const MODEL_CLASS = "kc-model absolute inset-[auto_8%_24%] -z-1 h-[118%] origin-[50%_72%] cursor-pointer border-none bg-transparent p-0 [filter:drop-shadow(3px_10px_5px_#0004)] [mask-image:linear-gradient(#000_0%,#000_55%,transparent_90%)] [transition:transform_.65s_cubic-bezier(.2,.7,.2,1)] focus-visible:rounded-lg focus-visible:[mask-image:none] motion-reduce:[transition:none] *:size-full *:overflow-visible";
+const COPY_CLASS = "kc-copy pointer-events-none absolute inset-[auto_10%_12%]";
+const FINISHES_CLASS = "kc-finishes absolute right-[7%] bottom-[4%] flex items-center";
+const SWATCH_CLASS = "block cursor-pointer rounded-[2px] border border-[#0001] p-0 shadow-[0_1px_3px_#0002]";
+
 function Product({ keyboard, onSelect }: { keyboard: KeyboardCard; onSelect: (finish: KeyboardFinish) => void }) {
   const [finishIndex, setFinishIndex] = useState(0);
   const selectedIndex = Math.max(0, Math.min(finishIndex, keyboard.finishes.length - 1));
@@ -66,11 +75,14 @@ function Product({ keyboard, onSelect }: { keyboard: KeyboardCard; onSelect: (fi
     event.currentTarget.style.setProperty("--kc-pointer", `${((event.clientX - box.left) / box.width - .5) * 10}deg`);
   }
   return (
-    <article className="kc-card" data-theme={keyboard.theme} onPointerMove={tilt} onPointerLeave={(event) => event.currentTarget.style.setProperty("--kc-pointer", "0deg")}>
-      <button type="button" className="kc-model" aria-label={`Explore ${keyboard.name}, ${finish.name}`} onClick={() => onSelect(finish)}><KeyboardArtwork theme={keyboard.theme} accent={finish.color} /></button>
-      <div className="kc-copy"><h3>{keyboard.name}</h3><p>{keyboard.description}</p></div>
-      <div className="kc-finishes" role="group" aria-label={`${keyboard.name} finish`}>
-        {keyboard.finishes.map((option, index) => <button key={option.name} type="button" style={{ background: option.color }} onClick={() => setFinishIndex(index)} aria-pressed={index === selectedIndex} aria-label={option.name} title={option.name} />)}
+    <article className={`${CARD_CLASS} h-[260px] @min-[1100px]:h-[clamp(260px,22cqw,340px)] @min-[1100px]:max-w-[clamp(220px,18.5cqw,290px)] [@container(max-width:600px)]:flex-[0_0_210px] [@container(max-width:600px)]:snap-center`} data-theme={keyboard.theme} onPointerMove={tilt} onPointerLeave={(event) => event.currentTarget.style.setProperty("--kc-pointer", "0deg")}>
+      <button type="button" className={MODEL_CLASS} aria-label={`Explore ${keyboard.name}, ${finish.name}`} onClick={() => onSelect(finish)}><KeyboardArtwork theme={keyboard.theme} accent={finish.color} /></button>
+      <div className={COPY_CLASS}>
+        <h3 className="m-[0_0_8px] text-[15px] leading-[1.2] font-bold @min-[1100px]:text-[18px] [@container(max-width:600px)]:text-[16px]">{keyboard.name}</h3>
+        <p className="m-0 max-w-[170px] text-[10px] leading-[1.4] @min-[1100px]:max-w-[210px] @min-[1100px]:text-[12px] [@container(max-width:600px)]:text-[11px]">{keyboard.description}</p>
+      </div>
+      <div className={`${FINISHES_CLASS} gap-2`} role="group" aria-label={`${keyboard.name} finish`}>
+        {keyboard.finishes.map((option, index) => <button key={option.name} type="button" className={`${SWATCH_CLASS} relative size-[18px] before:absolute before:inset-[-5px_-3px] aria-pressed:outline-1 aria-pressed:outline-offset-2 aria-pressed:outline-current @min-[1100px]:size-[22px]`} style={{ background: option.color }} onClick={() => setFinishIndex(index)} aria-pressed={index === selectedIndex} aria-label={option.name} title={option.name} />)}
       </div>
     </article>
   );
@@ -85,13 +97,13 @@ export default function KeyboardCards({ keyboards = DEFAULT_KEYBOARDS, onSelect,
     if (selection && !dialog.current?.open) dialog.current?.showModal();
     if (!selection && dialog.current?.open) dialog.current.close();
   }, [selection]);
-  return <section className={`kc-root relative isolate w-full ${className}`} aria-label="Mechanical keyboard collection">
+  return <section className={`${ROOT_CLASS} relative isolate w-full ${className}`} aria-label="Mechanical keyboard collection">
     <ComponentStyles css={STYLES} />
-    <div className="kc-stage">{keyboards.map((keyboard) => <Product key={keyboard.id} keyboard={keyboard} onSelect={(finish) => { if (onSelect) onSelect(keyboard, finish); else setSelection({ keyboard, finish }); }} />)}{!keyboards.length && <p>No keyboards to display.</p>}</div>
-    <dialog ref={dialog} className="kc-dialog" aria-labelledby={titleId} onCancel={() => setSelection(null)} onClose={() => setSelection(null)} onClick={(event) => { if (event.target === event.currentTarget) setSelection(null); }}>
-      <div className="kc-detail"><button type="button" className="kc-close" aria-label="Close keyboard details" onClick={() => setSelection(null)}>×</button>
-        <div className="kc-detail-art">{selection && <KeyboardArtwork theme={selection.keyboard.theme} accent={selection.finish.color} />}</div>
-        <div><span className="kc-eyebrow">MECHANICAL / COLLECTION</span><h2 id={titleId}>{selection?.keyboard.name ?? "Keyboard details"}</h2><p>{selection?.keyboard.description}</p><p className="kc-selected-finish">Finish · {selection?.finish.name}</p><small>Illustrative keyboard concept. Choose your own product action with the onSelect callback.</small></div>
+    <div className={`${STAGE_CLASS} min-h-[480px] items-center gap-[5%] p-[155px_7%_65px] [@container(max-width:600px)]:min-h-[440px] [@container(max-width:600px)]:flex-nowrap [@container(max-width:600px)]:justify-start [@container(max-width:600px)]:gap-[34px] [@container(max-width:600px)]:overflow-x-auto [@container(max-width:600px)]:p-[130px_28px_50px] [@container(max-width:600px)]:snap-x [@container(max-width:600px)]:[scrollbar-color:#aaa_transparent] [@container(max-width:600px)]:[scrollbar-width:thin]`}>{keyboards.map((keyboard) => <Product key={keyboard.id} keyboard={keyboard} onSelect={(finish) => { if (onSelect) onSelect(keyboard, finish); else setSelection({ keyboard, finish }); }} />)}{!keyboards.length && <p>No keyboards to display.</p>}</div>
+    <dialog ref={dialog} className="kc-dialog m-auto max-h-[85dvh] w-[min(90vw,600px)] overflow-auto rounded-2xl border-none bg-[#f6f6f7] p-0 font-[Arial,Helvetica,sans-serif] text-[#222] shadow-[0_20px_90px_#0006] backdrop:bg-[#13131bcc] backdrop:backdrop-blur-[6px]" aria-labelledby={titleId} onCancel={() => setSelection(null)} onClose={() => setSelection(null)} onClick={(event) => { if (event.target === event.currentTarget) setSelection(null); }}>
+      <div className="kc-detail relative grid grid-cols-[150px_1fr] items-center gap-[30px] p-[45px] [@media(max-width:500px)]:grid-cols-[1fr] [@media(max-width:500px)]:gap-3 [@media(max-width:500px)]:p-9"><button type="button" className="kc-close absolute top-[10px] right-3 size-[34px] cursor-pointer rounded-[50%] border-none bg-[#e8e8ed] text-[24px]" aria-label="Close keyboard details" onClick={() => setSelection(null)}>×</button>
+        <div className="kc-detail-art *:max-h-[280px] *:w-full *:[filter:drop-shadow(0_15px_8px_#0003)] [@media(max-width:500px)]:*:h-[180px]">{selection && <KeyboardArtwork theme={selection.keyboard.theme} accent={selection.finish.color} />}</div>
+        <div><span className="kc-eyebrow text-[9px] tracking-[.15em] text-[#85858c]">MECHANICAL / COLLECTION</span><h2 id={titleId} className="m-[12px_0] text-[32px] [@media(max-width:500px)]:text-[26px]">{selection?.keyboard.name ?? "Keyboard details"}</h2><p className="text-[13px] leading-[1.7]">{selection?.keyboard.description}</p><p className="kc-selected-finish text-[13px] leading-[1.7] font-bold">Finish · {selection?.finish.name}</p><small className="block text-[11px] leading-[1.6] text-[#777]">Illustrative keyboard concept. Choose your own product action with the onSelect callback.</small></div>
       </div>
     </dialog>
   </section>;
@@ -99,48 +111,16 @@ export default function KeyboardCards({ keyboards = DEFAULT_KEYBOARDS, onSelect,
 
 export function KeyboardCardsThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   const frame = Number.isFinite(previewStep) ? Math.abs(Math.trunc(previewStep)) : 0;
-  return <div className={`kc-root kc-thumbnail ${className}`} aria-hidden="true" inert><ComponentStyles css={STYLES} /><div className="kc-stage">{DEFAULT_KEYBOARDS.map((keyboard, index) => <div className="kc-card" data-theme={keyboard.theme} data-active={frame % 3 === index} key={keyboard.id}><div className="kc-model"><KeyboardArtwork theme={keyboard.theme} accent={keyboard.finishes[frame % keyboard.finishes.length].color} /></div><div className="kc-copy"><h3>{keyboard.name}</h3><p>{keyboard.description}</p></div><div className="kc-finishes">{keyboard.finishes.map((finish) => <i key={finish.name} style={{ background: finish.color }} />)}</div></div>)}</div></div>;
+  return <div className={`${ROOT_CLASS} kc-thumbnail h-full min-h-0 ${className}`} aria-hidden="true" inert><ComponentStyles css={STYLES} /><div className={`${STAGE_CLASS} h-full min-h-0 items-end gap-[6%] p-[19%_7%_10%]`}>{DEFAULT_KEYBOARDS.map((keyboard, index) => <div className={`${CARD_CLASS} h-[42cqw] max-h-[250px]`} data-theme={keyboard.theme} data-active={frame % 3 === index} key={keyboard.id}><div className={MODEL_CLASS}><KeyboardArtwork theme={keyboard.theme} accent={keyboard.finishes[frame % keyboard.finishes.length].color} /></div><div className={COPY_CLASS}><h3 className="m-[0_0_1cqw] text-[2.4cqw] leading-[1.2] font-bold">{keyboard.name}</h3><p className="m-0 max-w-[170px] text-[1.5cqw] leading-[1.4]">{keyboard.description}</p></div><div className={`${FINISHES_CLASS} gap-[.8cqw]`}>{keyboard.finishes.map((finish) => <i key={finish.name} className={`${SWATCH_CLASS} h-[1.5cqw] w-[2cqw]`} style={{ background: finish.color }} />)}</div></div>)}</div></div>;
 }
 
+/* Only what utilities cannot cleanly express: the keycap pose chain keyed on card state,
+   and focus rings that must outrank a host page's unlayered :focus-visible outline. */
 const STYLES = `
-.kc-root{container-type:inline-size;background:#ededee;color:#131318;font-family:Arial,Helvetica,sans-serif;overflow:hidden}
-.kc-root *{box-sizing:border-box}
-.kc-stage{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:center;gap:5%;padding:120px 7% 65px;min-height:480px;perspective:1000px}
-.kc-card{position:relative;flex:0 0 28%;height:260px;max-width:220px;background:#80b568;box-shadow:0 14px 17px #52695036;border-radius:2px;color:#fff;isolation:isolate;--kc-pointer:0deg}
-.kc-card[data-theme=topo]{background:#202020;box-shadow:0 14px 17px #0003}
-.kc-card[data-theme=panda]{background:#fbfbfc;color:#17171b;box-shadow:0 14px 17px #0002}
-.kc-model{position:absolute;inset:auto 8% 24%;height:118%;padding:0;border:0;background:transparent;cursor:pointer;transform-origin:50% 72%;transform:perspective(650px) rotateX(16deg) rotateY(-12deg) rotateZ(-23deg);transition:transform .65s cubic-bezier(.2,.7,.2,1);filter:drop-shadow(3px 10px 5px #0004);z-index:-1;mask-image:linear-gradient(#000 0%,#000 55%,transparent 90%)}
-.kc-model svg{width:100%;height:100%;overflow:visible}
+.kc-model{transform:perspective(650px) rotateX(16deg) rotateY(-12deg) rotateZ(-23deg)}
 .kc-card[data-theme=leaf] .kc-model{transform:perspective(650px) rotateX(14deg) rotateY(10deg) rotateZ(-6deg)}
 .kc-card:hover .kc-model,.kc-card:focus-within .kc-model,.kc-card[data-active=true] .kc-model{transform:perspective(650px) translateY(-13px) rotateX(8deg) rotateY(var(--kc-pointer)) rotateZ(-2deg)}
-.kc-model:focus-visible{outline:2px solid #5888f7;outline-offset:5px;mask-image:none;border-radius:8px}
-.kc-copy{position:absolute;inset:auto 10% 12%;pointer-events:none}
-.kc-copy h3{font-size:15px;line-height:1.2;font-weight:700;margin:0 0 8px}
-.kc-copy p{font-size:10px;line-height:1.4;margin:0;max-width:170px}
-.kc-finishes{position:absolute;right:7%;bottom:4%;display:flex;gap:8px;align-items:center}
-.kc-finishes button,.kc-finishes i{display:block;width:18px;height:18px;border:1px solid #0001;border-radius:2px;padding:0;cursor:pointer;box-shadow:0 1px 3px #0002}
-.kc-finishes button{position:relative}
-.kc-finishes button::before{content:"";position:absolute;inset:-5px -3px}
-.kc-finishes button[aria-pressed=true]{outline:1px solid currentColor;outline-offset:2px}
+.kc-model:focus-visible{outline:2px solid #5888f7;outline-offset:5px}
 .kc-finishes button:focus-visible{outline:2px solid #567bef;outline-offset:4px}
-.kc-dialog{padding:0;border:0;border-radius:16px;width:min(90vw,600px);max-height:85dvh;overflow:auto;background:#f6f6f7;color:#222;font-family:Arial,Helvetica,sans-serif;box-shadow:0 20px 90px #0006;margin:auto}
-.kc-dialog::backdrop{background:#13131bcc;backdrop-filter:blur(6px)}
-.kc-detail{display:grid;grid-template-columns:150px 1fr;gap:30px;padding:45px;position:relative;align-items:center}
-.kc-detail-art svg{width:100%;max-height:280px;filter:drop-shadow(0 15px 8px #0003)}
-.kc-close{position:absolute;right:12px;top:10px;width:34px;height:34px;border:0;background:#e8e8ed;border-radius:50%;font-size:24px;cursor:pointer}
-.kc-eyebrow{font-size:9px;letter-spacing:.15em;color:#85858c}
-.kc-detail h2{font-size:32px;margin:12px 0}
-.kc-detail p{font-size:13px;line-height:1.7}
-.kc-selected-finish{font-weight:700}
-.kc-detail small{font-size:11px;line-height:1.6;color:#777;display:block}
-.kc-thumbnail{height:100%;min-height:0}
-.kc-thumbnail .kc-stage{height:100%;min-height:0;padding:19% 7% 10%;gap:6%}
-.kc-thumbnail .kc-card{height:42cqw;max-height:250px;flex-basis:28%}
-.kc-thumbnail .kc-copy h3{font-size:2.4cqw;margin-bottom:1cqw}
-.kc-thumbnail .kc-copy p{font-size:1.5cqw}
-.kc-thumbnail .kc-finishes{gap:.8cqw}
-.kc-thumbnail .kc-finishes i{width:2cqw;height:1.5cqw}
-@container(max-width:600px){.kc-root:not(.kc-thumbnail) .kc-stage{padding:115px 28px 50px;gap:34px;min-height:440px;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:thin;scrollbar-color:#aaa transparent}.kc-root:not(.kc-thumbnail) .kc-card{flex:0 0 210px;height:260px;scroll-snap-align:center}.kc-root:not(.kc-thumbnail) .kc-copy h3{font-size:16px}.kc-root:not(.kc-thumbnail) .kc-copy p{font-size:11px}.kc-root:not(.kc-thumbnail) .kc-finishes button{width:18px;height:18px}}
-@media(max-width:500px){.kc-detail{grid-template-columns:1fr;padding:36px;gap:12px}.kc-detail-art svg{height:180px}.kc-detail h2{font-size:26px}}
-@media(prefers-reduced-motion:reduce){.kc-root .kc-model{transition:none!important}.kc-card:hover .kc-model,.kc-card:focus-within .kc-model{transform:perspective(650px) rotateX(8deg)}}
+@media(prefers-reduced-motion:reduce){.kc-card:hover .kc-model,.kc-card:focus-within .kc-model{transform:perspective(650px) rotateX(8deg)}}
 `;

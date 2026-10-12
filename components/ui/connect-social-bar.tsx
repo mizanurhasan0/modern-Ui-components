@@ -69,10 +69,26 @@ const SOCIALS: Array<{
   },
 ];
 
+/* Shared Tailwind classes. The lit-disc state, focus outline and sweep mask stay in CONNECT_SOCIAL_STYLES below. */
+const STAGE_CLASS =
+  "relative isolate flex w-full min-w-0 items-center justify-center overflow-hidden bg-[#030303] bg-[linear-gradient(rgba(255,255,255,.016)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.016)_1px,transparent_1px)] bg-[length:86px_86px] text-[#f7f8ff] shadow-[inset_0_0_110px_65px_#030303] [font-family:inherit] @container";
+const TRACK_CLASS =
+  "csb-track group/csb relative isolate flex max-w-full items-center justify-center gap-(--csb-gap) rounded-[999px] border border-[#111114] bg-[#080809] p-(--csb-padding) shadow-[0_0_18px_rgba(255,255,255,.055),inset_0_1px_rgba(255,255,255,.025)] [--csb-gap:clamp(2px,1.39cqw,10px)] [--csb-padding:clamp(4px,1.94cqw,14px)] [--csb-size:clamp(20px,8.33cqw,60px)]";
+const SWEEP_CLASS =
+  "csb-sweep pointer-events-none absolute -inset-px z-0 overflow-hidden rounded-[inherit] p-px before:absolute before:top-1/2 before:left-1/2 before:aspect-square before:w-[120%] before:animate-[csb-border-travel_4s_linear_infinite] before:bg-[conic-gradient(from_0deg,transparent_0deg,transparent_265deg,rgba(240,240,250,.06)_285deg,rgba(248,248,255,.75)_335deg,transparent_336deg)] before:transform-[translate(-50%,-50%)_rotate(0deg)] before:content-[''] motion-reduce:before:animate-none";
+const LINK_CLASS =
+  "csb-link relative z-1 grid size-(--csb-size) flex-[0_0_var(--csb-size)] place-items-center rounded-[50%] border border-[#1b1b1f] bg-[#111113] text-white no-underline shadow-[inset_0_1px_3px_rgba(255,255,255,.025)] [transition:color_.18s_ease,border-color_.18s_ease,background_.18s_ease,box-shadow_.18s_ease] group-data-[revealed=true]/csb:bg-[#060607] motion-reduce:[transition:none]";
+const LETTER_CLASS =
+  "pointer-events-none transform-[translateY(0)] text-[#85858b] opacity-100 [font:600_clamp(10px,2.78cqw,20px)/1_ui-monospace,SFMono-Regular,Menlo,monospace] [grid-area:1/1] [transition:opacity_.18s_ease,transform_.22s_ease] group-data-[revealed=true]/csb:transform-[translateY(-6px)_scale(.85)] group-data-[revealed=true]/csb:opacity-0 motion-reduce:[transition:none]";
+const ICON_CLASS =
+  "csb-icon pointer-events-none size-[clamp(13px,3.61cqw,26px)] transform-[translateY(6px)_scale(.85)] fill-current opacity-0 [grid-area:1/1] [transition:opacity_.18s_ease,transform_.22s_ease,filter_.18s_ease] group-data-[revealed=true]/csb:transform-[translateY(0)_scale(1)] group-data-[revealed=true]/csb:opacity-100 motion-reduce:[transition:none]";
+const TOOLTIP_CLASS =
+  "csb-tooltip pointer-events-none absolute bottom-[calc(100%+18px)] left-1/2 z-5 transform-[translate(-50%,4px)] rounded-[5px] border border-[color-mix(in_srgb,var(--csb-accent)_70%,#171717)] bg-[#050506] px-3 py-[7px] whitespace-nowrap text-[#f8f8fa] opacity-0 [font:600_13px/1.2_Arial,system-ui,sans-serif] [transition:opacity_.15s_ease,transform_.15s_ease] motion-reduce:[transition:none] [@container(max-width:560px)]:bottom-[calc(100%+12px)] [@container(max-width:560px)]:px-[9px] [@container(max-width:560px)]:py-1.5 [@container(max-width:560px)]:text-[11px]";
+
 function SocialIcon({ name }: { name: SocialNetwork }) {
   const item = SOCIALS.find((social) => social.name === name);
   if (!item) return null;
-  return <svg viewBox="0 0 24 24" className="csb-icon" aria-hidden="true" focusable="false">{item.icon}</svg>;
+  return <svg viewBox="0 0 24 24" className={ICON_CLASS} aria-hidden="true" focusable="false">{item.icon}</svg>;
 }
 
 /** Seven CONNECT discs reveal the corresponding social icons on hover or focus. */
@@ -80,10 +96,10 @@ export default function ConnectSocialBar({ className = "", email = "eng.mizanur.
   const [isRevealed, setIsRevealed] = useState(false);
 
   return (
-    <div className={`connect-social-bar csb-stage ${className}`}>
+    <div className={`connect-social-bar ${STAGE_CLASS} min-h-[clamp(340px,60cqw,560px)] px-3 py-6 ${className}`}>
       <ComponentStyles css={CONNECT_SOCIAL_STYLES} />
       <nav
-        className="csb-track"
+        className={TRACK_CLASS}
         aria-label="Connect on social media"
         data-revealed={isRevealed}
         onPointerEnter={() => setIsRevealed(true)}
@@ -98,22 +114,22 @@ export default function ConnectSocialBar({ className = "", email = "eng.mizanur.
           if (event.key === "Escape") setIsRevealed(false);
         }}
       >
-        <span className="csb-sweep" aria-hidden="true" />
+        <span className={SWEEP_CLASS} aria-hidden="true" />
         {SOCIALS.map((social, index) => {
           const href = social.name === "Email" ? `mailto:${email}` : links[social.name] ?? social.href;
           return (
             <a
               key={social.name}
-              className="csb-link"
+              className={LINK_CLASS}
               href={href}
               style={{ "--csb-accent": social.color } as React.CSSProperties}
               aria-label={social.name}
               target={social.name === "Email" ? undefined : "_blank"}
               rel={social.name === "Email" ? undefined : "noreferrer"}
             >
-              <span className="csb-letter" aria-hidden="true">{"CONNECT"[index]}</span>
+              <span className={LETTER_CLASS} aria-hidden="true">{"CONNECT"[index]}</span>
               <SocialIcon name={social.name} />
-              <span className="csb-tooltip" aria-hidden="true">{social.name}</span>
+              <span className={TOOLTIP_CLASS} aria-hidden="true">{social.name}</span>
             </a>
           );
         })}
@@ -127,12 +143,12 @@ export function ConnectSocialBarThumbnail({ className = "", previewStep = 0 }: {
   const activeIndex = Math.abs(Math.trunc(previewStep)) % SOCIALS.length;
 
   return (
-    <div className={`connect-social-bar csb-stage csb-thumbnail ${className}`} aria-hidden="true" inert>
+    <div className={`connect-social-bar ${STAGE_CLASS} aspect-[16/9] h-full min-h-0 p-3 ${className}`} aria-hidden="true" inert>
       <ComponentStyles css={CONNECT_SOCIAL_STYLES} />
-      <div className="csb-track" data-revealed="true">
-        <span className="csb-sweep" aria-hidden="true" />
+      <div className={TRACK_CLASS} data-revealed="true">
+        <span className={SWEEP_CLASS} aria-hidden="true" />
         {SOCIALS.map((social, index) => (
-          <span key={social.name} className={`csb-link${index === activeIndex ? " csb-link--preview-active" : ""}`} style={{ "--csb-accent": social.color } as React.CSSProperties}>
+          <span key={social.name} className={`${LINK_CLASS}${index === activeIndex ? " csb-link--preview-active" : ""}`} style={{ "--csb-accent": social.color } as React.CSSProperties}>
             <SocialIcon name={social.name} />
           </span>
         ))}
@@ -141,26 +157,16 @@ export function ConnectSocialBarThumbnail({ className = "", previewStep = 0 }: {
   );
 }
 
+/* Raw CSS only for what Tailwind cannot express cleanly: the keyframes, the prefixed
+   mask that hollows the sweep into a 1px ring, the focus outline (it must beat the
+   app's unlayered :focus-visible rule), and the "lit" disc state keyed on
+   track[data-revealed] > link:hover/focus-visible > icon/tooltip. */
 const CONNECT_SOCIAL_STYLES = `
-.connect-social-bar{display:flex;justify-content:center;align-items:center;width:100%;min-width:0;color:#f7f8ff;font-family:inherit}
-.csb-stage{position:relative;isolation:isolate;overflow:hidden;min-height:clamp(340px,60cqw,560px);padding:24px 12px;background-color:#030303;background-image:linear-gradient(rgba(255,255,255,.016) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.016) 1px,transparent 1px);background-size:86px 86px;container-type:inline-size;box-shadow:inset 0 0 110px 65px #030303}
-.csb-track{--csb-size:clamp(20px,8.33cqw,60px);--csb-gap:clamp(2px,1.39cqw,10px);--csb-padding:clamp(4px,1.94cqw,14px);isolation:isolate;position:relative;display:flex;align-items:center;justify-content:center;gap:var(--csb-gap);max-width:100%;padding:var(--csb-padding);border:1px solid #111114;border-radius:999px;background:#080809;box-shadow:0 0 18px rgba(255,255,255,.055),inset 0 1px rgba(255,255,255,.025)}
-.csb-link{position:relative;z-index:1;display:grid;place-items:center;width:var(--csb-size);height:var(--csb-size);flex:0 0 var(--csb-size);border:1px solid #1b1b1f;border-radius:50%;background:#111113;color:#fff;text-decoration:none;box-shadow:inset 0 1px 3px rgba(255,255,255,.025);transition:color .18s ease,border-color .18s ease,background .18s ease,box-shadow .18s ease}
-.csb-letter,.csb-icon{grid-area:1/1;pointer-events:none;transition:opacity .18s ease,transform .22s ease}
-.csb-letter{font:600 clamp(10px,2.78cqw,20px)/1 ui-monospace,SFMono-Regular,Menlo,monospace;color:#85858b;opacity:1;transform:translateY(0)}
-.csb-icon{width:clamp(13px,3.61cqw,26px);height:clamp(13px,3.61cqw,26px);fill:currentColor;opacity:0;transform:translateY(6px) scale(.85);transition:opacity .18s ease,transform .22s ease,filter .18s ease}
-.csb-track[data-revealed=true] .csb-link{background:#060607}
-.csb-track[data-revealed=true] .csb-letter{opacity:0;transform:translateY(-6px) scale(.85)}
-.csb-track[data-revealed=true] .csb-icon{opacity:1;transform:translateY(0) scale(1)}
-.csb-track[data-revealed=true] .csb-link:is(:hover,:focus-visible),.csb-link--preview-active{z-index:4;color:var(--csb-accent);border-color:var(--csb-accent);background:#0b0b0e;box-shadow:0 0 0 1px color-mix(in srgb,var(--csb-accent) 25%,transparent),0 0 14px color-mix(in srgb,var(--csb-accent) 60%,transparent),0 0 30px color-mix(in srgb,var(--csb-accent) 24%,transparent),inset 0 0 12px color-mix(in srgb,var(--csb-accent) 20%,transparent)}
-.csb-track[data-revealed=true] .csb-link:is(:hover,:focus-visible) .csb-icon,.csb-link--preview-active .csb-icon{filter:drop-shadow(0 0 4px currentColor)}
-.csb-link:focus-visible{outline:1px solid var(--csb-accent);outline-offset:3px}
-.csb-tooltip{position:absolute;left:50%;bottom:calc(100% + 18px);z-index:5;transform:translate(-50%,4px);padding:7px 12px;border:1px solid color-mix(in srgb,var(--csb-accent) 70%,#171717);border-radius:5px;background:#050506;color:#f8f8fa;font:600 13px/1.2 Arial,system-ui,sans-serif;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s ease,transform .15s ease}
-.csb-track[data-revealed=true] .csb-link:is(:hover,:focus-visible) .csb-tooltip{opacity:1;transform:translate(-50%,0)}
-.csb-sweep{position:absolute;z-index:0;inset:-1px;overflow:hidden;padding:1px;border-radius:inherit;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
-.csb-sweep:before{content:"";position:absolute;left:50%;top:50%;width:120%;aspect-ratio:1;background:conic-gradient(from 0deg,transparent 0deg,transparent 265deg,rgba(240,240,250,.06) 285deg,rgba(248,248,255,.75) 335deg,transparent 336deg);animation:csb-border-travel 4s linear infinite;transform:translate(-50%,-50%) rotate(0deg)}
+.csb-sweep{-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
 @keyframes csb-border-travel{to{transform:translate(-50%,-50%) rotate(360deg)}}
-@container(max-width:560px){.csb-tooltip{bottom:calc(100% + 12px);font-size:11px;padding:6px 9px}}
-.csb-thumbnail.csb-stage{height:100%;min-height:0;aspect-ratio:16/9;padding:12px;container-type:inline-size}
-@media(prefers-reduced-motion:reduce){.csb-link,.csb-icon,.csb-letter,.csb-tooltip{transition:none}.csb-sweep:before{animation:none}}
+.csb-link:focus-visible{outline:1px solid var(--csb-accent);outline-offset:3px}
+.csb-track[data-revealed=true] .csb-link:is(:hover,:focus-visible){background:#0b0b0e}
+.csb-track[data-revealed=true] .csb-link:is(:hover,:focus-visible),.csb-link--preview-active{z-index:4;color:var(--csb-accent);border-color:var(--csb-accent);box-shadow:0 0 0 1px color-mix(in srgb,var(--csb-accent) 25%,transparent),0 0 14px color-mix(in srgb,var(--csb-accent) 60%,transparent),0 0 30px color-mix(in srgb,var(--csb-accent) 24%,transparent),inset 0 0 12px color-mix(in srgb,var(--csb-accent) 20%,transparent)}
+.csb-track[data-revealed=true] .csb-link:is(:hover,:focus-visible) .csb-icon,.csb-link--preview-active .csb-icon{filter:drop-shadow(0 0 4px currentColor)}
+.csb-track[data-revealed=true] .csb-link:is(:hover,:focus-visible) .csb-tooltip{opacity:1;transform:translate(-50%,0)}
 `;

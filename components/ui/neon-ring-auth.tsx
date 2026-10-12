@@ -32,9 +32,70 @@ function waitForNeonAction(action: (signal: AbortSignal) => void | Promise<void>
   });
 }
 
-function NeonParticles() {
-  return <div className="nr-particles" aria-hidden="true"><span /><span /><span /><span /><span /><span /></div>;
+const NEON_PARTICLES = [
+  { position: "top-[78%] left-[20%] size-[3px]", motion: "animate-[nr-particle-float_7s_ease-in-out_-1s_infinite_alternate]" },
+  { position: "top-[79%] left-[71%] size-[2px]", motion: "animate-[nr-particle-float_7s_ease-in-out_-3s_infinite_alternate]" },
+  { position: "top-[67%] left-[82%] size-[3px]", motion: "animate-[nr-particle-float_7s_ease-in-out_-5s_infinite_alternate]" },
+  { position: "top-[86%] left-[34%] size-[2px]", motion: "animate-[nr-particle-float_7s_ease-in-out_-2s_infinite_alternate]" },
+  { position: "top-[13%] left-[64%] size-[2px]", motion: "animate-[nr-particle-float_7s_ease-in-out_-4s_infinite_alternate]" },
+  { position: "top-[43%] left-[16%] size-[2px]", motion: "animate-[nr-particle-float_7s_ease-in-out_-6s_infinite_alternate]" },
+];
+
+function NeonParticles({ still = false }: { still?: boolean }) {
+  return <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+    {NEON_PARTICLES.map(({ position, motion }) => <span key={position} className={`absolute rounded-[50%] bg-[#72e8ff77] shadow-[0_0_6px_#00d9ff77] ${position} ${still ? "animate-none" : motion}`} />)}
+  </div>;
 }
+
+/* Tailwind classes shared by the live form and its gallery thumbnail. */
+const nr = {
+  root: "neon-ring-auth @container/neon-ring-auth relative isolate w-full min-w-0 overflow-hidden bg-[radial-gradient(ellipse_at_50%_44%,#0c1a28,#050a12_72%)] font-[Arial,Helvetica,sans-serif] text-[#bac9d4]",
+  stage: "relative flex w-full flex-col items-center justify-center gap-6 self-stretch",
+  ring: "group relative isolate size-(--nr-size) shrink-0 rounded-[50%] perspective-[1100px] before:absolute before:-inset-[2px] before:-z-1 before:rounded-[50%] before:bg-[conic-gradient(from_0deg,#00fff6_0deg,#00dce7_65deg,#a400d8_80deg,#f000e8_105deg,#00d8ed_125deg,#00faff_200deg,#00e0f2_270deg,#00fff6_360deg)] before:shadow-[0_0_15px_#00ffff99,0_0_35px_#00cfff88,0_0_75px_#00a4ff44] before:content-['']",
+  disc: "pointer-events-none absolute inset-[3px] rounded-[50%] bg-[radial-gradient(ellipse_at_38%_22%,#233340,#0c1722_63%,#050c13)] shadow-[inset_0_0_35px_#050b12]",
+  face: "absolute inset-0 flex items-center justify-center backface-hidden",
+  formBody: "relative w-[260px] text-center",
+  title: "m-0 text-[28px] leading-[1.2] font-bold text-[#bfffff] text-shadow-[0_0_7px_#00ffffcc,0_0_17px_#00ffff66]",
+  subtitle: "mx-0 mt-1.5 mb-[27px] text-[12px] leading-[1.2] text-[#8ea1af]",
+  fields: "m-0 flex min-w-0 flex-col gap-[18px] border-none p-0",
+  field: "nr-field relative block h-[42px] w-full rounded-[999px] border border-[#152330] bg-[#050f1b] shadow-[inset_0_2px_7px_#0007] [transition:border-color_.2s,box-shadow_.2s]",
+  fieldText: "absolute top-1/2 left-[17px] -translate-y-1/2 text-[12px] leading-none text-[#8fa3b3]",
+  eye: "absolute top-1/2 right-[14px] grid h-5 w-[17px] -translate-y-1/2 place-items-center border-none bg-transparent p-0 text-[#8498a8] *:size-3.5",
+  options: "nr-options mt-[15px] flex items-center justify-between gap-2.5 text-[11px] leading-[1.2] text-[#8193a3]",
+  optionLink: "border-none bg-transparent p-0 text-[11px] leading-[1.2] text-[#60e6e7]",
+  submit: "mt-5 flex min-h-11 w-full items-center justify-center gap-2 rounded-[999px] border border-[#4dc4cb] bg-[#07304466] px-3 py-[11px] text-[12px] leading-[1.2] font-semibold tracking-[2px] text-[#e3fbff] shadow-[0_0_8px_#00dfe555,inset_0_0_10px_#00ffff11] [transition:border-color_.2s,box-shadow_.2s,background_.2s]",
+  switch: "m-0 mt-10 text-[11px] leading-[1.4] text-[#8193a3]",
+  switchLink: "border-none bg-transparent p-0 [font:inherit] text-[#00ffff] text-shadow-[0_0_6px_#00ffff77]",
+};
+
+/* The live form adds interaction states and shrinks below 520px / 360px of container width. */
+const live = {
+  stage: `${nr.stage} min-h-[640px] px-6 py-16 [--nr-size:460px] @max-[520px]:min-h-[570px] @max-[520px]:px-[18px] @max-[520px]:pt-[60px] @max-[520px]:pb-[70px] @max-[520px]:[--nr-size:max(320px,min(360px,calc(100cqw_-_36px)))]`,
+  ring: `${nr.ring} before:animate-[nr-ring-spin_8s_linear_infinite]`,
+  face: `${nr.face} aria-hidden:pointer-events-none`,
+  formBody: `${nr.formBody} max-w-[70%] @max-[520px]:w-[226px]`,
+  title: `${nr.title} @max-[520px]:text-[24px] @max-[360px]:text-[21px]`,
+  subtitle: `${nr.subtitle} @max-[520px]:mb-5 @max-[520px]:text-[11px] @max-[360px]:mb-4 @max-[360px]:text-[10px]`,
+  fields: `${nr.fields} disabled:opacity-70 @max-[520px]:gap-3.5 @max-[360px]:gap-2.5`,
+  field: `${nr.field} focus-within:border-[#00e9e9] focus-within:shadow-[0_0_6px_#00ffff99,0_0_15px_#00ffff33,inset_0_2px_7px_#0007] @max-[520px]:h-10 @max-[360px]:h-9`,
+  input: "peer block h-full w-full rounded-[inherit] border-none bg-transparent py-[11px] pr-[38px] pl-[17px] text-[12px] leading-none text-[#e0f4ff]",
+  floating: `${nr.fieldText} pointer-events-none [transition:top_.2s,font-size_.2s,color_.2s] peer-[:is(:focus,:not(:placeholder-shown))]:top-0 peer-[:is(:focus,:not(:placeholder-shown))]:-ml-[5px] peer-[:is(:focus,:not(:placeholder-shown))]:bg-[#10202b] peer-[:is(:focus,:not(:placeholder-shown))]:px-1.5 peer-[:is(:focus,:not(:placeholder-shown))]:py-0.5 peer-[:is(:focus,:not(:placeholder-shown))]:text-[9px] peer-[:is(:focus,:not(:placeholder-shown))]:text-[#5be6e7]`,
+  eye: `${nr.eye} cursor-pointer`,
+  options: `${nr.options} @max-[520px]:mt-3 @max-[520px]:text-[10px] @max-[360px]:text-[9px]`,
+  optionLink: `${nr.optionLink} cursor-pointer @max-[520px]:text-[10px] @max-[360px]:text-[9px]`,
+  submit: `${nr.submit} cursor-pointer disabled:cursor-wait disabled:opacity-60 [&:hover]:border-[#00ffff] [&:hover]:bg-[#06394799] [&:hover]:shadow-[0_0_11px_#00ffffaa,0_0_25px_#00ffff44,inset_0_0_12px_#00ffff22] aria-busy:after:size-3 aria-busy:after:animate-[nr-spinner_.7s_linear_infinite] aria-busy:after:rounded-[50%] aria-busy:after:border-2 aria-busy:after:border-[#ffffff40] aria-busy:after:border-t-[#00ffff] aria-busy:after:content-[''] @max-[520px]:mt-[17px] @max-[520px]:min-h-10 @max-[520px]:text-[11px] @max-[360px]:min-h-9 @max-[360px]:text-[9px] @max-[360px]:tracking-[1.3px]`,
+  switch: `${nr.switch} @max-[520px]:mt-[27px] @max-[520px]:text-[10px] @max-[360px]:mt-5`,
+  switchLink: `${nr.switchLink} cursor-pointer [&:hover]:underline [&:hover]:underline-offset-3`,
+};
+
+/* The thumbnail is static: data-preview-active stands in for focus and hover. */
+const preview = {
+  stage: `${nr.stage} h-full min-h-0 p-[10px] [--nr-size:280px]`,
+  ring: `${nr.ring} before:[transform:rotate(var(--nr-preview-turn,0deg))] before:[transition:transform_.6s_ease]`,
+  formBody: `${nr.formBody} max-w-none shrink-0 scale-60`,
+  field: `${nr.field} data-[preview-active=true]:border-[#00e9e9] data-[preview-active=true]:shadow-[0_0_6px_#00ffff99,0_0_15px_#00ffff33,inset_0_2px_7px_#0007]`,
+  submit: `${nr.submit} cursor-default data-[preview-active=true]:border-[#00ffff] data-[preview-active=true]:bg-[#06394799] data-[preview-active=true]:shadow-[0_0_11px_#00ffffaa,0_0_25px_#00ffff44,inset_0_0_12px_#00ffff22]`,
+};
 
 /** A cyan-ring login form that flips into a complete sign-up form. */
 export default function NeonRingAuth({ onLogin, onSignUp, onResetPassword, initialView = "login", className = "" }: NeonRingAuthProps) {
@@ -131,42 +192,42 @@ export default function NeonRingAuth({ onLogin, onSignUp, onResetPassword, initi
   }
 
   function passwordField(suffix: string) {
-    return <label className="nr-field"><input id={`${id}-${suffix}-password`} name="password" aria-label="Password" type={visiblePassword ? "text" : "password"} autoComplete={suffix === "signup" ? "new-password" : "current-password"} placeholder=" " required minLength={suffix === "signup" ? 8 : undefined} value={password} onChange={(event) => setPassword(event.target.value)} /><span className="nr-floating">Password</span><button type="button" className="nr-eye" aria-label={visiblePassword ? "Hide password" : "Show password"} aria-pressed={visiblePassword} onClick={() => setVisiblePassword((visible) => !visible)}><NeonEye visible={visiblePassword} /></button></label>;
+    return <label className={live.field}><input className={live.input} id={`${id}-${suffix}-password`} name="password" aria-label="Password" type={visiblePassword ? "text" : "password"} autoComplete={suffix === "signup" ? "new-password" : "current-password"} placeholder=" " required minLength={suffix === "signup" ? 8 : undefined} value={password} onChange={(event) => setPassword(event.target.value)} /><span className={live.floating}>Password</span><button type="button" className={live.eye} aria-label={visiblePassword ? "Hide password" : "Show password"} aria-pressed={visiblePassword} onClick={() => setVisiblePassword((visible) => !visible)}><NeonEye visible={visiblePassword} /></button></label>;
   }
 
-  return <section ref={rootRef} className={`neon-ring-auth relative flex w-full items-center justify-center ${className}`} aria-label="Neon ring authentication">
+  return <section ref={rootRef} className={`${nr.root} flex items-center justify-center ${className}`} aria-label="Neon ring authentication">
     <ComponentStyles css={NEON_RING_STYLES} />
-    <div className="nr-stage"><NeonParticles /><div className="nr-ring" data-view={view}>
-      <div className="nr-disc" />
-      <div className="nr-flipper">
-        <div className="nr-face nr-login-face" aria-hidden={signup} inert={signup}>
-          <div className="nr-form-body">
-            <h2 id={`${id}-login-title`}>{reset ? "RESET PASSWORD" : "WELCOME"}</h2><p className="nr-subtitle">{reset ? "Recover your account" : "Login to your account"}</p>
+    <div className={live.stage}><NeonParticles /><div className={live.ring} data-view={view}>
+      <div className={nr.disc} />
+      <div className="relative h-full w-full transition-[transform] duration-800 ease-[cubic-bezier(.22,.68,.2,1)] transform-3d group-data-[view=signup]:rotate-y-180">
+        <div className={live.face} aria-hidden={signup} inert={signup}>
+          <div className={live.formBody}>
+            <h2 className={live.title} id={`${id}-login-title`}>{reset ? "RESET PASSWORD" : "WELCOME"}</h2><p className={live.subtitle}>{reset ? "Recover your account" : "Login to your account"}</p>
             <form aria-labelledby={`${id}-login-title`} onSubmit={(event) => submit(event, reset ? "reset" : "login")}>
-              <fieldset className="nr-fields" disabled={pending || signup}>
-                <label className="nr-field"><input ref={loginFirstRef} id={`${id}-login-email`} name="email" type="email" autoComplete="email" placeholder=" " required value={email} onChange={(event) => setEmail(event.target.value)} /><span className="nr-floating">Email Address</span></label>
+              <fieldset className={live.fields} disabled={pending || signup}>
+                <label className={live.field}><input className={live.input} ref={loginFirstRef} id={`${id}-login-email`} name="email" type="email" autoComplete="email" placeholder=" " required value={email} onChange={(event) => setEmail(event.target.value)} /><span className={live.floating}>Email Address</span></label>
                 {!reset && passwordField("login")}
               </fieldset>
-              {!reset && <div className="nr-options"><label><input name="remember" type="checkbox" checked={remember} disabled={pending || signup} onChange={(event) => setRemember(event.target.checked)} /><span>Remember me</span></label><button type="button" onClick={() => changeView("reset")} disabled={signup}>Forgot?</button></div>}
-              {reset && <p className="nr-reset-copy">Enter your email to request reset instructions.</p>}
-              <button className="nr-submit" type="submit" disabled={pending || signup} aria-busy={pending}>{pending ? "PLEASE WAIT" : reset ? "SEND RESET LINK" : "LOGIN"}</button>
+              {!reset && <div className={live.options}><label className="flex cursor-pointer items-center gap-[5px]"><input className="m-0 size-[11px] accent-[#00e5e5]" name="remember" type="checkbox" checked={remember} disabled={pending || signup} onChange={(event) => setRemember(event.target.checked)} /><span>Remember me</span></label><button className={live.optionLink} type="button" onClick={() => changeView("reset")} disabled={signup}>Forgot?</button></div>}
+              {reset && <p className="m-0 mt-4.5 text-[12px] leading-[1.5] text-[#8fa3b3]">Enter your email to request reset instructions.</p>}
+              <button className={live.submit} type="submit" disabled={pending || signup} aria-busy={pending}>{pending ? "PLEASE WAIT" : reset ? "SEND RESET LINK" : "LOGIN"}</button>
             </form>
-            <p className="nr-switch">{reset ? "Remember your password?" : "Don’t have an account?"} <button type="button" disabled={signup} onClick={() => changeView(reset ? "login" : "signup")}>{reset ? "Login" : "Sign Up"}</button></p>
+            <p className={live.switch}>{reset ? "Remember your password?" : "Don’t have an account?"} <button className={live.switchLink} type="button" disabled={signup} onClick={() => changeView(reset ? "login" : "signup")}>{reset ? "Login" : "Sign Up"}</button></p>
           </div>
         </div>
-        <div className="nr-face nr-signup-face" aria-hidden={!signup} inert={!signup}>
-          <div className="nr-form-body"><h2 id={`${id}-signup-title`}>SIGN UP</h2><p className="nr-subtitle">Create your account</p>
-            <form aria-labelledby={`${id}-signup-title`} onSubmit={(event) => submit(event, "signup")}><fieldset className="nr-fields" disabled={pending || !signup}>
-              <label className="nr-field"><input ref={signupFirstRef} id={`${id}-signup-name`} name="fullName" type="text" autoComplete="name" placeholder=" " required minLength={2} value={fullName} onChange={(event) => setFullName(event.target.value)} /><span className="nr-floating">Full Name</span></label>
-              <label className="nr-field"><input id={`${id}-signup-email`} name="email" type="email" autoComplete="email" placeholder=" " required value={email} onChange={(event) => setEmail(event.target.value)} /><span className="nr-floating">Email Address</span></label>
+        <div className={`${live.face} rotate-y-180`} aria-hidden={!signup} inert={!signup}>
+          <div className={live.formBody}><h2 className={live.title} id={`${id}-signup-title`}>SIGN UP</h2><p className={live.subtitle}>Create your account</p>
+            <form aria-labelledby={`${id}-signup-title`} onSubmit={(event) => submit(event, "signup")}><fieldset className={live.fields} disabled={pending || !signup}>
+              <label className={live.field}><input className={live.input} ref={signupFirstRef} id={`${id}-signup-name`} name="fullName" type="text" autoComplete="name" placeholder=" " required minLength={2} value={fullName} onChange={(event) => setFullName(event.target.value)} /><span className={live.floating}>Full Name</span></label>
+              <label className={live.field}><input className={live.input} id={`${id}-signup-email`} name="email" type="email" autoComplete="email" placeholder=" " required value={email} onChange={(event) => setEmail(event.target.value)} /><span className={live.floating}>Email Address</span></label>
               {passwordField("signup")}
-            </fieldset><button className="nr-submit" type="submit" disabled={pending || !signup} aria-busy={pending}>{pending ? "PLEASE WAIT" : "CREATE ACCOUNT"}</button></form>
-            <p className="nr-switch">Already have an account? <button type="button" disabled={!signup} onClick={() => changeView("login")}>Login</button></p>
+            </fieldset><button className={live.submit} type="submit" disabled={pending || !signup} aria-busy={pending}>{pending ? "PLEASE WAIT" : "CREATE ACCOUNT"}</button></form>
+            <p className={live.switch}>Already have an account? <button className={live.switchLink} type="button" disabled={!signup} onClick={() => changeView("login")}>Login</button></p>
           </div>
         </div>
       </div>
     </div>
-    {(notice || pending) && <div className="nr-feedback">{notice && <p data-kind={notice.kind} role={notice.kind === "error" ? "alert" : "status"}>{notice.message}</p>}{pending && <button type="button" onClick={cancel}>Cancel</button>}</div>}
+    {(notice || pending) && <div className="relative w-[360px] max-w-full flex-none text-center">{notice && <p className="m-0 rounded-[12px] border border-[#00e7e755] bg-[#0b1f2ddd] px-3 py-2.5 text-[12px] leading-[1.5] wrap-anywhere text-[#adf9f9] data-[kind=error]:border-[#ff6f8866] data-[kind=error]:text-[#ffb9c7]" data-kind={notice.kind} role={notice.kind === "error" ? "alert" : "status"}>{notice.message}</p>}{pending && <button className="mx-0 mt-2 mb-0 cursor-pointer border-none bg-transparent p-0.5 text-[11px] text-[#a8d6df] underline" type="button" onClick={cancel}>Cancel</button>}</div>}
     </div>
   </section>;
 }
@@ -176,83 +237,23 @@ export function NeonRingAuthThumbnail({ className = "", previewStep = 0 }: { cla
   const step = Number.isFinite(previewStep) ? Math.max(0, Math.floor(previewStep)) % 6 : 0;
   const signup = step === 3 || step === 4;
   const reset = step === 5;
-  return <div className={`neon-ring-auth nr-thumbnail ${className}`} aria-hidden="true" inert><ComponentStyles css={NEON_RING_STYLES} /><div className="nr-stage"><NeonParticles /><div className="nr-ring" data-view={signup ? "signup" : "login"} style={{ "--nr-preview-turn": `${step * 62}deg` } as React.CSSProperties}><div className="nr-disc" /><div className="nr-preview-face"><div className="nr-form-body"><h3>{signup ? "SIGN UP" : reset ? "RESET PASSWORD" : "WELCOME"}</h3><p className="nr-subtitle">{signup ? "Create your account" : reset ? "Recover your account" : "Login to your account"}</p><div className="nr-fields">
-    {signup && <span className="nr-field"><span className="nr-static-label">Full Name</span></span>}
-    <span className="nr-field" data-preview-active={step === 1 || step === 4}><span className="nr-static-label">{step === 1 || step === 2 || step === 4 ? "hello@example.com" : "Email Address"}</span></span>
-    {!reset && <span className="nr-field" data-preview-active={step === 2}><span className="nr-static-label">{step === 2 ? "••••••••" : "Password"}</span><span className="nr-eye"><NeonEye /></span></span>}
-  </div>{!signup && !reset && <div className="nr-options"><span className="nr-preview-remember"><span />Remember me</span><span>Forgot?</span></div>}<span className="nr-submit" data-preview-active={step === 2 || step === 4}>{signup ? "CREATE ACCOUNT" : reset ? "SEND RESET LINK" : "LOGIN"}</span><p className="nr-switch">{signup ? "Already have an account?" : reset ? "Remember your password?" : "Don’t have an account?"} <span>{signup || reset ? "Login" : "Sign Up"}</span></p></div></div></div></div></div>;
+  return <div className={`${nr.root} h-full min-h-0 ${className}`} aria-hidden="true" inert><ComponentStyles css={NEON_RING_STYLES} /><div className={preview.stage}><NeonParticles still /><div className={preview.ring} data-view={signup ? "signup" : "login"} style={{ "--nr-preview-turn": `${step * 62}deg` } as React.CSSProperties}><div className={nr.disc} /><div className={nr.face}><div className={preview.formBody}><h3 className={nr.title}>{signup ? "SIGN UP" : reset ? "RESET PASSWORD" : "WELCOME"}</h3><p className={nr.subtitle}>{signup ? "Create your account" : reset ? "Recover your account" : "Login to your account"}</p><div className={nr.fields}>
+    {signup && <span className={preview.field}><span className={nr.fieldText}>Full Name</span></span>}
+    <span className={preview.field} data-preview-active={step === 1 || step === 4}><span className={nr.fieldText}>{step === 1 || step === 2 || step === 4 ? "hello@example.com" : "Email Address"}</span></span>
+    {!reset && <span className={preview.field} data-preview-active={step === 2}><span className={nr.fieldText}>{step === 2 ? "••••••••" : "Password"}</span><span className={`${nr.eye} cursor-default`}><NeonEye /></span></span>}
+  </div>{!signup && !reset && <div className={nr.options}><span className="flex items-center gap-[5px]"><span className="size-[10px] rounded-[1px] bg-[#e6f0f5]" />Remember me</span><span className={`${nr.optionLink} cursor-default`}>Forgot?</span></div>}<span className={preview.submit} data-preview-active={step === 2 || step === 4}>{signup ? "CREATE ACCOUNT" : reset ? "SEND RESET LINK" : "LOGIN"}</span><p className={nr.switch}>{signup ? "Already have an account?" : reset ? "Remember your password?" : "Don’t have an account?"} <span className={`${nr.switchLink} cursor-default`}>{signup || reset ? "Login" : "Sign Up"}</span></p></div></div></div></div></div>;
 }
 
+/* Only what utilities cannot express: scoped resets, outlines that must beat the site's
+   unlayered :focus-visible rule, keyframes, and motion overrides for every descendant. */
 const NEON_RING_STYLES = `
-.neon-ring-auth{container:neon-ring-auth / inline-size;position:relative;isolation:isolate;overflow:hidden;min-width:0;width:100%;background:radial-gradient(ellipse at 50% 44%,#0c1a28,#050a12 72%);color:#bac9d4;font-family:Arial,Helvetica,sans-serif}
 .neon-ring-auth *{box-sizing:border-box}
 .neon-ring-auth :where(button,input){font-family:inherit}
-.nr-stage{--nr-size:460px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;min-height:640px;width:100%;padding:64px 24px}
-.nr-ring{position:relative;isolation:isolate;flex-shrink:0;width:var(--nr-size);height:var(--nr-size);border-radius:50%;perspective:1100px}
-.nr-ring:before{content:"";position:absolute;inset:-2px;z-index:-1;border-radius:50%;background:conic-gradient(from 0deg,#00fff6 0deg,#00dce7 65deg,#a400d8 80deg,#f000e8 105deg,#00d8ed 125deg,#00faff 200deg,#00e0f2 270deg,#00fff6 360deg);box-shadow:0 0 15px #00ffff99,0 0 35px #00cfff88,0 0 75px #00a4ff44;animation:nr-ring-spin 8s linear infinite}
-.nr-disc{position:absolute;inset:3px;border-radius:50%;background:radial-gradient(ellipse at 38% 22%,#233340,#0c1722 63%,#050c13);box-shadow:inset 0 0 35px #050b12;pointer-events:none}
-.nr-flipper{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.22,.68,.2,1)}
-.nr-ring[data-view=signup] .nr-flipper{transform:rotateY(180deg)}
-.nr-face,.nr-preview-face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;backface-visibility:hidden;-webkit-backface-visibility:hidden}
-.nr-face[aria-hidden=true]{pointer-events:none}
-.nr-signup-face{transform:rotateY(180deg)}
-.nr-form-body{position:relative;width:260px;max-width:70%;text-align:center}
-.nr-form-body h2,.nr-form-body h3{margin:0;color:#bfffff;font-size:28px;font-weight:700;line-height:1.2;text-shadow:0 0 7px #00ffffcc,0 0 17px #00ffff66}
-.nr-subtitle{margin:6px 0 27px;color:#8ea1af;font-size:12px;line-height:1.2}
-.nr-fields{display:flex;flex-direction:column;gap:18px;min-width:0;margin:0;padding:0;border:0}
-.nr-fields:disabled{opacity:.7}
-.nr-field{position:relative;display:block;height:42px;width:100%;border:1px solid #152330;border-radius:999px;background:#050f1b;box-shadow:inset 0 2px 7px #0007;transition:border-color .2s,box-shadow .2s}
-.nr-field:focus-within,.nr-field[data-preview-active=true]{border-color:#00e9e9;box-shadow:0 0 6px #00ffff99,0 0 15px #00ffff33,inset 0 2px 7px #0007}
-.nr-field input{display:block;width:100%;height:100%;padding:11px 38px 11px 17px;border:0;border-radius:inherit;background:transparent;color:#e0f4ff;font-size:12px;line-height:1;outline:0}
-.nr-floating{position:absolute;left:17px;top:50%;transform:translateY(-50%);color:#8fa3b3;font-size:12px;line-height:1;pointer-events:none;transition:top .2s,font-size .2s,color .2s}
-.nr-field input:focus+.nr-floating,.nr-field input:not(:placeholder-shown)+.nr-floating{top:0;padding:2px 6px;margin-left:-5px;background:#10202b;color:#5be6e7;font-size:9px}
-.nr-eye{position:absolute;right:14px;top:50%;display:grid;place-items:center;width:17px;height:20px;padding:0;border:0;background:transparent;transform:translateY(-50%);color:#8498a8;cursor:pointer}
-.nr-eye svg{width:14px;height:14px}
-.nr-options{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:15px;color:#8193a3;font-size:11px;line-height:1.2}
-.nr-options label{display:flex;align-items:center;gap:5px;cursor:pointer}
-.nr-options input{width:11px;height:11px;margin:0;accent-color:#00e5e5}
-.nr-options button,.nr-options>span:last-child{padding:0;border:0;background:transparent;color:#60e6e7;font-size:11px;line-height:1.2;cursor:pointer}
-.nr-submit{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:44px;margin-top:20px;padding:11px 12px;border:1px solid #4dc4cb;border-radius:999px;background:#07304466;color:#e3fbff;font-size:12px;font-weight:600;line-height:1.2;letter-spacing:2px;cursor:pointer;box-shadow:0 0 8px #00dfe555,inset 0 0 10px #00ffff11;transition:border-color .2s,box-shadow .2s,background .2s}
-.nr-submit:hover,.nr-submit[data-preview-active=true]{border-color:#00ffff;background:#06394799;box-shadow:0 0 11px #00ffffaa,0 0 25px #00ffff44,inset 0 0 12px #00ffff22}
-.nr-submit:disabled{opacity:.6;cursor:wait}
-.nr-submit[aria-busy=true]:after{content:"";width:12px;height:12px;border:2px solid #ffffff40;border-top-color:#00ffff;border-radius:50%;animation:nr-spinner .7s linear infinite}
-.nr-switch{margin:40px 0 0;color:#8193a3;font-size:11px;line-height:1.4}
-.nr-switch button,.nr-switch>span{padding:0;border:0;background:transparent;color:#00ffff;font:inherit;cursor:pointer;text-shadow:0 0 6px #00ffff77}
-.nr-switch button:hover{text-decoration:underline;text-underline-offset:3px}
-.nr-reset-copy{margin:18px 0 0;color:#8fa3b3;font-size:12px;line-height:1.5}
-.nr-feedback{position:relative;flex:0 0 auto;width:360px;max-width:100%;text-align:center}
-.nr-feedback p{margin:0;padding:10px 12px;border:1px solid #00e7e755;border-radius:12px;background:#0b1f2ddd;color:#adf9f9;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
-.nr-feedback p[data-kind=error]{border-color:#ff6f8866;color:#ffb9c7}
-.nr-feedback button{margin:8px 0 0;padding:2px;border:0;background:transparent;color:#a8d6df;font-size:11px;text-decoration:underline;cursor:pointer}
+.nr-field input{outline:0}
 .neon-ring-auth button:focus-visible,.nr-options input:focus-visible{outline:2px solid #00e9e9;outline-offset:4px}
-.nr-particles{position:absolute;inset:0;pointer-events:none}
-.nr-particles span{position:absolute;width:3px;height:3px;border-radius:50%;background:#72e8ff77;box-shadow:0 0 6px #00d9ff77;animation:nr-particle-float 7s ease-in-out infinite alternate}
-.nr-particles span:nth-child(1){left:20%;top:78%;animation-delay:-1s}.nr-particles span:nth-child(2){left:71%;top:79%;width:2px;height:2px;animation-delay:-3s}.nr-particles span:nth-child(3){left:82%;top:67%;animation-delay:-5s}.nr-particles span:nth-child(4){left:34%;top:86%;width:2px;height:2px;animation-delay:-2s}.nr-particles span:nth-child(5){left:64%;top:13%;width:2px;height:2px;animation-delay:-4s}.nr-particles span:nth-child(6){left:16%;top:43%;width:2px;height:2px;animation-delay:-6s}
 @keyframes nr-ring-spin{to{transform:rotate(360deg)}}
 @keyframes nr-spinner{to{transform:rotate(360deg)}}
 @keyframes nr-particle-float{from{transform:translateY(0);opacity:.25}to{transform:translateY(-16px);opacity:.9}}
 .neon-ring-auth[data-running=false] *,.neon-ring-auth[data-running=false] *:before,.neon-ring-auth[data-running=false] *:after{animation-play-state:paused!important}
-@container neon-ring-auth (max-width:520px){
-.neon-ring-auth:not(.nr-thumbnail) .nr-stage{--nr-size:max(320px,min(360px,calc(100cqw - 36px)));min-height:570px;padding:60px 18px 70px}
-.neon-ring-auth:not(.nr-thumbnail) .nr-form-body{width:226px;max-width:70%}
-.neon-ring-auth:not(.nr-thumbnail) .nr-form-body h2{font-size:24px}
-.neon-ring-auth:not(.nr-thumbnail) .nr-subtitle{font-size:11px;margin-bottom:20px}
-.neon-ring-auth:not(.nr-thumbnail) .nr-fields{gap:14px}
-.neon-ring-auth:not(.nr-thumbnail) .nr-field{height:40px}
-.neon-ring-auth:not(.nr-thumbnail) .nr-options{font-size:10px;margin-top:12px}
-.neon-ring-auth:not(.nr-thumbnail) .nr-options button{font-size:10px}
-.neon-ring-auth:not(.nr-thumbnail) .nr-submit{min-height:40px;margin-top:17px;font-size:11px}
-.neon-ring-auth:not(.nr-thumbnail) .nr-switch{margin-top:27px;font-size:10px}
-}
-@container neon-ring-auth (max-width:360px){.neon-ring-auth:not(.nr-thumbnail) .nr-form-body h2{font-size:21px}.neon-ring-auth:not(.nr-thumbnail) .nr-subtitle{font-size:10px;margin-bottom:16px}.neon-ring-auth:not(.nr-thumbnail) .nr-field{height:36px}.neon-ring-auth:not(.nr-thumbnail) .nr-fields{gap:10px}.neon-ring-auth:not(.nr-thumbnail) .nr-switch{margin-top:20px}.neon-ring-auth:not(.nr-thumbnail) .nr-submit{min-height:36px;font-size:9px;letter-spacing:1.3px}.neon-ring-auth:not(.nr-thumbnail) .nr-options{font-size:9px}.neon-ring-auth:not(.nr-thumbnail) .nr-options button{font-size:9px}}
-.nr-thumbnail{height:100%;min-height:0}
-.nr-thumbnail .nr-stage{--nr-size:280px;height:100%;min-height:0;padding:10px}
-.nr-thumbnail .nr-ring:before{animation:none;transform:rotate(var(--nr-preview-turn,0deg));transition:transform .6s ease}
-.nr-thumbnail .nr-particles span{animation:none}
-.nr-thumbnail .nr-form-body{width:260px;max-width:none;transform:scale(.6);flex-shrink:0}
-.nr-static-label{position:absolute;left:17px;top:50%;transform:translateY(-50%);font-size:12px;line-height:1;color:#8fa3b3}
-.nr-preview-remember{display:flex;align-items:center;gap:5px}
-.nr-preview-remember>span{width:10px;height:10px;background:#e6f0f5;border-radius:1px}
-.nr-thumbnail .nr-eye,.nr-thumbnail .nr-submit,.nr-thumbnail .nr-switch>span,.nr-thumbnail .nr-options>span:last-child{cursor:default}
 @media(prefers-reduced-motion:reduce){.neon-ring-auth *,.neon-ring-auth *:before,.neon-ring-auth *:after{animation:none!important;transition:none!important}}
 `;

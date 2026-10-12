@@ -192,6 +192,40 @@ interface Expansion {
   radius: string;
 }
 
+/*
+ * Shared Tailwind class sets. Container breakpoints mirror the original inclusive
+ * `max-width` queries (≤ 650 / 480 / 320px): Tailwind's `@max-[x]` means
+ * `width < x`, so each is offset by 0.01px, finer than layout precision.
+ */
+const DISPLAY_FONT =
+  "font-['Destination_Condensed',Impact,'Arial_Narrow',sans-serif] font-medium";
+const REDUCED_MOTION =
+  "motion-reduce:**:animate-none! motion-reduce:**:[transition:none]! motion-reduce:**:scroll-auto!";
+const STAGE =
+  "dest-stage relative isolate w-full overflow-hidden bg-[#14221e] text-white touch-pan-y -outline-offset-4 [--dest-card-height:33%] [--dest-card-left:55%] [--dest-card-step:17%] [--dest-card-top:55%] [--dest-card-width:14%]";
+const SHADE =
+  "dest-shade pointer-events-none absolute inset-0 z-[2] bg-[linear-gradient(90deg,rgba(5,13,12,0.46),rgba(5,13,12,0.09)_62%),linear-gradient(0deg,rgba(2,10,8,0.38),transparent_45%,rgba(2,10,8,0.12))]";
+const BACKGROUND =
+  "dest-background absolute inset-0 z-0 bg-[#203a30] bg-cover bg-no-repeat";
+const DETAILS =
+  "dest-details absolute left-[4%] z-[3] [text-shadow:0_1px_8px_#0004]";
+const CARD =
+  "dest-card absolute top-(--dest-card-top) left-[calc(var(--dest-card-left)+var(--dest-position)*var(--dest-card-step))] z-[4] h-(--dest-card-height) w-(--dest-card-width) overflow-hidden border-none bg-cover bg-no-repeat p-0 text-left [box-shadow:4px_8px_25px_#0005] [transition:left_0.7s_cubic-bezier(0.22,0.75,0.18,1),opacity_0.45s,box-shadow_0.2s]";
+const CARD_GRADIENT =
+  "dest-card-gradient pointer-events-none absolute inset-0 bg-[linear-gradient(0deg,#050d0cdc,transparent_69%)]";
+const CARD_COPY = "dest-card-copy absolute right-[7%] bottom-[7%] left-[9%] text-white";
+/** Every control: pointer cursor and no tap flash. Focus rings live in DESTINATION_STYLES. */
+const CONTROL =
+  "cursor-pointer [-webkit-tap-highlight-color:transparent] disabled:cursor-default";
+const NAV_BUTTON = `${CONTROL} relative border-none bg-transparent px-0 py-[6px] text-[clamp(8px,0.9cqw,11px)] font-semibold tracking-[0.015em] uppercase hover:text-[#ffd167] @max-[480.01px]:py-[8px] @max-[480.01px]:text-[8px]`;
+const ROUND_CONTROL = `${CONTROL} dest-round-control inline-flex size-[32px] shrink-0 items-center justify-center rounded-[50%] border border-[#ffffff70] bg-transparent p-0 [transition:background_0.2s,border-color_0.2s] enabled:hover:border-white enabled:hover:bg-[#ffffff20] disabled:opacity-45 @max-[650.01px]:size-[26px] @max-[480.01px]:size-[31px]`;
+const DIALOG_TEXT = "m-0 mb-[20px] text-[13px] leading-[1.7] text-[#626960]";
+const DIALOG_TITLE = `${DISPLAY_FONT} m-0 mr-[22px] mb-[15px] text-[32px] leading-[1.2] uppercase`;
+const FACT_TERM = "mb-[6px] text-[10px] tracking-[0.08em] text-[#797d71] uppercase";
+const FACT_DETAIL = "m-0 text-[13px] leading-[1.6]";
+const THUMB_ARROW =
+  "flex size-[13px] items-center justify-center rounded-[50%] border border-[#fff8] text-[10px]";
+
 /** A dependency-free, card-to-background travel carousel. Copy this entire file. */
 export default function DestinationCarousel({
   slides = DEFAULT_SLIDES,
@@ -452,11 +486,13 @@ export default function DestinationCarousel({
   );
 
   return (
-    <div className={`dest-root w-full ${className}`}>
+    <div
+      className={`dest-root @container flex min-h-0 w-full flex-col font-[Arial,Helvetica,sans-serif] text-white ${REDUCED_MOTION} ${className}`}
+    >
       <ComponentStyles css={DESTINATION_STYLES} />
       <div
         ref={stageRef}
-        className="dest-stage relative isolate overflow-hidden bg-stone-950 text-white"
+        className={`${STAGE} aspect-[3/2] min-h-[56.25cqw] flex-[1_1_auto] @max-[480.01px]:aspect-auto @max-[480.01px]:h-[720px] @max-[480.01px]:min-h-[720px] @max-[480.01px]:[--dest-card-height:23%] @max-[480.01px]:[--dest-card-left:6%] @max-[480.01px]:[--dest-card-step:30%] @max-[480.01px]:[--dest-card-top:66%] @max-[480.01px]:[--dest-card-width:26%] @max-[320.01px]:h-[730px] @max-[320.01px]:min-h-[730px]`}
         role="region"
         aria-roledescription="carousel"
         aria-label="Explore destinations"
@@ -484,14 +520,14 @@ export default function DestinationCarousel({
         }}
       >
         <div
-          className="dest-background absolute inset-0"
+          className={BACKGROUND}
           style={photoStyle(background)}
           aria-hidden="true"
         />
         {expansion && (
           <div
             ref={expansionRef}
-            className="dest-expansion"
+            className="dest-expansion absolute z-[1] bg-cover bg-no-repeat will-change-[width,height,left,top]"
             aria-hidden="true"
             style={{
               ...photoStyle(
@@ -506,19 +542,22 @@ export default function DestinationCarousel({
           />
         )}
         <div
-          className="dest-shade absolute inset-0 pointer-events-none"
+          className={`${SHADE} @max-[480.01px]:bg-[linear-gradient(90deg,#07181077,transparent),linear-gradient(0deg,#081a13aa,transparent_30%,#07181033)]`}
           aria-hidden="true"
         />
         {imageStatus[active.image] === "error" && (
-          <p className="dest-photo-unavailable" role="status">
+          <p
+            className="dest-photo-unavailable absolute bottom-[4%] left-[4%] z-[3] m-0 text-[10px] text-[#fff9]"
+            role="status"
+          >
             The destination photo is unavailable.
           </p>
         )}
 
-        <header className="dest-header absolute flex items-center justify-between">
+        <header className="dest-header absolute top-[4.6%] right-[4%] left-[4%] z-[5] flex items-center justify-between @max-[480.01px]:top-[5%] @max-[480.01px]:right-[6%] @max-[480.01px]:left-[6%]">
           <button
             type="button"
-            className="dest-brand inline-flex items-center"
+            className={`${CONTROL} dest-brand inline-flex items-center gap-[7px] border-none bg-none px-0 py-[4px] text-[clamp(8px,1.05cqw,13px)] font-bold tracking-[0.025em] whitespace-nowrap uppercase @max-[480.01px]:gap-[5px] @max-[480.01px]:text-[9px] @max-[480.01px]:[&>svg]:w-[15px] @max-[320.01px]:text-[8px]`}
             onClick={() => goTo(0)}
             aria-label="Globe Express, first destination"
           >
@@ -526,28 +565,38 @@ export default function DestinationCarousel({
             <span>Globe Express</span>
           </button>
           <nav
-            className="dest-nav flex items-center"
+            className="dest-nav flex items-center gap-[2.35cqw] @max-[480.01px]:gap-[13px] @max-[320.01px]:gap-[9px]"
             aria-label="Destination navigation"
           >
             <button
               type="button"
-              className="dest-nav-active"
+              className={`${NAV_BUTTON} dest-nav-active after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-full after:bg-[#e9bb41] after:content-[''] @max-[480.01px]:hidden`}
               onClick={() => goTo(0)}
             >
               Home
             </button>
-            <button type="button" onClick={() => openPanel("destinations")}>
+            <button
+              type="button"
+              className={NAV_BUTTON}
+              onClick={() => openPanel("destinations")}
+            >
               Destinations
             </button>
-            <button type="button" onClick={() => openPanel("saved")}>
+            <button
+              type="button"
+              className={NAV_BUTTON}
+              onClick={() => openPanel("saved")}
+            >
               Saved
               {saved.length > 0 && (
-                <span className="dest-saved-count">{saved.length}</span>
+                <span className="dest-saved-count ml-[5px] inline-flex size-[14px] items-center justify-center rounded-[100%] bg-[#edbb36] text-[8px] text-[#13211d]">
+                  {saved.length}
+                </span>
               )}
             </button>
             <button
               type="button"
-              className="dest-search-button"
+              className={`${NAV_BUTTON} dest-search-button flex items-center justify-center @max-[480.01px]:hidden`}
               onClick={() => openPanel("destinations")}
               aria-label="Search destinations"
             >
@@ -558,24 +607,34 @@ export default function DestinationCarousel({
 
         <div
           key={active.id}
-          className="dest-details dest-details-enter absolute"
+          className={`${DETAILS} top-[27%] w-[36%] @max-[650.01px]:top-[25%] @max-[650.01px]:w-[43%] @max-[480.01px]:top-[18%] @max-[480.01px]:left-[6%] @max-[480.01px]:w-[88%] @max-[320.01px]:top-[16%]`}
           role="group"
           aria-roledescription="slide"
           aria-label={`${currentIndex + 1} of ${destinations.length}: ${active.title.join(" ")}`}
         >
-          <div className="dest-eyebrow">
-            <span className="dest-small-rule" />
-            <p>{active.country}</p>
+          <div className="dest-eyebrow animate-[dest-rise_0.6s_cubic-bezier(0.2,0.7,0.2,1)_0.27s_both]">
+            <span className="dest-small-rule mb-[9px] block h-[3px] w-[22px] bg-white" />
+            <p className="m-0 mb-[13px] text-[clamp(10px,1.3cqw,16px)] leading-[1.4] font-medium @max-[480.01px]:mb-[14px] @max-[480.01px]:text-[12px]">
+              {active.country}
+            </p>
           </div>
-          <h2 className="dest-title">
-            <span>{active.title[0]}</span>
-            <span>{active.title[1]}</span>
+          <h2
+            className={`${DISPLAY_FONT} dest-title m-0 mb-[12px] flex flex-col text-[clamp(32px,5.9cqw,96px)] leading-[1.14] tracking-[-0.035em] uppercase @max-[650.01px]:text-[6.5cqw] @max-[480.01px]:mb-[15px] @max-[480.01px]:text-[clamp(32px,13cqw,63px)] @max-[480.01px]:leading-[1.08]`}
+          >
+            <span className="block animate-[dest-rise_0.6s_cubic-bezier(0.2,0.7,0.2,1)_0.33s_both] whitespace-nowrap">
+              {active.title[0]}
+            </span>
+            <span className="block animate-[dest-rise_0.6s_cubic-bezier(0.2,0.7,0.2,1)_0.39s_both] whitespace-nowrap">
+              {active.title[1]}
+            </span>
           </h2>
-          <p className="dest-description">{active.description}</p>
-          <div className="dest-actions flex items-center">
+          <p className="dest-description m-0 max-w-[34em] animate-[dest-rise_0.6s_cubic-bezier(0.2,0.7,0.2,1)_0.45s_both] text-[clamp(10px,1.17cqw,16px)] leading-[1.5] font-normal @max-[650.01px]:text-[10px] @max-[650.01px]:leading-[1.5] @max-[480.01px]:max-w-[290px] @max-[480.01px]:text-[12px] @max-[480.01px]:leading-[1.55] @max-[320.01px]:text-[11px] @max-[320.01px]:leading-[1.5]">
+            {active.description}
+          </p>
+          <div className="dest-actions mt-[20px] flex animate-[dest-rise_0.6s_cubic-bezier(0.2,0.7,0.2,1)_0.51s_both] items-center gap-[11px] @max-[650.01px]:mt-[13px] @max-[650.01px]:gap-[7px] @max-[480.01px]:mt-[19px] @max-[480.01px]:gap-[10px]">
             <button
               type="button"
-              className="dest-bookmark inline-flex shrink-0 items-center justify-center"
+              className={`${CONTROL} dest-bookmark inline-flex size-[33px] shrink-0 items-center justify-center rounded-[50%] border-none bg-[#eebc32] [box-shadow:0_0_15px_#edbd3140] [transition:background_0.2s,transform_0.2s] hover:bg-[#ffce4e] hover:[transform:translateY(-2px)] aria-pressed:[&_svg]:fill-current @max-[650.01px]:size-[28px] @max-[480.01px]:size-[35px]`}
               aria-label={
                 isSaved
                   ? `Remove ${active.title.join(" ")} from saved destinations`
@@ -588,7 +647,7 @@ export default function DestinationCarousel({
             </button>
             <button
               type="button"
-              className="dest-discover"
+              className={`${CONTROL} dest-discover min-h-[33px] rounded-[999px] border border-[#ffffffa3] bg-[#11231e15] px-[17px] py-0 text-[clamp(8px,0.89cqw,12px)] font-semibold uppercase [transition:background_0.2s,border-color_0.2s] hover:border-white hover:bg-[#ffffff1f] @max-[650.01px]:min-h-[28px] @max-[650.01px]:px-[11px] @max-[480.01px]:min-h-[35px] @max-[480.01px]:px-[17px] @max-[480.01px]:text-[9px]`}
               onClick={() =>
                 onDiscover ? onDiscover(active) : openPanel("details")
               }
@@ -611,7 +670,7 @@ export default function DestinationCarousel({
                   if (node) cardRefs.current.set(slideIndex, node);
                   else cardRefs.current.delete(slideIndex);
                 }}
-                className="dest-card absolute overflow-hidden text-left"
+                className={`${CARD} ${CONTROL} rounded-[7px] enabled:hover:[box-shadow:0_0_0_1.5px_#fff9,4px_8px_25px_#0005] aria-hidden:invisible`}
                 style={
                   {
                     ...photoStyle(slide),
@@ -625,11 +684,17 @@ export default function DestinationCarousel({
                 disabled={!visible || !!expansion}
                 onClick={() => goTo(slideIndex)}
               >
-                <span className="dest-card-gradient absolute inset-0" />
-                <span className="dest-card-copy absolute">
-                  <span className="dest-small-rule" />
-                  <span className="dest-card-country">{slide.country}</span>
-                  <span className="dest-card-title">
+                <span className={CARD_GRADIENT} />
+                <span
+                  className={`${CARD_COPY} @max-[480.01px]:bottom-[9%] @max-[480.01px]:left-[10%]`}
+                >
+                  <span className="dest-small-rule mb-[7px] block h-[2px] w-[15px] bg-white" />
+                  <span className="dest-card-country mb-[4px] block text-[clamp(6px,0.75cqw,11px)] leading-[1.35] @max-[480.01px]:text-[7px] @max-[320.01px]:text-[6px]">
+                    {slide.country}
+                  </span>
+                  <span
+                    className={`${DISPLAY_FONT} dest-card-title block text-[clamp(11px,1.53cqw,23px)] leading-[1.23] tracking-[-0.02em] uppercase @max-[480.01px]:text-[15px] @max-[320.01px]:text-[12px]`}
+                  >
                     {slide.title[0]}
                     <br />
                     {slide.title[1]}
@@ -640,10 +705,10 @@ export default function DestinationCarousel({
           })}
         </div>
 
-        <div className="dest-controls absolute flex items-center">
+        <div className="dest-controls absolute top-[91%] right-[4%] left-[55%] z-[5] flex items-center gap-[8px] @max-[650.01px]:gap-[5px] @max-[480.01px]:top-[92%] @max-[480.01px]:right-[8%] @max-[480.01px]:left-[6%] @max-[480.01px]:gap-[9px]">
           <button
             type="button"
-            className="dest-round-control"
+            className={ROUND_CONTROL}
             onClick={() => goTo(currentIndex - 1)}
             disabled={!canNavigate}
             aria-disabled={!canNavigate || !!expansion}
@@ -653,7 +718,7 @@ export default function DestinationCarousel({
           </button>
           <button
             type="button"
-            className="dest-round-control"
+            className={ROUND_CONTROL}
             onClick={() => goTo(currentIndex + 1)}
             disabled={!canNavigate}
             aria-disabled={!canNavigate || !!expansion}
@@ -661,19 +726,26 @@ export default function DestinationCarousel({
           >
             <DestinationIcon name="right" />
           </button>
-          <div className="dest-progress" aria-hidden="true">
+          <div
+            className="dest-progress mx-[8px] my-0 h-[2px] flex-1 overflow-hidden bg-[#ffffff4d] @max-[650.01px]:mx-[4px] @max-[480.01px]:mx-[6px]"
+            aria-hidden="true"
+          >
             <span
+              className="block h-full bg-[#f2c346] [transition:width_0.8s_cubic-bezier(0.22,0.75,0.18,1)]"
               style={{
                 width: `${((currentIndex + 1) / destinations.length) * 100}%`,
               }}
             />
           </div>
-          <span className="dest-slide-number" aria-hidden="true">
+          <span
+            className={`${DISPLAY_FONT} dest-slide-number text-[clamp(19px,3.2cqw,40px)] leading-none @max-[480.01px]:text-[28px]`}
+            aria-hidden="true"
+          >
             {String(currentIndex + 1).padStart(2, "0")}
           </span>
           <button
             type="button"
-            className="dest-play-control"
+            className={`${CONTROL} dest-play-control flex h-[28px] w-[24px] items-center justify-center border-none bg-transparent p-0 opacity-85 hover:opacity-100 disabled:opacity-40`}
             disabled={!canNavigate || reducedMotion}
             onClick={toggleAutoplay}
             aria-label={
@@ -692,7 +764,7 @@ export default function DestinationCarousel({
           </button>
         </div>
         <p
-          className="dest-sr-only"
+          className="dest-sr-only absolute -m-px h-px w-px overflow-hidden border-none p-0 whitespace-nowrap [clip:rect(0,0,0,0)]"
           aria-live={isRunning || expansion ? "off" : "polite"}
           aria-atomic="true"
         >
@@ -702,17 +774,17 @@ export default function DestinationCarousel({
 
         <dialog
           ref={dialogRef}
-          className="dest-dialog"
+          className="dest-dialog fixed inset-0 m-auto max-h-[85dvh] w-[min(520px,calc(100vw-32px))] overflow-auto rounded-[16px] border border-[#e3e1d7] bg-[#faf9f5] p-0 font-[Arial,Helvetica,sans-serif] text-[#1a2420] [box-shadow:0_28px_90px_#0006] backdrop:bg-[#07110ddb] backdrop:[backdrop-filter:blur(6px)]"
           aria-labelledby={`${id}-dialog-title`}
           onClose={() => setPanel(null)}
           onClick={(event) => {
             if (event.target === event.currentTarget) closePanel();
           }}
         >
-          <div className="dest-dialog-body">
+          <div className="dest-dialog-body relative">
             <button
               type="button"
-              className="dest-dialog-close"
+              className={`${CONTROL} dest-dialog-close absolute top-[16px] right-[16px] z-[1] flex size-[32px] items-center justify-center rounded-[50%] border border-[#ddd8cb] bg-[#faf9f5ed] p-0`}
               aria-label="Close destination details"
               onClick={closePanel}
             >
@@ -721,32 +793,36 @@ export default function DestinationCarousel({
             {panel === "details" ? (
               <>
                 <div
-                  className="dest-dialog-photo"
+                  className="dest-dialog-photo h-[215px] bg-cover bg-center"
                   style={photoStyle(active)}
                   role="img"
                   aria-label={active.title.join(" ")}
                 />
-                <div className="dest-dialog-content">
-                  <p className="dest-dialog-eyebrow">{active.country}</p>
-                  <h2 id={`${id}-dialog-title`}>{active.title.join(" ")}</h2>
-                  <p>{active.description}</p>
-                  <dl className="dest-facts">
+                <div className="dest-dialog-content p-[30px]">
+                  <p className="dest-dialog-eyebrow m-0 mb-[9px] text-[10px] leading-[1.7] font-bold tracking-[0.14em] text-[#626960] uppercase">
+                    {active.country}
+                  </p>
+                  <h2 id={`${id}-dialog-title`} className={DIALOG_TITLE}>
+                    {active.title.join(" ")}
+                  </h2>
+                  <p className={DIALOG_TEXT}>{active.description}</p>
+                  <dl className="dest-facts mx-0 my-[24px] grid gap-[17px] border-t border-t-[#dfdfd4] pt-[20px]">
                     {active.bestTime && (
                       <div>
-                        <dt>When to explore</dt>
-                        <dd>{active.bestTime}</dd>
+                        <dt className={FACT_TERM}>When to explore</dt>
+                        <dd className={FACT_DETAIL}>{active.bestTime}</dd>
                       </div>
                     )}
                     {active.experience && (
                       <div>
-                        <dt>The experience</dt>
-                        <dd>{active.experience}</dd>
+                        <dt className={FACT_TERM}>The experience</dt>
+                        <dd className={FACT_DETAIL}>{active.experience}</dd>
                       </div>
                     )}
                   </dl>
                   <button
                     type="button"
-                    className="dest-dialog-save"
+                    className={`${CONTROL} dest-dialog-save inline-flex w-full items-center justify-center gap-[9px] rounded-[7px] border-none bg-[#e9bb41] px-[14px] py-[12px] text-[12px] font-semibold aria-pressed:[&_svg]:fill-current`}
                     onClick={toggleSaved}
                     aria-pressed={isSaved}
                   >
@@ -758,46 +834,54 @@ export default function DestinationCarousel({
                 </div>
               </>
             ) : (
-              <div className="dest-dialog-content">
-                <p className="dest-dialog-eyebrow">Globe Express</p>
-                <h2 id={`${id}-dialog-title`}>
+              <div className="dest-dialog-content p-[30px]">
+                <p className="dest-dialog-eyebrow m-0 mb-[9px] text-[10px] leading-[1.7] font-bold tracking-[0.14em] text-[#626960] uppercase">
+                  Globe Express
+                </p>
+                <h2 id={`${id}-dialog-title`} className={DIALOG_TITLE}>
                   {panel === "saved"
                     ? "Your saved places"
                     : "Find your next escape"}
                 </h2>
-                <label className="dest-filter">
+                <label className="dest-filter mx-0 mt-[23px] mb-[15px] flex items-center gap-[10px] rounded-[7px] border border-[#d8dace] bg-white px-[12px] py-[11px]">
                   <DestinationIcon name="search" size={18} />
                   <input
+                    className="w-full min-w-0 border-none bg-transparent text-[13px] text-[#263329]"
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                     placeholder="Search destinations…"
                     aria-label="Search destinations"
                   />
                 </label>
-                <div className="dest-destination-list">
+                <div className="dest-destination-list grid gap-[6px]">
                   {matchingDestinations.map((slide) => (
                     <button
                       type="button"
                       key={slide.id}
+                      className={`${CONTROL} flex w-full items-center gap-[12px] rounded-[8px] border-none bg-transparent p-[8px] text-left hover:bg-[#ecece2]`}
                       onClick={() => {
                         closePanel();
                         goTo(destinations.indexOf(slide));
                       }}
                     >
                       <span
-                        className="dest-list-photo"
+                        className="dest-list-photo block h-[58px] w-[56px] shrink-0 rounded-[5px] bg-cover"
                         style={photoStyle(slide)}
                       />
-                      <span>
-                        <strong>{slide.title.join(" ")}</strong>
-                        <small>{slide.country}</small>
+                      <span className="flex-1">
+                        <strong className="block text-[13px] font-semibold">
+                          {slide.title.join(" ")}
+                        </strong>
+                        <small className="mt-[5px] block text-[10px] text-[#777f74]">
+                          {slide.country}
+                        </small>
                       </span>
                       <DestinationIcon name="right" size={17} />
                     </button>
                   ))}
                 </div>
                 {matchingDestinations.length === 0 && (
-                  <p className="dest-empty">
+                  <p className={`dest-empty ${DIALOG_TEXT} py-[15px]`}>
                     {panel === "saved" && !saved.length
                       ? "Save a place with the bookmark button, and find it here whenever inspiration strikes."
                       : "No destinations found. Try another place or country."}
@@ -824,42 +908,49 @@ export function DestinationCarouselThumbnail({
   const active = DEFAULT_SLIDES[selected];
   const upcoming = [1, 2, 3].map((offset) => DEFAULT_SLIDES[(selected + offset) % DEFAULT_SLIDES.length]);
   return (
-    <div className={`dest-root dest-thumbnail ${className}`} aria-hidden="true">
+    <div
+      className={`dest-root dest-thumbnail @container w-full font-[Arial,Helvetica,sans-serif] text-white ${REDUCED_MOTION} ${className}`}
+      aria-hidden="true"
+    >
       <ComponentStyles css={DESTINATION_STYLES} />
-      <div className="dest-stage dest-thumbnail-stage">
+      <div className={`${STAGE} dest-thumbnail-stage pointer-events-none aspect-[1.57]`}>
         <div
           key={active.id}
-          className="dest-background"
+          className={BACKGROUND}
           style={photoStyle(active)}
         />
-        <div className="dest-shade" />
-        <div className="dest-thumb-brand">
+        <div className={SHADE} />
+        <div className="absolute top-[6%] left-[4%] z-[4] flex items-center gap-[4px] text-[1.6cqw] font-bold uppercase">
           <DestinationIcon name="globe" size={10} /> Globe Express
         </div>
-        <div className="dest-thumb-nav">
-          Home <span>Destinations</span> Saved
+        <div className="absolute top-[6%] right-[4%] z-[4] flex gap-[12px] text-[1.6cqw] font-bold uppercase">
+          Home <span className="text-[#f9d172]">Destinations</span> Saved
         </div>
-        <div className="dest-details">
-          <div className="dest-eyebrow">
-            <span className="dest-small-rule" />
-            <p>{active.country}</p>
+        <div className={`${DETAILS} top-[26%] w-[42%]`}>
+          <div>
+            <span className="mb-[5px] block h-[2px] w-[12px] bg-white" />
+            <p className="m-0 mb-[7px] text-[2cqw] leading-[1.4] font-medium">
+              {active.country}
+            </p>
           </div>
-          <div className="dest-title">
-            <span>{active.title[0]}</span>
-            <span>{active.title[1]}</span>
+          <div
+            className={`${DISPLAY_FONT} m-0 mb-[7px] flex flex-col text-[7.7cqw] leading-[1.06] tracking-[-0.035em] uppercase`}
+          >
+            <span className="block whitespace-nowrap">{active.title[0]}</span>
+            <span className="block whitespace-nowrap">{active.title[1]}</span>
           </div>
-          <p className="dest-description">
+          <p className="m-0 max-w-[31cqw] text-[1.75cqw] leading-[1.4] font-normal">
             {active.experience}
           </p>
-          <div className="dest-thumb-discover">
-            <span />
+          <div className="mt-[10px] flex items-center gap-[5px] text-[1.35cqw] uppercase">
+            <span className="size-[10px] rounded-[50%] bg-[#f0c031]" />
             Discover location
           </div>
         </div>
         {upcoming.map((slide, position) => (
           <div
             key={slide.id}
-            className="dest-card"
+            className={`${CARD} rounded-[4px]`}
             style={
               {
                 ...photoStyle(slide),
@@ -867,11 +958,15 @@ export function DestinationCarouselThumbnail({
               } as CSSProperties
             }
           >
-            <span className="dest-card-gradient" />
-            <span className="dest-card-copy">
-              <span className="dest-small-rule" />
-              <span className="dest-card-country">{slide.country}</span>
-              <span className="dest-card-title">
+            <span className={CARD_GRADIENT} />
+            <span className={CARD_COPY}>
+              <span className="mb-[5px] block h-[2px] w-[12px] bg-white" />
+              <span className="mb-[3px] block text-[1.3cqw] leading-[1.35]">
+                {slide.country}
+              </span>
+              <span
+                className={`${DISPLAY_FONT} block text-[2.5cqw] leading-[1.23] tracking-[-0.02em] uppercase`}
+              >
                 {slide.title[0]}
                 <br />
                 {slide.title[1]}
@@ -879,17 +974,24 @@ export function DestinationCarouselThumbnail({
             </span>
           </div>
         ))}
-        <div className="dest-thumb-controls">
-          <span>‹</span>
-          <span>›</span>
-          <i />
-          <b>{String(selected + 1).padStart(2, "0")}</b>
+        <div className="absolute top-[91%] right-[4%] left-[55%] z-[4] flex items-center gap-[5px]">
+          <span className={THUMB_ARROW}>‹</span>
+          <span className={THUMB_ARROW}>›</span>
+          <i className="mx-[5px] my-0 h-px flex-1 bg-[linear-gradient(90deg,#f5be2f_25%,#fff5_25%)]" />
+          <b className="text-[3cqw] font-medium">
+            {String(selected + 1).padStart(2, "0")}
+          </b>
         </div>
       </div>
     </div>
   );
 }
 
+/**
+ * Only what Tailwind cannot express: the display web font, the copy entrance
+ * keyframes, and focus rings that must outrank a host page's unlayered
+ * :focus-visible style (layered utilities always lose to it).
+ */
 const DESTINATION_STYLES = `
   @font-face {
     font-family: "Destination Condensed";
@@ -898,382 +1000,6 @@ const DESTINATION_STYLES = `
     font-display: swap;
     src: url("https://fonts.gstatic.com/s/oswald/v57/TK3_WkUHHAIjg75cFRf3bXL8LICs18NvsUZiZSSUhiCXAA.woff2")
       format("woff2");
-  }
-  .dest-root {
-    container-type: inline-size;
-    width: 100%;
-    font-family: Arial, Helvetica, sans-serif;
-    color: #fff;
-  }
-  .dest-root * {
-    box-sizing: border-box;
-  }
-  .dest-stage {
-    --dest-card-left: 55%;
-    --dest-card-width: 14%;
-    --dest-card-step: 17%;
-    --dest-card-top: 55%;
-    --dest-card-height: 33%;
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
-    width: 100%;
-    aspect-ratio: 3/2;
-    background: #14221e;
-    color: #fff;
-    touch-action: pan-y;
-    outline-offset: -4px;
-  }
-  .dest-stage button {
-    font: inherit;
-    color: inherit;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .dest-stage button:focus-visible,
-  .dest-stage:focus-visible {
-    outline: 2px solid #ffd167;
-    outline-offset: 5px;
-  }
-  .dest-stage button:disabled {
-    cursor: default;
-  }
-  .dest-background,
-  .dest-expansion {
-    position: absolute;
-    background-size: cover;
-    background-repeat: no-repeat;
-  }
-  .dest-background {
-    inset: 0;
-    z-index: 0;
-    background-color: #203a30;
-  }
-  .dest-expansion {
-    z-index: 1;
-    will-change: width, height, left, top;
-  }
-  .dest-shade {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    pointer-events: none;
-    background:
-      linear-gradient(90deg, rgba(5, 13, 12, 0.46), rgba(5, 13, 12, 0.09) 62%),
-      linear-gradient(
-        0deg,
-        rgba(2, 10, 8, 0.38),
-        transparent 45%,
-        rgba(2, 10, 8, 0.12)
-      );
-  }
-  .dest-header {
-    top: 4.6%;
-    left: 4%;
-    right: 4%;
-    z-index: 5;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .dest-brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    border: 0;
-    background: none;
-    padding: 4px 0;
-    font-size: clamp(8px, 1.05cqw, 13px) !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.025em;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-  .dest-nav {
-    display: flex;
-    align-items: center;
-    gap: 2.35cqw;
-  }
-  .dest-nav > button {
-    position: relative;
-    background: transparent;
-    border: 0;
-    padding: 6px 0;
-    font-size: clamp(8px, 0.9cqw, 11px);
-    font-weight: 600;
-    letter-spacing: 0.015em;
-    text-transform: uppercase;
-  }
-  .dest-nav > button:hover {
-    color: #ffd167;
-  }
-  .dest-nav-active:after {
-    position: absolute;
-    content: "";
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: #e9bb41;
-  }
-  .dest-saved-count {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 100%;
-    margin-left: 5px;
-    width: 14px;
-    height: 14px;
-    background: #edbb36;
-    color: #13211d;
-    font-size: 8px;
-  }
-  .dest-search-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .dest-details {
-    position: absolute;
-    z-index: 3;
-    left: 4%;
-    top: 27%;
-    width: 36%;
-    text-shadow: 0 1px 8px #0004;
-  }
-  .dest-small-rule {
-    display: block;
-    width: 22px;
-    height: 3px;
-    background: #fff;
-    margin-bottom: 9px;
-  }
-  .dest-eyebrow p {
-    margin: 0 0 13px;
-    font-size: clamp(10px, 1.3cqw, 16px);
-    line-height: 1.4;
-    font-weight: 500;
-  }
-  .dest-title {
-    display: flex;
-    flex-direction: column;
-    margin: 0 0 12px;
-    font-family: "Destination Condensed", Impact, "Arial Narrow", sans-serif;
-    font-size: clamp(32px, 5.9cqw, 96px);
-    line-height: 1.14;
-    letter-spacing: -0.035em;
-    text-transform: uppercase;
-    font-weight: 500;
-  }
-  .dest-title > span {
-    display: block;
-    white-space: nowrap;
-  }
-  .dest-description {
-    margin: 0;
-    max-width: 34em;
-    font-size: clamp(10px, 1.17cqw, 16px);
-    font-weight: 400;
-    line-height: 1.5;
-  }
-  .dest-actions {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    margin-top: 20px;
-  }
-  .dest-bookmark {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 33px;
-    height: 33px;
-    border: 0;
-    border-radius: 50%;
-    background: #eebc32;
-    box-shadow: 0 0 15px #edbd3140;
-    transition:
-      background 0.2s,
-      transform 0.2s;
-  }
-  .dest-bookmark:hover {
-    background: #ffce4e;
-    transform: translateY(-2px);
-  }
-  .dest-bookmark[aria-pressed="true"] svg {
-    fill: currentColor;
-  }
-  .dest-discover {
-    min-height: 33px;
-    padding: 0 17px;
-    border: 1px solid #ffffffa3;
-    border-radius: 999px;
-    background: #11231e15;
-    font-size: clamp(8px, 0.89cqw, 12px) !important;
-    font-weight: 600 !important;
-    text-transform: uppercase;
-    transition:
-      background 0.2s,
-      border-color 0.2s;
-  }
-  .dest-discover:hover {
-    background: #ffffff1f;
-    border-color: #fff;
-  }
-  .dest-card {
-    position: absolute;
-    z-index: 4;
-    left: calc(
-      var(--dest-card-left) + var(--dest-position) * var(--dest-card-step)
-    );
-    top: var(--dest-card-top);
-    width: var(--dest-card-width);
-    height: var(--dest-card-height);
-    overflow: hidden;
-    border: 0;
-    border-radius: 7px;
-    background-size: cover;
-    background-repeat: no-repeat;
-    text-align: left;
-    padding: 0;
-    box-shadow: 4px 8px 25px #0005;
-    transition:
-      left 0.7s cubic-bezier(0.22, 0.75, 0.18, 1),
-      opacity 0.45s,
-      box-shadow 0.2s;
-  }
-  .dest-card[aria-hidden="true"] {
-    visibility: hidden;
-  }
-  .dest-card:hover:not(:disabled) {
-    box-shadow:
-      0 0 0 1.5px #fff9,
-      4px 8px 25px #0005;
-  }
-  .dest-card:focus-visible {
-    outline-offset: 3px !important;
-  }
-  .dest-card-gradient {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(0deg, #050d0cdc, transparent 69%);
-    pointer-events: none;
-  }
-  .dest-card-copy {
-    position: absolute;
-    left: 9%;
-    right: 7%;
-    bottom: 7%;
-    color: #fff;
-  }
-  .dest-card-copy .dest-small-rule {
-    width: 15px;
-    height: 2px;
-    margin-bottom: 7px;
-  }
-  .dest-card-country {
-    display: block;
-    font-size: clamp(6px, 0.75cqw, 11px);
-    line-height: 1.35;
-    margin-bottom: 4px;
-  }
-  .dest-card-title {
-    display: block;
-    font-family: "Destination Condensed", Impact, "Arial Narrow", sans-serif;
-    font-weight: 500;
-    font-size: clamp(11px, 1.53cqw, 23px);
-    line-height: 1.23;
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
-  }
-  .dest-controls {
-    position: absolute;
-    z-index: 5;
-    left: 55%;
-    right: 4%;
-    top: 91%;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .dest-round-control {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    border: 1px solid #ffffff70;
-    border-radius: 50%;
-    background: transparent;
-    transition:
-      background 0.2s,
-      border-color 0.2s;
-  }
-  .dest-round-control:hover:not(:disabled) {
-    background: #ffffff20;
-    border-color: #fff;
-  }
-  .dest-round-control:disabled {
-    opacity: 0.45;
-  }
-  .dest-progress {
-    height: 2px;
-    margin: 0 8px;
-    background: #ffffff4d;
-    flex: 1;
-    overflow: hidden;
-  }
-  .dest-progress > span {
-    display: block;
-    height: 100%;
-    background: #f2c346;
-    transition: width 0.8s cubic-bezier(0.22, 0.75, 0.18, 1);
-  }
-  .dest-slide-number {
-    font-family: "Destination Condensed", Impact, "Arial Narrow", sans-serif;
-    font-size: clamp(19px, 3.2cqw, 40px);
-    font-weight: 500;
-    line-height: 1;
-  }
-  .dest-play-control {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 28px;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    opacity: 0.85;
-  }
-  .dest-play-control:hover {
-    opacity: 1;
-  }
-  .dest-play-control:disabled {
-    opacity: 0.4;
-  }
-  .dest-details-enter .dest-eyebrow,
-  .dest-details-enter .dest-title > span,
-  .dest-details-enter .dest-description,
-  .dest-details-enter .dest-actions {
-    animation: dest-rise 0.6s both cubic-bezier(0.2, 0.7, 0.2, 1);
-  }
-  .dest-details-enter .dest-eyebrow {
-    animation-delay: 0.27s;
-  }
-  .dest-details-enter .dest-title > span:first-child {
-    animation-delay: 0.33s;
-  }
-  .dest-details-enter .dest-title > span:last-child {
-    animation-delay: 0.39s;
-  }
-  .dest-details-enter .dest-description {
-    animation-delay: 0.45s;
-  }
-  .dest-details-enter .dest-actions {
-    animation-delay: 0.51s;
   }
   @keyframes dest-rise {
     from {
@@ -1285,465 +1011,17 @@ const DESTINATION_STYLES = `
       transform: translateY(0);
     }
   }
-  .dest-photo-unavailable {
-    position: absolute;
-    bottom: 4%;
-    left: 4%;
-    z-index: 3;
-    margin: 0;
-    font-size: 10px;
-    color: #fff9;
+  .dest-stage:focus-visible,
+  .dest-stage button:focus-visible {
+    outline: 2px solid #ffd167;
+    outline-offset: 5px;
   }
-  .dest-sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-  .dest-dialog {
-    position: fixed;
-    inset: 0;
-    width: min(520px, calc(100vw - 32px));
-    max-height: 85dvh;
-    margin: auto;
-    padding: 0;
-    border: 1px solid #e3e1d7;
-    border-radius: 16px;
-    background: #faf9f5;
-    color: #1a2420;
-    box-shadow: 0 28px 90px #0006;
-    font-family: Arial, Helvetica, sans-serif;
-    overflow: auto;
-  }
-  .dest-dialog::backdrop {
-    background: #07110ddb;
-    backdrop-filter: blur(6px);
-  }
-  .dest-dialog-body {
-    position: relative;
-  }
-  .dest-dialog button {
-    color: inherit;
-    cursor: pointer;
+  .dest-stage .dest-card:focus-visible {
+    outline-offset: 3px;
   }
   .dest-dialog button:focus-visible,
   .dest-dialog input:focus-visible {
     outline: 2px solid #b07908;
     outline-offset: 3px;
-  }
-  .dest-dialog-close {
-    position: absolute;
-    right: 16px;
-    top: 16px;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    border: 1px solid #ddd8cb;
-    border-radius: 50%;
-    background: #faf9f5ed;
-  }
-  .dest-dialog-photo {
-    height: 215px;
-    background-size: cover;
-    background-position: center;
-  }
-  .dest-dialog-content {
-    padding: 30px;
-  }
-  .dest-dialog-eyebrow {
-    margin: 0 0 9px !important;
-    color: #857134;
-    font-size: 10px !important;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    font-weight: 700;
-  }
-  .dest-dialog h2 {
-    font-family: "Destination Condensed", Impact, "Arial Narrow", sans-serif;
-    font-size: 32px;
-    font-weight: 500;
-    line-height: 1.2;
-    margin: 0 22px 15px 0;
-    text-transform: uppercase;
-  }
-  .dest-dialog p {
-    font-size: 13px;
-    line-height: 1.7;
-    margin: 0 0 20px;
-    color: #626960;
-  }
-  .dest-facts {
-    display: grid;
-    gap: 17px;
-    margin: 24px 0;
-    border-top: 1px solid #dfdfd4;
-    padding-top: 20px;
-  }
-  .dest-facts dt {
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #797d71;
-    margin-bottom: 6px;
-  }
-  .dest-facts dd {
-    margin: 0;
-    font-size: 13px;
-    line-height: 1.6;
-  }
-  .dest-dialog-save {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 9px;
-    width: 100%;
-    padding: 12px 14px;
-    border: 0;
-    border-radius: 7px;
-    background: #e9bb41;
-    font-size: 12px !important;
-    font-weight: 600 !important;
-  }
-  .dest-dialog-save[aria-pressed="true"] svg {
-    fill: currentColor;
-  }
-  .dest-filter {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 23px 0 15px;
-    border: 1px solid #d8dace;
-    border-radius: 7px;
-    background: #fff;
-    padding: 11px 12px;
-  }
-  .dest-filter input {
-    min-width: 0;
-    width: 100%;
-    border: 0;
-    background: transparent;
-    font: inherit;
-    font-size: 13px;
-    color: #263329;
-  }
-  .dest-destination-list {
-    display: grid;
-    gap: 6px;
-  }
-  .dest-destination-list > button {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    padding: 8px;
-    border: 0;
-    border-radius: 8px;
-    background: transparent;
-    text-align: left;
-  }
-  .dest-destination-list > button:hover {
-    background: #ecece2;
-  }
-  .dest-list-photo {
-    display: block;
-    flex-shrink: 0;
-    width: 56px;
-    height: 58px;
-    border-radius: 5px;
-    background-size: cover;
-  }
-  .dest-destination-list > button > span:nth-child(2) {
-    flex: 1;
-  }
-  .dest-destination-list strong {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-  }
-  .dest-destination-list small {
-    display: block;
-    margin-top: 5px;
-    font-size: 10px;
-    color: #777f74;
-  }
-  .dest-empty {
-    padding: 15px 0;
-  }
-  .dest-thumbnail-stage {
-    aspect-ratio: 1.57;
-    pointer-events: none;
-  }
-  .dest-thumbnail .dest-details {
-    top: 26%;
-    width: 42%;
-  }
-  .dest-thumbnail .dest-title {
-    font-size: 7.7cqw;
-    margin-bottom: 7px;
-    line-height: 1.06;
-  }
-  .dest-thumbnail .dest-eyebrow p {
-    font-size: 2cqw;
-    margin-bottom: 7px;
-  }
-  .dest-thumbnail .dest-small-rule {
-    width: 12px;
-    height: 2px;
-    margin-bottom: 5px;
-  }
-  .dest-thumbnail .dest-description {
-    font-size: 1.75cqw;
-    max-width: 31cqw;
-    line-height: 1.4;
-  }
-  .dest-thumbnail .dest-card {
-    border-radius: 4px;
-  }
-  .dest-thumbnail .dest-card-country {
-    font-size: 1.3cqw;
-    margin-bottom: 3px;
-  }
-  .dest-thumbnail .dest-card-title {
-    font-size: 2.5cqw;
-  }
-  .dest-thumb-brand,
-  .dest-thumb-nav {
-    position: absolute;
-    z-index: 4;
-    top: 6%;
-    font-size: 1.6cqw;
-    font-weight: 700;
-    text-transform: uppercase;
-  }
-  .dest-thumb-brand {
-    left: 4%;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .dest-thumb-nav {
-    right: 4%;
-    display: flex;
-    gap: 12px;
-  }
-  .dest-thumb-nav span {
-    color: #f9d172;
-  }
-  .dest-thumb-discover {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 10px;
-    font-size: 1.35cqw;
-    text-transform: uppercase;
-  }
-  .dest-thumb-discover > span {
-    width: 10px;
-    height: 10px;
-    background: #f0c031;
-    border-radius: 50%;
-  }
-  .dest-thumb-controls {
-    position: absolute;
-    z-index: 4;
-    left: 55%;
-    right: 4%;
-    top: 91%;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .dest-thumb-controls > span {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #fff8;
-    border-radius: 50%;
-    width: 13px;
-    height: 13px;
-    font-size: 10px;
-  }
-  .dest-thumb-controls i {
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, #f5be2f 25%, #fff5 25%);
-    margin: 0 5px;
-  }
-  .dest-thumb-controls b {
-    font-size: 3cqw;
-    font-weight: 500;
-  }
-  @container (max-width:650px) {
-    .dest-stage:not(.dest-thumbnail-stage) .dest-details {
-      width: 43%;
-      top: 25%;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-title {
-      font-size: 6.5cqw;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-description {
-      font-size: 10px;
-      line-height: 1.5;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-actions {
-      margin-top: 13px;
-      gap: 7px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-bookmark {
-      width: 28px;
-      height: 28px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-discover {
-      min-height: 28px;
-      padding: 0 11px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-round-control {
-      width: 26px;
-      height: 26px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-controls {
-      gap: 5px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-progress {
-      margin: 0 4px;
-    }
-  }
-  @container (max-width:480px) {
-    .dest-stage:not(.dest-thumbnail-stage) {
-      aspect-ratio: auto;
-      height: 720px;
-      --dest-card-left: 6%;
-      --dest-card-width: 26%;
-      --dest-card-step: 30%;
-      --dest-card-top: 66%;
-      --dest-card-height: 23%;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-shade {
-      background:
-        linear-gradient(90deg, #07181077, transparent),
-        linear-gradient(0deg, #081a13aa, transparent 30%, #07181033);
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-header {
-      top: 5%;
-      left: 6%;
-      right: 6%;
-      align-items: center;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-brand {
-      font-size: 9px !important;
-      gap: 5px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-brand svg {
-      width: 15px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-nav {
-      gap: 13px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-nav > button {
-      font-size: 8px;
-      padding: 8px 0;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-nav > button:first-child,
-    .dest-stage:not(.dest-thumbnail-stage) .dest-search-button {
-      display: none;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-details {
-      left: 6%;
-      top: 18%;
-      width: 88%;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-eyebrow p {
-      font-size: 12px;
-      margin-bottom: 14px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-title {
-      font-size: clamp(32px, 13cqw, 63px);
-      line-height: 1.08;
-      margin-bottom: 15px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-description {
-      font-size: 12px;
-      line-height: 1.55;
-      max-width: 290px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-actions {
-      margin-top: 19px;
-      gap: 10px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-bookmark {
-      width: 35px;
-      height: 35px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-discover {
-      min-height: 35px;
-      font-size: 9px !important;
-      padding: 0 17px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-card-copy {
-      bottom: 9%;
-      left: 10%;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-card-country {
-      font-size: 7px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-card-title {
-      font-size: 15px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-controls {
-      left: 6%;
-      right: 8%;
-      top: 92%;
-      gap: 9px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-round-control {
-      width: 31px;
-      height: 31px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-slide-number {
-      font-size: 28px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-progress {
-      margin: 0 6px;
-    }
-  }
-  @container (max-width:320px) {
-    .dest-stage:not(.dest-thumbnail-stage) {
-      height: 730px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-details {
-      top: 16%;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-description {
-      font-size: 11px;
-      line-height: 1.5;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-card-title {
-      font-size: 12px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-card-country {
-      font-size: 6px;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-brand {
-      font-size: 8px !important;
-    }
-    .dest-stage:not(.dest-thumbnail-stage) .dest-nav {
-      gap: 9px;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .dest-root * {
-      animation: none !important;
-      transition: none !important;
-      scroll-behavior: auto !important;
-    }
   }
 `;

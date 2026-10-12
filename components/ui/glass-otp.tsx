@@ -72,7 +72,7 @@ export function GlassOtpBackdrop() {
   const id = useId().replace(/:/g, "");
   return (
     <svg
-      className="otp-backdrop absolute inset-0 h-full w-full"
+      className="pointer-events-none absolute inset-0 -z-1 h-full w-full"
       viewBox="0 0 900 700"
       preserveAspectRatio="xMidYMid slice"
       aria-hidden="true"
@@ -198,7 +198,8 @@ export function GlassOtpBackdrop() {
 function GlassFrame() {
   return (
     <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-      <div className="otp-cut-surface absolute inset-0" />
+      {/* Frosted surface with clipped corners; its green glow fades in on success. */}
+      <div className="absolute inset-0 rounded-[27px] bg-[linear-gradient(120deg,rgba(105,102,110,0.32),rgba(28,26,31,0.48)_51%,rgba(21,18,25,0.57))] backdrop-blur-[10px] [clip-path:polygon(20.5%_0,100%_0,100%_79.5%,81%_100%,0_100%,0_22%)] after:absolute after:inset-0 after:bg-[radial-gradient(ellipse_at_50%_45%,rgba(32,151,77,0.23),rgba(15,90,46,0.07))] after:opacity-0 after:[transition:opacity_0.7s] after:content-[''] group-data-[status=success]/otp:after:opacity-100" />
       <svg
         className="absolute inset-0 h-full w-full"
         viewBox="0 0 610 565"
@@ -213,7 +214,7 @@ function GlassFrame() {
         />
       </svg>
       <svg
-        className="otp-corner otp-corner-start"
+        className="absolute top-[-4px] left-[-4px] h-auto w-[15%] drop-shadow-[0_3px_8px_#0003]"
         viewBox="0 0 90 90"
         fill="none"
       >
@@ -225,7 +226,7 @@ function GlassFrame() {
         />
       </svg>
       <svg
-        className="otp-corner otp-corner-end"
+        className="absolute right-[-4px] bottom-[-4px] h-auto w-[15%] rotate-180 drop-shadow-[0_3px_8px_#0003]"
         viewBox="0 0 90 90"
         fill="none"
       >
@@ -248,47 +249,77 @@ function digitStyle(index: number): CSSProperties {
   } as CSSProperties;
 }
 
+/*
+ * Shared Tailwind classes for the live component and its gallery thumbnail.
+ * Compact sizes are applied only to the live stage, through the `glass-otp`
+ * container queries (`@max-[…]/glass-otp:`).
+ */
+const ROOT_CLASS =
+  "glass-otp relative isolate overflow-hidden bg-[#070609] font-[Arial,Helvetica,sans-serif] text-[#f8f7fa] @container/glass-otp [--otp-accent:#e5c43c] [--otp-spacing:73px]";
+const CONTENT_CLASS =
+  "relative flex h-full flex-col items-center px-[28px] py-[30px]";
+const KEY_CLASS =
+  "mx-auto mb-[10px] flex size-[45px] shrink-0 items-center justify-center rounded-[15px] border border-[#b8993b48] bg-[#b99b2910] text-(--otp-accent) shadow-[0_0_24px_#b99b290d,inset_0_0_0_1px_#ffed7b05] [transition:all_0.5s] group-data-[status=success]/otp:border-[#44c8754d] group-data-[status=success]/otp:bg-[#22ae6215] group-data-[status=success]/otp:shadow-[0_0_25px_#25cb5b17]";
+const TITLE_CLASS =
+  "text-[26px] leading-[1.35] font-semibold tracking-[-0.55px] text-[#f5f4f7]";
+const ACCENT_CLASS = "text-(--otp-accent) [transition:color_0.5s]";
+const DESCRIPTION_CLASS =
+  "mt-[5px] text-[12px] leading-[1.6] font-normal text-[#b5afb6]";
+/** `otp-digit` keeps its slot/orbit transform in the scoped CSS below. */
+const DIGIT_CLASS =
+  "otp-digit absolute top-1/2 left-1/2 size-[58px] rounded-[16px] border-[1.5px] bg-[#15121ae0]";
+// Plain box-shadow lists (not shadow-*) keep the orbit transition identical.
+const DIGIT_SHADOW_CLASS = "[box-shadow:inset_0_0_0_1px_#ffffff02,0_3px_8px_#0001]";
+const DIGIT_FOCUS_CLASS =
+  "border-[#ebcd53] [box-shadow:0_0_0_1px_#e5c43c18,0_0_24px_#e5c43c24]";
+const DIGIT_TEXT_CLASS =
+  "flex size-full items-center justify-center rounded-[inherit] text-center text-[27px] font-semibold text-white caret-[#e5c43c] [-webkit-text-fill-color:#fff]";
+const RESEND_CLASS =
+  "mb-[45px] text-[12px] leading-[1.5] whitespace-nowrap text-[#a9a3ac]";
+const SUBMIT_CLASS =
+  "flex min-h-[44px] w-[252px] max-w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-[12px] border border-[#dbbf4440] bg-[linear-gradient(180deg,#c7b136,#b09823)] px-[18px] py-[10px] text-[14px] leading-[22px] font-semibold text-[#161308] shadow-[inset_0_1px_0_#fff2,0_5px_18px_#0001] [transition:filter_0.2s,transform_0.2s,background_0.5s,box-shadow_0.5s]";
+
 /** A static, non-focusable illustration for component gallery cards. */
 export function GlassOtpThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   return (
     <div
-      className={`glass-otp otp-thumbnail relative isolate overflow-hidden ${className}`}
+      className={`${ROOT_CLASS} flex min-h-[300px] w-full h-full items-center justify-center ${className}`}
       aria-hidden="true"
     >
       <GlassOtpStyles />
       <GlassOtpBackdrop />
-      <div className="otp-thumbnail-scale">
-        <div className="otp-panel relative text-center">
+      <div className="h-[484px] w-[520px] shrink-0 scale-[0.69] @max-[400.02px]/glass-otp:scale-[0.57] @max-[260.02px]/glass-otp:scale-[0.46]">
+        <div className="relative h-[484px] w-[520px] max-w-[520px] text-center">
           <GlassFrame />
-          <div className="otp-panel-content relative flex h-full flex-col items-center">
-            <div className="otp-key flex items-center justify-center">
-              <Icon name="key" />
+          <div className={CONTENT_CLASS}>
+            <div className={KEY_CLASS}>
+              <Icon name="key" className="size-[22px]" />
             </div>
-            <p className="otp-title">
-              Verify <span>OTP</span>
+            <p className={TITLE_CLASS}>
+              Verify <span className={ACCENT_CLASS}>OTP</span>
             </p>
-            <p className="otp-description">
+            <p className={DESCRIPTION_CLASS}>
               Enter the 4-digit security code sent to your device
             </p>
-            <div className="otp-code-track relative w-full flex-1">
+            <div className="relative min-h-[167px] w-full min-w-0 flex-1">
               {["5", "6", "2", "9"].map((digit, index) => index < (previewStep + 2) % 5 ? digit : "").map((digit, index) => (
                 <div
                   key={index}
                   style={digitStyle(index)}
-                  className={`otp-digit ${digit ? "is-filled" : ""} ${index === (previewStep + 2) % 5 ? "is-focused" : ""}`}
+                  className={`${DIGIT_CLASS} ${index === (previewStep + 2) % 5 ? DIGIT_FOCUS_CLASS : `${DIGIT_SHADOW_CLASS} ${digit ? "border-[#a68b367e]" : "border-[#66606b65]"}`}`}
                 >
-                  <span className="otp-static-digit">
+                  <span className={DIGIT_TEXT_CLASS}>
                     {digit}
-                    {index === (previewStep + 2) % 5 && <span className="otp-static-caret" />}
+                    {index === (previewStep + 2) % 5 && <span className="h-[29px] w-[1.5px] bg-[#e5c43c]" />}
                   </span>
                 </div>
               ))}
             </div>
-            <p className="otp-resend">
-              Didn’t receive the code? <span>Resend in 00:38</span>
+            <p className={RESEND_CLASS}>
+              Didn’t receive the code? <span className="font-medium text-[#e3c641]">Resend in 00:38</span>
             </p>
-            <span className="otp-submit flex items-center justify-center gap-2">
-              Verify &amp; Proceed <Icon name="arrow" />
+            <span className={SUBMIT_CLASS}>
+              Verify &amp; Proceed <Icon name="arrow" className="size-[18px]" />
             </span>
           </div>
         </div>
@@ -482,50 +513,58 @@ export default function GlassOtp({
 
   return (
     <div
-      className={`glass-otp otp-stage relative isolate flex w-full items-center justify-center overflow-hidden ${className}`}
+      className={`${ROOT_CLASS} flex min-h-[590px] w-full items-center justify-center px-[clamp(16px,5%,38px)] py-[52px] max-[600.02px]:min-h-[534px] max-[600.02px]:py-[42px] ${className}`}
     >
       <GlassOtpStyles />
       <GlassOtpBackdrop />
       <form
         onSubmit={verify}
         noValidate
-        className="otp-panel relative w-full text-center"
+        className="group/otp relative h-[484px] w-full max-w-[520px] text-center data-[status=success]:[--otp-accent:#39c773] @max-[520.02px]/glass-otp:h-[450px] @max-[400.02px]/glass-otp:[--otp-spacing:61px] @max-[260.02px]/glass-otp:[--otp-spacing:45px]"
         data-status={status}
         aria-labelledby={`${id}-title`}
         aria-busy={status === "verifying"}
       >
         <GlassFrame />
-        <div className="otp-panel-content relative flex h-full flex-col items-center">
-          <div className="otp-key flex items-center justify-center">
-            <Icon name={isSuccess ? "shield" : "key"} />
+        <div
+          className={`${CONTENT_CLASS} @max-[520.02px]/glass-otp:px-[16px] @max-[520.02px]/glass-otp:py-[27px] @max-[260.02px]/glass-otp:px-[12px]`}
+        >
+          <div className={KEY_CLASS}>
+            <Icon name={isSuccess ? "shield" : "key"} className="size-[22px]" />
           </div>
-          <h2 id={`${id}-title`} className="otp-title">
+          <h2
+            id={`${id}-title`}
+            className={`${TITLE_CLASS} @max-[520.02px]/glass-otp:text-[23px] @max-[400.02px]/glass-otp:text-[21px] @max-[260.02px]/glass-otp:text-[19px]`}
+          >
             {isSuccess ? (
               <>
-                Verified <span>Successfully</span>
+                Verified <span className={ACCENT_CLASS}>Successfully</span>
               </>
             ) : (
               <>
-                Verify <span>OTP</span>
+                Verify <span className={ACCENT_CLASS}>OTP</span>
               </>
             )}
           </h2>
-          <p id={`${id}-description`} className="otp-description">
+          <p
+            id={`${id}-description`}
+            className={`${DESCRIPTION_CLASS} @max-[520.02px]/glass-otp:max-w-[265px] @max-[520.02px]/glass-otp:text-[11px] @max-[400.02px]/glass-otp:max-w-[230px]`}
+          >
             {isSuccess
               ? "Your security verification code has been confirmed."
               : "Enter the 4-digit security code sent to your device"}
           </p>
 
           <fieldset
-            className="otp-code-track relative w-full flex-1"
+            className="relative min-h-[150px] w-full min-w-0 flex-1"
             disabled={locked}
             aria-describedby={`${id}-description${error ? ` ${id}-error` : ""}`}
           >
             <legend className="sr-only">Four-digit security code</legend>
-            <div className="otp-orbit absolute inset-0">
+            <div className="absolute inset-0 group-data-[status=verifying]/otp:animate-[otp-spin_1.8s_0.5s_linear_infinite]">
               {digits.map((digit, index) => (
                 <div
-                  className={`otp-digit ${digit ? "is-filled" : ""}`}
+                  className={`${DIGIT_CLASS} ${DIGIT_SHADOW_CLASS} ${digit ? "border-[#a68b367e]" : "border-[#66606b65]"} focus-within:border-[#ebcd53] focus-within:[box-shadow:0_0_0_1px_#e5c43c18,0_0_24px_#e5c43c24] @max-[400.02px]/glass-otp:h-[54px] @max-[400.02px]/glass-otp:w-[50px] @max-[400.02px]/glass-otp:rounded-[14px] @max-[260.02px]/glass-otp:h-[46px] @max-[260.02px]/glass-otp:w-[38px] @max-[260.02px]/glass-otp:rounded-[11px]`}
                   style={digitStyle(index)}
                   key={index}
                 >
@@ -533,6 +572,7 @@ export default function GlassOtp({
                     ref={(node) => {
                       inputs.current[index] = node;
                     }}
+                    className={`${DIGIT_TEXT_CLASS} group-data-[status=verifying]/otp:animate-[otp-counter-spin_1.8s_0.5s_linear_infinite] @max-[260.02px]/glass-otp:text-[22px]`}
                     type="text"
                     inputMode="numeric"
                     pattern="[0-9]*"
@@ -554,19 +594,26 @@ export default function GlassOtp({
               ))}
             </div>
             {isSuccess && (
-              <div className="otp-success-check absolute">
-                <Icon name="check" />
+              <div className="absolute top-1/2 left-1/2 flex size-[58px] animate-[otp-confirm_0.55s_cubic-bezier(0.2,0.8,0.2,1.2)_both] items-center justify-center rounded-[16px] border-[3px] border-[#39bc73] bg-[#17151b] shadow-[0_0_0_1px_#bfa83475,0_0_24px_#27c87924] [transform:translate(-50%,-50%)]">
+                <Icon name="check" className="size-[30px]" />
               </div>
             )}
           </fieldset>
 
-          <div className="otp-feedback" id={`${id}-error`} role="alert">
+          <div
+            className="mt-[-8px] min-h-[17px] text-[11px] leading-[17px] text-[#ffb8ae]"
+            id={`${id}-error`}
+            role="alert"
+          >
             {error}
           </div>
-          <p className="otp-resend">
+          <p
+            className={`${RESEND_CLASS} @max-[520.02px]/glass-otp:mb-[34px] @max-[520.02px]/glass-otp:text-[11px] @max-[400.02px]/glass-otp:text-[10px] @max-[260.02px]/glass-otp:whitespace-normal`}
+          >
             Didn’t receive the code?{" "}
             <button
               type="button"
+              className="cursor-pointer pl-[3px] font-medium text-[#e3c641] enabled:hover:text-[#fbe681] enabled:hover:underline enabled:hover:underline-offset-4 disabled:cursor-default"
               onClick={resend}
               disabled={secondsLeft > 0 || locked}
             >
@@ -578,22 +625,25 @@ export default function GlassOtp({
             </button>
           </p>
           <button
-            className="otp-submit flex items-center justify-center gap-2"
+            className={`${SUBMIT_CLASS} enabled:hover:brightness-[1.13] enabled:hover:[transform:translateY(-1px)] enabled:active:[transform:translateY(0)] disabled:cursor-default group-data-[status=success]/otp:border-[#35d69770] group-data-[status=success]/otp:bg-[linear-gradient(180deg,#24cb91,#0faf7d)] group-data-[status=success]/otp:text-[#e7fff3] group-data-[status=success]/otp:shadow-[0_0_30px_#16c98430,inset_0_1px_0_#ffffff25] @max-[260.02px]/glass-otp:px-[10px] @max-[260.02px]/glass-otp:text-[12px] @max-[260.02px]/glass-otp:whitespace-nowrap`}
             type="submit"
             disabled={locked}
           >
             {isSuccess ? (
               <>
-                <Icon name="shield" /> Verified &amp; Secured
+                <Icon name="shield" className="size-[18px]" /> Verified &amp; Secured
               </>
             ) : status === "verifying" ? (
               <>
-                <span className="otp-spinner" aria-hidden="true" /> Verifying
+                <span
+                  className="size-4 animate-[otp-spin_0.75s_linear_infinite] rounded-[50%] border-[1.5px] border-[#17140735] border-t-[#171407]"
+                  aria-hidden="true"
+                /> Verifying
                 Code…
               </>
             ) : (
               <>
-                Verify &amp; Proceed <Icon name="arrow" />
+                Verify &amp; Proceed <Icon name="arrow" className="size-[18px]" />
               </>
             )}
           </button>
@@ -611,130 +661,17 @@ export default function GlassOtp({
   );
 }
 
+/**
+ * Styling lives in Tailwind classes on the markup. This scoped CSS keeps only
+ * what utilities can't express cleanly: the digit transforms composed from
+ * custom properties (and their orbit/success states), rules that must outrank
+ * the site's global unlayered :focus-visible and ::selection styles, keyframes,
+ * and the blanket reduced-motion override.
+ */
 function GlassOtpStyles() {
   return (
     <ComponentStyles css={`
-      .glass-otp {
-        --otp-accent: #e5c43c;
-        --otp-spacing: 73px;
-        container: glass-otp / inline-size;
-        color: #f8f7fa;
-        font-family: Arial, Helvetica, sans-serif;
-        background: #070609;
-      }
-      .glass-otp *,
-      .glass-otp *::before,
-      .glass-otp *::after {
-        box-sizing: border-box;
-      }
-      .glass-otp.otp-stage {
-        min-height: 590px;
-        padding: 52px clamp(16px, 5%, 38px);
-      }
-      .glass-otp .otp-backdrop {
-        pointer-events: none;
-        z-index: -1;
-      }
-      .glass-otp .otp-panel {
-        width: 100%;
-        max-width: 520px;
-        height: 484px;
-      }
-      .glass-otp .otp-cut-surface {
-        border-radius: 27px;
-        clip-path: polygon(20.5% 0, 100% 0, 100% 79.5%, 81% 100%, 0 100%, 0 22%);
-        background: linear-gradient(
-          120deg,
-          rgba(105, 102, 110, 0.32),
-          rgba(28, 26, 31, 0.48) 51%,
-          rgba(21, 18, 25, 0.57)
-        );
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-      }
-      .glass-otp .otp-cut-surface::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        opacity: 0;
-        background: radial-gradient(
-          ellipse at 50% 45%,
-          rgba(32, 151, 77, 0.23),
-          rgba(15, 90, 46, 0.07)
-        );
-        transition: opacity 0.7s;
-      }
-      .glass-otp .otp-corner {
-        position: absolute;
-        width: 15%;
-        height: auto;
-        filter: drop-shadow(0 3px 8px #0003);
-      }
-      .glass-otp .otp-corner-start {
-        left: -4px;
-        top: -4px;
-      }
-      .glass-otp .otp-corner-end {
-        right: -4px;
-        bottom: -4px;
-        transform: rotate(180deg);
-      }
-      .glass-otp .otp-panel-content {
-        padding: 30px 28px 30px;
-      }
-      .glass-otp .otp-key {
-        width: 45px;
-        height: 45px;
-        flex-shrink: 0;
-        margin: 0 auto 10px;
-        border: 1px solid #b8993b48;
-        border-radius: 15px;
-        color: var(--otp-accent);
-        background: #b99b2910;
-        box-shadow:
-          0 0 24px #b99b290d,
-          inset 0 0 0 1px #ffed7b05;
-        transition: all 0.5s;
-      }
-      .glass-otp .otp-key svg {
-        width: 22px;
-        height: 22px;
-      }
-      .glass-otp .otp-title {
-        margin: 0;
-        color: #f5f4f7;
-        font-size: 26px;
-        font-weight: 600;
-        line-height: 1.35;
-        letter-spacing: -0.55px;
-      }
-      .glass-otp .otp-title span {
-        color: var(--otp-accent);
-        transition: color 0.5s;
-      }
-      .glass-otp .otp-description {
-        margin: 5px 0 0;
-        color: #b5afb6;
-        font-size: 12px;
-        font-weight: 400;
-        line-height: 1.6;
-      }
-      .glass-otp .otp-code-track {
-        min-width: 0;
-        min-height: 150px;
-        margin: 0;
-        padding: 0;
-        border: 0;
-      }
       .glass-otp .otp-digit {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        width: 58px;
-        height: 58px;
-        border: 1.5px solid #66606b65;
-        border-radius: 16px;
-        background: #15121ae0;
         transform: translate(-50%, -50%)
           translateX(calc((var(--otp-slot) - 1.5) * var(--otp-spacing)));
         transition:
@@ -742,133 +679,6 @@ function GlassOtpStyles() {
           border-color 0.25s,
           box-shadow 0.25s,
           opacity 0.4s;
-        box-shadow:
-          inset 0 0 0 1px #ffffff02,
-          0 3px 8px #0001;
-      }
-      .glass-otp .otp-digit.is-filled {
-        border-color: #a68b367e;
-      }
-      .glass-otp .otp-digit:focus-within,
-      .glass-otp .otp-digit.is-focused {
-        border-color: #ebcd53;
-        box-shadow:
-          0 0 0 1px #e5c43c18,
-          0 0 24px #e5c43c24;
-      }
-      .glass-otp .otp-digit input,
-      .glass-otp .otp-static-digit {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        border: 0;
-        outline: 0;
-        border-radius: inherit;
-        color: #fff;
-        background: transparent;
-        text-align: center;
-        font-family: inherit;
-        font-size: 27px;
-        font-weight: 600;
-        caret-color: #e5c43c;
-        opacity: 1;
-        -webkit-text-fill-color: #fff;
-      }
-      .glass-otp .otp-digit input::selection {
-        color: #fff;
-        background: #a18d364f;
-      }
-      .glass-otp .otp-feedback {
-        min-height: 17px;
-        margin-top: -8px;
-        font-size: 11px;
-        line-height: 17px;
-        color: #ffb8ae;
-      }
-      .glass-otp .otp-resend {
-        margin: 0 0 45px;
-        color: #a9a3ac;
-        font-size: 12px;
-        line-height: 1.5;
-        white-space: nowrap;
-      }
-      .glass-otp .otp-resend button,
-      .glass-otp .otp-resend span {
-        color: #e3c641;
-        font-weight: 500;
-      }
-      .glass-otp .otp-resend button {
-        border: 0;
-        background: transparent;
-        padding: 0 0 0 3px;
-        font-family: inherit;
-        font-size: inherit;
-        cursor: pointer;
-      }
-      .glass-otp .otp-resend button:disabled {
-        cursor: default;
-      }
-      .glass-otp .otp-resend button:not(:disabled):hover {
-        color: #fbe681;
-        text-decoration: underline;
-        text-underline-offset: 4px;
-      }
-      .glass-otp .otp-submit {
-        width: 252px;
-        max-width: 100%;
-        min-height: 44px;
-        flex-shrink: 0;
-        padding: 10px 18px;
-        border: 1px solid #dbbf4440;
-        border-radius: 12px;
-        background: linear-gradient(180deg, #c7b136, #b09823);
-        color: #161308;
-        box-shadow:
-          inset 0 1px 0 #fff2,
-          0 5px 18px #0001;
-        font-family: inherit;
-        font-size: 14px;
-        font-weight: 600;
-        line-height: 22px;
-        cursor: pointer;
-        transition:
-          filter 0.2s,
-          transform 0.2s,
-          background 0.5s,
-          box-shadow 0.5s;
-      }
-      .glass-otp .otp-submit svg {
-        width: 18px;
-        height: 18px;
-      }
-      .glass-otp .otp-submit:not(:disabled):hover {
-        filter: brightness(1.13);
-        transform: translateY(-1px);
-      }
-      .glass-otp .otp-submit:not(:disabled):active {
-        transform: translateY(0);
-      }
-      .glass-otp .otp-submit:disabled {
-        cursor: default;
-        opacity: 1;
-      }
-      .glass-otp button:focus-visible {
-        outline: 2px solid #f6e5a1;
-        outline-offset: 5px;
-      }
-      .glass-otp .otp-spinner {
-        width: 16px;
-        height: 16px;
-        border: 1.5px solid #17140735;
-        border-top-color: #171407;
-        border-radius: 50%;
-        animation: otp-spin 0.75s linear infinite;
-      }
-      .glass-otp [data-status="verifying"] .otp-orbit {
-        animation: otp-spin 1.8s 0.5s linear infinite;
       }
       .glass-otp [data-status="verifying"] .otp-digit {
         transform: translate(-50%, -50%)
@@ -878,77 +688,20 @@ function GlassOtpStyles() {
           0 2px 0 #b7652e90,
           0 0 18px #b3921f0d;
       }
-      .glass-otp [data-status="verifying"] .otp-digit input {
-        animation: otp-counter-spin 1.8s 0.5s linear infinite;
-      }
-      .glass-otp [data-status="success"] {
-        --otp-accent: #39c773;
-      }
-      .glass-otp [data-status="success"] .otp-cut-surface::after {
-        opacity: 1;
-      }
-      .glass-otp [data-status="success"] .otp-key {
-        border-color: #44c8754d;
-        background: #22ae6215;
-        box-shadow: 0 0 25px #25cb5b17;
-      }
       .glass-otp [data-status="success"] .otp-digit {
         opacity: 0;
         transform: translate(-50%, -50%) scale(0.7);
       }
-      .glass-otp [data-status="success"] .otp-submit {
-        color: #e7fff3;
-        border-color: #35d69770;
-        background: linear-gradient(180deg, #24cb91, #0faf7d);
-        box-shadow:
-          0 0 30px #16c98430,
-          inset 0 1px 0 #ffffff25;
+      .glass-otp .otp-digit input {
+        outline: 0;
       }
-      .glass-otp .otp-success-check {
-        left: 50%;
-        top: 50%;
-        width: 58px;
-        height: 58px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 3px solid #39bc73;
-        border-radius: 16px;
-        background: #17151b;
-        box-shadow:
-          0 0 0 1px #bfa83475,
-          0 0 24px #27c87924;
-        transform: translate(-50%, -50%);
-        animation: otp-confirm 0.55s cubic-bezier(0.2, 0.8, 0.2, 1.2) both;
+      .glass-otp .otp-digit input::selection {
+        color: #fff;
+        background: #a18d364f;
       }
-      .glass-otp .otp-success-check svg {
-        width: 30px;
-        height: 30px;
-      }
-      .glass-otp.otp-thumbnail {
-        min-height: 300px;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .glass-otp .otp-thumbnail-scale {
-        width: 520px;
-        height: 484px;
-        flex-shrink: 0;
-        transform: scale(0.69);
-      }
-      .glass-otp .otp-thumbnail-scale .otp-panel {
-        width: 520px;
-      }
-      .glass-otp .otp-thumbnail-scale .otp-code-track {
-        min-height: 167px;
-      }
-      .glass-otp .otp-static-caret {
-        height: 29px;
-        width: 1.5px;
-        background: #e5c43c;
+      .glass-otp button:focus-visible {
+        outline: 2px solid #f6e5a1;
+        outline-offset: 5px;
       }
       @keyframes otp-spin {
         to {
@@ -968,84 +721,6 @@ function GlassOtpStyles() {
         to {
           opacity: 1;
           transform: translate(-50%, -50%) scale(1);
-        }
-      }
-      @container glass-otp (max-width: 520px) {
-        .glass-otp.otp-stage .otp-panel {
-          height: 450px;
-        }
-        .glass-otp.otp-stage .otp-title {
-          font-size: 23px;
-        }
-        .glass-otp.otp-stage .otp-description {
-          max-width: 265px;
-          font-size: 11px;
-        }
-        .glass-otp.otp-stage .otp-panel-content {
-          padding: 27px 16px;
-        }
-        .glass-otp.otp-stage .otp-resend {
-          margin-bottom: 34px;
-          font-size: 11px;
-        }
-      }
-      @container glass-otp (max-width: 400px) {
-        .glass-otp.otp-stage .otp-panel {
-          --otp-spacing: 61px;
-        }
-        .glass-otp.otp-stage .otp-digit {
-          width: 50px;
-          height: 54px;
-          border-radius: 14px;
-        }
-        .glass-otp.otp-stage .otp-title {
-          font-size: 21px;
-        }
-        .glass-otp.otp-stage .otp-description {
-          max-width: 230px;
-        }
-        .glass-otp.otp-stage .otp-resend {
-          font-size: 10px;
-        }
-        .glass-otp .otp-thumbnail-scale {
-          transform: scale(0.57);
-        }
-      }
-      @container glass-otp (max-width: 260px) {
-        .glass-otp.otp-stage .otp-panel {
-          --otp-spacing: 45px;
-        }
-        .glass-otp.otp-stage .otp-panel-content {
-          padding-inline: 12px;
-        }
-        .glass-otp.otp-stage .otp-digit {
-          width: 38px;
-          height: 46px;
-          border-radius: 11px;
-        }
-        .glass-otp.otp-stage .otp-digit input {
-          font-size: 22px;
-        }
-        .glass-otp.otp-stage .otp-title {
-          font-size: 19px;
-        }
-        .glass-otp.otp-stage .otp-resend {
-          white-space: normal;
-        }
-        .glass-otp.otp-stage .otp-submit {
-          padding-inline: 10px;
-          font-size: 12px;
-          white-space: nowrap;
-        }
-        .glass-otp .otp-thumbnail-scale {
-          transform: scale(0.46);
-        }
-      }
-      @media (max-width: 600px) {
-        .glass-otp.otp-stage {
-          padding-top: 42px;
-          padding-bottom: 42px;
-          min-height: 534px;
         }
       }
       @media (prefers-reduced-motion: reduce) {

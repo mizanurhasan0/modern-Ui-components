@@ -47,43 +47,149 @@ const DEFAULT_SUBJECT: SpiderSubject = {
 };
 type Panel = SpiderSystem | SpiderAnomaly | null;
 
+/*
+ * Tailwind class lists shared by the interactive dossier and its gallery
+ * thumbnail. `@max-[520px]:` classes respond to the component's own width and
+ * are only applied to the interactive dossier, never to the thumbnail.
+ */
+const SR_ONLY =
+  "absolute h-px w-px overflow-hidden whitespace-nowrap [clip:rect(0,0,0,0)]";
+const ROOT =
+  "spider-reveal @container/spider-reveal relative isolate w-full min-w-0 overflow-hidden bg-[#f2f2f2] font-[Arial,Helvetica,sans-serif] text-[#161719] [--sr-radius:19.4cqw] [--sr-x:50%] [--sr-y:50%]";
+const HERO =
+  "sr-hero group/hero relative isolate h-full touch-pan-y snap-start overflow-hidden bg-[#f2f2f2] transition-[background] duration-180 ease-[ease] [--sr-ink:#074b9c] data-[override=true]:bg-[#4c4c4f] data-[override=true]:[--sr-ink:#f22a53]";
+const PORTRAIT =
+  "sr-portrait pointer-events-none absolute top-0 h-[98.88%] select-none [clip-path:polygon(0_0,72%_0,72%_16%,100%_16%,100%_100%,0_100%)]";
+const MAIN_PORTRAIT = `${PORTRAIT} left-[56.11%] aspect-[406/352] w-auto max-w-[72%] -translate-x-1/2 object-cover object-[50%_0] @max-[520px]:left-[13%] @max-[520px]:h-(--sr-portrait-h) @max-[520px]:w-[87%] @max-[520px]:max-w-none @max-[520px]:translate-none @max-[520px]:object-fill`;
+const THUMB_PORTRAIT = `${PORTRAIT} left-[27.916%] w-[56.389%] object-fill`;
+const REVEAL_LAYER = "sr-reveal-layer pointer-events-none absolute inset-0";
+const HEADER =
+  "sr-header absolute right-[1.4%] bottom-auto left-[1.8%] z-3 flex items-center justify-between";
+const BRAND =
+  "sr-brand bg-[#ffffff30] font-semibold tracking-[-.04em] text-(--sr-ink) shadow-[0_3px_7px_#00000012]";
+const NAV_TEXT =
+  "py-[3px] font-[monospace] leading-[1.2] font-semibold tracking-[.07em] uppercase";
+const TELEMETRY =
+  "sr-telemetry absolute right-[1.35%] bottom-[5.4%] z-2 flex flex-col gap-1 rounded-[3px] bg-[#28282b] text-right font-[monospace] leading-[1.2] tracking-[.02em] text-[#a9a9b0]";
+const TELEMETRY_DOT =
+  "inline-block size-[3px] rounded-[50%] bg-[#1669e6] group-data-[override=true]/hero:bg-[#ed284e] group-data-[override=true]/hero:text-[#ed284e]";
+const TELEMETRY_STATUS =
+  "font-normal text-[#2770ce] group-data-[override=true]/hero:text-[#ed284e]";
+const PARTICLE =
+  "sr-particle pointer-events-none absolute size-0.5 bg-[#176dc9] opacity-60 group-data-[override=true]/hero:bg-[#e8224c]";
+const ANOMALIES =
+  "sr-anomalies relative min-h-full snap-start bg-[#050506] px-[7.2%] pb-[3%] text-white";
+const ANOMALY_INTRO =
+  "sr-anomaly-intro mb-[5.4cqw] flex items-center justify-between gap-[30px]";
+const ANOMALY_TITLE =
+  "text-[4.4cqw] leading-none font-medium tracking-[-.04em]";
+const OUTLINED_TITLE = "text-transparent [-webkit-text-stroke:.6px_#c3c3c5]";
+const CARD_GRID = "sr-card-grid grid grid-cols-3 gap-[2.4cqw]";
+const CARD =
+  "sr-card group/card block min-w-0 rounded-[5px] border border-[#15151a] bg-[#0a0a0d] p-[1.4cqw] text-left text-white transition-[border-color,background,translate] duration-180 ease-[ease] hover:-translate-y-0.5 hover:border-[color:var(--sr-accent,#ed284e)] hover:bg-[#100a0e] focus-visible:-translate-y-0.5 focus-visible:border-[color:var(--sr-accent,#ed284e)] focus-visible:bg-[#100a0e]";
+const CARD_ID =
+  "sr-card-id mb-[1.4cqw] flex items-center justify-between font-[monospace] leading-none font-medium tracking-[.08em] text-[#a8a8ad]";
+const CARD_DOT =
+  "block size-1 rounded-[50%] bg-(--sr-accent) shadow-[0_0_9px_var(--sr-accent)]";
+const CARD_IMAGE =
+  "sr-card-image relative block aspect-[1.6] w-full overflow-hidden bg-[#020203]";
+const CARD_PHOTO =
+  "block size-full object-cover [filter:grayscale(.75)_brightness(.6)] transition-[filter,scale] duration-250 ease-[ease] group-hover/card:scale-103 group-hover/card:[filter:none] group-focus-visible/card:scale-103 group-focus-visible/card:[filter:none]";
+const CLASSIFICATION =
+  "sr-classification absolute bottom-[7px] left-1.5 border border-[color-mix(in_srgb,var(--sr-accent)_25%,transparent)] p-[3px] font-[monospace] leading-none font-medium text-(--sr-accent) uppercase";
+const THREAT =
+  "sr-threat flex gap-[3px] font-[monospace] text-[12px] leading-none text-[#838388]";
+const CARD_TITLE =
+  "mt-[1.2cqw] mb-[.65cqw] leading-[1.2] font-semibold tracking-[-.035em] uppercase";
+const DIALOG_TEXT = "text-[13px] leading-[1.7] text-[#aeb8c9]";
+const DIALOG_FACTS = "font-[monospace] text-[10px] leading-[1.5]";
+const DIALOG_ROW = "my-3 flex justify-between gap-5";
+const DIALOG_VALUE = "text-[#5e9cff]";
+
+/** Biography sizing differs between the interactive dossier and the thumbnail. */
+const BIOGRAPHY_VARIANTS = {
+  main: {
+    card: "top-[26.8%] px-[1.6cqw] pt-[1.7cqw] pb-[1.9cqw] @max-[520px]:top-auto @max-[520px]:bottom-[22px] @max-[520px]:left-[18px] @max-[520px]:w-[210px] @max-[520px]:p-4",
+    status: "mb-[2.2cqw] @max-[520px]:mb-4 @max-[520px]:text-[6px]",
+    name: "text-[3.43cqw] @max-[520px]:mb-[17px] @max-[520px]:text-[29px]",
+    facts: "@max-[520px]:text-[6px]",
+    override: "@max-[520px]:mt-3.5 @max-[520px]:text-[7px]",
+    icon: "@max-[520px]:size-6",
+  },
+  thumbnail: {
+    card: "top-[31%] px-[1.4cqw] py-[2cqw]",
+    status: "mb-[2cqw]",
+    name: "text-[3.6cqw]",
+    facts: "",
+    override: "",
+    icon: "",
+  },
+} as const;
+const OVERRIDE =
+  "sr-override mt-[1.65cqw] flex items-center gap-2.5 text-left font-[monospace] text-[length:clamp(4px,.7cqw,8px)] leading-[1.5] font-semibold tracking-[.12em] text-[#d6dbea]";
+const OVERRIDE_ICON =
+  "grid size-[2.6cqw] flex-none place-items-center rounded-[50%] border border-[#596072] text-[9px] font-normal";
+const FACT_LABEL = "text-[#8e94a5]";
+
 function Biography({
   subject,
   overridden,
   onOverride,
+  thumbnail = false,
 }: {
   subject: SpiderSubject;
   overridden: boolean;
   onOverride?: () => void;
+  thumbnail?: boolean;
 }) {
+  const variant = BIOGRAPHY_VARIANTS[thumbnail ? "thumbnail" : "main"];
   return (
-    <div className="sr-biography">
-      <p className="sr-biometric">
-        <span />
+    <div
+      className={`sr-biography absolute left-[1.8%] z-2 w-[25.83%] overflow-hidden rounded-[3px] border border-[#50576e] bg-[#393e50] text-white shadow-[0_13px_18px_#00000020] transition-[background,border-color] duration-200 ease-[ease] group-data-[override=true]/hero:border-[#561725] group-data-[override=true]/hero:bg-[#0b0b0d] ${variant.card}`}
+    >
+      <p
+        className={`sr-biometric flex items-center gap-1.5 font-[monospace] text-[length:clamp(4px,.66cqw,8px)] leading-[1.3] font-semibold tracking-[.16em] whitespace-nowrap text-[#d8dbea] group-data-[override=true]/hero:text-[#ee234d] ${variant.status}`}
+      >
+        <span className="size-[3px] rounded-[50%] bg-[#1471fb] group-data-[override=true]/hero:bg-[#ee234d]" />
         {overridden ? "IDENTITY OVERRIDE" : "BIOMETRICS SECURE"}
       </p>
-      <h2>
-        <span>{subject.firstName}</span>
-        <span>{subject.lastName}</span>
+      <h2
+        className={`mb-[2.3cqw] font-[Arial_Black,Arial,Helvetica,sans-serif] leading-[1.04] font-[950] tracking-[-.045em] uppercase group-data-[override=true]/hero:[text-shadow:-2px_0_#ed1648,2px_1px_#325dff] ${variant.name}`}
+      >
+        <span className="block origin-left scale-x-108 whitespace-nowrap">
+          {subject.firstName}
+        </span>
+        <span className="block origin-left scale-x-108 font-medium tracking-[.035em] whitespace-nowrap text-transparent [-webkit-text-stroke:.55px_#b6bed0]">
+          {subject.lastName}
+        </span>
       </h2>
-      <dl>
-        <div>
-          <dt>PROJECT ALIAS:</dt>
-          <dd>{subject.alias}</dd>
+      <dl
+        className={`font-[monospace] text-[length:clamp(4px,.66cqw,7px)] leading-[1.8] text-[#d8dce6] ${variant.facts}`}
+      >
+        <div className="flex gap-[5px]">
+          <dt className={FACT_LABEL}>PROJECT ALIAS:</dt>
+          <dd className="font-semibold">{subject.alias}</dd>
         </div>
-        <div>
-          <dt>ACCESS LEVEL:</dt>
-          <dd>{overridden ? "OVERRIDE" : "SECURE"}</dd>
+        <div className="flex gap-[5px]">
+          <dt className={FACT_LABEL}>ACCESS LEVEL:</dt>
+          <dd className="font-semibold text-[#2479f0] group-data-[override=true]/hero:text-[#ed2350]">
+            {overridden ? "OVERRIDE" : "SECURE"}
+          </dd>
         </div>
       </dl>
       {onOverride ? (
         <button
           type="button"
-          className="sr-override"
+          className={`${OVERRIDE} cursor-pointer ${variant.override}`}
           onClick={onOverride}
           aria-pressed={overridden}
         >
-          <span aria-hidden="true">{overridden ? "−" : "+"}</span>
+          <span
+            aria-hidden="true"
+            className={`${OVERRIDE_ICON} ${variant.icon}`}
+          >
+            {overridden ? "−" : "+"}
+          </span>
           <span>
             {overridden ? "RESTORE" : "INITIALIZE"}
             <br />
@@ -91,8 +197,13 @@ function Biography({
           </span>
         </button>
       ) : (
-        <span className="sr-override">
-          <span aria-hidden="true">+</span>
+        <span className={`${OVERRIDE} ${variant.override}`}>
+          <span
+            aria-hidden="true"
+            className={`${OVERRIDE_ICON} ${variant.icon}`}
+          >
+            +
+          </span>
           <span>
             INITIALIZE
             <br />
@@ -279,16 +390,21 @@ export default function SpiderReveal({
     } else openPanel(target, trigger);
   }
 
+  const protocol = overridden ? "OVERRIDE" : "CONNECTED";
+
   return (
     <section
-      className={`spider-reveal w-full ${className}`}
+      className={`${ROOT} flex flex-col ${className}`}
       aria-label="E.D.I.T.H identity dossier"
     >
       <ComponentStyles css={SPIDER_STYLES} />
-      <div ref={viewportRef} className="sr-viewport">
+      <div
+        ref={viewportRef}
+        className="sr-viewport h-[min(49.44cqw,620px)] min-h-[300px] flex-[1_0_auto] snap-y snap-proximity overflow-x-hidden overflow-y-auto overscroll-contain [scrollbar-color:#47556b_#0c0d0f] [scrollbar-width:thin] @max-[520px]:h-[520px] @max-[520px]:min-h-0"
+      >
         <section
           ref={heroRef}
-          className="sr-hero"
+          className={`${HERO} min-h-full @max-[520px]:[--sr-portrait-h:min(65%,max(338px,104cqw))]`}
           data-override={overridden}
           data-revealing={revealing || overridden}
           tabIndex={0}
@@ -307,43 +423,49 @@ export default function SpiderReveal({
           }}
           onKeyDown={revealKey}
         >
-          <h1 id={titleId} className="sr-sr-only">
+          <h1 id={titleId} className={SR_ONLY}>
             {subject.firstName} {subject.lastName}: identity reveal
           </h1>
-          <p id={instructionsId} className="sr-sr-only">
+          <p id={instructionsId} className={SR_ONLY}>
             Move your pointer or tap the portrait to reveal its identity. Focus
             this scene and press Enter or Space to toggle the reveal, then use
             arrow keys to move it. Escape hides the spotlight. The override
             button reveals the entire portrait. Scroll to known anomalies.
           </p>
           <img
-            className="sr-portrait"
+            className={MAIN_PORTRAIT}
             src={maskedImage}
             alt="Masked subject portrait"
             draggable={false}
           />
-          <div className="sr-reveal-layer" aria-hidden="true">
+          <div className={REVEAL_LAYER} aria-hidden="true">
             <img
-              className="sr-portrait"
+              className={MAIN_PORTRAIT}
               src={revealedImage}
               alt=""
               draggable={false}
             />
           </div>
-          <header className="sr-header">
+          <header
+            className={`${HEADER} top-[5.4%] @max-[520px]:top-4 @max-[520px]:right-3 @max-[520px]:left-3`}
+          >
             <button
               type="button"
-              className="sr-brand"
+              className={`${BRAND} cursor-pointer px-2 py-1.5 text-[length:clamp(9px,1.55cqw,16px)] @max-[520px]:text-[11px]`}
               onClick={(event) => openPanel("systems", event.currentTarget)}
             >
               E.D.I.T.H
             </button>
-            <nav aria-label="Dossier navigation">
+            <nav
+              aria-label="Dossier navigation"
+              className="flex gap-4 bg-[#ffffff22] px-2.5 py-[5px] shadow-[0_3px_7px_#00000010] @max-[520px]:gap-2.5 @max-[520px]:px-[7px]"
+            >
               {(["systems", "database", "diagnostics"] as const).map(
                 (target) => (
                   <button
                     key={target}
                     type="button"
+                    className={`${NAV_TEXT} cursor-pointer text-[length:clamp(5px,.82cqw,9px)] @max-[520px]:text-[7px]`}
                     onClick={(event) => navigate(target, event.currentTarget)}
                   >
                     {target}
@@ -357,48 +479,70 @@ export default function SpiderReveal({
             overridden={overridden}
             onOverride={toggleOverride}
           />
-          <div className="sr-signal" aria-hidden="true">
+          <div
+            className="sr-signal absolute bottom-[9.5%] left-[48%] z-2 bg-[#231017] px-0.5 py-[3px] font-[monospace] text-[.55cqw] leading-[1.3] font-medium tracking-[.12em] text-[#eee] @max-[520px]:bottom-[calc(100%_-_var(--sr-portrait-h)_+_15.6px)] @max-[520px]:text-[4px]"
+            aria-hidden="true"
+          >
             SIGNAL DATA
-            <span />
+            <span className="mx-auto mt-[5px] -mb-6 block h-5 w-px bg-[#ffffff33]" />
           </div>
-          <div className="sr-telemetry" aria-hidden="true">
+          <div
+            className={`${TELEMETRY} p-2.5 text-[length:clamp(3px,.58cqw,6px)] @max-[520px]:right-3 @max-[520px]:bottom-[calc(100%_-_var(--sr-portrait-h)_+_26px)] @max-[520px]:p-2 @max-[520px]:text-[5px]`}
+            aria-hidden="true"
+          >
             <span>
-              SYS.GRID <i />
+              SYS.GRID <i className={TELEMETRY_DOT} />
             </span>
             <span>
               LAT: {coordinate.y.toFixed(4)} / LONG: {coordinate.x.toFixed(4)}
             </span>
             <span>
-              PROTOCOL: <b>{overridden ? "OVERRIDE" : "CONNECTED"}</b>
+              PROTOCOL: <b className={TELEMETRY_STATUS}>{protocol}</b>
             </span>
           </div>
-          <span className="sr-particle sr-particle-a" aria-hidden="true" />
-          <span className="sr-particle sr-particle-b" aria-hidden="true" />
-          <span className="sr-particle sr-particle-c" aria-hidden="true" />
+          <span
+            className={`${PARTICLE} top-[18%] left-[22%]`}
+            aria-hidden="true"
+          />
+          <span
+            className={`${PARTICLE} top-[52%] left-[78%]`}
+            aria-hidden="true"
+          />
+          <span
+            className={`${PARTICLE} top-[72%] left-[30%]`}
+            aria-hidden="true"
+          />
         </section>
         <section
-          className="sr-anomalies"
+          className={`${ANOMALIES} pt-[5.5%] @max-[520px]:px-[18px] @max-[520px]:pt-[30px] @max-[520px]:pb-6`}
           aria-labelledby={`${titleId}-anomalies`}
         >
-          <div className="sr-anomaly-intro">
-            <h2 id={`${titleId}-anomalies`}>
+          <div
+            className={`${ANOMALY_INTRO} @max-[520px]:mb-6 @max-[520px]:gap-3.5`}
+          >
+            <h2
+              id={`${titleId}-anomalies`}
+              className={`${ANOMALY_TITLE} @max-[520px]:text-[30px]`}
+            >
               KNOWN
               <br />
-              <span>ANOMALIES</span>
+              <span className={OUTLINED_TITLE}>ANOMALIES</span>
             </h2>
-            <p>
+            <p className="max-w-[32%] text-right font-[monospace] text-[length:clamp(4px,.75cqw,9px)] leading-[1.7] text-[#73737d] @max-[520px]:max-w-[45%] @max-[520px]:text-[6px]">
               Accessing classified multiversal nodes. Real-time threat detection
               active. Proceed with caution when engaging subjects.
               <br />
               Hover to analyze.
             </p>
           </div>
-          <div className="sr-card-grid">
+          <div
+            className={`${CARD_GRID} @max-[520px]:grid-cols-[1fr] @max-[520px]:gap-4`}
+          >
             {anomalies.map((anomaly) => (
               <button
                 key={anomaly.id}
                 type="button"
-                className="sr-card"
+                className={`${CARD} cursor-pointer @max-[520px]:grid @max-[520px]:grid-cols-[110px_1fr] @max-[520px]:gap-x-[15px] @max-[520px]:gap-y-0 @max-[520px]:p-3`}
                 style={
                   {
                     "--sr-accent": anomaly.accent ?? "#ed284e",
@@ -409,32 +553,51 @@ export default function SpiderReveal({
                   openPanel(anomaly, event.currentTarget);
                 }}
               >
-                <span className="sr-card-id">
+                <span
+                  className={`${CARD_ID} text-[.8cqw] @max-[520px]:col-span-full @max-[520px]:mb-2.5 @max-[520px]:text-[8px]`}
+                >
                   ID-{anomaly.id}
-                  <i />
+                  <i className={CARD_DOT} />
                 </span>
-                <span className="sr-card-image">
+                <span
+                  className={`${CARD_IMAGE} @max-[520px]:row-[2/4] @max-[520px]:aspect-[1.2]`}
+                >
                   {anomaly.image ? (
-                    <img src={anomaly.image} alt="" draggable={false} />
+                    <img
+                      className={CARD_PHOTO}
+                      src={anomaly.image}
+                      alt=""
+                      draggable={false}
+                    />
                   ) : (
-                    <span className="sr-threat" aria-hidden="true">
+                    <span className={THREAT} aria-hidden="true">
                       ◒<span>Threat</span>
                     </span>
                   )}
-                  <span className="sr-classification">
+                  <span
+                    className={`${CLASSIFICATION} text-[.7cqw] @max-[520px]:text-[6px]`}
+                  >
                     {anomaly.classification}
                   </span>
                 </span>
-                <h3>{anomaly.name}</h3>
-                <p>{anomaly.description}</p>
+                <h3
+                  className={`${CARD_TITLE} text-[1.5cqw] @max-[520px]:mt-0 @max-[520px]:mb-[7px] @max-[520px]:self-end @max-[520px]:text-[14px]`}
+                >
+                  {anomaly.name}
+                </h3>
+                <p className="font-[monospace] text-[.76cqw] leading-[1.7] text-[#94949d] @max-[520px]:text-[8px]">
+                  {anomaly.description}
+                </p>
               </button>
             ))}
           </div>
           {!anomalies.length && (
-            <p className="sr-no-anomalies">No anomalies detected.</p>
+            <p className="sr-no-anomalies font-[monospace] text-[12px] leading-[1.5] text-[#a4a4ab]">
+              No anomalies detected.
+            </p>
           )}
           <button
-            className="sr-return"
+            className={`sr-return mt-[18px] cursor-pointer py-[5px] font-[monospace] text-[10px] leading-[1.3] text-[#8a8a98]`}
             type="button"
             onClick={() => {
               const viewport = viewportRef.current;
@@ -454,7 +617,7 @@ export default function SpiderReveal({
           </button>
         </section>
       </div>
-      <p className="sr-sr-only" role="status" aria-live="polite">
+      <p className={SR_ONLY} role="status" aria-live="polite">
         {overridden
           ? "Identity override active. Full portrait revealed."
           : revealing
@@ -463,7 +626,7 @@ export default function SpiderReveal({
       </p>
       <dialog
         ref={dialogRef}
-        className="sr-dialog"
+        className="sr-dialog max-h-[85dvh] w-[440px] max-w-[calc(100vw_-_32px)] rounded-lg border border-[#39465a] bg-[#11141b] p-0 font-[Arial,Helvetica,sans-serif] text-[#e1e6ef] shadow-[0_20px_80px_#0006] backdrop:bg-[#0009] backdrop:backdrop-blur-[4px]"
         aria-labelledby={panelId}
         onCancel={(event) => {
           event.preventDefault();
@@ -474,17 +637,22 @@ export default function SpiderReveal({
           if (event.target === event.currentTarget) closePanel();
         }}
       >
-        <div className="sr-dialog-content">
+        <div className="sr-dialog-content relative p-[30px]">
           <button
             type="button"
-            className="sr-dialog-close"
+            className={`sr-dialog-close absolute top-3.5 right-4 size-7 cursor-pointer rounded-[50%] border border-[#4c5669] text-[22px] leading-none text-white`}
             aria-label="Close dossier panel"
             onClick={closePanel}
           >
             ×
           </button>
-          <p className="sr-dialog-eyebrow">E.D.I.T.H / CLASSIFIED</p>
-          <h2 id={panelId}>
+          <p className="sr-dialog-eyebrow mb-3.5 font-[monospace] text-[10px] leading-[1.4] tracking-[.1em] text-[#538ded]">
+            E.D.I.T.H / CLASSIFIED
+          </p>
+          <h2
+            id={panelId}
+            className="mr-[25px] mb-[18px] text-[26px] leading-[1.15]"
+          >
             {typeof panel === "object" && panel
               ? panel.name
               : panel === "diagnostics"
@@ -495,53 +663,55 @@ export default function SpiderReveal({
             <>
               {panel.image && (
                 <img
-                  className="sr-dialog-image"
+                  className="sr-dialog-image block max-h-[230px] w-full rounded-sm object-cover"
                   src={panel.image}
                   alt={panel.name}
                 />
               )}
-              <p>{panel.description}</p>
-              <dl>
-                <div>
+              <p className={DIALOG_TEXT}>{panel.description}</p>
+              <dl className={DIALOG_FACTS}>
+                <div className={DIALOG_ROW}>
                   <dt>NODE</dt>
-                  <dd>ID-{panel.id}</dd>
+                  <dd className={DIALOG_VALUE}>ID-{panel.id}</dd>
                 </div>
-                <div>
+                <div className={DIALOG_ROW}>
                   <dt>CLASSIFICATION</dt>
-                  <dd>{panel.classification}</dd>
+                  <dd className={DIALOG_VALUE}>{panel.classification}</dd>
                 </div>
               </dl>
             </>
           ) : panel === "diagnostics" ? (
             <>
-              <p>
+              <p className={DIALOG_TEXT}>
                 Local biometric link established. Move your pointer to inspect
                 the subject or use the keyboard reveal controls.
               </p>
-              <dl>
-                <div>
+              <dl className={DIALOG_FACTS}>
+                <div className={DIALOG_ROW}>
                   <dt>SIGNAL</dt>
-                  <dd>CONNECTED</dd>
+                  <dd className={DIALOG_VALUE}>CONNECTED</dd>
                 </div>
-                <div>
+                <div className={DIALOG_ROW}>
                   <dt>IDENTITY</dt>
-                  <dd>{overridden ? "OVERRIDE ACTIVE" : "SECURE"}</dd>
+                  <dd className={DIALOG_VALUE}>
+                    {overridden ? "OVERRIDE ACTIVE" : "SECURE"}
+                  </dd>
                 </div>
-                <div>
+                <div className={DIALOG_ROW}>
                   <dt>ANOMALIES</dt>
-                  <dd>{anomalies.length} TRACKED</dd>
+                  <dd className={DIALOG_VALUE}>{anomalies.length} TRACKED</dd>
                 </div>
               </dl>
             </>
           ) : (
             <>
-              <p>
+              <p className={DIALOG_TEXT}>
                 Identity protection is {overridden ? "overridden" : "active"}{" "}
                 for {subject.firstName} {subject.lastName}. Initialize the
                 override sequence to inspect the unmasked portrait.
               </p>
               <button
-                className="sr-dialog-action"
+                className={`sr-dialog-action cursor-pointer rounded-[4px] border border-[#375d9e] bg-[#192846] px-3.5 py-[11px] font-[monospace] text-[11px] leading-[1.3] text-[#e8edff]`}
                 type="button"
                 onClick={toggleOverride}
               >
@@ -577,65 +747,79 @@ export function SpiderRevealThumbnail({
   } as CSSProperties;
   return (
     <div
-      className={`spider-reveal sr-thumbnail w-full ${className}`}
+      className={`${ROOT} sr-thumbnail h-full ${className}`}
       aria-hidden="true"
       inert
       style={style}
     >
       <ComponentStyles css={SPIDER_STYLES} />
       {anomalyView ? (
-        <div className="sr-anomalies">
-          <div className="sr-anomaly-intro">
-            <h2>
+        <div className={`${ANOMALIES} h-full pt-[10%]`}>
+          <div className={ANOMALY_INTRO}>
+            <h2 className={ANOMALY_TITLE}>
               KNOWN
               <br />
-              <span>ANOMALIES</span>
+              <span className={OUTLINED_TITLE}>ANOMALIES</span>
             </h2>
           </div>
-          <div className="sr-card-grid">
+          <div className={CARD_GRID}>
             {SPIDER_ANOMALIES.map((anomaly) => (
               <div
                 key={anomaly.id}
-                className="sr-card"
+                className={CARD}
                 style={{ "--sr-accent": anomaly.accent } as CSSProperties}
               >
-                <span className="sr-card-id">
+                <span className={`${CARD_ID} text-[1.1cqw]`}>
                   ID-{anomaly.id}
-                  <i />
+                  <i className={CARD_DOT} />
                 </span>
-                <span className="sr-card-image">
+                <span className={CARD_IMAGE}>
                   {anomaly.image ? (
-                    <img src={anomaly.image} alt="" />
+                    <img className={CARD_PHOTO} src={anomaly.image} alt="" />
                   ) : (
-                    <span className="sr-threat">Threat</span>
+                    <span className={THREAT}>Threat</span>
                   )}
-                  <span className="sr-classification">
+                  <span className={`${CLASSIFICATION} text-[.8cqw]`}>
                     {anomaly.classification}
                   </span>
                 </span>
-                <h3>{anomaly.name}</h3>
+                <h3 className={`${CARD_TITLE} text-[1.65cqw]`}>
+                  {anomaly.name}
+                </h3>
               </div>
             ))}
           </div>
         </div>
       ) : (
         <div
-          className="sr-hero"
+          className={`${HERO} min-h-0`}
           data-revealing={step > 0}
           data-override={override}
         >
-          <img className="sr-portrait" src={SPIDER_IMAGES.masked} alt="" />
-          <div className="sr-reveal-layer">
-            <img className="sr-portrait" src={SPIDER_IMAGES.revealed} alt="" />
+          <img className={THUMB_PORTRAIT} src={SPIDER_IMAGES.masked} alt="" />
+          <div className={REVEAL_LAYER}>
+            <img
+              className={THUMB_PORTRAIT}
+              src={SPIDER_IMAGES.revealed}
+              alt=""
+            />
           </div>
-          <div className="sr-header">
-            <span className="sr-brand">E.D.I.T.H</span>
-            <span className="sr-thumb-nav">
+          <div className={`${HEADER} top-[9%]`}>
+            <span className={`${BRAND} px-[5px] py-[3px] text-[2cqw]`}>
+              E.D.I.T.H
+            </span>
+            <span className={`sr-thumb-nav ${NAV_TEXT} text-[1cqw]`}>
               SYSTEMS　 DATABASE　 DIAGNOSTICS
             </span>
           </div>
-          <Biography subject={DEFAULT_SUBJECT} overridden={override} />
-          <span className="sr-telemetry">SYS.GRID / CONNECTED</span>
+          <Biography
+            subject={DEFAULT_SUBJECT}
+            overridden={override}
+            thumbnail
+          />
+          <span className={`${TELEMETRY} p-1.5 text-[.85cqw]`}>
+            SYS.GRID / CONNECTED
+          </span>
         </div>
       )}
     </div>
@@ -643,33 +827,12 @@ export function SpiderRevealThumbnail({
 }
 
 const SPIDER_STYLES = `
-.spider-reveal{container:spider-reveal / inline-size;position:relative;isolation:isolate;width:100%;min-width:0;overflow:hidden;background:#f2f2f2;color:#161719;font-family:Arial,Helvetica,sans-serif;--sr-x:50%;--sr-y:50%;--sr-radius:19.4cqw}
-.spider-reveal *{box-sizing:border-box}.spider-reveal button{font-family:inherit;cursor:pointer}.spider-reveal button:focus-visible,.spider-reveal .sr-hero:focus-visible{outline:2px solid #176de8;outline-offset:-4px}.spider-reveal .sr-sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
-.spider-reveal .sr-viewport{height:49.44cqw;min-height:300px;max-height:620px;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y proximity;scrollbar-width:thin;scrollbar-color:#47556b #0c0d0f;overscroll-behavior:contain}
-.spider-reveal .sr-hero{position:relative;isolation:isolate;min-height:100%;height:100%;overflow:hidden;scroll-snap-align:start;background:#f2f2f2;transition:background .18s ease;touch-action:pan-y;--sr-ink:#074b9c}
-.spider-reveal .sr-portrait{position:absolute;left:27.916%;top:0;width:56.389%;height:98.88%;object-fit:fill;clip-path:polygon(0 0,72% 0,72% 16%,100% 16%,100% 100%,0 100%);user-select:none;pointer-events:none}
-.spider-reveal .sr-reveal-layer{position:absolute;inset:0;background:#f2f2f2;clip-path:circle(0px at var(--sr-x) var(--sr-y));transition:clip-path .12s ease;pointer-events:none}
+/* Kept as CSS: must out-rank the host page's unlayered global :focus-visible ring, which beats layered utilities. */
+.spider-reveal button:focus-visible,.spider-reveal .sr-hero:focus-visible{outline:2px solid #176de8;outline-offset:-4px}
+/* Kept as CSS: the spotlight is a circle computed from three runtime custom properties with three exclusive states. */
+.spider-reveal .sr-reveal-layer{background:#f2f2f2;clip-path:circle(0px at var(--sr-x) var(--sr-y));transition:clip-path .12s ease}
 .spider-reveal .sr-hero[data-revealing=true] .sr-reveal-layer{clip-path:circle(var(--sr-radius) at var(--sr-x) var(--sr-y))}
-.spider-reveal .sr-hero[data-override=true]{background:#4c4c4f;--sr-ink:#f22a53}
 .spider-reveal .sr-hero[data-override=true] .sr-reveal-layer{background:#4c4c4f;clip-path:circle(150% at 50% 50%)}
-.spider-reveal .sr-header{position:absolute;z-index:3;inset:5.4% 1.4% auto 1.8%;display:flex;justify-content:space-between;align-items:center}
-.spider-reveal .sr-brand{margin:0;padding:6px 8px;border:0;background:#ffffff30;box-shadow:0 3px 7px #00000012;color:var(--sr-ink);font-size:clamp(9px,1.55cqw,16px);font-weight:600;letter-spacing:-.04em}
-.spider-reveal .sr-header nav{display:flex;padding:5px 10px;gap:16px;background:#ffffff22;box-shadow:0 3px 7px #00000010}.spider-reveal .sr-header nav button,.spider-reveal .sr-thumb-nav{padding:3px 0;border:0;background:none;color:inherit;font:600 clamp(5px,.82cqw,9px)/1.2 monospace;letter-spacing:.07em;text-transform:uppercase}
-.spider-reveal .sr-biography{position:absolute;z-index:2;top:26.8%;left:1.8%;width:25.83%;padding:1.7cqw 1.6cqw 1.9cqw;overflow:hidden;border:1px solid #50576e;border-radius:3px;background:#393e50;box-shadow:0 13px 18px #00000020;color:#fff;transition:background .2s,border-color .2s}
-.spider-reveal .sr-biometric{display:flex;align-items:center;gap:6px;margin:0 0 2.2cqw;color:#d8dbea;font:600 clamp(4px,.66cqw,8px)/1.3 monospace;letter-spacing:.16em;white-space:nowrap}.spider-reveal .sr-biometric>span{width:3px;height:3px;border-radius:50%;background:#1471fb}
-.spider-reveal .sr-biography h2{margin:0 0 2.3cqw;font-family:Arial Black,Arial,Helvetica,sans-serif;font-size:3.43cqw;font-weight:950;line-height:1.04;letter-spacing:-.045em;text-transform:uppercase}.spider-reveal .sr-biography h2>span{display:block;white-space:nowrap;transform:scaleX(1.08);transform-origin:left}.spider-reveal .sr-biography h2>span+span{color:transparent;-webkit-text-stroke:.55px #b6bed0;font-weight:500;letter-spacing:.035em}
-.spider-reveal .sr-biography dl{margin:0;color:#d8dce6;font:clamp(4px,.66cqw,7px)/1.8 monospace}.spider-reveal .sr-biography dl>div{display:flex;gap:5px}.spider-reveal .sr-biography dt{color:#8e94a5}.spider-reveal .sr-biography dd{margin:0;font-weight:600}.spider-reveal .sr-biography dl>div+div dd{color:#2479f0}
-.spider-reveal .sr-override{display:flex;align-items:center;gap:10px;margin-top:1.65cqw;padding:0;border:0;background:none;color:#d6dbea;text-align:left;font:600 clamp(4px,.7cqw,8px)/1.5 monospace;letter-spacing:.12em}.spider-reveal .sr-override>span:first-child{display:grid;place-items:center;flex:none;width:2.6cqw;height:2.6cqw;border:1px solid #596072;border-radius:50%;font-size:9px;font-weight:400}
-.spider-reveal .sr-hero[data-override=true] .sr-biography{background:#0b0b0d;border-color:#561725}.spider-reveal .sr-hero[data-override=true] .sr-biometric{color:#ee234d}.spider-reveal .sr-hero[data-override=true] .sr-biometric>span{background:#ee234d}.spider-reveal .sr-hero[data-override=true] .sr-biography h2{text-shadow:-2px 0 #ed1648,2px 1px #325dff}.spider-reveal .sr-hero[data-override=true] .sr-biography dl>div+div dd{color:#ed2350}
-.spider-reveal .sr-signal{position:absolute;z-index:2;left:48%;bottom:9.5%;padding:3px 2px;background:#231017;color:#eee;font:500 .55cqw/1.3 monospace;letter-spacing:.12em}.spider-reveal .sr-signal span{display:block;margin:5px auto -24px;width:1px;height:20px;background:#ffffff33}
-.spider-reveal .sr-telemetry{position:absolute;z-index:2;right:1.35%;bottom:5.4%;display:flex;flex-direction:column;gap:4px;padding:10px;border-radius:3px;background:#28282b;color:#a9a9b0;text-align:right;font:clamp(3px,.58cqw,6px)/1.2 monospace;letter-spacing:.02em}.spider-reveal .sr-telemetry b{font-weight:400;color:#2770ce}.spider-reveal .sr-telemetry i{display:inline-block;width:3px;height:3px;border-radius:50%;background:#1669e6}.spider-reveal .sr-hero[data-override=true] .sr-telemetry b,.spider-reveal .sr-hero[data-override=true] .sr-telemetry i{color:#ed284e}.spider-reveal .sr-hero[data-override=true] .sr-telemetry i{background:#ed284e}
-.spider-reveal .sr-particle{position:absolute;width:2px;height:2px;background:#176dc9;pointer-events:none;opacity:.6}.spider-reveal .sr-particle-a{left:22%;top:18%}.spider-reveal .sr-particle-b{left:78%;top:52%}.spider-reveal .sr-particle-c{left:30%;top:72%}.spider-reveal .sr-hero[data-override=true] .sr-particle{background:#e8224c}
-.spider-reveal .sr-anomalies{position:relative;min-height:100%;scroll-snap-align:start;padding:5.5% 7.2% 3%;background:#050506;color:#fff}.spider-reveal .sr-anomaly-intro{display:flex;justify-content:space-between;align-items:center;gap:30px;margin-bottom:5.4cqw}.spider-reveal .sr-anomaly-intro h2{margin:0;font-size:4.4cqw;font-weight:500;line-height:1;letter-spacing:-.04em}.spider-reveal .sr-anomaly-intro h2 span{color:transparent;-webkit-text-stroke:.6px #c3c3c5}.spider-reveal .sr-anomaly-intro>p{max-width:32%;margin:0;color:#73737d;text-align:right;font:clamp(4px,.75cqw,9px)/1.7 monospace}
-.spider-reveal .sr-card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2.4cqw}.spider-reveal .sr-card{display:block;min-width:0;padding:1.4cqw;border:1px solid #15151a;border-radius:5px;background:#0a0a0d;color:#fff;text-align:left;transition:border-color .18s,background .18s,transform .18s}.spider-reveal .sr-card:hover,.spider-reveal .sr-card:focus-visible{border-color:var(--sr-accent,#ed284e);background:#100a0e;transform:translateY(-2px)}.spider-reveal .sr-card-id{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.4cqw;color:#a8a8ad;font:500 .8cqw/1 monospace;letter-spacing:.08em}.spider-reveal .sr-card-id i{display:block;width:4px;height:4px;border-radius:50%;background:var(--sr-accent);box-shadow:0 0 9px var(--sr-accent)}
-.spider-reveal .sr-card-image{position:relative;display:block;width:100%;aspect-ratio:1.6;overflow:hidden;background:#020203}.spider-reveal .sr-card-image>img{display:block;width:100%;height:100%;object-fit:cover;filter:grayscale(.75) brightness(.6);transition:filter .25s,transform .25s}.spider-reveal .sr-card:hover .sr-card-image>img,.spider-reveal .sr-card:focus-visible .sr-card-image>img{filter:none;transform:scale(1.03)}.spider-reveal .sr-classification{position:absolute;bottom:7px;left:6px;padding:3px;border:1px solid color-mix(in srgb,var(--sr-accent) 25%,transparent);color:var(--sr-accent);font:500 .7cqw/1 monospace;text-transform:uppercase}.spider-reveal .sr-threat{display:flex;gap:3px;color:#838388;font:12px/1 monospace}.spider-reveal .sr-card h3{margin:1.2cqw 0 .65cqw;font-size:1.5cqw;font-weight:600;line-height:1.2;text-transform:uppercase;letter-spacing:-.035em}.spider-reveal .sr-card>p{margin:0;color:#94949d;font:.76cqw/1.7 monospace}.spider-reveal .sr-return{margin-top:18px;padding:5px 0;border:0;background:none;color:#8a8a98;font:10px/1.3 monospace}.spider-reveal .sr-no-anomalies{font:12px/1.5 monospace;color:#a4a4ab}
-.spider-reveal .sr-dialog{max-width:calc(100vw - 32px);width:440px;max-height:85dvh;padding:0;border:1px solid #39465a;border-radius:8px;background:#11141b;color:#e1e6ef;box-shadow:0 20px 80px #0006;font-family:Arial,Helvetica,sans-serif}.spider-reveal .sr-dialog::backdrop{background:#0009;backdrop-filter:blur(4px)}.spider-reveal .sr-dialog-content{position:relative;padding:30px}.spider-reveal .sr-dialog-close{position:absolute;right:16px;top:14px;width:28px;height:28px;border:1px solid #4c5669;border-radius:50%;background:none;color:#fff;font-size:22px;line-height:1}.spider-reveal .sr-dialog-eyebrow{margin:0 0 14px;color:#538ded;font:10px/1.4 monospace;letter-spacing:.1em}.spider-reveal .sr-dialog h2{margin:0 25px 18px 0;font-size:26px;line-height:1.15}.spider-reveal .sr-dialog p:not(.sr-dialog-eyebrow){font-size:13px;line-height:1.7;color:#aeb8c9}.spider-reveal .sr-dialog dl{font:10px/1.5 monospace}.spider-reveal .sr-dialog dl>div{display:flex;justify-content:space-between;gap:20px;margin:12px 0}.spider-reveal .sr-dialog dd{margin:0;color:#5e9cff}.spider-reveal .sr-dialog-image{display:block;width:100%;max-height:230px;object-fit:cover;border-radius:4px}.spider-reveal .sr-dialog-action{padding:11px 14px;border:1px solid #375d9e;border-radius:4px;background:#192846;color:#e8edff;font:11px/1.3 monospace}
-.spider-reveal.sr-thumbnail{height:100%;overflow:hidden}.spider-reveal.sr-thumbnail .sr-hero{height:100%;min-height:0}.spider-reveal.sr-thumbnail .sr-biography{top:31%;padding:2cqw 1.4cqw}.spider-reveal.sr-thumbnail .sr-biometric{margin-bottom:2cqw}.spider-reveal.sr-thumbnail .sr-biography h2{font-size:3.6cqw}.spider-reveal.sr-thumbnail .sr-header{top:9%}.spider-reveal.sr-thumbnail .sr-brand{padding:3px 5px;font-size:2cqw}.spider-reveal.sr-thumbnail .sr-thumb-nav{font-size:1cqw}.spider-reveal.sr-thumbnail .sr-telemetry{padding:6px;font-size:.85cqw}.spider-reveal.sr-thumbnail .sr-anomalies{height:100%;padding-top:10%}.spider-reveal.sr-thumbnail .sr-card-id{font-size:1.1cqw}.spider-reveal.sr-thumbnail .sr-card h3{font-size:1.65cqw}.spider-reveal.sr-thumbnail .sr-classification{font-size:.8cqw}
-@container spider-reveal (max-width:520px){.spider-reveal:not(.sr-thumbnail) .sr-viewport{height:520px;min-height:0}.spider-reveal:not(.sr-thumbnail) .sr-portrait{left:13%;top:0;width:87%;height:65%;object-fit:fill}.spider-reveal:not(.sr-thumbnail) .sr-header{top:16px;left:12px;right:12px}.spider-reveal:not(.sr-thumbnail) .sr-header nav{gap:10px;padding:5px 7px}.spider-reveal:not(.sr-thumbnail) .sr-header nav button{font-size:7px}.spider-reveal:not(.sr-thumbnail) .sr-brand{font-size:11px}.spider-reveal:not(.sr-thumbnail) .sr-biography{top:auto;bottom:22px;left:18px;width:210px;padding:16px}.spider-reveal:not(.sr-thumbnail) .sr-biometric{font-size:6px;margin-bottom:16px}.spider-reveal:not(.sr-thumbnail) .sr-biography h2{font-size:29px;margin-bottom:17px}.spider-reveal:not(.sr-thumbnail) .sr-biography dl{font-size:6px}.spider-reveal:not(.sr-thumbnail) .sr-override{font-size:7px;margin-top:14px}.spider-reveal:not(.sr-thumbnail) .sr-override>span:first-child{width:24px;height:24px}.spider-reveal:not(.sr-thumbnail) .sr-telemetry{right:12px;bottom:40%;font-size:5px;padding:8px}.spider-reveal:not(.sr-thumbnail) .sr-signal{bottom:38%;font-size:4px}.spider-reveal:not(.sr-thumbnail) .sr-anomaly-intro h2{font-size:30px}.spider-reveal:not(.sr-thumbnail) .sr-anomaly-intro>p{font-size:6px;max-width:45%}.spider-reveal:not(.sr-thumbnail) .sr-anomaly-intro{margin-bottom:24px;gap:14px}.spider-reveal:not(.sr-thumbnail) .sr-card-grid{grid-template-columns:1fr;gap:16px}.spider-reveal:not(.sr-thumbnail) .sr-card{padding:12px;display:grid;grid-template-columns:110px 1fr;gap:0 15px}.spider-reveal:not(.sr-thumbnail) .sr-card-id{grid-column:1/-1;font-size:8px;margin-bottom:10px}.spider-reveal:not(.sr-thumbnail) .sr-card-image{grid-row:2/4;aspect-ratio:1.2}.spider-reveal:not(.sr-thumbnail) .sr-card h3{font-size:14px;align-self:end;margin:0 0 7px}.spider-reveal:not(.sr-thumbnail) .sr-card>p{font-size:8px}.spider-reveal:not(.sr-thumbnail) .sr-classification{font-size:6px}.spider-reveal:not(.sr-thumbnail) .sr-anomalies{padding:30px 18px 24px}}
 @media(prefers-reduced-motion:reduce){.spider-reveal *{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 `;
 

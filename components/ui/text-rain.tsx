@@ -61,6 +61,19 @@ function rainDrop(alphabet: string[], id: number, cycle = 0): RainDrop {
   };
 }
 
+/** Shared by the live scene and the thumbnail. */
+const ROOT_CLASS =
+  "text-rain-root @container relative isolate w-full overflow-hidden bg-[#171c1f] font-[Arial,Helvetica,sans-serif] text-[color:var(--text-rain-color,#fff)] **:box-border";
+const LETTER_CLASS =
+  "text-rain-letter absolute top-0 h-5 origin-bottom font-normal leading-5 uppercase select-none text-[color:var(--text-rain-color,#fff)] [text-shadow:0_0_5px_currentColor,0_0_15px_currentColor,0_0_25px_currentColor] animate-[text-rain-fall_var(--text-rain-duration,2s)_linear_infinite]";
+/** Live letters play only while the root is running; reduced motion freezes them in place. */
+const LIVE_LETTER_CLASS = `${LETTER_CLASS} [animation-play-state:paused] group-data-[running=true]/rain:[animation-play-state:running] group-data-[reduced-motion=true]/rain:animate-none group-data-[reduced-motion=true]/rain:[transform:translateY(var(--text-rain-still-y,80px))_scale(var(--text-rain-still-scale,1))] motion-reduce:animate-none motion-reduce:[transform:translateY(var(--text-rain-still-y,80px))_scale(var(--text-rain-still-scale,1))]`;
+const FIELD_CLASS = "text-rain-field relative h-[424px] w-[300px]";
+/* Start 40px inside the cloud body, so its silhouette hides new letters. */
+const DROPS_CLASS = "text-rain-drops absolute top-[114px] left-0 h-[310px] w-[300px]";
+const CONTROL_BUTTON_CLASS =
+  "flex cursor-pointer items-center justify-center gap-[7px] rounded-[999px] border border-[rgba(255,255,255,.14)] bg-[rgba(255,255,255,.025)] px-3 py-[9px] font-[Arial,Helvetica,sans-serif] text-[11px]/[1.2] font-normal text-[rgba(255,255,255,.7)] hover:border-[rgba(255,255,255,.38)] hover:bg-[rgba(255,255,255,.06)] hover:text-white";
+
 function letterStyle(drop: RainDrop, duration: number): CSSProperties {
   return {
     left: `${drop.x}%`,
@@ -74,7 +87,7 @@ function letterStyle(drop: RainDrop, duration: number): CSSProperties {
 function Cloud() {
   return (
     <svg
-      className="text-rain-cloud"
+      className="text-rain-cloud absolute top-0 left-0 z-[2] h-[170px] w-[300px] text-[color:var(--text-rain-color,#fff)] [filter:drop-shadow(0_0_10px_currentColor)_drop-shadow(0_0_20px_currentColor)]"
       viewBox="0 0 300 170"
       fill="currentColor"
       aria-hidden="true"
@@ -101,7 +114,7 @@ function AnimatedLetter({
 
   return (
     <span
-      className="text-rain-letter"
+      className={LIVE_LETTER_CLASS}
       style={letterStyle(drop, duration)}
       onAnimationIteration={(event) => {
         if (
@@ -128,9 +141,12 @@ function RainField({
   duration: number;
 }) {
   return (
-    <div className="text-rain-field" aria-hidden="true">
+    <div
+      className={`${FIELD_CLASS} @max-[360px]:origin-top-left @max-[360px]:[transform:scale(.82)] @max-[280px]:[transform:scale(.66)] @min-[1100px]:origin-top-left @min-[1100px]:[transform:scale(1.3)]`}
+      aria-hidden="true"
+    >
       <Cloud />
-      <div className="text-rain-drops">
+      <div className={DROPS_CLASS}>
         {Array.from({ length: density }, (_, id) => (
           <AnimatedLetter key={id} id={id} alphabet={alphabet} duration={duration} />
         ))}
@@ -208,7 +224,7 @@ export default function TextRain({
   return (
     <div
       ref={rootRef}
-      className={`text-rain-root relative isolate w-full overflow-hidden ${className}`}
+      className={`${ROOT_CLASS} group/rain flex flex-col ${className}`}
       data-running="false"
       data-reduced-motion="false"
       style={
@@ -219,26 +235,35 @@ export default function TextRain({
       }
     >
       <ComponentStyles css={TEXT_RAIN_CSS} />
-      <div className="text-rain-stage">
-        <div className="text-rain-scene" role="img" aria-label={`${ariaLabel}: ${count} falling characters`}>
+      {/* The stage grows with the root, so full-screen hosts center the scene. */}
+      <div className="text-rain-stage flex min-h-[560px] flex-[1_0_auto] flex-col items-center justify-center gap-6 px-6 py-12 @max-[520px]:min-h-[520px] @max-[520px]:px-[18px] @max-[520px]:py-10 @max-[360px]:min-h-[460px] @max-[360px]:px-3 @max-[360px]:py-7">
+        <div
+          className="text-rain-scene h-[424px] w-[300px] shrink-0 @max-[360px]:h-[348px] @max-[360px]:w-[246px] @max-[280px]:h-[280px] @max-[280px]:w-[198px] @min-[1100px]:h-[551px] @min-[1100px]:w-[390px]"
+          role="img"           aria-label={`${ariaLabel}: ${count} falling characters`}
+        >
           <RainField key={generation} alphabet={alphabet} density={count} duration={duration} />
         </div>
         {showControls && (
-          <div className="text-rain-controls" role="group" aria-label="Text rain controls">
-            <button type="button" aria-pressed={isPaused} onClick={() => setPaused(!isPaused)}>
+          <div className="text-rain-controls flex items-center gap-[9px]" role="group" aria-label="Text rain controls">
+            <button
+              type="button"
+              className={CONTROL_BUTTON_CLASS}
+              aria-pressed={isPaused}
+              onClick={() => setPaused(!isPaused)}
+            >
               {isPaused ? (
-                <svg viewBox="0 0 16 16" aria-hidden="true">
+                <svg className="size-[13px]" viewBox="0 0 16 16" aria-hidden="true">
                   <path d="m5 3 8 5-8 5V3Z" fill="currentColor" />
                 </svg>
               ) : (
-                <svg viewBox="0 0 16 16" aria-hidden="true">
+                <svg className="size-[13px]" viewBox="0 0 16 16" aria-hidden="true">
                   <path d="M5 3v10M11 3v10" stroke="currentColor" strokeWidth="2" />
                 </svg>
               )}
               {isPaused ? "Play rain" : "Pause rain"}
             </button>
-            <button type="button" onClick={replay}>
-              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <button type="button" className={CONTROL_BUTTON_CLASS} onClick={replay}>
+              <svg className="size-[13px]" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                 <path d="M3 5a5 5 0 1 1-.2 5M3 1v4h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               Replay
@@ -263,11 +288,14 @@ export function TextRainThumbnail({
   const alphabet = alphabetFrom(DEFAULT_CHARACTERS);
 
   return (
-    <div className={`text-rain-root text-rain-thumbnail ${className}`} aria-hidden="true">
+    <div
+      className={`${ROOT_CLASS} text-rain-thumbnail flex h-full min-h-[250px] items-center justify-center ${className}`}
+      aria-hidden="true"
+    >
       <ComponentStyles css={TEXT_RAIN_CSS} />
-      <div className="text-rain-field">
+      <div className={`${FIELD_CLASS} shrink-0 [transform:scale(.55)]`}>
         <Cloud />
-        <div className="text-rain-drops">
+        <div className={DROPS_CLASS}>
           {Array.from({ length: DEFAULT_DENSITY }, (_, id) => {
             const drop = rainDrop(alphabet, id);
             const progress = (drop.phase + phase * 0.173) % 1;
@@ -275,7 +303,7 @@ export function TextRainThumbnail({
             return (
               <span
                 key={id}
-                className="text-rain-letter"
+                className={`${LETTER_CLASS} motion-reduce:animate-none`}
                 style={{
                   ...letterStyle(drop, 2),
                   transform: `translateY(${Math.min(progress / 0.7, 1) * FALL_DISTANCE}px) scale(${scale})`,
@@ -291,101 +319,15 @@ export function TextRainThumbnail({
   );
 }
 
+/**
+ * Raw CSS keeps only the fall keyframes (referenced by name from Tailwind) and the
+ * focus ring, which must outrank unlayered global :focus-visible styles.
+ */
 const TEXT_RAIN_CSS = `
-.text-rain-root {
-  container-type: inline-size;
-  position: relative;
-  isolation: isolate;
-  width: 100%;
-  overflow: hidden;
-  background: #171c1f;
-  color: var(--text-rain-color, #fff);
-  font-family: Arial, Helvetica, sans-serif;
-  --text-rain-duration: 2s;
-}
-.text-rain-root * { box-sizing: border-box; }
-.text-rain-stage {
-  min-height: 560px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-  padding: 48px 24px;
-}
-.text-rain-scene { width: 300px; height: 424px; flex-shrink: 0; }
-.text-rain-field { position: relative; width: 300px; height: 424px; }
-.text-rain-cloud {
-  position: absolute;
-  z-index: 2;
-  top: 0;
-  left: 0;
-  width: 300px;
-  height: 170px;
-  color: var(--text-rain-color, #fff);
-  filter: drop-shadow(0 0 10px currentColor) drop-shadow(0 0 20px currentColor);
-}
-/* Start 40px inside the cloud body, so its silhouette hides new letters. */
-.text-rain-drops { position: absolute; top: 114px; left: 0; width: 300px; height: 310px; }
-.text-rain-letter {
-  position: absolute;
-  top: 0;
-  height: 20px;
-  line-height: 20px;
-  font-weight: 400;
-  transform-origin: 50% 100%;
-  text-transform: uppercase;
-  user-select: none;
-  color: var(--text-rain-color, #fff);
-  text-shadow: 0 0 5px currentColor, 0 0 15px currentColor, 0 0 25px currentColor;
-  animation: text-rain-fall var(--text-rain-duration, 2s) linear infinite;
-  animation-play-state: paused;
-}
-.text-rain-root[data-running=true] .text-rain-letter { animation-play-state: running; }
+.text-rain-controls button:focus-visible { outline: 2px solid var(--text-rain-color,#fff); outline-offset: 4px; }
 @keyframes text-rain-fall {
   0% { transform: translateY(0) scale(1); }
   70% { transform: translateY(290px) scale(1); }
   100% { transform: translateY(290px) scale(0); }
-}
-.text-rain-controls { display: flex; align-items: center; gap: 9px; }
-.text-rain-controls button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  color: rgba(255,255,255,.7);
-  font: 400 11px/1.2 Arial, Helvetica, sans-serif;
-  padding: 9px 12px;
-  border: 1px solid rgba(255,255,255,.14);
-  border-radius: 999px;
-  background: rgba(255,255,255,.025);
-  cursor: pointer;
-}
-.text-rain-controls button:hover { color: #fff; border-color: rgba(255,255,255,.38); background: rgba(255,255,255,.06); }
-.text-rain-controls button:focus-visible { outline: 2px solid var(--text-rain-color,#fff); outline-offset: 4px; }
-.text-rain-controls svg { width: 13px; height: 13px; }
-.text-rain-thumbnail { display: flex; align-items: center; justify-content: center; min-height: 250px; height: 100%; }
-.text-rain-thumbnail .text-rain-field { transform: scale(.55); flex-shrink: 0; }
-.text-rain-thumbnail .text-rain-letter { animation-play-state: running; }
-.text-rain-root:not(.text-rain-thumbnail)[data-reduced-motion=true] .text-rain-letter {
-  animation: none;
-  transform: translateY(var(--text-rain-still-y,80px)) scale(var(--text-rain-still-scale,1));
-}
-@container (max-width: 520px) { .text-rain-stage { min-height: 520px; padding: 40px 18px; } }
-@container (max-width: 360px) {
-  .text-rain-stage { min-height: 460px; padding: 28px 12px; }
-  .text-rain-scene { width: 246px; height: 348px; }
-  .text-rain-scene .text-rain-field { transform: scale(.82); transform-origin: top left; }
-}
-@container (max-width: 280px) {
-  .text-rain-scene { width: 198px; height: 280px; }
-  .text-rain-scene .text-rain-field { transform: scale(.66); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .text-rain-root:not(.text-rain-thumbnail) .text-rain-letter {
-    animation: none;
-    transform: translateY(var(--text-rain-still-y,80px)) scale(var(--text-rain-still-scale,1));
-  }
-  .text-rain-thumbnail .text-rain-letter { animation: none; }
 }
 `;

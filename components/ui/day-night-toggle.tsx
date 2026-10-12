@@ -34,10 +34,24 @@ const STARS = [
   [52, 94, 0.8],
 ] as const;
 
+/*
+ * Styling is Tailwind-first. The root carries `group/dnt` and `data-dark`, so
+ * descendants react to night mode with `group-data-[dark=true]/dnt:` utilities.
+ * `still` renders the inert gallery frames without the moon's yawn sequence.
+ */
+const DARK_FADE_IN = "group-data-[dark=true]/dnt:opacity-100";
+
 function Sky() {
   return (
-    <span className="dnt-sky" aria-hidden="true">
-      <svg className="dnt-clouds" viewBox="0 0 220 116" fill="none">
+    <span
+      className="dnt-sky pointer-events-none absolute inset-0 block overflow-hidden rounded-[inherit]"
+      aria-hidden="true"
+    >
+      <svg
+        className="dnt-clouds absolute inset-0 size-full [transition:opacity_.55s_ease,transform_.9s_ease] group-data-[dark=true]/dnt:opacity-0 group-data-[dark=true]/dnt:[transform:translateY(18px)]"
+        viewBox="0 0 220 116"
+        fill="none"
+      >
         <path
           d="M96 36c-5 0-8-3-8-7s3-7 7-7c1-7 7-10 12-7 3-2 9 0 10 6 7-1 12 3 12 8 0 4-3 7-8 7H96Z"
           fill="#fffff2"
@@ -51,7 +65,11 @@ function Sky() {
           fill="#fcffff"
         />
       </svg>
-      <svg className="dnt-stars" viewBox="0 0 220 116" fill="#edf0ff">
+      <svg
+        className={`dnt-stars absolute inset-0 size-full opacity-0 transition-opacity duration-800 ease-[ease] *:animate-[dnt-twinkle_3.2s_ease-in-out_infinite] ${DARK_FADE_IN}`}
+        viewBox="0 0 220 116"
+        fill="#edf0ff"
+      >
         {STARS.map(([x, y, radius], index) => (
           <circle
             key={index}
@@ -66,10 +84,19 @@ function Sky() {
   );
 }
 
-function CelestialFace({ id }: { id: string }) {
+const SNORE = "absolute text-[11px] font-bold text-[#e9eaff] opacity-0";
+
+function CelestialFace({ id, still }: { id: string; still: boolean }) {
   return (
-    <span className="dnt-thumb" aria-hidden="true">
-      <svg className="dnt-sun" viewBox="0 0 100 100" fill="none">
+    <span
+      className="dnt-thumb pointer-events-none absolute top-[10px] left-[10px] block size-[86px] [transition:transform_.95s_cubic-bezier(.45,0,.2,1)] group-data-[dark=true]/dnt:[transform:translateX(104px)]"
+      aria-hidden="true"
+    >
+      <svg
+        className="dnt-sun absolute inset-0 size-full overflow-visible drop-shadow-[0_0_8px_#ffe547aa] [transition:opacity_.55s_ease,transform_.95s_ease] group-data-[dark=true]/dnt:opacity-0 group-data-[dark=true]/dnt:[transform:rotate(40deg)]"
+        viewBox="0 0 100 100"
+        fill="none"
+      >
         <defs>
           <radialGradient id={`${id}-sun`} cx=".37" cy=".27" r=".8">
             <stop stopColor="#fff495" />
@@ -84,7 +111,7 @@ function CelestialFace({ id }: { id: string }) {
         <circle cx="50" cy="50" r="48" fill={`url(#${id}-sun)`} />
         <ellipse cx="28" cy="64" rx="11" ry="7" fill={`url(#${id}-blush)`} />
         <ellipse cx="74" cy="64" rx="11" ry="7" fill={`url(#${id}-blush)`} />
-        <g className="dnt-sun-eyes">
+        <g className="dnt-sun-eyes origin-[50px_40px] animate-[dnt-blink_4.8s_infinite]">
           <ellipse cx="33" cy="40" rx="10" ry="15.5" fill="#654408" />
           <ellipse cx="72" cy="40" rx="10" ry="15.5" fill="#654408" />
           <ellipse cx="36" cy="32" rx="4" ry="4.5" fill="#fffdec" />
@@ -100,7 +127,11 @@ function CelestialFace({ id }: { id: string }) {
         />
         <ellipse cx="51" cy="54" rx="2" ry="1.5" fill="#ffd968" />
       </svg>
-      <svg className="dnt-moon" viewBox="0 0 100 100" fill="none">
+      <svg
+        className={`dnt-moon absolute inset-0 size-full overflow-visible opacity-0 drop-shadow-[0_0_7px_#c6c3ff88] [transform:rotate(-20deg)] [transition:opacity_.65s_ease,transform_.95s_ease] group-data-[dark=true]/dnt:[transform:rotate(0)] ${DARK_FADE_IN}`}
+        viewBox="0 0 100 100"
+        fill="none"
+      >
         <defs>
           <radialGradient id={`${id}-moon`} cx=".35" cy=".24" r=".85">
             <stop stopColor="#fffffc" />
@@ -119,7 +150,15 @@ function CelestialFace({ id }: { id: string }) {
         <circle cx="16" cy="47" r="3.5" fill={`url(#${id}-crater)`} />
         <ellipse cx="24" cy="66" rx="7" ry="4.5" fill="#c9c7ed" opacity=".6" />
         <ellipse cx="75" cy="66" rx="7" ry="4.5" fill="#c9c7ed" opacity=".5" />
-        <g className="dnt-moon-awake" fill="#767792">
+        {/* Night mode plays awake -> yawn -> asleep; still frames and reduced motion jump to asleep. */}
+        <g
+          className={`dnt-moon-awake ${
+            still
+              ? "opacity-0"
+              : "group-data-[dark=true]/dnt:animate-[dnt-awake_2.1s_both] group-data-[dark=true]/dnt:motion-reduce:opacity-0"
+          }`}
+          fill="#767792"
+        >
           <ellipse cx="34" cy="45" rx="4.5" ry="6" />
           <ellipse cx="70" cy="45" rx="4.5" ry="6" />
           <path
@@ -130,7 +169,11 @@ function CelestialFace({ id }: { id: string }) {
             strokeLinecap="round"
           />
         </g>
-        <g className="dnt-moon-yawn">
+        <g
+          className={`dnt-moon-yawn opacity-0 ${
+            still ? "" : "group-data-[dark=true]/dnt:animate-[dnt-yawn_2.1s_both]"
+          }`}
+        >
           <path
             d="M26 43h14m23 0h14"
             stroke="#767792"
@@ -141,7 +184,11 @@ function CelestialFace({ id }: { id: string }) {
           <ellipse cx="52" cy="73" rx="4" ry="3" fill="#e6a7b9" />
         </g>
         <g
-          className="dnt-moon-sleep"
+          className={`dnt-moon-sleep opacity-0 ${
+            still
+              ? DARK_FADE_IN
+              : "group-data-[dark=true]/dnt:animate-[dnt-sleep_2.1s_both] group-data-[dark=true]/dnt:motion-reduce:opacity-100"
+          }`}
           stroke="#71758c"
           strokeWidth="2"
           strokeLinecap="round"
@@ -149,7 +196,13 @@ function CelestialFace({ id }: { id: string }) {
           <path d="M27 44q7 7 14 0m22 0q7 7 14 0M47 73q4 4 8 0" />
         </g>
       </svg>
-      <svg className="dnt-nightcap" viewBox="0 0 80 52" fill="none">
+      <svg
+        className={`dnt-nightcap absolute top-[-22px] left-[9px] h-[45px] w-[68px] overflow-visible opacity-0 [transform:translateY(-14px)_rotate(-12deg)] [transition:opacity_.35s_ease,transform_.5s_cubic-bezier(.25,1.7,.6,1)] group-data-[dark=true]/dnt:[transform:translateY(0)] ${DARK_FADE_IN} ${
+          still ? "" : "group-data-[dark=true]/dnt:delay-[1.6s]"
+        }`}
+        viewBox="0 0 80 52"
+        fill="none"
+      >
         <path d="M10 36C15 9 32 2 46 6c8 2 16 11 20 20L10 36Z" fill="#8c8aff" />
         <path d="M13 33C22 13 37 6 50 10c-7-8-29-11-38 20Z" fill="#a7a1ff" />
         <path
@@ -162,23 +215,40 @@ function CelestialFace({ id }: { id: string }) {
         <circle cx="27" cy="25" r="1.5" fill="#e1deff" />
         <circle cx="44" cy="17" r="1.5" fill="#e1deff" />
       </svg>
-      <span className="dnt-zz">
-        <span>z</span>
-        <span>z</span>
-        <span>Z</span>
+      <span
+        className={`dnt-zz absolute top-[-29px] left-[77px] h-[25px] w-[30px] opacity-0 transition-opacity duration-400 ease-[ease] motion-reduce:hidden ${DARK_FADE_IN} ${
+          still ? "" : "group-data-[dark=true]/dnt:delay-[2.1s]"
+        }`}
+      >
+        <span className={`${SNORE} animate-[dnt-snore_3s_ease-out_2.1s_infinite]`}>z</span>
+        <span className={`${SNORE} animate-[dnt-snore_3s_ease-out_3.1s_infinite]`}>z</span>
+        <span className={`${SNORE} animate-[dnt-snore_3s_ease-out_4.1s_infinite] text-[12px]`}>Z</span>
       </span>
     </span>
   );
 }
 
-function ToggleIllustration({ id }: { id: string }) {
+function ToggleIllustration({ id, still = false }: { id: string; still?: boolean }) {
   return (
     <>
       <Sky />
-      <CelestialFace id={id} />
+      <CelestialFace id={id} still={still} />
     </>
   );
 }
+
+/* Shared by the live preview and the gallery stills. */
+const ROOT =
+  "day-night-toggle group/dnt @container isolate flex flex-col text-[#173747] [font-family:var(--font-geist-sans),'Trebuchet_MS',Arial,sans-serif] **:box-border";
+const STAGE =
+  "dnt-stage relative flex w-full flex-[1_0_auto] items-center justify-center bg-[#d3ecff] transition-[background] duration-1000 ease-[ease] group-data-[dark=true]/dnt:bg-[#090e29] before:pointer-events-none before:absolute before:inset-0 before:bg-[radial-gradient(ellipse_at_50%_42%,#ffffff55,transparent_80%)] before:content-[''] group-data-[dark=true]/dnt:before:bg-[radial-gradient(ellipse_at_50%_42%,#24296b99,transparent_78%)]";
+const CONTENT = "dnt-content relative z-[1] flex flex-col items-center";
+const SWITCH =
+  "dnt-switch relative block h-[116px] w-[220px] shrink-0 cursor-pointer overflow-visible rounded-[100px] border-5 border-[#e5f3ed] bg-[linear-gradient(120deg,#b3d6d9_0%,#64c4f3_54%,#9fd7f4_100%)] p-0 shadow-[0_12px_22px_#53647d32,0_0_22px_#eac84520,inset_0_1px_3px_#ffffff33] [-webkit-tap-highlight-color:transparent] [transition:border-color_.85s_ease,box-shadow_.85s_ease] group-data-[dark=true]/dnt:border-[#3b4078] group-data-[dark=true]/dnt:shadow-[0_12px_25px_#6559ff42,0_0_42px_#6259ff20,inset_0_1px_3px_#ffffff33] before:absolute before:inset-0 before:rounded-[inherit] before:bg-[linear-gradient(120deg,#060b24,#1b2257)] before:opacity-0 before:transition-opacity before:duration-900 before:ease-[ease] before:content-[''] group-data-[dark=true]/dnt:before:opacity-100";
+const GREETING =
+  "dnt-greeting m-0 text-[22px] leading-[1.25] font-[750] tracking-[-.7px] text-[#173747] transition-[color] duration-800 ease-[ease] group-data-[dark=true]/dnt:text-[#d0d2fc]";
+const SUBTITLE =
+  "dnt-subtitle m-0 mt-[10px] text-[13px] leading-[1.4] tracking-[-.2px] text-[#6d8594] transition-[color] duration-800 ease-[ease] group-data-[dark=true]/dnt:text-[#888caf]";
 
 /** A self-contained day/night switch. Copy this file and import it in any React project. */
 export default function DayNightToggle({
@@ -222,20 +292,24 @@ export default function DayNightToggle({
 
   return (
     <section
-      className={`day-night-toggle relative w-full overflow-hidden ${className}`}
+      className={`${ROOT} relative w-full overflow-hidden ${className}`}
       data-dark={dark}
       aria-label="Day and night toggle"
     >
       <ComponentStyles css={DAY_NIGHT_STYLES} />
-      <div className="dnt-stage flex flex-col items-center justify-center">
-        <div className="dnt-content flex flex-col items-center">
+      <div
+        className={`${STAGE} min-h-[570px] flex-col px-[20px] py-[80px] [@container(max-width:420px)]:min-h-[450px] [@container(max-width:420px)]:py-[65px]`}
+      >
+        <div
+          className={`${CONTENT} w-full [transform:translateY(-1px)] @min-[1100px]:scale-130`}
+        >
           <button
             type="button"
             role="switch"
             aria-checked={dark}
             aria-label="Night mode"
             disabled={disabled}
-            className="dnt-switch"
+            className={`${SWITCH} disabled:cursor-not-allowed disabled:opacity-50 [@container(max-width:420px)]:scale-85`}
             onClick={() => {
               setLooping(false);
               changeChecked(!dark);
@@ -244,17 +318,20 @@ export default function DayNightToggle({
             <ToggleIllustration id={id} />
           </button>
           {showCaption && (
-            <div className="dnt-caption text-center">
-              <p className="dnt-greeting" aria-live="polite">
+            <div className="dnt-caption mt-[39px] text-center [@container(max-width:420px)]:mt-[25px]">
+              <p
+                className={`${GREETING} [@container(max-width:420px)]:text-[20px]`}
+                aria-live="polite"
+              >
                 {dark ? "Shhh... sleeping" : "Good morning"}
               </p>
-              <p className="dnt-subtitle">Micro-Interactions Daily · Day 1</p>
+              <p className={SUBTITLE}>Micro-Interactions Daily · Day 1</p>
             </div>
           )}
           {showControls && (
             <button
               type="button"
-              className="dnt-loop"
+              className="dnt-loop mt-[43px] cursor-pointer rounded-[100px] border border-[#8296a266] bg-transparent px-[15px] py-[6px] text-[12px] leading-[1.2] text-[#6d8594] [font-family:inherit] [transition:color_.8s_ease,border-color_.8s_ease,background_.2s_ease] group-data-[dark=true]/dnt:border-[#7d83b466] group-data-[dark=true]/dnt:text-[#888caf] hover:bg-[#ffffff18] aria-pressed:border-[#6d8594] aria-pressed:bg-[#ffffff25] group-data-[dark=true]/dnt:aria-pressed:border-[#888caf] disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:hidden [@container(max-width:420px)]:mt-[35px]"
               aria-pressed={looping}
               disabled={disabled}
               onClick={toggleLoop}
@@ -281,22 +358,22 @@ export function DayNightToggleThumbnail({
   const dark = step === 1 || step === 2;
   return (
     <div
-      className={`day-night-toggle dnt-thumbnail ${className}`}
+      className={`${ROOT} dnt-thumbnail pointer-events-none h-full ${className}`}
       data-dark={dark}
       aria-hidden="true"
       inert
     >
       <ComponentStyles css={DAY_NIGHT_STYLES} />
-      <div className="dnt-stage">
-        <div className="dnt-content">
-          <div className="dnt-switch">
-            <ToggleIllustration id={id} />
+      <div className={`${STAGE} h-full min-h-0 px-[10px] py-[20px]`}>
+        <div className={`${CONTENT} w-[161%] shrink-0 [transform:scale(.62)]`}>
+          <div className={`${SWITCH} scale-100`}>
+            <ToggleIllustration id={id} still />
           </div>
-          <div className="dnt-caption">
-            <p className="dnt-greeting">
+          <div className="dnt-caption mt-[34px] text-center">
+            <p className={GREETING}>
               {dark ? "Shhh... sleeping" : "Good morning"}
             </p>
-            <p className="dnt-subtitle">Micro-Interactions Daily · Day 1</p>
+            <p className={SUBTITLE}>Micro-Interactions Daily · Day 1</p>
           </div>
         </div>
       </div>
@@ -304,18 +381,13 @@ export function DayNightToggleThumbnail({
   );
 }
 
+/*
+ * Only what Tailwind can't express cleanly stays raw: keyframes, the focus ring
+ * (it must outrank the site's unlayered global :focus-visible rule), and the
+ * reduced-motion kill switch for every transition/animation, pseudo-elements included.
+ */
 const DAY_NIGHT_STYLES = `
-.day-night-toggle{isolation:isolate;container-type:inline-size;font-family:var(--font-geist-sans),"Trebuchet MS",Arial,sans-serif;color:#173747;--dnt-stage:#d3ecff;--dnt-text:#173747;--dnt-muted:#6d8594;--dnt-track-border:#e5f3ed;--dnt-track-shadow:0 12px 22px #53647d32,0 0 22px #eac84520;--dnt-track:linear-gradient(120deg,#b3d6d9 0%,#64c4f3 54%,#9fd7f4 100%)}
-.day-night-toggle *{box-sizing:border-box}.day-night-toggle[data-dark=true]{--dnt-stage:#090e29;--dnt-text:#d0d2fc;--dnt-muted:#888caf;--dnt-track-border:#3b4078;--dnt-track-shadow:0 12px 25px #6559ff42,0 0 42px #6259ff20;--dnt-track:linear-gradient(120deg,#060b24,#1b2257)}
-.day-night-toggle .dnt-stage{display:flex;align-items:center;justify-content:center;min-height:570px;width:100%;padding:80px 20px;background:var(--dnt-stage);position:relative;transition:background 1s ease}.day-night-toggle .dnt-stage::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 42%,#ffffff55,transparent 80%);opacity:1;transition:opacity 1s ease}.day-night-toggle[data-dark=true] .dnt-stage::before{background:radial-gradient(ellipse at 50% 42%,#24296b99,transparent 78%)}
-.day-night-toggle .dnt-content{display:flex;align-items:center;flex-direction:column;position:relative;z-index:1;width:100%;transform:translateY(-1px)}
-.day-night-toggle .dnt-switch{position:relative;display:block;flex-shrink:0;width:220px;height:116px;padding:0;border:5px solid var(--dnt-track-border);border-radius:100px;background:linear-gradient(120deg,#b3d6d9 0%,#64c4f3 54%,#9fd7f4 100%);box-shadow:var(--dnt-track-shadow),inset 0 1px 3px #ffffff33;cursor:pointer;transition:border-color .85s ease,box-shadow .85s ease;overflow:visible;-webkit-tap-highlight-color:transparent}.day-night-toggle .dnt-switch::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(120deg,#060b24,#1b2257);opacity:0;transition:opacity .9s ease}.day-night-toggle[data-dark=true] .dnt-switch::before{opacity:1}.day-night-toggle .dnt-switch:focus-visible,.day-night-toggle .dnt-loop:focus-visible{outline:3px solid #807cf1;outline-offset:7px}.day-night-toggle .dnt-switch:disabled,.day-night-toggle .dnt-loop:disabled{opacity:.5;cursor:not-allowed}
-.day-night-toggle .dnt-sky{position:absolute;inset:0;display:block;overflow:hidden;border-radius:inherit;pointer-events:none}.day-night-toggle .dnt-sky>svg{width:100%;height:100%;position:absolute;inset:0}.day-night-toggle .dnt-clouds{opacity:1;transform:translateY(0);transition:opacity .55s ease,transform .9s ease}.day-night-toggle .dnt-stars{opacity:0;transition:opacity .8s ease}.day-night-toggle[data-dark=true] .dnt-clouds{opacity:0;transform:translateY(18px)}.day-night-toggle[data-dark=true] .dnt-stars{opacity:1}.day-night-toggle .dnt-stars circle{animation:dnt-twinkle 3.2s ease-in-out infinite}
-.day-night-toggle .dnt-thumb{position:absolute;top:10px;left:10px;display:block;width:86px;height:86px;transform:translateX(0);transition:transform .95s cubic-bezier(.45,0,.2,1);pointer-events:none}.day-night-toggle[data-dark=true] .dnt-thumb{transform:translateX(104px)}.day-night-toggle .dnt-thumb>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}.day-night-toggle .dnt-sun{opacity:1;filter:drop-shadow(0 0 8px #ffe547aa);transform:rotate(0);transition:opacity .55s ease,transform .95s ease}.day-night-toggle .dnt-moon{opacity:0;filter:drop-shadow(0 0 7px #c6c3ff88);transform:rotate(-20deg);transition:opacity .65s ease,transform .95s ease}.day-night-toggle[data-dark=true] .dnt-sun{opacity:0;transform:rotate(40deg)}.day-night-toggle[data-dark=true] .dnt-moon{opacity:1;transform:rotate(0)}.day-night-toggle .dnt-sun-eyes{transform-origin:50px 40px;animation:dnt-blink 4.8s infinite}.day-night-toggle .dnt-moon-yawn,.day-night-toggle .dnt-moon-sleep{opacity:0}.day-night-toggle[data-dark=true] .dnt-moon-awake{animation:dnt-awake 2.1s both}.day-night-toggle[data-dark=true] .dnt-moon-yawn{animation:dnt-yawn 2.1s both}.day-night-toggle[data-dark=true] .dnt-moon-sleep{animation:dnt-sleep 2.1s both}
-.day-night-toggle .dnt-thumb>.dnt-nightcap{width:68px;height:45px;top:-22px;left:9px;opacity:0;transform:translateY(-14px) rotate(-12deg);transition:opacity .35s ease,transform .5s cubic-bezier(.25,1.7,.6,1)}.day-night-toggle[data-dark=true] .dnt-thumb>.dnt-nightcap{opacity:1;transform:translateY(0);transition-delay:1.6s}.day-night-toggle .dnt-zz{position:absolute;left:77px;top:-29px;width:30px;height:25px;opacity:0;transition:opacity .4s ease}.day-night-toggle[data-dark=true] .dnt-zz{opacity:1;transition-delay:2.1s}.day-night-toggle .dnt-zz>span{position:absolute;font-size:11px;font-weight:700;color:#e9eaff;opacity:0;animation:dnt-snore 3s ease-out infinite;animation-delay:2.1s}.day-night-toggle .dnt-zz>span:nth-child(2){animation-delay:3.1s}.day-night-toggle .dnt-zz>span:nth-child(3){animation-delay:4.1s;font-size:12px}
-.day-night-toggle .dnt-caption{margin-top:39px;text-align:center}.day-night-toggle .dnt-greeting{margin:0;color:var(--dnt-text);font-size:22px;line-height:1.25;font-weight:750;letter-spacing:-.7px;transition:color .8s ease}.day-night-toggle .dnt-subtitle{margin:10px 0 0;color:var(--dnt-muted);font-size:13px;line-height:1.4;letter-spacing:-.2px;transition:color .8s ease}.day-night-toggle .dnt-loop{margin-top:43px;padding:6px 15px;border:1px solid #8296a266;border-radius:100px;background:transparent;color:var(--dnt-muted);font-family:inherit;font-size:12px;line-height:1.2;cursor:pointer;transition:color .8s ease,border-color .8s ease,background .2s ease}.day-night-toggle[data-dark=true] .dnt-loop{border-color:#7d83b466}.day-night-toggle .dnt-loop:hover{background:#ffffff18}.day-night-toggle .dnt-loop[aria-pressed=true]{background:#ffffff25;border-color:var(--dnt-muted)}
+.day-night-toggle .dnt-switch:focus-visible,.day-night-toggle .dnt-loop:focus-visible{outline:3px solid #807cf1;outline-offset:7px}
 @keyframes dnt-blink{0%,39%,43%,100%{transform:scaleY(1)}41%{transform:scaleY(.08)}}@keyframes dnt-twinkle{0%,100%{opacity:1}50%{opacity:.35}}@keyframes dnt-awake{0%,46%{opacity:1}48%,100%{opacity:0}}@keyframes dnt-yawn{0%,46%{opacity:0}48%,78%{opacity:1}80%,100%{opacity:0}}@keyframes dnt-sleep{0%,78%{opacity:0}80%,100%{opacity:1}}@keyframes dnt-snore{0%{opacity:0;transform:translate(0,6px) scale(.7)}22%{opacity:.9}80%{opacity:.5}100%{opacity:0;transform:translate(13px,-25px) scale(1.15)}}
-@container(max-width:420px){.day-night-toggle .dnt-stage{min-height:450px;padding:65px 20px}.day-night-toggle .dnt-switch{scale:.85}.day-night-toggle .dnt-caption{margin-top:25px}.day-night-toggle .dnt-greeting{font-size:20px}.day-night-toggle .dnt-loop{margin-top:35px}}
-.day-night-toggle.dnt-thumbnail{height:100%;pointer-events:none}.day-night-toggle.dnt-thumbnail .dnt-stage{min-height:0;height:100%;padding:20px 10px}.day-night-toggle.dnt-thumbnail .dnt-content{transform:scale(.62);width:161%;flex-shrink:0}.day-night-toggle.dnt-thumbnail .dnt-switch{scale:1}.day-night-toggle.dnt-thumbnail .dnt-caption{margin-top:34px}.day-night-toggle.dnt-thumbnail .dnt-greeting{font-size:22px}.day-night-toggle.dnt-thumbnail .dnt-moon-awake,.day-night-toggle.dnt-thumbnail .dnt-moon-yawn{opacity:0;animation:none}.day-night-toggle.dnt-thumbnail[data-dark=true] .dnt-moon-sleep{opacity:1;animation:none}.day-night-toggle.dnt-thumbnail .dnt-thumb>.dnt-nightcap,.day-night-toggle.dnt-thumbnail .dnt-zz{transition-delay:0s}
-@media(prefers-reduced-motion:reduce){.day-night-toggle *,.day-night-toggle *::before,.day-night-toggle *::after{animation:none!important;transition:none!important}.day-night-toggle[data-dark=true] .dnt-moon-awake,.day-night-toggle[data-dark=true] .dnt-moon-yawn{opacity:0}.day-night-toggle[data-dark=true] .dnt-moon-sleep{opacity:1}.day-night-toggle .dnt-zz{display:none}.day-night-toggle .dnt-loop{display:none}}
+@media(prefers-reduced-motion:reduce){.day-night-toggle *,.day-night-toggle *::before,.day-night-toggle *::after{animation:none!important;transition:none!important}}
 `;

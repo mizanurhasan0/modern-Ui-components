@@ -15,6 +15,96 @@ export type ComponentEntry = {
 /** The catalog drives the gallery, detail pages, and available source files. */
 export const components: ComponentEntry[] = [
   {
+    "slug": "skill-orbit-hero",
+    "title": "Skill Orbit Hero",
+    "description": "Your portrait sits at the center of two slow orbits while skills and highlights circle around it, pausing when visitors look closer.",
+    "category": "Portfolio",
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Accessible"
+    ],
+    "sourceFile": "skill-orbit-hero.tsx",
+    "fileName": "skill-orbit-hero.tsx",
+    "number": "047",
+    "demoNote": "Interactive demo · Hover or focus a skill to pause the orbit and read its detail. Replace the name, portrait, and skills with your own through props.",
+    "features": [
+      {
+        "title": "A profile in motion",
+        "description": "Skills travel on two counter-rotating rings around the portrait, always upright and readable."
+      },
+      {
+        "title": "Look closer",
+        "description": "Hovering or focusing the orbit pauses it, and each skill reveals a short detail for curious visitors."
+      },
+      {
+        "title": "Make it yours",
+        "description": "Typed props for name, role, portrait, skills, and actions, with reduced-motion and keyboard support."
+      }
+    ],
+    "usage": "import SkillOrbitHero from \"@/components/ui/skill-orbit-hero\";\n\nexport default function HomePage() {\n  return <SkillOrbitHero />;\n}"
+  },
+  {
+    "slug": "code-profile-hero",
+    "title": "Code Profile Hero",
+    "description": "A code editor types out a developer profile object while a live card assembles itself beside it, line by line.",
+    "category": "Portfolio",
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Accessible"
+    ],
+    "sourceFile": "code-profile-hero.tsx",
+    "fileName": "code-profile-hero.tsx",
+    "number": "046",
+    "demoNote": "Interactive demo · Watch the profile compile, then replay it or skip to the result. Supply your own profile data through props.",
+    "features": [
+      {
+        "title": "Code becomes you",
+        "description": "Each typed line fills in the matching part of the profile card: name, role, skills, and status."
+      },
+      {
+        "title": "Feels like an editor",
+        "description": "Syntax colors, line numbers, a blinking caret, and a compile step make it read like real code."
+      },
+      {
+        "title": "Respectful playback",
+        "description": "Replay and skip controls, an accessible static profile, and reduced-motion support are built in."
+      }
+    ],
+    "usage": "import CodeProfileHero from \"@/components/ui/code-profile-hero\";\n\nexport default function HomePage() {\n  return <CodeProfileHero />;\n}"
+  },
+  {
+    "slug": "id-badge-hero",
+    "title": "ID Badge Hero",
+    "description": "A conference-style ID badge swings on its lanyard beside your introduction; drag it to play and flip it to reveal your skills.",
+    "category": "Portfolio",
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Accessible"
+    ],
+    "sourceFile": "id-badge-hero.tsx",
+    "fileName": "id-badge-hero.tsx",
+    "number": "045",
+    "demoNote": "Interactive demo · Drag the badge and let go to watch it swing, or click or press Enter to flip it. Replace the profile with your own through props.",
+    "features": [
+      {
+        "title": "A badge with weight",
+        "description": "A spring-driven lanyard sways on its own, follows your drag, and settles with a natural swing."
+      },
+      {
+        "title": "Two sides of you",
+        "description": "The front shows your photo, name, and role; flip it to reveal skills and availability."
+      },
+      {
+        "title": "Ready for your portfolio",
+        "description": "Typed props for profile, skills, and actions, plus keyboard flipping and reduced-motion support."
+      }
+    ],
+    "usage": "import IdBadgeHero from \"@/components/ui/id-badge-hero\";\n\nexport default function HomePage() {\n  return <IdBadgeHero />;\n}"
+  },
+  {
     "slug": "lamp-login",
     "title": "Lamp Login",
     "description": "Pull the cord of a cream mushroom lamp to bathe a dark room in warm light and reveal a frosted glass sign-in card with a gold button.",

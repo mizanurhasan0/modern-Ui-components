@@ -24,23 +24,40 @@ export interface CharacterRevealCardsProps {
   className?: string;
 }
 
-function CharacterArtwork({ card }: { card: CharacterRevealCard }) {
+/** Card artwork reads `--cr-reveal`: 0 shows the cover, 1 lifts the character out of it. */
+const CARD_IMAGE = "block max-w-none pointer-events-none select-none";
+const TITLE_TEXT = "block pt-2 pb-3 text-center [font-family:Georgia,'Times_New_Roman',serif] text-[length:clamp(13px,2.5cqw,32px)] leading-[1.1] font-medium tracking-[.06em] text-[#f4e1b6] uppercase";
+
+function CharacterArtwork({ card, thumbnail = false }: { card: CharacterRevealCard; thumbnail?: boolean }) {
   return (
     <>
-      <span className="cr-cover-wrap">
-        <img className="cr-cover" src={card.coverImage} alt="" draggable={false} />
+      {/* The cover tilts back and casts a shadow; its shading overlays live in the raw CSS below. */}
+      <span className="cr-cover-wrap absolute inset-0 z-0 block origin-center [transform:translateY(calc(var(--cr-reveal)*-3%))_rotateX(calc(var(--cr-reveal)*25deg))] [box-shadow:0_calc(var(--cr-reveal)*3.3cqw)_calc(var(--cr-reveal)*2.1cqw)_calc(var(--cr-reveal)*-1.1cqw)_#0008] [transition:transform_.6s_cubic-bezier(.2,.7,.2,1),box-shadow_.6s_ease]">
+        <img className={`${CARD_IMAGE} size-full object-cover`} src={card.coverImage} alt="" draggable={false} />
       </span>
-      <img className="cr-character" src={card.characterImage} alt="" draggable={false} />
-      <span className="cr-title">
+      <img
+        className={`cr-character ${CARD_IMAGE} absolute bottom-0 left-0 z-2 h-auto w-full origin-bottom opacity-(--cr-reveal) [transform:translateY(calc(var(--cr-reveal)*-20%))_scale(calc(.96_+_var(--cr-reveal)*.04))] [filter:drop-shadow(0_7px_6px_#0002)] [transition:opacity_.45s_ease,transform_.65s_cubic-bezier(.2,.7,.2,1)]`}
+        src={card.characterImage}
+        alt=""
+        draggable={false}
+      />
+      <span className="cr-title absolute bottom-[2%] left-[9%] z-3 block w-[82%] [transform:translateY(calc(var(--cr-reveal)*-37%))] [filter:drop-shadow(0_2px_2px_#0009)] [transition:transform_.6s_cubic-bezier(.2,.7,.2,1)]">
         {card.titleImage ? (
-          <img src={card.titleImage} alt="" draggable={false} />
+          <img className={`${CARD_IMAGE} h-auto w-full`} src={card.titleImage} alt="" draggable={false} />
         ) : (
-          <span className="cr-title-text">{card.title}</span>
+          <span className={`${TITLE_TEXT} ${thumbnail ? "" : "@max-[560.02px]:text-[length:4cqw]"}`}>{card.title}</span>
         )}
       </span>
     </>
   );
 }
+
+/** `--cr-card` is the card width; spacing scales with it so the layout keeps its proportions. */
+const STAGE = "flex flex-wrap items-center justify-center overflow-hidden gap-[calc(var(--cr-card)*12/23)] px-[4cqw] pt-[calc(var(--cr-card)*16/23)] pb-[calc(var(--cr-card)*14.5/23)]";
+const CARD = "relative isolate block aspect-2/3 w-(--cr-card) flex-[0_0_var(--cr-card)] cursor-pointer rounded-none border-none bg-transparent p-0 perspective-[900px] [-webkit-tap-highlight-color:transparent] [--cr-reveal:0] data-[revealed=true]:[--cr-reveal:1]";
+const ROOT = "character-reveal-cards relative isolate flex w-full flex-col bg-white [font-family:Arial,Helvetica,sans-serif] text-[#151b20] @container **:box-border";
+/** Focus rings use the card accent; `!` lets them win over the host page's global :focus-visible ring. */
+const DIALOG_FOCUS = "focus-visible:outline-2! focus-visible:outline-offset-4! focus-visible:outline-[color:var(--cr-accent,#96845d)]!";
 
 /** Hover or focus to reveal. Touch once to reveal and again to open the character. */
 export function CharacterRevealCards({
@@ -78,13 +95,13 @@ export function CharacterRevealCards({
   }
 
   return (
-    <section className={`character-reveal-cards ${className}`} aria-label="Fantasy character cards">
+    <section className={`${ROOT} ${className}`} aria-label="Fantasy character cards">
       <ComponentStyles css={CHARACTER_REVEAL_STYLES} />
-      <p id={instructionsId} className="cr-sr-only">
+      <p id={instructionsId} className="sr-only">
         Hover or focus a card to reveal its character. Press Enter to view details. On a touch screen, tap once to reveal and again to view details.
       </p>
       <div
-        className="cr-stage"
+        className={`${STAGE} min-h-[380px] flex-[1_0_auto] [--cr-card:min(23cqw,34dvh)] @max-[560.02px]:min-h-[350px] @max-[560.02px]:gap-[calc(var(--cr-card)*10/33)] @max-[560.02px]:pt-[calc(var(--cr-card)*25/33)] @max-[560.02px]:pb-[calc(var(--cr-card)*20/33)] @max-[560.02px]:[--cr-card:min(33cqw,34dvh)]`}
         onPointerDown={(event) => {
           if (!(event.target as HTMLElement).closest("button")) setRevealedId(null);
         }}
@@ -94,7 +111,7 @@ export function CharacterRevealCards({
           <button
             key={card.id}
             type="button"
-            className="cr-card"
+            className={`${CARD} hover:[--cr-reveal:1] focus-visible:outline-2! focus-visible:outline-offset-12! focus-visible:outline-[color:var(--cr-accent,#96845d)]! focus-visible:[--cr-reveal:1] @max-[560.02px]:perspective-[650px]`}
             data-revealed={card.id === revealedId}
             style={{ "--cr-accent": card.accent ?? "#aa9166" } as CSSProperties}
             aria-label={`Explore ${card.title}`}
@@ -110,27 +127,41 @@ export function CharacterRevealCards({
 
       <dialog
         ref={dialogRef}
-        className="cr-dialog"
+        className="fixed inset-0 m-auto max-h-[calc(100dvh_-_40px)] w-[min(780px,calc(100vw_-_32px))] overflow-auto rounded-2xl border border-[#e1e3e6] bg-[#fbfaf7] p-0 [font-family:Arial,Helvetica,sans-serif] text-[#232b32] [box-shadow:0_24px_100px_#0005] backdrop:bg-[#101922b3] backdrop:[backdrop-filter:blur(8px)]"
         aria-labelledby={dialogTitleId}
         aria-describedby={dialogDescriptionId}
         onClose={() => { setDetailsCard(null); returnFocusRef.current?.focus(); }}
         onClick={(event) => { if (event.target === event.currentTarget) dialogRef.current?.close(); }}
       >
-        <div className="cr-dialog-content" style={{ "--cr-accent": detailsCard?.accent ?? "#aa9166" } as CSSProperties}>
-          <button type="button" className="cr-dialog-close" aria-label="Close character details" onClick={() => dialogRef.current?.close()}>
+        <div
+          className="relative grid min-h-[450px] grid-cols-[43%_1fr] overflow-hidden max-[600.02px]:grid-cols-[1fr]"
+          style={{ "--cr-accent": detailsCard?.accent ?? "#aa9166" } as CSSProperties}
+        >
+          <button
+            type="button"
+            className={`absolute top-3.5 right-3.5 z-5 grid size-9 cursor-pointer place-items-center rounded-[50%] border border-[#27354420] bg-[#fbfaf7d9] p-0 text-[#273544] hover:bg-[#eeeae0] ${DIALOG_FOCUS}`}
+            aria-label="Close character details"
+            onClick={() => dialogRef.current?.close()}
+          >
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6" /></svg>
           </button>
           {detailsCard && (
-            <div className="cr-dialog-art" aria-hidden="true">
-              <img className="cr-dialog-background" src={detailsCard.coverImage} alt="" />
-              <img className="cr-dialog-character" src={detailsCard.characterImage} alt="" />
+            <div className="relative min-h-[450px] overflow-hidden bg-[#0d151f] max-[600.02px]:h-[260px] max-[600.02px]:min-h-[260px]" aria-hidden="true">
+              <img className="absolute inset-0 size-full object-cover opacity-48 [filter:blur(1px)]" src={detailsCard.coverImage} alt="" />
+              <img className="absolute bottom-0 left-[-12%] h-full w-[125%] object-contain object-bottom max-[600.02px]:left-0 max-[600.02px]:w-full" src={detailsCard.characterImage} alt="" />
             </div>
           )}
-          <div className="cr-dialog-copy">
-            <p className="cr-dialog-eyebrow">{detailsCard?.subtitle ?? "Character collection"}</p>
-            <h2 id={dialogTitleId}>{detailsCard?.title}</h2>
-            <p id={dialogDescriptionId}>{detailsCard?.description}</p>
-            <button type="button" className="cr-return-button" onClick={() => dialogRef.current?.close()}>Back to the collection <span aria-hidden="true">↗</span></button>
+          <div className="self-center px-8 pt-[58px] pb-10 max-[600.02px]:p-7">
+            <p className="m-0 mb-[15px] text-[10px] leading-[1.6] tracking-[2px] text-[#827252] uppercase">{detailsCard?.subtitle ?? "Character collection"}</p>
+            <h2 id={dialogTitleId} className="m-0 [font-family:Georgia,'Times_New_Roman',serif] text-[36px] leading-[1.1] font-normal text-[#21292d] max-[600.02px]:text-[32px]">{detailsCard?.title}</h2>
+            <p id={dialogDescriptionId} className="mx-0 mt-[22px] mb-7 text-[14px] leading-[1.8] text-[#69716f]">{detailsCard?.description}</p>
+            <button
+              type="button"
+              className={`inline-flex cursor-pointer items-center gap-4 border-0 border-b border-[#958267] bg-transparent p-0 pb-[5px] text-[11px] leading-[1.6] text-[#5d513d] ${DIALOG_FOCUS}`}
+              onClick={() => dialogRef.current?.close()}
+            >
+              Back to the collection <span aria-hidden="true">↗</span>
+            </button>
           </div>
         </div>
       </dialog>
@@ -141,12 +172,12 @@ export function CharacterRevealCards({
 /** Inert gallery art, with one character already revealed to show the effect. */
 export function CharacterRevealCardsThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   return (
-    <div className={`character-reveal-cards character-reveal-cards--thumbnail ${className}`} aria-hidden="true">
+    <div className={`${ROOT} character-reveal-cards--thumbnail ${className}`} aria-hidden="true">
       <ComponentStyles css={CHARACTER_REVEAL_STYLES} />
-      <div className="cr-stage">
+      <div className={`${STAGE} min-h-0 [--cr-card:23cqw]`}>
         {DEFAULT_CARDS.map((card, index) => (
-          <div key={card.id} className="cr-card" data-revealed={index === previewStep % 3}>
-            <CharacterArtwork card={card} />
+          <div key={card.id} className={`${CARD} pointer-events-none`} data-revealed={index === previewStep % 3}>
+            <CharacterArtwork card={card} thumbnail />
           </div>
         ))}
       </div>
@@ -154,54 +185,17 @@ export function CharacterRevealCardsThumbnail({ className = "", previewStep = 0 
   );
 }
 
+/*
+ * Kept as raw CSS:
+ * - the cover's two gradient overlays (pseudo-elements driven by --cr-reveal);
+ * - the transition kill switches, which must stay unlayered !important: the thumbnail one is
+ *   deliberately outranked by gallery-thumbnail.css, and reduced motion also covers pseudo-elements.
+ */
 const CHARACTER_REVEAL_STYLES = `
-  .character-reveal-cards{position:relative;container-type:inline-size;width:100%;background:#fff;color:#151b20;font-family:Arial,Helvetica,sans-serif;isolation:isolate}
-  .character-reveal-cards *{box-sizing:border-box}
-  .character-reveal-cards .cr-stage{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12cqw;min-height:380px;padding:16cqw 4cqw 14.5cqw;overflow:hidden}
-  .character-reveal-cards .cr-card{--cr-reveal:0;position:relative;display:block;flex:0 0 23cqw;width:23cqw;aspect-ratio:2/3;padding:0;border:0;border-radius:0;background:transparent;cursor:pointer;isolation:isolate;perspective:900px;-webkit-tap-highlight-color:transparent}
-  .character-reveal-cards .cr-card:focus-visible{outline:2px solid var(--cr-accent,#96845d);outline-offset:12px}
-  .character-reveal-cards .cr-card:focus-visible,.character-reveal-cards .cr-card[data-revealed="true"]{--cr-reveal:1}
-  .character-reveal-cards .cr-card img{display:block;max-width:none;pointer-events:none;user-select:none}
-  .character-reveal-cards .cr-cover-wrap{position:absolute;inset:0;z-index:0;display:block;transform:translateY(calc(var(--cr-reveal) * -3%)) rotateX(calc(var(--cr-reveal) * 25deg));transform-origin:50% 50%;transition:transform .6s cubic-bezier(.2,.7,.2,1),box-shadow .6s ease;box-shadow:0 calc(var(--cr-reveal) * 3.3cqw) calc(var(--cr-reveal) * 2.1cqw) calc(var(--cr-reveal) * -1.1cqw) #0008}
-  .character-reveal-cards .cr-cover{width:100%;height:100%;object-fit:cover}
   .character-reveal-cards .cr-cover-wrap:before,.character-reveal-cards .cr-cover-wrap:after{content:"";position:absolute;left:0;z-index:1;width:100%;pointer-events:none;transition:opacity .6s,height .6s}
   .character-reveal-cards .cr-cover-wrap:before{top:0;height:100%;opacity:var(--cr-reveal);background:linear-gradient(to top,transparent 30%,#0c0d131c 62%,#0c0d138f 100%)}
   .character-reveal-cards .cr-cover-wrap:after{bottom:0;height:calc(30% + var(--cr-reveal) * 30%);background:linear-gradient(to bottom,transparent,#080b10b0 70%,#080b10e6)}
-  .character-reveal-cards .cr-character{position:absolute;z-index:2;bottom:0;left:0;width:100%;height:auto;opacity:var(--cr-reveal);transform:translateY(calc(var(--cr-reveal) * -20%)) scale(calc(.96 + var(--cr-reveal) * .04));transform-origin:50% 100%;filter:drop-shadow(0 7px 6px #0002);transition:opacity .45s ease,transform .65s cubic-bezier(.2,.7,.2,1)}
-  .character-reveal-cards .cr-title{position:absolute;z-index:3;bottom:2%;left:9%;display:block;width:82%;transform:translateY(calc(var(--cr-reveal) * -37%));transition:transform .6s cubic-bezier(.2,.7,.2,1);filter:drop-shadow(0 2px 2px #0009)}
-  .character-reveal-cards .cr-title img{width:100%;height:auto}
-  .character-reveal-cards .cr-title-text{display:block;padding:8px 0 12px;text-align:center;color:#f4e1b6;font-family:Georgia,"Times New Roman",serif;font-size:clamp(13px,2.5cqw,32px);font-weight:500;line-height:1.1;text-transform:uppercase;letter-spacing:.06em}
-  .character-reveal-cards .cr-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-  .character-reveal-cards .cr-dialog{position:fixed;inset:0;width:min(780px,calc(100vw - 32px));max-height:calc(100dvh - 40px);overflow:auto;margin:auto;padding:0;border:1px solid #e1e3e6;border-radius:16px;background:#fbfaf7;color:#232b32;font-family:Arial,Helvetica,sans-serif;box-shadow:0 24px 100px #0005}
-  .character-reveal-cards .cr-dialog::backdrop{background:#101922b3;backdrop-filter:blur(8px)}
-  .character-reveal-cards .cr-dialog-content{position:relative;display:grid;grid-template-columns:43% 1fr;min-height:450px;overflow:hidden}
-  .character-reveal-cards .cr-dialog-close{position:absolute;top:14px;right:14px;z-index:5;display:grid;place-items:center;width:36px;height:36px;padding:0;border:1px solid #27354420;border-radius:50%;background:#fbfaf7d9;color:#273544;cursor:pointer}
-  .character-reveal-cards .cr-dialog-close:hover{background:#eeeae0}
-  .character-reveal-cards .cr-dialog button:focus-visible{outline:2px solid var(--cr-accent,#96845d);outline-offset:4px}
-  .character-reveal-cards .cr-dialog-art{position:relative;min-height:450px;overflow:hidden;background:#0d151f}
-  .character-reveal-cards .cr-dialog-background{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.48;filter:blur(1px)}
-  .character-reveal-cards .cr-dialog-character{position:absolute;bottom:0;left:-12%;width:125%;height:100%;object-fit:contain;object-position:bottom}
-  .character-reveal-cards .cr-dialog-copy{align-self:center;padding:58px 32px 40px}
-  .character-reveal-cards .cr-dialog-eyebrow{margin:0 0 15px;color:#827252;font-size:10px;line-height:1.6;letter-spacing:2px;text-transform:uppercase}
-  .character-reveal-cards .cr-dialog h2{margin:0;color:#21292d;font-family:Georgia,"Times New Roman",serif;font-size:36px;font-weight:400;line-height:1.1}
-  .character-reveal-cards .cr-dialog-copy>p:not(.cr-dialog-eyebrow){margin:22px 0 28px;color:#69716f;font-size:14px;line-height:1.8}
-  .character-reveal-cards .cr-return-button{display:inline-flex;gap:16px;align-items:center;padding:0 0 5px;border:0;border-bottom:1px solid #958267;background:none;color:#5d513d;font-size:11px;line-height:1.6;cursor:pointer}
-  .character-reveal-cards--thumbnail .cr-stage{min-height:0}
-  .character-reveal-cards--thumbnail .cr-card{pointer-events:none}
   .character-reveal-cards--thumbnail *{transition:none!important}
-  @media(hover:hover){.character-reveal-cards .cr-card:hover{--cr-reveal:1}}
-  @container(max-width:560px){
-    .character-reveal-cards:not(.character-reveal-cards--thumbnail) .cr-stage{min-height:350px;gap:10cqw;padding:25cqw 4cqw 20cqw}
-    .character-reveal-cards:not(.character-reveal-cards--thumbnail) .cr-card{flex-basis:33cqw;width:33cqw;perspective:650px}
-    .character-reveal-cards:not(.character-reveal-cards--thumbnail) .cr-title-text{font-size:4cqw}
-  }
-  @media(max-width:600px){
-    .character-reveal-cards .cr-dialog-content{grid-template-columns:1fr}
-    .character-reveal-cards .cr-dialog-art{min-height:260px;height:260px}
-    .character-reveal-cards .cr-dialog-character{left:0;width:100%}
-    .character-reveal-cards .cr-dialog-copy{padding:28px}
-    .character-reveal-cards .cr-dialog h2{font-size:32px}
-  }
   @media(prefers-reduced-motion:reduce){
     .character-reveal-cards *,.character-reveal-cards *:before,.character-reveal-cards *:after{transition:none!important;animation:none!important}
   }

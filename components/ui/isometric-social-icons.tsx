@@ -81,11 +81,42 @@ function clampLayers(layers: number) {
   return Math.min(MAX_LAYERS, Math.max(MIN_LAYERS, Math.round(layers)));
 }
 
+/*
+ * Geometry: the list is drawn in a plane turned by rotate(-25deg) skew(25deg). In that plane a
+ * straight-down screen offset maps to (-0.9326, 1) per unit, so the two side faces are skewed
+ * by atan(0.9326) = 43deg and its complement 47deg to read as one solid slab under each tile.
+ * Fast lift (.3s) on hover / focus, slow 1.5s ease-out settle when released.
+ */
+const STAGE_CLASS =
+  "iso-stage relative isolate box-border flex w-full min-w-0 items-center justify-center overflow-hidden bg-(--iso-bg) text-white [--iso-bg:#00071c] [--iso-tile:#2a2a2a] @container";
+
+/** Tile size drives the slab depth, the lift per plate and the gap between tiles. */
+const LIST_CLASS =
+  "iso-list m-0 flex list-none gap-[calc(var(--iso-size)*2/3)] p-0 [--iso-depth:calc(var(--iso-size)/6)] [--iso-step:calc(var(--iso-size)/6)] [transform:rotate(-25deg)_skew(25deg)]";
+
+/** Each tile carries its two shaded side faces as pseudo-elements. */
+const ITEM_CLASS =
+  "iso-item relative m-0 size-(--iso-size) flex-none " +
+  "before:absolute before:top-full before:left-0 before:h-(--iso-depth) before:w-full before:origin-top before:-skew-x-43 before:bg-[#232323] before:content-[''] " +
+  "after:absolute after:top-0 after:right-full after:h-full after:w-[calc(var(--iso-depth)*.9326)] after:origin-right after:-skew-y-47 after:bg-[#1d1d1d] after:content-['']";
+
+/** z-index drops back only after the 1.5s settle, so a falling stack stays above its neighbours. */
+const LINK_CLASS =
+  "iso-link group/link absolute inset-0 block text-white no-underline [-webkit-tap-highlight-color:transparent] transition-[z-index] duration-0 ease-linear motion-reduce:[transition:none]";
+const LINK_RESTING_CLASS = "z-0 delay-1500";
+const LINK_RAISED_CLASS = "iso-link--raised z-2 delay-0";
+
+const LAYER_CLASS =
+  "iso-layer absolute inset-0 flex items-center justify-center bg-(--iso-tile) [transform:translate(0,0)] transition-[transform,opacity,background-color,box-shadow] duration-1500 ease-[ease-out] motion-reduce:[transition:none] " +
+  "group-focus-visible/link:last:outline-2 group-focus-visible/link:last:outline-offset-4 group-focus-visible/link:last:outline-white";
+
+const GLYPH_CLASS = "iso-glyph pointer-events-none flex size-[46%] [&_svg]:size-full [&_svg]:fill-current";
+
 /** The identical stacked plates of one tile; `--iso-i` drives each plate's lift and opacity. */
 function Layers({ count, icon }: { count: number; icon: ReactNode }) {
   return Array.from({ length: count }, (_, index) => (
-    <span key={index} className="iso-layer" style={{ "--iso-i": index } as CSSProperties} aria-hidden="true">
-      <span className="iso-glyph">{icon}</span>
+    <span key={index} className={LAYER_CLASS} style={{ "--iso-i": index } as CSSProperties} aria-hidden="true">
+      <span className={GLYPH_CLASS}>{icon}</span>
     </span>
   ));
 }
@@ -100,14 +131,17 @@ export default function IsometricSocialIcons({
   const count = clampLayers(layers);
 
   return (
-    <div className={`iso-stage ${className}`}>
+    <div className={`${STAGE_CLASS} min-h-[520px] px-4 py-12 ${className}`}>
       <ComponentStyles css={ISOMETRIC_SOCIAL_CSS} />
-      <nav className="iso-nav" aria-label="Social media">
-        <ul className="iso-list" style={{ "--iso-n": count } as CSSProperties}>
+      <nav className="iso-nav flex w-full justify-center" aria-label="Social media">
+        <ul
+          className={`${LIST_CLASS} [--iso-size:min(15cqw,clamp(88px,9cqw,144px))] [@container(max-width:320px)]:grid [@container(max-width:320px)]:grid-cols-[repeat(2,var(--iso-size))] [@container(max-width:320px)]:[--iso-size:min(88px,19cqw)]`}
+          style={{ "--iso-n": count } as CSSProperties}
+        >
           {links.map((link) => (
-            <li key={link.id} className="iso-item">
+            <li key={link.id} className={ITEM_CLASS}>
               <a
-                className="iso-link"
+                className={`${LINK_CLASS} ${LINK_RESTING_CLASS} hover:z-2 hover:delay-0 focus-visible:z-2 focus-visible:delay-0`}
                 href={link.href}
                 style={{ "--iso-color": link.color } as CSSProperties}
                 aria-label={newTab ? `${link.label} (opens in a new tab)` : link.label}
@@ -130,14 +164,14 @@ export function IsometricSocialIconsThumbnail({ className = "", previewStep = 0 
   const step = Number.isFinite(previewStep) ? Math.abs(Math.trunc(previewStep)) % (links.length + 1) : 0;
 
   return (
-    <div className={`iso-stage iso-thumbnail ${className}`} aria-hidden="true" inert>
+    <div className={`${STAGE_CLASS} iso-thumbnail aspect-video h-full min-h-0 p-3 ${className}`} aria-hidden="true" inert>
       <ComponentStyles css={ISOMETRIC_SOCIAL_CSS} />
-      <div className="iso-nav">
-        <div className="iso-list" style={{ "--iso-n": DEFAULT_LAYERS } as CSSProperties}>
+      <div className="iso-nav flex w-full justify-center">
+        <div className={`${LIST_CLASS} [--iso-size:min(88px,10.5cqw)]`} style={{ "--iso-n": DEFAULT_LAYERS } as CSSProperties}>
           {links.map((link, index) => (
-            <div key={link.id} className="iso-item">
+            <div key={link.id} className={ITEM_CLASS}>
               <span
-                className={`iso-link${index === step ? " iso-link--raised" : ""}`}
+                className={`${LINK_CLASS} ${index === step ? LINK_RAISED_CLASS : LINK_RESTING_CLASS}`}
                 style={{ "--iso-color": link.color } as CSSProperties}
               >
                 <Layers count={DEFAULT_LAYERS} icon={link.icon} />
@@ -151,37 +185,12 @@ export function IsometricSocialIconsThumbnail({ className = "", previewStep = 0 
 }
 
 /*
- * Geometry: the list is drawn in a plane turned by rotate(-25deg) skew(25deg). In that plane a
- * straight-down screen offset maps to (-0.9326, 1) per unit, so the two side faces are skewed
- * by atan(0.9326) = 43deg and its complement 47deg to read as one solid slab under each tile.
- * Fast lift (.3s) on hover / focus, slow 1.5s ease-out settle when released.
+ * Kept as CSS: the link's focus ring is drawn on its top plate instead, and this reset has to beat
+ * unlayered global :focus-visible rules that a utility class cannot. The raised state computes each
+ * plate's colour, opacity and offset from the tile (--iso-color, --iso-n) and its own index (--iso-i)
+ * whenever the parent link is hovered, keyboard-focused or raised by the gallery thumbnail.
  */
 const ISOMETRIC_SOCIAL_CSS = `
-.iso-stage { --iso-bg: #00071c; --iso-tile: #2a2a2a; position: relative; isolation: isolate; box-sizing: border-box; display: flex; align-items: center; justify-content: center; width: 100%; min-width: 0; min-height: 520px; padding: 48px 16px; overflow: hidden; background: var(--iso-bg); color: #fff; container-type: inline-size; }
-.iso-stage *, .iso-stage *::before, .iso-stage *::after { box-sizing: border-box; }
-.iso-stage .iso-nav { display: flex; justify-content: center; width: 100%; }
-
-.iso-stage .iso-list { --iso-size: min(88px, 15cqw); --iso-depth: calc(var(--iso-size) / 6); --iso-step: calc(var(--iso-size) / 6); display: flex; gap: calc(var(--iso-size) * 2 / 3); margin: 0; padding: 0; list-style: none; transform: rotate(-25deg) skew(25deg); }
-.iso-stage .iso-item { position: relative; flex: none; width: var(--iso-size); height: var(--iso-size); margin: 0; }
-.iso-stage .iso-item::before { content: ""; position: absolute; top: 100%; left: 0; width: 100%; height: var(--iso-depth); background: #232323; transform-origin: top; transform: skewX(-43deg); }
-.iso-stage .iso-item::after { content: ""; position: absolute; top: 0; right: 100%; width: calc(var(--iso-depth) * .9326); height: 100%; background: #1d1d1d; transform-origin: right; transform: skewY(-47deg); }
-
-.iso-stage .iso-link { position: absolute; inset: 0; z-index: 0; display: block; color: #fff; text-decoration: none; outline: none; -webkit-tap-highlight-color: transparent; transition: z-index 0s linear 1.5s; }
-.iso-stage .iso-layer { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--iso-tile); transform: translate(0, 0); transition: transform 1.5s ease-out, opacity 1.5s ease-out, background-color 1.5s ease-out, box-shadow 1.5s ease-out; }
-.iso-stage .iso-glyph { display: flex; width: 46%; height: 46%; pointer-events: none; }
-.iso-stage .iso-glyph svg { width: 100%; height: 100%; fill: currentColor; }
-
-.iso-stage .iso-link:is(:hover, :focus-visible), .iso-stage .iso-link--raised { z-index: 2; transition-delay: 0s; }
+.iso-stage .iso-link { outline: none; }
 .iso-stage .iso-link:is(:hover, :focus-visible) .iso-layer, .iso-stage .iso-link--raised .iso-layer { background: var(--iso-color); opacity: calc((var(--iso-i) + 1) / var(--iso-n)); transform: translate(calc(var(--iso-i) * var(--iso-step)), calc(var(--iso-i) * var(--iso-step) * -1)); box-shadow: -1px 1px 1px rgba(0, 0, 0, .5); transition-duration: .3s; transition-timing-function: ease; }
-.iso-stage .iso-link:focus-visible .iso-layer:last-child { outline: 2px solid #fff; outline-offset: 4px; }
-
-.iso-stage.iso-thumbnail { height: 100%; min-height: 0; aspect-ratio: 16 / 9; padding: 12px; }
-.iso-stage.iso-thumbnail .iso-list { --iso-size: min(88px, 10.5cqw); }
-
-@container (max-width: 320px) {
-  .iso-stage:not(.iso-thumbnail) .iso-list { --iso-size: min(88px, 19cqw); display: grid; grid-template-columns: repeat(2, var(--iso-size)); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .iso-stage .iso-link, .iso-stage .iso-layer { transition: none; }
-}
 `;

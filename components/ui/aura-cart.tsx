@@ -95,7 +95,7 @@ function cancelMotion(motion: Motion | null) {
 
 function RatingStars({ rating = 5 }: { rating?: number }) {
   const value = Number.isFinite(rating) ? Math.max(0, Math.min(5, rating)) : 5;
-  return <span className="ac-stars" role="img" aria-label={`${value} out of 5 stars`} style={{ "--ac-rating": `${value * 20}%` } as CSSProperties}>★★★★★</span>;
+  return <span className="bg-[linear-gradient(90deg,#a89770_var(--ac-rating,100%),#d4cebf_var(--ac-rating,100%))] bg-clip-text text-[.95em] tracking-[.02em] text-[#a89770] [-webkit-text-fill-color:transparent]" role="img" aria-label={`${value} out of 5 stars`} style={{ "--ac-rating": `${value * 20}%` } as CSSProperties}>★★★★★</span>;
 }
 
 // Aborting releases the UI even if a consumer's promise does not honor its signal.
@@ -203,7 +203,7 @@ export default function AuraCart({
     const photo = document.createElement("img");
     photo.src = image;
     photo.alt = "";
-    photo.className = "ac-motion-image";
+    photo.className = "ac-motion-image pointer-events-none absolute z-20 max-w-none origin-center object-cover will-change-[transform,left,top,width,height]";
     photo.setAttribute("aria-hidden", "true");
     Object.assign(photo.style, {
       left: `${(rect.left - origin.left) / scaleX}px`, top: `${(rect.top - origin.top) / scaleY}px`,
@@ -398,94 +398,95 @@ export default function AuraCart({
   }
 
   return (
-    <section className={`aura-cart w-full text-neutral-900 ${className}`} aria-label="AURA product shop">
+    <section className={`aura-cart ${ui.root} [&_button]:cursor-pointer [&_button:disabled]:cursor-wait ${className}`} aria-label="AURA product shop">
       <ComponentStyles css={AURA_CART_STYLES} />
-      <div ref={stageRef} className="ac-stage" data-view={product ? "detail" : "gallery"}>
-        <header className="ac-header" data-gallery={!product}>
+      {/* A taller host stretches the stage; the detail view never shrinks below its content. */}
+      <div ref={stageRef} className={`${ui.stage} ${product ? "flex flex-[1_0_auto] flex-col min-h-[min(62.78cqw,100dvh)] [@container_aura-cart_(max-width:620px)]:min-h-0" : "flex-auto aspect-[8/5]"}`} data-view={product ? "detail" : "gallery"}>
+        <header className={`${ui.header} h-[6.4cqw] min-h-[42px] [@container_aura-cart_(max-width:620px)]:h-[52px] [@container_aura-cart_(360px<width<=620px)]:px-5 [@container_aura-cart_(max-width:360px)]:px-3.5`} data-gallery={!product}>
           {product ? (
-            <button className="ac-brand ac-back" type="button" disabled={phase !== "idle"} onClick={returnToShop} aria-label="Back to shop">
-              <span aria-hidden="true">←</span> AURA
+            <button className={`${ui.brand} ${ui.brandSize} disabled:opacity-50`} type="button" disabled={phase !== "idle"} onClick={returnToShop} aria-label="Back to shop">
+              <span className="font-[Arial,sans-serif] text-[14px] leading-none" aria-hidden="true">←</span> AURA
             </button>
-          ) : <span className="ac-brand">AURA</span>}
-          <nav className="ac-nav" aria-label="Store navigation">
+          ) : <span className={`${ui.brand} ${ui.brandSize} bg-[#ffffffd9] px-0.5 py-1`}>AURA</span>}
+          <nav className="flex items-center gap-[clamp(12px,2.8cqw,24px)] [@container_aura-cart_(360px<width<=620px)]:gap-3 [@container_aura-cart_(max-width:360px)]:gap-2" aria-label="Store navigation">
             {(["shop", "collections", "editorial"] as const).map((target) => (
-              <button key={target} type="button" disabled={phase !== "idle"} onClick={() => navigate(target)}>
+              <button key={target} className={`${ui.navItem} text-[clamp(9px,1.38cqw,12px)] disabled:opacity-50 [@container_aura-cart_(360px<width<=620px)]:text-[9px] [@container_aura-cart_(max-width:360px)]:text-[8px]`} type="button" disabled={phase !== "idle"} onClick={() => navigate(target)}>
                 {target[0].toUpperCase() + target.slice(1)}
               </button>
             ))}
           </nav>
-          <button ref={bagRef} className="ac-bag" type="button" onClick={() => openDialog(cartDialogRef.current)} aria-label={`Shopping bag, ${count} ${count === 1 ? "item" : "items"}`}>
-            <BagIcon /><span key={count} className="ac-count" aria-hidden="true">{count}</span>
+          <button ref={bagRef} className={`${ui.bag} gap-1.5 [&>svg]:size-[17px]`} type="button" onClick={() => openDialog(cartDialogRef.current)} aria-label={`Shopping bag, ${count} ${count === 1 ? "item" : "items"}`}>
+            <BagIcon /><span key={count} className={`${ui.count} h-3.5 min-w-3.5 px-[3px] text-[9px] animate-[ac-count-pop_.35s_ease_both]`} aria-hidden="true">{count}</span>
           </button>
         </header>
-        <div className="ac-grid" data-hidden={Boolean(product)} aria-hidden={Boolean(product)} inert={Boolean(product)}>
+        <div className={`${ui.grid} ${product ? "pointer-events-none opacity-0" : ""}`} data-hidden={Boolean(product)} aria-hidden={Boolean(product)} inert={Boolean(product)}>
           {products.map((item) => (
             <button
               key={item.id}
               ref={(element) => { if (element) tileRefs.current.set(item.id, element); else tileRefs.current.delete(item.id); }}
-              className="ac-tile" type="button" aria-label={`View ${item.name}`} onClick={() => selectProduct(item)}
+              className={`${ui.tile} focus-visible:z-2 focus-visible:outline-offset-[-5px]!`} type="button" aria-label={`View ${item.name}`} onClick={() => selectProduct(item)}
             >
-              {preferredVariant(item) ? <img src={preferredVariant(item).image} alt="" draggable={false} /> : <span>{item.name}</span>}
+              {preferredVariant(item) ? <img className={ui.tileImage} src={preferredVariant(item).image} alt="" draggable={false} /> : <span>{item.name}</span>}
             </button>
           ))}
-          {products.length === 0 && <p className="ac-empty">No products to display.</p>}
+          {products.length === 0 && <p className="col-span-full self-center p-10 text-center text-[14px] text-[#666]">No products to display.</p>}
         </div>
         {product && (
-          <div className="ac-detail" aria-labelledby={titleId}>
-            <div ref={heroRef} className="ac-hero">
+          <div className={`${ui.detail} gap-[16.25cqw] p-[10.8cqw_4.6%_7.3cqw_9.3%] [@container_aura-cart_(max-width:620px)]:grid-cols-1 [@container_aura-cart_(max-width:620px)]:gap-0 [@container_aura-cart_(max-width:620px)]:p-[70px_24px_34px]`} aria-labelledby={titleId}>
+            <div ref={heroRef} className={`${ui.hero} [@container_aura-cart_(max-width:620px)]:w-full [@container_aura-cart_(max-width:620px)]:max-w-[370px] [@container_aura-cart_(max-width:620px)]:justify-self-center`}>
               {product.variants.map((option) => (
-                <img key={option.id} src={option.image} alt={option.id === variant?.id ? `${product.name} in ${option.label}` : ""} aria-hidden={option.id !== variant?.id} data-active={option.id === variant?.id} draggable={false} />
+                <img key={option.id} className={ui.heroImage} src={option.image} alt={option.id === variant?.id ? `${product.name} in ${option.label}` : ""} aria-hidden={option.id !== variant?.id} data-active={option.id === variant?.id} draggable={false} />
               ))}
             </div>
-            <div className="ac-copy">
-              <p className="ac-eyebrow">{product.badge ?? "NEW ARRIVAL"}</p>
-              <div className="ac-title-row">
-                <h2 ref={headingRef} id={titleId} tabIndex={-1}>{product.name}</h2>
-                <span className="ac-price">{priceLabel(product.price, currency)}</span>
+            <div className="pt-[3.3cqw] animate-[ac-copy-enter_.45s_.14s_ease_both] [@container_aura-cart_(max-width:620px)]:pt-7">
+              <p className={`${ui.eyebrow} text-[clamp(8px,1.25cqw,11px)] [@container_aura-cart_(max-width:620px)]:mb-3 [@container_aura-cart_(max-width:620px)]:text-[9px]`}>{product.badge ?? "NEW ARRIVAL"}</p>
+              <div className={`${ui.titleRow} gap-3.5`}>
+                <h2 ref={headingRef} id={titleId} className={`${ui.title} text-[clamp(26px,4.45cqw,40px)] focus:outline-none! [@container_aura-cart_(max-width:620px)]:text-[32px]`} tabIndex={-1}>{product.name}</h2>
+                <span className={`${ui.price} text-[clamp(13px,2.22cqw,19px)] [@container_aura-cart_(max-width:620px)]:pt-[7px] [@container_aura-cart_(max-width:620px)]:text-[18px]`}>{priceLabel(product.price, currency)}</span>
               </div>
-              <p className="ac-reviews"><RatingStars rating={product.rating} /> <span>({product.reviewCount ?? 128} Reviews)</span></p>
-              <p className="ac-description">{product.description}</p>
-              <fieldset className="ac-variants" disabled={phase !== "idle"}>
-                <legend>Color: <span>{variant?.label ?? "Unavailable"}</span></legend>
-                <div>
+              <p className={`${ui.reviews} gap-[5px] text-[clamp(8px,1.25cqw,11px)] [@container_aura-cart_(max-width:620px)]:mt-3 [@container_aura-cart_(max-width:620px)]:text-[10px]`}><RatingStars rating={product.rating} /> <span>({product.reviewCount ?? 128} Reviews)</span></p>
+              <p className={`${ui.description} text-[clamp(11px,1.67cqw,14px)] [@container_aura-cart_(max-width:620px)]:mt-5 [@container_aura-cart_(max-width:620px)]:text-[13px]`}>{product.description}</p>
+              <fieldset className={`${ui.variants} mt-[3cqw] text-[clamp(9px,1.25cqw,11px)] [@container_aura-cart_(max-width:620px)]:mt-[22px] [@container_aura-cart_(max-width:620px)]:text-[11px]`} disabled={phase !== "idle"}>
+                <legend className="mb-2">Color: <span className="text-[#7b7b7b]">{variant?.label ?? "Unavailable"}</span></legend>
+                <div className="flex items-center gap-2.5">
                   {product.variants.map((option) => (
-                    <button key={option.id} className="ac-swatch" type="button" style={{ "--ac-swatch": option.color } as CSSProperties} aria-label={`Select ${option.label}`} aria-pressed={option.id === variant?.id} onClick={() => { setVariantIds((selected) => ({ ...selected, [product.id]: option.id })); setError(""); }} />
+                    <button key={option.id} className={`${ui.swatch} size-6 disabled:opacity-60 aria-pressed:shadow-[0_0_0_1px_#64625e]`} type="button" style={{ "--ac-swatch": option.color } as CSSProperties} aria-label={`Select ${option.label}`} aria-pressed={option.id === variant?.id} onClick={() => { setVariantIds((selected) => ({ ...selected, [product.id]: option.id })); setError(""); }} />
                   ))}
                 </div>
               </fieldset>
-              <div className="ac-actions">
-                <button className="ac-add" type="button" disabled={phase !== "idle" || !variant} aria-busy={phase !== "idle"} onClick={() => void addToCart()}>{phase === "pending" ? "Adding…" : "Add to Cart"}</button>
-                <button className="ac-save" type="button" data-saved={saved} aria-pressed={saved} aria-label={`${saved ? "Unsave" : "Save"} ${product.name}`} onClick={toggleSave}><HeartIcon filled={saved} /><span>Save</span></button>
+              <div className={`${ui.actions} mt-[3.5cqw] gap-2.5 [@container_aura-cart_(max-width:620px)]:mt-6`}>
+                <button className={`${ui.add} min-h-8 px-3.5 py-[9px] text-[clamp(10px,1.38cqw,12px)] hover:shadow-[0_6px_14px_#00000015] disabled:bg-[#606060] [@container_aura-cart_(max-width:620px)]:min-h-10 [@container_aura-cart_(max-width:620px)]:text-[12px]`} type="button" disabled={phase !== "idle" || !variant} aria-busy={phase !== "idle"} onClick={() => void addToCart()}>{phase === "pending" ? "Adding…" : "Add to Cart"}</button>
+                <button className={`${ui.save} min-h-8 gap-1.5 px-[13px] py-2 text-[clamp(10px,1.38cqw,12px)] [&_svg]:size-3.5 [@container_aura-cart_(max-width:620px)]:min-h-10 [@container_aura-cart_(max-width:620px)]:text-[12px]`} type="button" data-saved={saved} aria-pressed={saved} aria-label={`${saved ? "Unsave" : "Save"} ${product.name}`} onClick={toggleSave}><HeartIcon filled={saved} /><span>Save</span></button>
               </div>
-              {error && <p className="ac-error" role="alert">{error}</p>}
+              {error && <p className="mt-3 text-[12px] leading-[1.4] text-[#a23628]" role="alert">{error}</p>}
             </div>
           </div>
         )}
       </div>
-      <p className="ac-sr-only" role="status" aria-live="polite">{announcement}</p>
-      <dialog ref={cartDialogRef} className="ac-dialog ac-cart-dialog" aria-labelledby={cartTitleId} onCancel={(event) => { event.preventDefault(); closeDialog(cartDialogRef.current); }} onClose={restoreDialogFocus} onClick={(event) => { if (event.target === event.currentTarget) closeDialog(cartDialogRef.current); }}>
-        <div className="ac-dialog-content">
-          <header className="ac-dialog-header"><h2 id={cartTitleId}>Your bag <span>({count})</span></h2><button type="button" onClick={() => closeDialog(cartDialogRef.current)} aria-label="Close shopping bag">×</button></header>
-          {cart.length ? <ul className="ac-cart-lines">{cart.map((line) => (
-            <li key={`${line.product.id}:${line.variant.id}`}>
-              <img src={line.variant.image} alt="" />
-              <div><h3>{line.product.name}</h3><p>{line.variant.label} · Qty {line.quantity}</p><span>{priceLabel(line.product.price * line.quantity, currency)}</span><button className="ac-remove" type="button" onClick={() => removeLine(line)} aria-label={`Remove ${line.product.name} in ${line.variant.label}`}>Remove</button></div>
+      <p className="sr-only" role="status" aria-live="polite">{announcement}</p>
+      <dialog ref={cartDialogRef} className={`${ui.dialog} inset-y-0 right-0 left-auto m-0 h-dvh max-h-none w-[min(410px,100%)] max-w-full`} aria-labelledby={cartTitleId} onCancel={(event) => { event.preventDefault(); closeDialog(cartDialogRef.current); }} onClose={restoreDialogFocus} onClick={(event) => { if (event.target === event.currentTarget) closeDialog(cartDialogRef.current); }}>
+        <div className={ui.dialogContent}>
+          <header className={ui.dialogHeader}><h2 id={cartTitleId} className={ui.dialogTitle}>Your bag <span className="text-[#9a8f7c]">({count})</span></h2><button className={ui.dialogClose} type="button" onClick={() => closeDialog(cartDialogRef.current)} aria-label="Close shopping bag">×</button></header>
+          {cart.length ? <ul className="grid gap-[22px]">{cart.map((line) => (
+            <li key={`${line.product.id}:${line.variant.id}`} className="grid grid-cols-[84px_minmax(0,1fr)] gap-4 border-b border-[#e7e0d6] pb-[22px]">
+              <img className="size-[84px] rounded-lg object-cover" src={line.variant.image} alt="" />
+              <div><h3 className="font-[Georgia,'Times_New_Roman',serif] text-[19px] leading-[1.15] font-medium">{line.product.name}</h3><p className="my-2 text-[12px] text-[#777]">{line.variant.label} · Qty {line.quantity}</p><span className="block text-[13px]">{priceLabel(line.product.price * line.quantity, currency)}</span><button className="mt-2.5 text-[11px] text-[#776750] underline underline-offset-3" type="button" onClick={() => removeLine(line)} aria-label={`Remove ${line.product.name} in ${line.variant.label}`}>Remove</button></div>
             </li>
-          ))}</ul> : <p className="ac-cart-empty">Your bag is empty. Find something you love in the shop.</p>}
-          {removedLine && <div className="ac-undo" role="status"><span>{removedLine.product.name} removed.</span><button type="button" onClick={undoRemoval}>Undo</button></div>}
-          <div className="ac-total"><span>Subtotal</span><strong>{priceLabel(cart.reduce((total, line) => total + line.product.price * line.quantity, 0), currency)}</strong></div>
-          <button className="ac-continue" type="button" onClick={() => closeDialog(cartDialogRef.current)}>Continue shopping</button>
+          ))}</ul> : <p className={ui.mutedCopy}>Your bag is empty. Find something you love in the shop.</p>}
+          {removedLine && <div className="mt-[18px] flex items-center justify-between gap-3 rounded-lg border border-[#dfd4c4] p-3 text-[12px] leading-[1.4] text-[#776750]" role="status"><span>{removedLine.product.name} removed.</span><button className="p-1 font-semibold underline" type="button" onClick={undoRemoval}>Undo</button></div>}
+          <div className="my-[26px] flex justify-between gap-3 text-[14px]"><span>Subtotal</span><strong>{priceLabel(cart.reduce((total, line) => total + line.product.price * line.quantity, 0), currency)}</strong></div>
+          <button className="block w-full rounded-[999px] bg-[#1a1a1a] px-[18px] py-[13px] text-[13px] text-white" type="button" onClick={() => closeDialog(cartDialogRef.current)}>Continue shopping</button>
         </div>
       </dialog>
-      <dialog ref={infoDialogRef} className="ac-dialog ac-info-dialog" aria-labelledby={infoTitleId} onCancel={(event) => { event.preventDefault(); closeDialog(infoDialogRef.current); }} onClose={restoreDialogFocus} onClick={(event) => { if (event.target === event.currentTarget) closeDialog(infoDialogRef.current); }}>
-        <div className="ac-dialog-content">
-          <header className="ac-dialog-header"><h2 id={infoTitleId}>{infoPanel === "collections" ? "The AURA collection" : "The AURA edit"}</h2><button type="button" onClick={() => closeDialog(infoDialogRef.current)} aria-label={`Close ${infoPanel}`}>×</button></header>
-          <p className="ac-editorial-intro">{infoPanel === "collections" ? "Considered essentials, chosen for the everyday." : "Good design belongs in everyday life. Discover the details that make each piece distinctive."}</p>
-          <div className="ac-collection-grid">{products.map((item) => (
-            <button key={item.id} type="button" onClick={() => { closeDialog(infoDialogRef.current, false); selectProduct(item); }}>
-              {preferredVariant(item) && <img src={preferredVariant(item).image} alt="" />}
-              <h3>{item.name}</h3>
-              {infoPanel === "editorial" ? <p>{item.description}</p> : <span>{priceLabel(item.price, currency)}</span>}
+      <dialog ref={infoDialogRef} className={`${ui.dialog} max-h-[90dvh] w-[min(760px,calc(100%_-_32px))] max-w-[calc(100%_-_32px)] rounded-[18px]`} aria-labelledby={infoTitleId} onCancel={(event) => { event.preventDefault(); closeDialog(infoDialogRef.current); }} onClose={restoreDialogFocus} onClick={(event) => { if (event.target === event.currentTarget) closeDialog(infoDialogRef.current); }}>
+        <div className={ui.dialogContent}>
+          <header className={ui.dialogHeader}><h2 id={infoTitleId} className={ui.dialogTitle}>{infoPanel === "collections" ? "The AURA collection" : "The AURA edit"}</h2><button className={ui.dialogClose} type="button" onClick={() => closeDialog(infoDialogRef.current)} aria-label={`Close ${infoPanel}`}>×</button></header>
+          <p className={ui.mutedCopy}>{infoPanel === "collections" ? "Considered essentials, chosen for the everyday." : "Good design belongs in everyday life. Discover the details that make each piece distinctive."}</p>
+          <div className="mt-[26px] grid grid-cols-3 gap-6 [@media(max-width:540px)]:grid-cols-2">{products.map((item) => (
+            <button key={item.id} className="text-left" type="button" onClick={() => { closeDialog(infoDialogRef.current, false); selectProduct(item); }}>
+              {preferredVariant(item) && <img className="block aspect-square w-full rounded-[10px] object-cover" src={preferredVariant(item).image} alt="" />}
+              <h3 className="mt-3 mb-1.5 font-[Georgia,'Times_New_Roman',serif] text-[18px] leading-[1.2] font-medium">{item.name}</h3>
+              {infoPanel === "editorial" ? <p className={ui.caption}>{item.description}</p> : <span className={ui.caption}>{priceLabel(item.price, currency)}</span>}
             </button>
           ))}</div>
         </div>
@@ -502,16 +503,17 @@ export function AuraCartThumbnail({ className = "", previewStep = 0 }: { classNa
   const variant = product.variants[step === 4 || step === 5 ? 1 : 0];
   const saved = step >= 3 && step <= 5;
   const count = step < 3 ? 2 : step === 7 ? 4 : 3;
+  const navItem = `${ui.navItem} text-[clamp(6px,1.38cqw,8px)]`;
   return (
-    <div className={`aura-cart ac-thumbnail w-full ${className}`} aria-hidden="true" inert>
+    <div className={`aura-cart ac-thumbnail ${ui.root} h-full overflow-hidden ${className}`} aria-hidden="true" inert>
       <ComponentStyles css={AURA_CART_STYLES} />
-      <div className="ac-stage" data-view={showGrid ? "gallery" : "detail"}>
-        <div className="ac-header" data-gallery={showGrid}><span className="ac-brand">{showGrid ? "AURA" : "← AURA"}</span><span className="ac-nav"><span>Shop</span><span>Collections</span><span>Editorial</span></span><span className="ac-bag"><BagIcon /><span className="ac-count">{count}</span></span></div>
-        {showGrid ? <div className="ac-grid">{AURA_CART_PRODUCTS.map((item) => <span key={item.id} className="ac-tile"><img src={item.variants[item.id === "aero-knit-runner" && step === 6 ? 1 : 0].image} alt="" /></span>)}</div> : (
-          <div className="ac-detail">
-            <div className="ac-hero"><img src={variant.image} alt="" data-active="true" /></div>
-            <div className="ac-copy"><p className="ac-eyebrow">NEW ARRIVAL</p><div className="ac-title-row"><h3>{product.name}</h3><span className="ac-price">{priceLabel(product.price, "USD")}</span></div><p className="ac-reviews"><RatingStars rating={product.rating} /> <span>(128 Reviews)</span></p><p className="ac-description">{product.description}</p><div className="ac-variants"><span>Color: {variant.label}</span><div>{product.variants.map((option) => <span key={option.id} className="ac-swatch" data-active={option.id === variant.id} style={{ "--ac-swatch": option.color } as CSSProperties} />)}</div></div><div className="ac-actions"><span className="ac-add">Add to Cart</span><span className="ac-save" data-saved={saved}><HeartIcon filled={saved} /><span>Save</span></span></div></div>
-            {step === 2 && <img className="ac-thumbnail-flight" src={variant.image} alt="" />}
+      <div className={`${ui.stage} h-full min-h-0 ${showGrid ? "flex-auto" : "flex flex-[1_0_auto] flex-col"}`} data-view={showGrid ? "gallery" : "detail"}>
+        <div className={`${ui.header} h-[35px] min-h-0`} data-gallery={showGrid}><span className={`${ui.brand} text-[clamp(10px,2.35cqw,13px)] ${showGrid ? "bg-[#ffffffd9] px-0.5 py-1" : ""}`}>{showGrid ? "AURA" : "← AURA"}</span><span className="flex items-center gap-3.5"><span className={navItem}>Shop</span><span className={navItem}>Collections</span><span className={navItem}>Editorial</span></span><span className={`${ui.bag} gap-1 [&>svg]:size-3`}><BagIcon /><span className={`${ui.count} h-2.5 min-w-2.5 px-0.5 text-[6px]`}>{count}</span></span></div>
+        {showGrid ? <div className={ui.grid}>{AURA_CART_PRODUCTS.map((item) => <span key={item.id} className={ui.tile}><img className={ui.tileImage} src={item.variants[item.id === "aero-knit-runner" && step === 6 ? 1 : 0].image} alt="" /></span>)}</div> : (
+          <div className={`${ui.detail} h-full gap-[12cqw] p-[16cqw_5%_9cqw_7%]`}>
+            <div className={ui.hero}><img className={ui.heroImage} src={variant.image} alt="" data-active="true" /></div>
+            <div className="pt-[1cqw]"><p className={`${ui.eyebrow} text-[clamp(6px,1.25cqw,8px)]`}>NEW ARRIVAL</p><div className={`${ui.titleRow} gap-2`}><h3 className={`${ui.title} text-[clamp(18px,4.45cqw,25px)]`}>{product.name}</h3><span className={`${ui.price} text-[clamp(9px,2.22cqw,12px)]`}>{priceLabel(product.price, "USD")}</span></div><p className={`${ui.reviews} gap-[3px] text-[clamp(6px,1.25cqw,8px)]`}><RatingStars rating={product.rating} /> <span>(128 Reviews)</span></p><p className={`${ui.description} text-[clamp(8px,1.67cqw,10px)]`}>{product.description}</p><div className={`${ui.variants} mt-[2cqw] text-[clamp(7px,1.25cqw,9px)]`}><span>Color: {variant.label}</span><div className="mt-1.5 flex items-center gap-[7px]">{product.variants.map((option) => <span key={option.id} className={`${ui.swatch} size-4 data-[active=true]:shadow-[0_0_0_1px_#64625e]`} data-active={option.id === variant.id} style={{ "--ac-swatch": option.color } as CSSProperties} />)}</div></div><div className={`${ui.actions} mt-[2.6cqw] gap-[7px]`}><span className={`${ui.add} min-h-[23px] px-[9px] py-1.5 text-[clamp(7px,1.38cqw,9px)]`}>Add to Cart</span><span className={`${ui.save} min-h-[23px] gap-1 px-[7px] py-[5px] text-[clamp(7px,1.38cqw,9px)] [&_svg]:size-2.5`} data-saved={saved}><HeartIcon filled={saved} /><span>Save</span></span></div></div>
+            {step === 2 && <img className="absolute top-[17%] left-[66%] z-8 aspect-square w-[17%] rotate-12 rounded-lg object-cover shadow-[0_12px_22px_#0002]" src={variant.image} alt="" />}
           </div>
         )}
       </div>
@@ -519,136 +521,53 @@ export function AuraCartThumbnail({ className = "", previewStep = 0 }: { classNa
   );
 }
 
+/**
+ * Tailwind class lists shared by the live component and its gallery thumbnail.
+ * Each element adds its own size-dependent utilities; the live component's
+ * compact layout uses inclusive `max-width` container queries on `aura-cart`.
+ */
+const ui = {
+  root: "@container/aura-cart relative isolate flex w-full min-w-0 min-h-0 flex-col bg-[radial-gradient(ellipse_at_50%_46%,#fff,#faf7f4)] font-[Arial,Helvetica,sans-serif] text-[#1a1a1a] [--ac-gold:#ad8f64] motion-reduce:**:animate-none! motion-reduce:**:transition-none!",
+  stage: "relative w-full overflow-hidden bg-[radial-gradient(ellipse_at_50%_46%,#fff,#faf7f4)]",
+  header: "absolute inset-x-0 top-0 z-5 flex items-center justify-between px-[3.3%] text-[#1a1a1a]",
+  brand: "flex flex-none items-center gap-1.5 whitespace-nowrap font-[Georgia,'Times_New_Roman',serif] leading-none",
+  brandSize: "text-[clamp(15px,2.35cqw,20px)] [@container_aura-cart_(max-width:360px)]:text-[14px]",
+  navItem: "py-1 leading-none text-[#1a1a1a]",
+  bag: "flex items-center justify-end py-[5px] text-[#1a1a1a]",
+  count: "grid place-items-center rounded-[50%] bg-(--ac-gold) font-[Arial,sans-serif] leading-none text-white",
+  grid: "absolute inset-0 grid grid-cols-3 auto-rows-[minmax(0,1fr)] transition-opacity duration-380 ease-[ease]",
+  tile: "group relative block min-h-0 min-w-0 overflow-hidden bg-[#eee]",
+  tileImage: "block size-full object-cover transition-transform duration-350 ease-[ease] group-hover:scale-[1.035]",
+  detail: "pointer-events-none relative z-2 grid flex-[1_0_auto] grid-cols-[minmax(0,1fr)_minmax(0,.82fr)] content-center items-start *:pointer-events-auto",
+  hero: "relative aspect-[1.063] overflow-hidden rounded-[14px] bg-[#111]",
+  heroImage: "absolute inset-0 size-full object-cover opacity-0 transition-opacity duration-250 ease-[ease] data-[active=true]:opacity-100",
+  eyebrow: "mb-[1.7cqw] font-semibold leading-[1.2] tracking-[.13em] text-[#a08b65]",
+  titleRow: "flex items-start justify-between",
+  title: "min-w-0 font-[Georgia,'Times_New_Roman',serif] font-semibold leading-[1.08] tracking-[-.03em] text-[#181818]",
+  price: "flex-none whitespace-nowrap pt-[1.7cqw] leading-[1.2]",
+  reviews: "mt-[1.6cqw] flex flex-wrap items-center leading-[1.3] text-[#929292]",
+  description: "mt-[2.5cqw] leading-[1.46] text-[#929292]",
+  variants: "min-w-0 leading-[1.2] text-[#272727]",
+  swatch: "block rounded-[50%] border-2 border-white bg-(--ac-swatch) shadow-[0_0_0_1px_#e9e6e0] transition-shadow duration-200 ease-[ease]",
+  actions: "flex items-center",
+  add: "grid min-w-0 flex-auto place-items-center whitespace-nowrap rounded-[999px] bg-[#1a1a1a] leading-[1.2] text-white transition-[background,box-shadow] duration-200 ease-[ease]",
+  save: "flex flex-none items-center justify-center whitespace-nowrap rounded-[999px] border border-[#efebe6] leading-[1.2] text-[#333] transition-[color,border-color] duration-200 ease-[ease] data-[saved=true]:flex-row-reverse data-[saved=true]:border-[#bba990] data-[saved=true]:text-(--ac-gold)",
+  dialog: "bg-[#faf7f4] font-[Arial,Helvetica,sans-serif] text-[#1a1a1a] shadow-[0_20px_80px_#0003] backdrop:bg-[#16141155] backdrop:backdrop-blur-[3px]",
+  dialogContent: "min-h-full p-7 [@media(max-width:540px)]:p-[22px]",
+  dialogHeader: "mb-[26px] flex items-center justify-between gap-5",
+  dialogTitle: "font-[Georgia,'Times_New_Roman',serif] text-[28px] leading-[1.1] font-medium",
+  dialogClose: "grid size-8 place-items-center rounded-[50%] border border-[#d8d0c3] text-[24px] leading-none text-[#333]",
+  mutedCopy: "text-[14px] leading-[1.6] text-[#766f67]",
+  caption: "text-[12px] leading-[1.5] text-[#766f67]",
+} as const;
+
+// Raw CSS is limited to what utilities cannot do: keyframes (referenced by the
+// animate-[…] utilities) and the focus ring, which stays unlayered so it still
+// beats a host page's global :focus-visible rule. The tile's `!` offset still wins.
 const AURA_CART_STYLES = `
-.aura-cart{--ac-gold:#ad8f64;position:relative;isolation:isolate;container:aura-cart / inline-size;min-width:0;width:100%;background:radial-gradient(ellipse at 50% 46%,#fff,#faf7f4);color:#1a1a1a;font-family:Arial,Helvetica,sans-serif}
-.aura-cart *{box-sizing:border-box}
-.aura-cart :where(button){font-family:inherit;cursor:pointer}
-.aura-cart button:disabled{cursor:wait}
 .aura-cart button:focus-visible{outline:2px solid var(--ac-gold);outline-offset:4px}
-.ac-stage{position:relative;overflow:hidden;aspect-ratio:8/5;width:100%;background:radial-gradient(ellipse at 50% 46%,#fff,#faf7f4)}
-.ac-stage[data-view=detail]{aspect-ratio:auto;min-height:62.78cqw}
-.ac-header{position:absolute;z-index:5;inset:0 0 auto;display:flex;align-items:center;justify-content:space-between;height:6.4cqw;min-height:42px;padding:0 3.3%;color:#1a1a1a}
-.ac-brand{display:flex;align-items:center;gap:6px;flex:0 0 auto;margin:0;padding:0;border:0;background:transparent;color:inherit;font:clamp(15px,2.35cqw,20px)/1 Georgia,'Times New Roman',serif;white-space:nowrap}
-.ac-header[data-gallery=true] .ac-brand{padding:4px 2px;background:#ffffffd9}
-.ac-back>span{font:14px/1 Arial,sans-serif}
-.ac-back:disabled{opacity:.5}
-.ac-nav{display:flex;gap:clamp(12px,2.8cqw,24px);align-items:center}
-.ac-nav button,.ac-nav>span{padding:4px 0;border:0;background:transparent;color:#1a1a1a;font-size:clamp(9px,1.38cqw,12px);line-height:1}
-.ac-nav button:disabled{opacity:.5}
-.ac-bag{display:flex;align-items:center;justify-content:flex-end;gap:6px;padding:5px 0;border:0;background:transparent;color:#1a1a1a}
-.ac-bag>svg{width:17px;height:17px}
-.ac-count{display:grid;place-items:center;min-width:14px;height:14px;padding:0 3px;border-radius:50%;background:var(--ac-gold);color:#fff;font:9px/1 Arial,sans-serif;animation:ac-count-pop .35s ease both}
-.ac-grid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);opacity:1;transition:opacity .38s ease}
-.ac-grid[data-hidden=true]{opacity:0;pointer-events:none}
-.ac-tile{position:relative;overflow:hidden;display:block;min-width:0;min-height:0;padding:0;border:0;background:#eee}
-.ac-tile img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
-.ac-tile:focus-visible{z-index:2;outline-offset:-5px!important}
-.ac-tile:hover img{transform:scale(1.035)}
-.ac-empty{grid-column:1/-1;align-self:center;margin:0;padding:40px;text-align:center;font-size:14px;color:#666}
-.ac-detail{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.82fr);align-items:start;gap:16.25cqw;padding:10.8cqw 4.6% 7.3cqw 9.3%;pointer-events:none}
-.ac-detail>*{pointer-events:auto}
-.ac-hero{position:relative;overflow:hidden;aspect-ratio:1.063;border-radius:14px;background:#111}
-.ac-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s ease}
-.ac-hero img[data-active=true]{opacity:1}
-.ac-copy{padding-top:3.3cqw;animation:ac-copy-enter .45s .14s ease both}
-.ac-eyebrow{margin:0 0 1.7cqw;color:#a08b65;font-size:clamp(8px,1.25cqw,11px);font-weight:600;line-height:1.2;letter-spacing:.13em}
-.ac-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
-.ac-title-row h2,.ac-title-row h3{min-width:0;margin:0;color:#181818;font:600 clamp(26px,4.45cqw,40px)/1.08 Georgia,'Times New Roman',serif;letter-spacing:-.03em}
-.ac-title-row h2:focus{outline:none}
-.ac-price{flex:0 0 auto;padding-top:1.7cqw;white-space:nowrap;font-size:clamp(13px,2.22cqw,19px);line-height:1.2}
-.ac-reviews{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin:1.6cqw 0 0;color:#929292;font-size:clamp(8px,1.25cqw,11px);line-height:1.3}
-.ac-stars{color:#a89770;font-size:.95em;letter-spacing:.02em;background:linear-gradient(90deg,#a89770 var(--ac-rating,100%),#d4cebf var(--ac-rating,100%));background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.ac-description{margin:2.5cqw 0 0;color:#929292;font-size:clamp(11px,1.67cqw,14px);line-height:1.46}
-.ac-variants{min-width:0;margin:3cqw 0 0;padding:0;border:0;color:#272727;font-size:clamp(9px,1.25cqw,11px);line-height:1.2}
-.ac-variants legend{padding:0;margin-bottom:8px}
-.ac-variants legend span{color:#7b7b7b}
-.ac-variants>div{display:flex;gap:10px;align-items:center}
-.ac-swatch{display:block;width:24px;height:24px;padding:0;border:2px solid #fff;border-radius:50%;background:var(--ac-swatch);box-shadow:0 0 0 1px #e9e6e0;transition:box-shadow .2s ease}
-.ac-swatch[aria-pressed=true],.ac-swatch[data-active=true]{box-shadow:0 0 0 1px #64625e}
-.ac-variants:disabled .ac-swatch{opacity:.6}
-.ac-actions{display:flex;align-items:center;gap:10px;margin-top:3.5cqw}
-.ac-add{display:grid;place-items:center;flex:1 1 auto;min-width:0;min-height:32px;padding:9px 14px;border:0;border-radius:999px;background:#1a1a1a;color:#fff;font-size:clamp(10px,1.38cqw,12px);line-height:1.2;white-space:nowrap;transition:background .2s ease,box-shadow .2s ease}
-.ac-add:hover{box-shadow:0 6px 14px #00000015}
-.ac-add:disabled{background:#606060}
-.ac-save{display:flex;align-items:center;justify-content:center;gap:6px;flex:0 0 auto;min-height:32px;padding:8px 13px;border:1px solid #efebe6;border-radius:999px;background:transparent;color:#333;font-size:clamp(10px,1.38cqw,12px);line-height:1.2;white-space:nowrap;transition:color .2s,border-color .2s}
-.ac-save svg{width:14px;height:14px}
-.ac-save[data-saved=true]{flex-direction:row-reverse;border-color:#bba990;color:var(--ac-gold)}
-.ac-error{margin:12px 0 0;color:#a23628;font-size:12px;line-height:1.4}
-.ac-motion-image{position:absolute;z-index:20;max-width:none;object-fit:cover;pointer-events:none;transform-origin:center;will-change:transform,left,top,width,height}
-.ac-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-.ac-dialog{border:0;padding:0;background:#faf7f4;color:#1a1a1a;font-family:Arial,Helvetica,sans-serif;box-shadow:0 20px 80px #0003}
-.ac-dialog::backdrop{background:#16141155;backdrop-filter:blur(3px)}
-.ac-cart-dialog{inset:0 0 0 auto;max-height:none;height:100dvh;width:min(410px,100%);max-width:100%;margin:0}
-.ac-info-dialog{width:min(760px,calc(100% - 32px));max-width:calc(100% - 32px);max-height:90dvh;border-radius:18px}
-.ac-dialog-content{padding:28px;min-height:100%}
-.ac-dialog-header{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:26px}
-.ac-dialog-header h2{margin:0;font:500 28px/1.1 Georgia,'Times New Roman',serif}
-.ac-dialog-header h2 span{color:#9a8f7c}
-.ac-dialog-header>button{display:grid;place-items:center;width:32px;height:32px;border:1px solid #d8d0c3;border-radius:50%;background:transparent;color:#333;font-size:24px;line-height:1}
-.ac-cart-lines{display:grid;gap:22px;margin:0;padding:0;list-style:none}
-.ac-cart-lines li{display:grid;grid-template-columns:84px minmax(0,1fr);gap:16px;padding-bottom:22px;border-bottom:1px solid #e7e0d6}
-.ac-cart-lines img{width:84px;height:84px;object-fit:cover;border-radius:8px}
-.ac-cart-lines h3{margin:0;font:500 19px/1.15 Georgia,'Times New Roman',serif}
-.ac-cart-lines p{margin:8px 0;color:#777;font-size:12px}
-.ac-cart-lines li>div>span{display:block;font-size:13px}
-.ac-remove{margin-top:10px;padding:0;border:0;background:transparent;color:#776750;font-size:11px;text-decoration:underline;text-underline-offset:3px}
-.ac-cart-empty,.ac-editorial-intro{color:#766f67;font-size:14px;line-height:1.6}
-.ac-undo{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px;padding:12px;border:1px solid #dfd4c4;border-radius:8px;color:#776750;font-size:12px;line-height:1.4}
-.ac-undo button{padding:4px;border:0;background:transparent;font:inherit;font-weight:600;text-decoration:underline}
-.ac-total{display:flex;justify-content:space-between;gap:12px;margin:26px 0;font-size:14px}
-.ac-continue{display:block;width:100%;padding:13px 18px;border:0;border-radius:999px;background:#1a1a1a;color:#fff;font-size:13px}
-.ac-collection-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-top:26px}
-.ac-collection-grid button{padding:0;border:0;background:transparent;text-align:left;color:inherit}
-.ac-collection-grid img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px}
-.ac-collection-grid h3{margin:12px 0 6px;font:500 18px/1.2 Georgia,'Times New Roman',serif}
-.ac-collection-grid span,.ac-collection-grid p{font-size:12px;color:#766f67;line-height:1.5}
 @keyframes ac-copy-enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes ac-count-pop{0%,100%{transform:scale(1)}45%{transform:scale(1.25)}}
-@container aura-cart (max-width:620px){
-.aura-cart:not(.ac-thumbnail) .ac-stage[data-view=detail]{min-height:0}
-.aura-cart:not(.ac-thumbnail) .ac-header{height:52px;padding:0 20px}
-.aura-cart:not(.ac-thumbnail) .ac-nav{gap:12px}
-.aura-cart:not(.ac-thumbnail) .ac-nav button{font-size:9px}
-.aura-cart:not(.ac-thumbnail) .ac-detail{grid-template-columns:minmax(0,1fr);gap:0;padding:70px 24px 34px}
-.aura-cart:not(.ac-thumbnail) .ac-hero{max-width:370px;width:100%;justify-self:center}
-.aura-cart:not(.ac-thumbnail) .ac-copy{padding-top:28px}
-.aura-cart:not(.ac-thumbnail) .ac-eyebrow{font-size:9px;margin-bottom:12px}
-.aura-cart:not(.ac-thumbnail) .ac-title-row h2{font-size:32px}
-.aura-cart:not(.ac-thumbnail) .ac-price{font-size:18px;padding-top:7px}
-.aura-cart:not(.ac-thumbnail) .ac-reviews{font-size:10px;margin-top:12px}
-.aura-cart:not(.ac-thumbnail) .ac-description{font-size:13px;margin-top:20px}
-.aura-cart:not(.ac-thumbnail) .ac-variants{font-size:11px;margin-top:22px}
-.aura-cart:not(.ac-thumbnail) .ac-actions{margin-top:24px}
-.aura-cart:not(.ac-thumbnail) .ac-add,.aura-cart:not(.ac-thumbnail) .ac-save{font-size:12px;min-height:40px}
-}
-@container aura-cart (max-width:360px){.aura-cart:not(.ac-thumbnail) .ac-nav{gap:8px}.aura-cart:not(.ac-thumbnail) .ac-nav button{font-size:8px}.aura-cart:not(.ac-thumbnail) .ac-brand{font-size:14px}.aura-cart:not(.ac-thumbnail) .ac-header{padding:0 14px}}
-.ac-thumbnail{height:100%;overflow:hidden}
-.ac-thumbnail .ac-stage{height:100%;aspect-ratio:auto;min-height:0}
-.ac-thumbnail .ac-header{height:35px;min-height:0;padding:0 3.3%}
-.ac-thumbnail .ac-brand{font-size:clamp(10px,2.35cqw,13px)}
-.ac-thumbnail .ac-nav{gap:14px}
-.ac-thumbnail .ac-nav>span{font-size:clamp(6px,1.38cqw,8px)}
-.ac-thumbnail .ac-bag{gap:4px}
-.ac-thumbnail .ac-bag>svg{width:12px;height:12px}
-.ac-thumbnail .ac-count{min-width:10px;height:10px;padding:0 2px;font-size:6px;animation:none}
-.ac-thumbnail .ac-detail{height:100%;gap:12cqw;padding:16cqw 5% 9cqw 7%;align-content:center}
-.ac-thumbnail .ac-copy{padding-top:1cqw;animation:none}
-.ac-thumbnail .ac-title-row{gap:8px}
-.ac-thumbnail .ac-title-row h3{font-size:clamp(18px,4.45cqw,25px)}
-.ac-thumbnail .ac-eyebrow{font-size:clamp(6px,1.25cqw,8px);margin-bottom:1.7cqw}
-.ac-thumbnail .ac-price{font-size:clamp(9px,2.22cqw,12px)}
-.ac-thumbnail .ac-reviews{font-size:clamp(6px,1.25cqw,8px);gap:3px}
-.ac-thumbnail .ac-description{font-size:clamp(8px,1.67cqw,10px)}
-.ac-thumbnail .ac-variants{font-size:clamp(7px,1.25cqw,9px);margin-top:2cqw}
-.ac-thumbnail .ac-variants>div{margin-top:6px;gap:7px}
-.ac-thumbnail .ac-swatch{width:16px;height:16px}
-.ac-thumbnail .ac-actions{gap:7px;margin-top:2.6cqw}
-.ac-thumbnail .ac-add{padding:6px 9px;min-height:23px;font-size:clamp(7px,1.38cqw,9px)}
-.ac-thumbnail .ac-save{padding:5px 7px;min-height:23px;gap:4px;font-size:clamp(7px,1.38cqw,9px)}
-.ac-thumbnail .ac-save svg{width:10px;height:10px}
-.ac-thumbnail-flight{position:absolute;z-index:8;left:66%;top:17%;width:17%;aspect-ratio:1;border-radius:8px;object-fit:cover;transform:rotate(12deg);box-shadow:0 12px 22px #0002}
-@media(max-width:540px){.ac-collection-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ac-dialog-content{padding:22px}}
-@media(prefers-reduced-motion:reduce){.aura-cart *{animation:none!important;transition:none!important}}
 `;
 
 // Clean reference photographs are embedded so the exported file needs no public assets.

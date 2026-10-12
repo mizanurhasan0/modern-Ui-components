@@ -245,6 +245,48 @@ function useLiquidPointer(
   }, [rootRef, artworkRef]);
 }
 
+/*
+ * Shared Tailwind class lists. Each is a complete static literal so Tailwind
+ * can scan it; `@max-[540px]:` targets the component's own inline-size container.
+ */
+const NAV_TEXT =
+  "rounded-[999px] border-none bg-transparent leading-[1.1] font-black tracking-[.005em] whitespace-nowrap uppercase";
+const NAV_BUTTON = `${NAV_TEXT} px-[3px] py-[7px] text-[clamp(9px,1.5cqw,13px)]`;
+const HEADER = "absolute inset-x-0 top-0 z-[3] [transition:color_.25s]";
+const PAGE =
+  "relative grid h-full min-h-full grid-cols-1 place-items-center snap-start snap-always";
+const HERO_PAGE = "bg-white";
+const WORK_PAGE =
+  "bg-[#080808] bg-[linear-gradient(#ffffff02_1px,transparent_1px),linear-gradient(90deg,#ffffff02_1px,transparent_1px)] bg-size-[36px_36px] text-white";
+const DISPLAY_TYPE =
+  "m-0 font-[Arial_Black,Arial,Helvetica,sans-serif] font-[950] uppercase";
+const HEADLINE = `${DISPLAY_TYPE} w-full min-w-0 text-center leading-[.84] @max-[540px]:leading-[.9]`;
+const HEADLINE_LINE =
+  "relative left-1/2 block w-max min-w-full -translate-x-1/2 whitespace-nowrap";
+const SCROLL_CUE =
+  "absolute left-1/2 -translate-x-1/2 rounded-[999px] border-none bg-transparent font-bold whitespace-nowrap uppercase";
+const PROJECT_LAYOUT = "grid w-full grid-cols-[.95fr_1.05fr] items-center";
+const WORK_TITLE = `${DISPLAY_TYPE} leading-[.88] tracking-[-.065em]`;
+const PROJECT =
+  "flex w-max max-w-full items-center rounded-[999px] border-none bg-transparent text-left leading-[1.05] font-extrabold tracking-[-.04em] uppercase";
+const PROJECT_NUMBER =
+  "shrink-0 font-[monospace] font-medium tracking-[0] text-[#777]";
+const EYEBROW =
+  "mx-0 mt-0 mb-7 text-[9px] font-bold tracking-[.15em] text-[#787878] @max-[540px]:mb-[22px]";
+const PANEL_TITLE =
+  "mx-0 mt-0 mb-6 font-[Arial_Black,Arial,sans-serif] text-[clamp(28px,6.5cqw,62px)] leading-[.95] font-[950] tracking-[-.065em] uppercase";
+const PANEL_DESCRIPTION =
+  "m-0 max-w-[410px] text-[14px] leading-[1.7] text-[#666] @max-[540px]:text-[12px]";
+const UPDATE_ITEM =
+  "flex gap-[18px] border-t border-t-[#e9e9e9] py-[18px] text-[13px] font-bold";
+const UPDATE_NUMBER = "pt-[3px] [font:9px_monospace] text-[#999]";
+const ART_RING =
+  "absolute top-9 left-[calc(50%-82px)] size-[165px] scale-x-40 rounded-[50%] border";
+const ART_NEURAL =
+  "bg-[radial-gradient(ellipse_at_20%_90%,#496270,#0c1417_65%)] text-white";
+const ART_KINETIC = "bg-[#e7ff55] text-[#050505]";
+const ART_DEFAULT = "bg-[#111] text-white";
+
 /** A complete two-section studio concept with a contained liquid cursor. */
 export default function LiquidCursor({
   brand = "PIXELFLOW",
@@ -309,19 +351,24 @@ export default function LiquidCursor({
     }
   }
 
+  const navButton = `${NAV_BUTTON} @max-[540px]:text-[8px]`;
+  const projectButton = `${PROJECT} gap-[23px] px-[7px] py-[11px] text-[3.15cqw] @max-[540px]:gap-[22px] @max-[540px]:px-1 @max-[540px]:py-[10px] @max-[540px]:text-[5.5cqw]`;
+  const page = `${PAGE} px-6 pt-[100px] pb-[70px] @max-[540px]:px-[14px] @max-[540px]:pt-[95px] @max-[540px]:pb-[65px]`;
+  const scrollCue = `${SCROLL_CUE} bottom-[22px] px-2 py-[7px] text-[clamp(8px,1.4cqw,11px)] tracking-[.16em]`;
+
   return (
     <div
       ref={root}
-      className={`liquid-cursor relative w-full overflow-hidden ${className}`}
+      className={`liquid-cursor @container relative isolate flex w-full min-w-0 flex-col overflow-hidden bg-white font-[Arial,Helvetica,sans-serif] text-[#050505] ${className}`}
       data-dark={dark}
     >
       <ComponentStyles css={LIQUID_STYLES} />
       <header
-        className="lc-header flex items-center justify-between"
+        className={`${HEADER} flex items-center justify-between gap-5 px-[25px] py-8 @max-[540px]:items-start @max-[540px]:gap-[15px] @max-[540px]:px-[14px] @max-[540px]:py-[21px] ${dark ? "text-white" : "text-[#050505]"}`}
         inert={Boolean(panel)}
       >
         <button
-          className="lc-brand"
+          className={`${NAV_BUTTON} @max-[540px]:text-[9px]`}
           type="button"
           onClick={() => goTo(0)}
           data-lc-liquid
@@ -329,13 +376,19 @@ export default function LiquidCursor({
           {brand}
         </button>
         <nav
-          className="lc-navigation flex items-center"
+          className="flex items-center gap-[clamp(14px,4.1cqw,36px)] @max-[540px]:max-w-[245px] @max-[540px]:flex-wrap @max-[540px]:justify-end @max-[540px]:gap-[14px]"
           aria-label="Studio navigation"
         >
-          <button type="button" onClick={() => goTo(1)} data-lc-liquid>
+          <button
+            className={navButton}
+            type="button"
+            onClick={() => goTo(1)}
+            data-lc-liquid
+          >
             Works
           </button>
           <button
+            className={navButton}
             type="button"
             onClick={(event) => open("about", event.currentTarget)}
             data-lc-liquid
@@ -343,6 +396,7 @@ export default function LiquidCursor({
             About
           </button>
           <button
+            className={navButton}
             type="button"
             onClick={(event) => open("updates", event.currentTarget)}
             data-lc-liquid
@@ -350,6 +404,7 @@ export default function LiquidCursor({
             Updates
           </button>
           <button
+            className={navButton}
             type="button"
             onClick={(event) =>
               onContact ? onContact() : open("contact", event.currentTarget)
@@ -362,7 +417,7 @@ export default function LiquidCursor({
       </header>
       <div
         ref={scroll}
-        className="lc-scroll"
+        className="lc-scroll h-[clamp(440px,80cqw,680px)] flex-[1_0_auto] snap-y snap-mandatory overflow-x-hidden overflow-y-auto overscroll-y-contain [scrollbar-width:none] motion-reduce:snap-none"
         tabIndex={0}
         role="region"
         aria-label="Studio pages. Scroll or swipe to explore."
@@ -374,18 +429,19 @@ export default function LiquidCursor({
           )
         }
       >
-        <section
-          className="lc-page lc-hero grid place-items-center"
-          aria-label="Introduction"
-        >
-          <h2 className="lc-headline">
+        <section className={`${page} ${HERO_PAGE}`} aria-label="Introduction">
+          <h2
+            className={`${HEADLINE} scale-x-90 text-[12.65cqw] tracking-[-.085em] @max-[540px]:scale-x-87 @max-[540px]:tracking-[-.077em]`}
+          >
             {headline.map((line, index) => (
-              <span key={index}>{line}</span>
+              <span key={index} className={HEADLINE_LINE}>
+                {line}
+              </span>
             ))}
           </h2>
           <button
             type="button"
-            className="lc-scroll-cue"
+            className={`${scrollCue} text-[#a1a1a1]`}
             onClick={() => goTo(1)}
             data-lc-liquid
           >
@@ -393,28 +449,33 @@ export default function LiquidCursor({
           </button>
         </section>
         <section
-          className="lc-page lc-work grid place-items-center"
+          className={`${page} ${WORK_PAGE}`}
           aria-labelledby={`${id}-work`}
         >
-          <div className="lc-project-layout">
-            <h2 id={`${id}-work`} className="lc-work-title">
+          <div
+            className={`${PROJECT_LAYOUT} gap-[38px] px-4 @max-[540px]:grid-cols-[1fr] @max-[540px]:gap-8 @max-[540px]:px-[11px]`}
+          >
+            <h2
+              id={`${id}-work`}
+              className={`${WORK_TITLE} text-[7.15cqw] @max-[540px]:text-[12cqw]`}
+            >
               Featured
               <br />
               projects
             </h2>
-            <ol className="lc-projects">
+            <ol className="m-0 grid list-none gap-[7px] p-0 @max-[540px]:gap-2">
               {projects.map((project, index) => (
                 <li key={project.id}>
                   <button
                     type="button"
-                    className="lc-project"
+                    className={projectButton}
                     onClick={(event) => {
                       open(project, event.currentTarget);
                       onProjectSelect?.(project);
                     }}
                     data-lc-liquid
                   >
-                    <span className="lc-project-number">
+                    <span className={`${PROJECT_NUMBER} text-[9px]`}>
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     <span>{project.title}</span>
@@ -425,7 +486,7 @@ export default function LiquidCursor({
           </div>
           <button
             type="button"
-            className="lc-scroll-cue"
+            className={`${scrollCue} text-[#696969]`}
             onClick={() => goTo(0)}
             data-lc-liquid
           >
@@ -435,7 +496,7 @@ export default function LiquidCursor({
       </div>
       {panel && (
         <div
-          className="lc-dialog-backdrop"
+          className="absolute inset-0 z-[5] grid place-items-center bg-[#0007] p-6 backdrop-blur-[8px]"
           onClick={(event) => {
             if (event.target === event.currentTarget) close();
           }}
@@ -445,12 +506,12 @@ export default function LiquidCursor({
             role="dialog"
             aria-modal="true"
             aria-labelledby={`${id}-panel-title`}
-            className="lc-dialog"
+            className="lc-dialog relative max-h-full w-[min(570px,100%)] overflow-auto rounded-[2px] bg-white p-[38px] text-[#080808] shadow-[0_20px_70px_#0002] @max-[540px]:px-6 @max-[540px]:py-[34px]"
             onKeyDown={trapFocus}
           >
             <button
               type="button"
-              className="lc-close"
+              className="absolute top-[13px] right-[17px] size-8 rounded-[50%] border-none bg-transparent text-[28px] leading-none"
               aria-label="Close panel"
               onClick={close}
               data-lc-liquid
@@ -459,72 +520,82 @@ export default function LiquidCursor({
             </button>
             {typeof panel === "object" ? (
               <>
-                <p className="lc-eyebrow">{panel.discipline}</p>
-                <h3 id={`${id}-panel-title`}>{panel.title}</h3>
+                <p className={EYEBROW}>{panel.discipline}</p>
+                <h3 id={`${id}-panel-title`} className={PANEL_TITLE}>
+                  {panel.title}
+                </h3>
                 <div
-                  className="lc-project-art"
+                  className={`relative mb-5 grid h-[170px] place-items-center overflow-hidden @max-[540px]:h-[130px] ${panel.id === "neural" ? ART_NEURAL : panel.id === "kinetic" ? ART_KINETIC : ART_DEFAULT}`}
                   data-project={panel.id}
                   aria-hidden="true"
                 >
-                  <i />
-                  <i />
-                  <i />
-                  <span>{panel.id === "kinetic" ? "MOVE." : "PF"}</span>
+                  {["rotate-30", "rotate-90", "rotate-150"].map((rotation) => (
+                    <i
+                      key={rotation}
+                      className={`${ART_RING} ${rotation} ${panel.id === "kinetic" ? "border-[#05050540]" : "border-[#ffffff70]"}`}
+                    />
+                  ))}
+                  <span className="relative text-[54px] font-black tracking-[-6px] mix-blend-difference">
+                    {panel.id === "kinetic" ? "MOVE." : "PF"}
+                  </span>
                 </div>
-                <p className="lc-panel-description">{panel.description}</p>
+                <p className={PANEL_DESCRIPTION}>{panel.description}</p>
               </>
             ) : panel === "about" ? (
               <>
-                <p className="lc-eyebrow">01 / THE STUDIO</p>
-                <h3 id={`${id}-panel-title`}>
+                <p className={EYEBROW}>01 / THE STUDIO</p>
+                <h3 id={`${id}-panel-title`} className={PANEL_TITLE}>
                   Made for
                   <br />
                   movement.
                 </h3>
-                <p className="lc-panel-description">
+                <p className={PANEL_DESCRIPTION}>
                   We explore the space between design and technology. Thoughtful
                   interfaces. Expressive typography. Small interactions that
                   make a big impression.
                 </p>
-                <p className="lc-panel-note">
+                <p className="mx-0 mt-7 mb-0 text-[11px] font-bold">
                   Independent thinking. Fluid execution.
                 </p>
               </>
             ) : panel === "updates" ? (
               <>
-                <p className="lc-eyebrow">02 / FIELD NOTES</p>
-                <h3 id={`${id}-panel-title`}>
+                <p className={EYEBROW}>02 / FIELD NOTES</p>
+                <h3 id={`${id}-panel-title`} className={PANEL_TITLE}>
                   Always
                   <br />
                   in motion.
                 </h3>
-                <ul className="lc-updates">
-                  <li>
-                    <span>01</span>Exploring liquid interactions
+                <ul className="m-0 grid list-none gap-0 p-0">
+                  <li className={UPDATE_ITEM}>
+                    <span className={UPDATE_NUMBER}>01</span>Exploring liquid
+                    interactions
                   </li>
-                  <li>
-                    <span>02</span>Type as a moving medium
+                  <li className={UPDATE_ITEM}>
+                    <span className={UPDATE_NUMBER}>02</span>Type as a moving
+                    medium
                   </li>
-                  <li>
-                    <span>03</span>Interfaces with a little feeling
+                  <li className={UPDATE_ITEM}>
+                    <span className={UPDATE_NUMBER}>03</span>Interfaces with a
+                    little feeling
                   </li>
                 </ul>
               </>
             ) : (
               <>
-                <p className="lc-eyebrow">03 / YOUR NEXT IDEA</p>
-                <h3 id={`${id}-panel-title`}>
+                <p className={EYEBROW}>03 / YOUR NEXT IDEA</p>
+                <h3 id={`${id}-panel-title`} className={PANEL_TITLE}>
                   Let&apos;s make
                   <br />
                   it move.
                 </h3>
-                <p className="lc-panel-description">
+                <p className={PANEL_DESCRIPTION}>
                   An expressive interface. A thoughtful interaction. Your next
                   big idea.
                 </p>
                 <button
                   type="button"
-                  className="lc-panel-action"
+                  className="mt-8 flex gap-[38px] rounded-[999px] border-none bg-[#050505] px-[18px] py-3 text-[11px] font-bold text-white"
                   onClick={() => {
                     close();
                     goTo(1);
@@ -540,7 +611,7 @@ export default function LiquidCursor({
       )}
       <svg
         ref={artwork}
-        className="lc-pointer-art"
+        className="pointer-events-none absolute inset-0 z-10 overflow-hidden opacity-0 mix-blend-difference motion-reduce:hidden pointer-coarse:hidden"
         aria-hidden="true"
         width="100%"
         height="100%"
@@ -583,52 +654,71 @@ export function LiquidCursorThumbnail({
 }) {
   const step = Math.abs(Math.trunc(previewStep)) % 4;
   const dark = step > 1;
+  const navText = `${NAV_TEXT} text-[5px]`;
   return (
     <div
-      className={`liquid-cursor lc-thumbnail ${className}`}
+      className={`liquid-cursor @container pointer-events-none isolate h-full min-h-0 min-w-0 bg-white font-[Arial,Helvetica,sans-serif] text-[#050505] ${className}`}
       data-dark={dark}
       aria-hidden="true"
       inert
     >
       <ComponentStyles css={LIQUID_STYLES} />
-      <div className="lc-header">
-        <span className="lc-brand">PIXELFLOW</span>
-        <div className="lc-navigation">
-          <span>WORKS</span>
-          <span>ABOUT</span>
-          <span>UPDATES</span>
-          <span>START A PROJECT</span>
+      <div
+        className={`${HEADER} flex items-center gap-3 px-3 py-[18px] ${dark ? "text-white" : "text-[#050505]"}`}
+      >
+        <span className={`${NAV_TEXT} text-[7px]`}>PIXELFLOW</span>
+        <div className="flex gap-[11px] @max-[540px]:justify-end">
+          <span className={navText}>WORKS</span>
+          <span className={navText}>ABOUT</span>
+          <span className={navText}>UPDATES</span>
+          <span className={navText}>START A PROJECT</span>
         </div>
       </div>
-      <div className={`lc-page ${dark ? "lc-work" : "lc-hero"}`}>
+      <div
+        className={`${PAGE} px-[13px] pt-[55px] pb-[36px] ${dark ? WORK_PAGE : HERO_PAGE}`}
+      >
         {dark ? (
-          <div className="lc-project-layout">
-            <span className="lc-work-title">
+          <div className={`${PROJECT_LAYOUT} gap-3`}>
+            <span className={`${WORK_TITLE} text-[7cqw]`}>
               FEATURED
               <br />
               PROJECTS
             </span>
-            <div className="lc-projects">
+            <div className="m-0 grid list-none gap-0 p-0">
               {DEFAULT_PROJECTS.map((project, index) => (
-                <span className="lc-project" key={project.id}>
-                  <span className="lc-project-number">0{index + 1}</span>
+                <span
+                  className={`${PROJECT} gap-2 px-0 py-[7px] text-[3.2cqw]`}
+                  key={project.id}
+                >
+                  <span className={`${PROJECT_NUMBER} text-[4px]`}>
+                    0{index + 1}
+                  </span>
                   <span>{project.title}</span>
                 </span>
               ))}
             </div>
           </div>
         ) : (
-          <span className="lc-headline">
+          <span
+            className={`${HEADLINE} scale-x-92 text-[12cqw] tracking-[-.08em]`}
+          >
             {DEFAULT_HEADLINE.map((line) => (
-              <span key={line}>{line}</span>
+              <span key={line} className={HEADLINE_LINE}>
+                {line}
+              </span>
             ))}
           </span>
         )}
-        <span className="lc-scroll-cue">
+        <span
+          className={`${SCROLL_CUE} bottom-3 p-0 text-[5px] tracking-[.1em] ${dark ? "text-[#696969]" : "text-[#a1a1a1]"}`}
+        >
           {dark ? "SCROLL UP" : "SCROLL OR SWIPE"}
         </span>
       </div>
-      <svg className="lc-thumbnail-blob" viewBox="0 0 120 90">
+      <svg
+        className={`absolute h-[75px] w-[100px] text-white mix-blend-difference ${dark ? "top-[58%] left-[59%]" : "top-[43%] left-[28%]"}`}
+        viewBox="0 0 120 90"
+      >
         <path
           d={
             step % 2
@@ -642,18 +732,25 @@ export function LiquidCursorThumbnail({
   );
 }
 
+/*
+ * Raw CSS kept only for what utilities cannot express cleanly:
+ * - button cursor / focus ring and the scroll region's outline offset must beat
+ *   the site's unlayered global :focus-visible rule;
+ * - the WebKit scrollbar pseudo-element;
+ * - the liquid hover states, keyed on root data-dark / data-cursor-active state
+ *   (set from the pointer loop) and dialog ancestry with deliberate precedence;
+ * - reduced-motion overrides that must beat every descendant transition.
+ */
 const LIQUID_STYLES = `
-.liquid-cursor{container-type:inline-size;isolation:isolate;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#050505;min-width:0}
-.liquid-cursor *{box-sizing:border-box}.liquid-cursor button{font-family:inherit;color:inherit;cursor:pointer}.liquid-cursor button:focus-visible{outline:2px solid currentColor;outline-offset:5px}.liquid-cursor .lc-header{position:absolute;inset:0 0 auto;z-index:3;padding:32px 25px;gap:20px;color:#050505;transition:color .25s}.liquid-cursor[data-dark=true] .lc-header{color:#fff}
-.liquid-cursor .lc-brand,.liquid-cursor .lc-navigation button,.liquid-cursor .lc-navigation>span{font-size:clamp(9px,1.5cqw,13px);font-weight:900;letter-spacing:.005em;text-transform:uppercase;white-space:nowrap;border:0;background:none;border-radius:999px;padding:7px 3px;line-height:1.1}.liquid-cursor .lc-navigation{gap:clamp(14px,4.1cqw,36px)}
-.liquid-cursor .lc-scroll{height:clamp(440px,80cqw,680px);overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;overscroll-behavior-y:contain;scrollbar-width:none;outline-offset:-3px}.liquid-cursor .lc-scroll::-webkit-scrollbar{display:none}.liquid-cursor .lc-page{position:relative;grid-template-columns:minmax(0,1fr);height:100%;min-height:100%;scroll-snap-align:start;scroll-snap-stop:always;padding:100px 24px 70px}
-.liquid-cursor .lc-hero{background:#fff}.liquid-cursor .lc-headline{min-width:0;width:100%;transform:scaleX(.9);margin:0;text-align:center;font-family:Arial Black,Arial,Helvetica,sans-serif;font-size:12.65cqw;line-height:.84;font-weight:950;letter-spacing:-.085em;text-transform:uppercase}.liquid-cursor .lc-headline>span{display:block;white-space:nowrap;width:max-content;min-width:100%;position:relative;left:50%;transform:translateX(-50%)}.liquid-cursor .lc-scroll-cue{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);border:0;background:none;border-radius:999px;padding:7px 8px;font-size:clamp(8px,1.4cqw,11px);font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:#a1a1a1;white-space:nowrap}
-.liquid-cursor .lc-work{color:#fff;background-color:#080808;background-image:linear-gradient(#ffffff02 1px,transparent 1px),linear-gradient(90deg,#ffffff02 1px,transparent 1px);background-size:36px 36px}.liquid-cursor .lc-project-layout{display:grid;grid-template-columns:.95fr 1.05fr;gap:38px;width:100%;align-items:center;padding:0 16px}.liquid-cursor .lc-work-title{margin:0;font-family:Arial Black,Arial,Helvetica,sans-serif;font-size:7.15cqw;line-height:.88;letter-spacing:-.065em;font-weight:950;text-transform:uppercase}.liquid-cursor .lc-projects{list-style:none;margin:0;padding:0;display:grid;gap:7px}.liquid-cursor .lc-project{display:flex;align-items:center;gap:23px;text-align:left;border:0;background:none;width:max-content;max-width:100%;padding:11px 7px;border-radius:999px;font-size:3.15cqw;line-height:1.05;font-weight:800;letter-spacing:-.04em;text-transform:uppercase}.liquid-cursor .lc-project-number{flex-shrink:0;font-family:monospace;font-size:9px;font-weight:500;color:#777;letter-spacing:0}.liquid-cursor .lc-work .lc-scroll-cue{color:#696969}
-.liquid-cursor [data-lc-liquid]{transition:background .2s,color .2s}.liquid-cursor [data-lc-liquid]:hover{background:#050505;color:#fff}.liquid-cursor[data-dark=true] [data-lc-liquid]:hover{background:#fff;color:#050505}.liquid-cursor[data-cursor-active=true],.liquid-cursor[data-cursor-active=true] *{cursor:none!important}.liquid-cursor[data-cursor-active=true] [data-lc-liquid]:hover{background:transparent;color:inherit}.liquid-cursor .lc-pointer-art{position:absolute;inset:0;z-index:10;overflow:hidden;pointer-events:none;opacity:0;mix-blend-mode:difference}
-.liquid-cursor .lc-dialog-backdrop{position:absolute;inset:0;z-index:5;display:grid;place-items:center;padding:24px;background:#0007;backdrop-filter:blur(8px)}.liquid-cursor .lc-dialog{position:relative;width:min(570px,100%);max-height:100%;overflow:auto;padding:38px;background:#fff;color:#080808;border-radius:2px;box-shadow:0 20px 70px #0002}.liquid-cursor .lc-close{position:absolute;top:13px;right:17px;width:32px;height:32px;border:0;border-radius:50%;background:none;font-size:28px;line-height:1}.liquid-cursor .lc-eyebrow{margin:0 0 28px;font-size:9px;font-weight:700;letter-spacing:.15em;color:#787878}.liquid-cursor .lc-dialog h3{font-family:Arial Black,Arial,sans-serif;font-weight:950;font-size:clamp(28px,6.5cqw,62px);line-height:.95;letter-spacing:-.065em;text-transform:uppercase;margin:0 0 24px}.liquid-cursor .lc-panel-description{font-size:14px;line-height:1.7;color:#666;max-width:410px;margin:0}.liquid-cursor .lc-panel-note{font-size:11px;font-weight:700;margin:28px 0 0}.liquid-cursor .lc-updates{padding:0;margin:0;list-style:none;display:grid;gap:0}.liquid-cursor .lc-updates li{display:flex;gap:18px;padding:18px 0;border-top:1px solid #e9e9e9;font-size:13px;font-weight:700}.liquid-cursor .lc-updates li>span{color:#999;font:9px monospace;padding-top:3px}.liquid-cursor .lc-panel-action{display:flex;gap:38px;margin-top:32px;padding:12px 18px;background:#050505;color:#fff;border:0;border-radius:999px;font-size:11px;font-weight:700}.liquid-cursor[data-dark=true] .lc-dialog [data-lc-liquid]:hover{background:#eee;color:#050505}
-.liquid-cursor .lc-project-art{position:relative;overflow:hidden;height:170px;margin-bottom:20px;background:#111;color:#fff;display:grid;place-items:center}.liquid-cursor .lc-project-art i{position:absolute;width:165px;height:165px;top:36px;left:calc(50% - 82px);border:1px solid #ffffff70;border-radius:50%;transform:rotate(30deg) scaleX(.4)}.liquid-cursor .lc-project-art i:nth-child(2){transform:rotate(90deg) scaleX(.4)}.liquid-cursor .lc-project-art i:nth-child(3){transform:rotate(150deg) scaleX(.4)}.liquid-cursor .lc-project-art>span{position:relative;font-size:54px;font-weight:900;letter-spacing:-6px;mix-blend-mode:difference}.liquid-cursor .lc-project-art[data-project=neural]{background:radial-gradient(ellipse at 20% 90%,#496270,#0c1417 65%)}.liquid-cursor .lc-project-art[data-project=kinetic]{background:#e7ff55;color:#050505}.liquid-cursor .lc-project-art[data-project=kinetic] i{border-color:#05050540}
-@container(max-width:540px){.liquid-cursor .lc-header{padding:21px 14px;gap:15px;align-items:flex-start}.liquid-cursor .lc-navigation{gap:14px;justify-content:flex-end;flex-wrap:wrap;max-width:245px}.liquid-cursor .lc-navigation button{font-size:8px}.liquid-cursor .lc-brand{font-size:9px}.liquid-cursor .lc-page{padding:95px 14px 65px}.liquid-cursor .lc-headline{font-size:12.65cqw;letter-spacing:-.077em;line-height:.9;transform:scaleX(.87)}.liquid-cursor .lc-project-layout{grid-template-columns:1fr;gap:32px;padding:0 11px}.liquid-cursor .lc-work-title{font-size:12cqw}.liquid-cursor .lc-projects{gap:8px}.liquid-cursor .lc-project{font-size:5.5cqw;gap:22px;padding:10px 4px}.liquid-cursor .lc-dialog{padding:34px 24px}.liquid-cursor .lc-eyebrow{margin-bottom:22px}.liquid-cursor .lc-panel-description{font-size:12px}.liquid-cursor .lc-project-art{height:130px}}
-.liquid-cursor.lc-thumbnail{height:100%;min-height:0;pointer-events:none}.liquid-cursor.lc-thumbnail .lc-header{display:flex;align-items:center;padding:18px 12px;gap:12px}.liquid-cursor.lc-thumbnail .lc-brand{font-size:7px;padding:0}.liquid-cursor.lc-thumbnail .lc-navigation{display:flex;gap:11px;flex-wrap:nowrap;max-width:none}.liquid-cursor.lc-thumbnail .lc-navigation>span{font-size:5px;padding:0}.liquid-cursor.lc-thumbnail .lc-page{display:grid;place-items:center;padding:55px 13px 36px}.liquid-cursor.lc-thumbnail .lc-headline{font-size:12cqw;letter-spacing:-.08em;transform:scaleX(.92)}.liquid-cursor.lc-thumbnail .lc-scroll-cue{font-size:5px;bottom:12px;letter-spacing:.1em;padding:0}.liquid-cursor.lc-thumbnail .lc-project-layout{grid-template-columns:.95fr 1.05fr;gap:12px;padding:0}.liquid-cursor.lc-thumbnail .lc-work-title{font-size:7cqw}.liquid-cursor.lc-thumbnail .lc-project{font-size:3.2cqw;gap:8px;padding:7px 0}.liquid-cursor.lc-thumbnail .lc-project-number{font-size:4px}.liquid-cursor.lc-thumbnail .lc-projects{gap:0}.liquid-cursor .lc-thumbnail-blob{position:absolute;width:100px;height:75px;left:28%;top:43%;color:#fff;mix-blend-mode:difference}.liquid-cursor.lc-thumbnail[data-dark=true] .lc-thumbnail-blob{color:#fff;left:59%;top:58%}
-@media(prefers-reduced-motion:reduce){.liquid-cursor *{transition:none!important;scroll-behavior:auto!important}.liquid-cursor .lc-pointer-art{display:none}.liquid-cursor .lc-scroll{scroll-snap-type:none}}
-@media(pointer:coarse){.liquid-cursor .lc-pointer-art{display:none}}
+.liquid-cursor button{cursor:pointer}
+.liquid-cursor button:focus-visible{outline:2px solid currentColor;outline-offset:5px}
+.liquid-cursor .lc-scroll{outline-offset:-3px}
+.liquid-cursor .lc-scroll::-webkit-scrollbar{display:none}
+.liquid-cursor [data-lc-liquid]{transition:background .2s,color .2s}
+.liquid-cursor [data-lc-liquid]:hover{background:#050505;color:#fff}
+.liquid-cursor[data-dark=true] [data-lc-liquid]:hover{background:#fff;color:#050505}
+.liquid-cursor[data-cursor-active=true],.liquid-cursor[data-cursor-active=true] *{cursor:none!important}
+.liquid-cursor[data-cursor-active=true] [data-lc-liquid]:hover{background:transparent;color:inherit}
+.liquid-cursor[data-dark=true] .lc-dialog [data-lc-liquid]:hover{background:#eee;color:#050505}
+@media(prefers-reduced-motion:reduce){.liquid-cursor *{transition:none!important;scroll-behavior:auto!important}}
 `;

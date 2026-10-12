@@ -23,12 +23,56 @@ export interface VerificationCodeProps {
 type VerificationState =
   "idle" | "checking" | "verifying" | "success" | "error";
 
-function LockArtwork({ verified = false }: { verified?: boolean }) {
+/*
+ * Tailwind classes shared by the live component and its gallery thumbnail.
+ * Sizes live on each element so the thumbnail can render a compact copy.
+ * `group/card` carries `data-state`, which drives every state style below.
+ */
+const stageClass =
+  "verification-code @container grid place-items-center bg-[#fafafa] font-[family-name:Arial,Helvetica,sans-serif] text-[#121820]";
+const cardClass =
+  "group/card relative flex flex-col items-center bg-white shadow-[0_8px_40px_#182c4210]";
+const titleClass = "m-0 block text-center font-bold leading-[1.25]";
+const descriptionClass = "mb-0 text-center leading-[1.6] text-[#878b8e]";
+const inputAreaClass = "relative grid w-full place-items-center";
+/* The track line behind the tiles fades out once the tiles start merging. */
+const inputsClass =
+  "relative flex w-full items-center justify-center before:absolute before:top-1/2 before:h-1 before:w-[78%] before:rounded-[3px] before:bg-[#ddebf0] before:content-[''] before:[transition:opacity_.2s] motion-reduce:before:transition-none group-data-[state=verifying]/card:before:opacity-0 group-data-[state=success]/card:before:opacity-0 group-data-[state=success]/card:invisible group-data-[state=success]/card:opacity-0 motion-reduce:group-data-[state=verifying]/card:opacity-60";
+/* `after:` draws the glossy highlight; the error ring outranks the filled style. */
+const tileClass =
+  "relative block shrink-0 bg-[linear-gradient(155deg,#fff_35%,#f9fcfe)] shadow-[0_0_0_1px_#eef2f5,0_6px_3px_-5px_#308abe80,0_4px_10px_#192b4210] [transition:background_.2s,box-shadow_.2s] motion-reduce:transition-none after:pointer-events-none after:absolute after:inset-x-[5px] after:top-[2px] after:h-[3px] after:rounded-[50%] after:bg-[#fff9] after:content-[''] data-[filled=true]:bg-[linear-gradient(150deg,#82d3f9,#509de4_45%,#286bc7)] data-[filled=true]:shadow-[inset_0_1px_2px_#fff8,0_4px_9px_#2681ce45] group-data-[state=error]/card:shadow-[0_0_0_1px_#dc7373,0_4px_10px_#b2232310]!";
+const digitClass =
+  "grid size-full place-items-center rounded-xl border-0 bg-transparent p-0 text-center text-white";
+const footerClass = "text-center text-[#81878b]";
+const secureClass = "flex items-center justify-center gap-[5px] text-[#43bfa0]";
+const resendClass =
+  "cursor-pointer border-0 bg-transparent p-0 text-[#3578a9] underline underline-offset-2";
+/** Each spark's travel offset, passed to CSS as custom properties. */
+const SPARKS: React.CSSProperties[] = [
+  { "--vc-spark-x": "-42px", "--vc-spark-y": "-28px" },
+  { "--vc-spark-x": "43px", "--vc-spark-y": "-15px" },
+  { "--vc-spark-x": "-32px", "--vc-spark-y": "33px" },
+  { "--vc-spark-x": "30px", "--vc-spark-y": "39px" },
+].map((offset) => offset as React.CSSProperties);
+
+function LockArtwork({
+  verified = false,
+  compact = false,
+}: {
+  verified?: boolean;
+  compact?: boolean;
+}) {
   const gradientId = useId().replace(/:/g, "");
   return (
-    <span className="vc-emblem" aria-hidden="true">
+    <span
+      className={`grid place-items-center bg-[radial-gradient(ellipse_at_40%_35%,#edf7fb,#f7f9fc_72%)] shadow-[0_5px_22px_#91b3d016] ${compact ? "mb-[14px] size-16 rounded-[18px]" : "mb-6 size-[108px] rounded-[28px]"}`}
+      aria-hidden="true"
+    >
       {verified ? (
-        <svg viewBox="0 0 64 64" className="vc-verified-icon">
+        <svg
+          viewBox="0 0 64 64"
+          className={`animate-[vc-pop_.5s_cubic-bezier(.2,1.8,.5,1)_both] motion-reduce:animate-none ${compact ? "size-11" : "size-[67px]"}`}
+        >
           <circle cx="32" cy="32" r="24" fill="#20d77a" />
           <path
             d="m22 32 7 7 14-15"
@@ -40,7 +84,10 @@ function LockArtwork({ verified = false }: { verified?: boolean }) {
           />
         </svg>
       ) : (
-        <svg viewBox="0 0 64 64" className="vc-lock-icon">
+        <svg
+          viewBox="0 0 64 64"
+          className={`animate-[vc-lock-sway_3s_ease-in-out_infinite] motion-reduce:animate-none ${compact ? "size-11" : "size-[68px]"}`}
+        >
           <defs>
             <linearGradient id={`${gradientId}-blue`} x2="0" y2="1">
               <stop stopColor="#68bef5" />
@@ -79,10 +126,17 @@ function LockArtwork({ verified = false }: { verified?: boolean }) {
   );
 }
 
-function SuccessOrb() {
+/* The orb drops in while verifying, then sparks fly out on success. */
+function SuccessOrb({ compact = false }: { compact?: boolean }) {
   return (
-    <span className="vc-orb" aria-hidden="true">
-      <svg viewBox="0 0 32 32">
+    <span
+      className={`pointer-events-none absolute rounded-[40%] bg-[radial-gradient(circle_at_35%_15%,#a0f8d8,#35d5a4_40%,#05a674_70%,#078c62)] opacity-0 shadow-[inset_0_3px_3px_#fff9,inset_0_-3px_7px_#00644360,0_8px_18px_#12ce9360] before:absolute before:h-[5px] before:-rotate-10 before:rounded-[50%] before:bg-[#ecfff4b0] before:content-[''] group-data-[state=verifying]/card:animate-[vc-drop_.85s_.65s_both] group-data-[state=success]/card:animate-[vc-orb-settle_.45s_both] group-data-[state=success]/card:opacity-100 motion-reduce:animate-none! ${compact ? "top-[calc(50%-18px)] left-[calc(50%-18px)] size-9 before:top-1 before:left-2 before:w-5" : "top-[calc(50%-29px)] left-[calc(50%-29px)] size-[58px] before:top-[6px] before:left-[13px] before:w-[31px]"}`}
+      aria-hidden="true"
+    >
+      <svg
+        viewBox="0 0 32 32"
+        className={`size-full ${compact ? "p-1" : "p-[9px]"}`}
+      >
         <path
           d="m9 16 5 5 10-11"
           fill="none"
@@ -92,10 +146,13 @@ function SuccessOrb() {
           strokeLinejoin="round"
         />
       </svg>
-      <i />
-      <i />
-      <i />
-      <i />
+      {SPARKS.map((spark, index) => (
+        <i
+          key={index}
+          className="absolute top-1/2 left-1/2 size-1 rounded-[50%] bg-[#53e9bc] opacity-0 group-data-[state=success]/card:animate-[vc-spark_.65s_both] motion-reduce:animate-none!"
+          style={spark}
+        />
+      ))}
     </span>
   );
 }
@@ -270,16 +327,25 @@ export default function VerificationCode({
 
   return (
     <section
-      className={`verification-code vc-stage grid w-full place-items-center ${className}`}
+      className={`${stageClass} min-h-[560px] w-full px-4 py-8 ${className}`}
       aria-label="Code verification"
     >
       <ComponentStyles css={VERIFICATION_STYLES} />
-      <div className="vc-card" data-state={state}>
+      <div
+        className={`${cardClass} min-h-[505px] w-full max-w-[416px] rounded-[18px] px-[30px] pt-10 pb-[29px] [@container(max-width:350px)]:min-h-[475px] [@container(max-width:350px)]:px-4 [@container(max-width:350px)]:py-8`}
+        data-state={state}
+      >
         <LockArtwork verified={state === "success"} />
-        <h2 id={`${id}-title`} className="vc-title">
+        <h2
+          id={`${id}-title`}
+          className={`${titleClass} text-[23px] tracking-[-0.9px] [@container(max-width:350px)]:text-[22px]`}
+        >
           Verification Code
         </h2>
-        <p id={`${id}-description`} className="vc-description">
+        <p
+          id={`${id}-description`}
+          className={`${descriptionClass} mt-3 min-h-[42px] text-[13px]`}
+        >
           {state === "success" ? (
             "Your number has been verified."
           ) : (
@@ -290,9 +356,9 @@ export default function VerificationCode({
             </>
           )}
         </p>
-        <div className="vc-input-area">
+        <div className={`${inputAreaClass} mt-5 h-[116px]`}>
           <div
-            className="vc-inputs"
+            className={`${inputsClass} gap-5 [@container(max-width:350px)]:gap-3`}
             role="group"
             aria-labelledby={`${id}-title`}
             aria-describedby={`${id}-description`}
@@ -301,7 +367,7 @@ export default function VerificationCode({
             {digits.map((digit, index) => (
               <span
                 key={index}
-                className="vc-tile"
+                className={`${tileClass} h-[58px] w-[55px] rounded-xl [--vc-shift:75px] group-data-[state=verifying]/card:animate-[vc-merge_1.2s_cubic-bezier(.55,0,.3,1)_both] motion-reduce:animate-none! [@container(max-width:350px)]:h-[52px] [@container(max-width:350px)]:w-12 [@container(max-width:350px)]:[--vc-shift:60px]`}
                 data-filled={Boolean(digit)}
                 style={{ "--vc-index": index } as React.CSSProperties}
               >
@@ -323,34 +389,43 @@ export default function VerificationCode({
                   onFocus={(event) => event.target.select()}
                   onPaste={(event) => paste(event, index)}
                   onKeyDown={(event) => navigate(event, index)}
+                  className={`${digitClass} caret-[#377ca8] outline-none [font:700_24px_Arial] focus-visible:[outline:2px_solid_#83a9bd]! focus-visible:outline-offset-2!`}
                 />
               </span>
             ))}
           </div>
           <SuccessOrb />
         </div>
-        <div className="vc-footer">
+        <div className={`${footerClass} mt-[22px] min-h-12 text-[12px]`}>
           {state === "success" ? (
             <>
-              <span className="vc-secure">
-                <svg viewBox="0 0 16 16" aria-hidden="true">
+              <span className={`${secureClass} text-[12px]`}>
+                <svg
+                  viewBox="0 0 16 16"
+                  aria-hidden="true"
+                  className="size-[13px] fill-none stroke-current stroke-[1.3]"
+                >
                   <rect x="4" y="7" width="8" height="7" rx="1.5" />
                   <path d="M6 7V4a2 2 0 0 1 4 0v3" />
                 </svg>
                 Verified and secure
               </span>
-              <button type="button" className="vc-retry" onClick={reset}>
+              <button
+                type="button"
+                className="mx-auto mt-3 mb-0 block cursor-pointer border-0 bg-transparent text-[#9aa4ab] underline underline-offset-3 [font:11px_Arial]"
+                onClick={reset}
+              >
                 Try another code
               </button>
             </>
           ) : (
-            <p>
+            <p className="m-0">
               Didn’t receive the code?{" "}
               <button
                 type="button"
                 onClick={() => void resend()}
                 disabled={isBusy || cooldown > 0}
-                className="vc-resend"
+                className={`${resendClass} [font:600_12px_Arial] disabled:cursor-default disabled:opacity-50`}
               >
                 {resending
                   ? "Sending…"
@@ -362,7 +437,7 @@ export default function VerificationCode({
           )}
         </div>
         <p
-          className="vc-status"
+          className="mt-1.5 mb-0 min-h-4 text-center text-[11px] text-[#be5353] empty:hidden not-data-[error=true]:absolute not-data-[error=true]:size-px not-data-[error=true]:overflow-hidden not-data-[error=true]:[clip-path:inset(50%)]"
           data-error={Boolean(error)}
           role="status"
           id={`${id}-error`}
@@ -393,12 +468,17 @@ export function VerificationCodeThumbnail({
   const count = Math.min(4, step);
   const verified = step === 5;
   return (
-    <div className={`verification-code vc-stage vc-thumbnail ${className}`}>
+    <div className={`${stageClass} h-full min-h-full p-5 ${className}`}>
       <ComponentStyles css={VERIFICATION_STYLES} />
-      <div className="vc-card" data-state={verified ? "success" : "idle"}>
-        <LockArtwork verified={verified} />
-        <span className="vc-title">Verification Code</span>
-        <p className="vc-description">
+      <div
+        className={`${cardClass} h-[290px] min-h-0 w-[255px] max-w-full rounded-[14px] px-[18px] pt-[22px] pb-4`}
+        data-state={verified ? "success" : "idle"}
+      >
+        <LockArtwork verified={verified} compact />
+        <span className={`${titleClass} text-[15px] tracking-[-0.5px]`}>
+          Verification Code
+        </span>
+        <p className={`${descriptionClass} mt-[7px] min-h-[26px] text-[8px]`}>
           {verified ? (
             "Your number has been verified."
           ) : (
@@ -409,25 +489,33 @@ export function VerificationCodeThumbnail({
             </>
           )}
         </p>
-        <div className="vc-input-area">
-          <div className="vc-inputs">
+        <div className={`${inputAreaClass} mt-[9px] h-[70px]`}>
+          <div className={`${inputsClass} gap-[11px]`}>
             {["1", "5", "9", "6"].map((digit, index) => (
-              <span key={index} className="vc-tile" data-filled={index < count}>
-                <span className="vc-static-digit">
+              <span
+                key={index}
+                className={`${tileClass} h-9 w-[34px] rounded-[7px]`}
+                data-filled={index < count}
+              >
+                <span className={`${digitClass} [font:700_15px_Arial]`}>
                   {index < count ? digit : ""}
                 </span>
               </span>
             ))}
           </div>
-          <SuccessOrb />
+          <SuccessOrb compact />
         </div>
-        <div className="vc-footer">
+        <div className={`${footerClass} mt-3 min-h-4 text-[7px]`}>
           {verified ? (
-            <span className="vc-secure">♧ Verified and secure</span>
+            <span className={`${secureClass} text-[7px]`}>
+              ♧ Verified and secure
+            </span>
           ) : (
-            <p>
+            <p className="m-0">
               Didn’t receive the code?{" "}
-              <span className="vc-resend">Resend OTP</span>
+              <span className={`${resendClass} [font:600_7px_Arial]`}>
+                Resend OTP
+              </span>
             </p>
           )}
         </div>
@@ -436,58 +524,12 @@ export function VerificationCodeThumbnail({
   );
 }
 
+/* Only the keyframes stay raw; Tailwind references them via animate-[...]. */
 const VERIFICATION_STYLES = `
-.verification-code{font-family:Arial,Helvetica,sans-serif;color:#121820;container-type:inline-size;box-sizing:border-box}
-.verification-code *{box-sizing:border-box}
-.verification-code.vc-stage{background:#fafafa;min-height:560px;padding:32px 16px;display:grid;place-items:center}
-.verification-code .vc-card{position:relative;width:100%;max-width:416px;min-height:505px;padding:40px 30px 29px;border-radius:18px;background:#fff;box-shadow:0 8px 40px #182c4210;display:flex;align-items:center;flex-direction:column}
-.verification-code .vc-emblem{display:grid;place-items:center;width:108px;height:108px;border-radius:28px;background:radial-gradient(ellipse at 40% 35%,#edf7fb,#f7f9fc 72%);box-shadow:0 5px 22px #91b3d016;margin-bottom:24px}
-.verification-code .vc-lock-icon{width:68px;height:68px;animation:vc-lock-sway 3s ease-in-out infinite}
-.verification-code .vc-verified-icon{width:67px;height:67px;animation:vc-pop .5s cubic-bezier(.2,1.8,.5,1) both}
-.verification-code .vc-title{display:block;font-size:23px;font-weight:700;line-height:1.25;letter-spacing:-.9px;margin:0;text-align:center}
-.verification-code .vc-description{font-size:13px;color:#878b8e;line-height:1.6;text-align:center;margin:12px 0 0;min-height:42px}
-.verification-code .vc-input-area{position:relative;width:100%;height:116px;margin-top:20px;display:grid;place-items:center}
-.verification-code .vc-inputs{display:flex;gap:20px;position:relative;align-items:center;justify-content:center;width:100%}
-.verification-code .vc-inputs:before{content:'';position:absolute;height:4px;background:#ddebf0;width:78%;top:50%;border-radius:3px;transition:opacity .2s}
-.verification-code .vc-tile{position:relative;display:block;width:55px;height:58px;border-radius:12px;background:linear-gradient(155deg,#fff 35%,#f9fcfe);box-shadow:0 0 0 1px #eef2f5,0 6px 3px -5px #308abe80,0 4px 10px #192b4210;transition:background .2s,box-shadow .2s;flex-shrink:0}
-.verification-code .vc-tile:after{content:'';position:absolute;inset:2px 5px auto;height:3px;background:#fff9;border-radius:50%;pointer-events:none}
-.verification-code .vc-tile input,.verification-code .vc-static-digit{width:100%;height:100%;display:grid;place-items:center;text-align:center;border:0;border-radius:12px;background:transparent;font:700 24px Arial;color:#fff;outline:none;caret-color:#377ca8;padding:0}
-.verification-code .vc-tile input:focus-visible{outline:2px solid #83a9bd;outline-offset:2px}
-.verification-code .vc-tile[data-filled=true]{background:linear-gradient(150deg,#82d3f9,#509de4 45%,#286bc7);box-shadow:inset 0 1px 2px #fff8,0 4px 9px #2681ce45}
-.verification-code .vc-card[data-state=error] .vc-tile{box-shadow:0 0 0 1px #dc7373,0 4px 10px #b2232310}
-.verification-code .vc-footer{min-height:48px;margin-top:22px;font-size:12px;color:#81878b;text-align:center}
-.verification-code .vc-footer p{margin:0}
-.verification-code .vc-resend{border:0;background:none;padding:0;font:600 12px Arial;color:#3578a9;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
-.verification-code .vc-resend:disabled{opacity:.5;cursor:default}
-.verification-code .vc-status{font-size:11px;text-align:center;color:#be5353;min-height:16px;margin:6px 0 0}
-.verification-code .vc-status:empty{display:none}
-.verification-code .vc-status:not([data-error=true]){position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
-.verification-code .vc-secure{display:flex;align-items:center;justify-content:center;gap:5px;color:#43bfa0;font-size:12px}
-.verification-code .vc-secure svg{width:13px;height:13px;stroke:currentColor;stroke-width:1.3;fill:none}
-.verification-code .vc-retry{display:block;margin:12px auto 0;background:none;border:0;font:11px Arial;color:#9aa4ab;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-.verification-code .vc-orb{position:absolute;left:calc(50% - 29px);top:calc(50% - 29px);width:58px;height:58px;border-radius:40%;background:radial-gradient(circle at 35% 15%,#a0f8d8,#35d5a4 40%,#05a674 70%,#078c62);box-shadow:inset 0 3px 3px #fff9,inset 0 -3px 7px #00644360,0 8px 18px #12ce9360;opacity:0;pointer-events:none}
-.verification-code .vc-orb:before{content:'';position:absolute;left:13px;top:6px;width:31px;height:5px;border-radius:50%;background:#ecfff4b0;transform:rotate(-10deg)}
-.verification-code .vc-orb svg{width:100%;height:100%;padding:9px}
-.verification-code .vc-orb i{position:absolute;width:4px;height:4px;background:#53e9bc;border-radius:50%;left:50%;top:50%;opacity:0}
-.verification-code .vc-card[data-state=verifying] .vc-tile{animation:vc-merge 1.2s cubic-bezier(.55,0,.3,1) both;--vc-x:calc((1.5 - var(--vc-index)) * 75px)}
-.verification-code .vc-card[data-state=verifying] .vc-inputs:before,.verification-code .vc-card[data-state=success] .vc-inputs:before{opacity:0}
-.verification-code .vc-card[data-state=verifying] .vc-orb{animation:vc-drop .85s .65s both}
-.verification-code .vc-card[data-state=success] .vc-inputs{opacity:0;visibility:hidden}
-.verification-code .vc-card[data-state=success] .vc-orb{opacity:1;animation:vc-orb-settle .45s both}
-.verification-code .vc-card[data-state=success] .vc-orb i{animation:vc-spark .65s both}
-.verification-code .vc-orb i:nth-of-type(1){--vc-spark-x:-42px;--vc-spark-y:-28px}.verification-code .vc-orb i:nth-of-type(2){--vc-spark-x:43px;--vc-spark-y:-15px}.verification-code .vc-orb i:nth-of-type(3){--vc-spark-x:-32px;--vc-spark-y:33px}.verification-code .vc-orb i:nth-of-type(4){--vc-spark-x:30px;--vc-spark-y:39px}
 @keyframes vc-lock-sway{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(5deg)}}
 @keyframes vc-pop{from{transform:scale(.5) rotate(-15deg);opacity:0}to{transform:scale(1);opacity:1}}
-@keyframes vc-merge{0%,12%{transform:translateX(0)}35%{transform:translateX(0) rotate(calc((var(--vc-index) - 1.5) * -14deg))}67%{transform:translateX(var(--vc-x)) scale(.75) rotate(0)}80%,100%{transform:translateX(var(--vc-x)) scale(0);opacity:0}}
+@keyframes vc-merge{0%,12%{transform:translateX(0)}35%{transform:translateX(0) rotate(calc((var(--vc-index) - 1.5) * -14deg))}67%{transform:translateX(calc((1.5 - var(--vc-index)) * var(--vc-shift))) scale(.75) rotate(0)}80%,100%{transform:translateX(calc((1.5 - var(--vc-index)) * var(--vc-shift))) scale(0);opacity:0}}
 @keyframes vc-drop{0%{opacity:0;transform:translateY(-75px) scale(.12)}10%{opacity:1}35%{transform:translateY(-65px) scale(.45)}68%{transform:translateY(6px) scale(1.08,.82)}84%{transform:translateY(-12px) scale(.92,1.06)}100%{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes vc-orb-settle{from{transform:scale(1.08,.9)}to{transform:scale(1)}}
 @keyframes vc-spark{0%{opacity:0;transform:translate(0,0)}30%{opacity:1}100%{opacity:0;transform:translate(var(--vc-spark-x),var(--vc-spark-y))}}
-.verification-code.vc-thumbnail{min-height:100%;height:100%;padding:20px}
-.verification-code.vc-thumbnail .vc-card{width:255px;max-width:100%;min-height:0;height:290px;padding:22px 18px 16px;border-radius:14px}
-.verification-code.vc-thumbnail .vc-emblem{width:64px;height:64px;border-radius:18px;margin-bottom:14px}.verification-code.vc-thumbnail .vc-emblem svg{width:44px;height:44px}
-.verification-code.vc-thumbnail .vc-title{font-size:15px;letter-spacing:-.5px}.verification-code.vc-thumbnail .vc-description{font-size:8px;line-height:1.6;min-height:26px;margin-top:7px}
-.verification-code.vc-thumbnail .vc-input-area{height:70px;margin-top:9px}.verification-code.vc-thumbnail .vc-inputs{gap:11px}.verification-code.vc-thumbnail .vc-tile{width:34px;height:36px;border-radius:7px}.verification-code.vc-thumbnail .vc-static-digit{font-size:15px}
-.verification-code.vc-thumbnail .vc-footer{font-size:7px;min-height:16px;margin-top:12px}.verification-code.vc-thumbnail .vc-resend,.verification-code.vc-thumbnail .vc-secure{font-size:7px}.verification-code.vc-thumbnail .vc-orb{width:36px;height:36px;left:calc(50% - 18px);top:calc(50% - 18px)}.verification-code.vc-thumbnail .vc-orb svg{padding:4px}.verification-code.vc-thumbnail .vc-orb:before{left:8px;width:20px;top:4px}
-@container(max-width:350px){.verification-code:not(.vc-thumbnail) .vc-card{padding:32px 16px;min-height:475px}.verification-code:not(.vc-thumbnail) .vc-title{font-size:22px}.verification-code:not(.vc-thumbnail) .vc-inputs{gap:12px}.verification-code:not(.vc-thumbnail) .vc-tile{width:48px;height:52px}.verification-code:not(.vc-thumbnail) .vc-card[data-state=verifying] .vc-tile{--vc-x:calc((1.5 - var(--vc-index)) * 60px)}}
-@media(prefers-reduced-motion:reduce){.verification-code *, .verification-code *:before{animation:none!important;transition:none!important}.verification-code .vc-card[data-state=verifying] .vc-inputs{opacity:.6}}
 `;

@@ -28,13 +28,45 @@ const FIELDS: { name: Field; label: string; placeholder: string }[] = [
   { name: "password", label: "Password", placeholder: "PassWord" },
 ];
 
+/*
+ * Shared Tailwind class lists. The interactive login lives in a container named `hl`;
+ * `[@container_hl_(max-width:…)]` variants keep the original inclusive breakpoints and
+ * never reach the thumbnail, which uses an unnamed container.
+ */
+const FONT = "font-[family-name:Arial,Helvetica,sans-serif]";
+const PANEL = "relative z-3 flex min-h-[303px] flex-col gap-[18px] rounded-lg border-4 border-white bg-[rgba(0,255,240,.52)] p-7 shadow-[0_0_16px_1px_#82e1ff99,inset_0_0_40px_4px_#a8f6ffe6] backdrop-blur-[3.5px] [transition:box-shadow_.4s,background-color_.4s] motion-reduce:transition-none data-[state=success]:justify-center data-[state=success]:bg-[rgba(0,255,240,.6)] data-[state=success]:shadow-[0_0_30px_4px_#82e1ffcc,inset_0_0_44px_6px_#c8fffcf0]";
+const TITLE_BASE = "m-0 block text-center font-semibold text-white text-shadow-[0_0_16px_rgb(243,243,243)]";
+const TITLE = `${TITLE_BASE} text-[2.3rem] leading-[42px] tracking-[9px]`;
+const WELCOME = `${TITLE_BASE} text-[1.6rem] leading-[1.3] tracking-[4px] wrap-anywhere`;
+const FORM = "m-0 flex flex-col gap-[18px]";
+const SUCCESS = "flex flex-col gap-[18px] text-center";
+const SUCCESS_NOTE = "m-0 block text-[13px] leading-normal tracking-[.5px] text-white text-shadow-[0_1px_4px_rgb(66,66,66)]";
+const INPUT_BASE = `hl-input m-0 flex h-[42px] w-full items-center rounded-md border-2 border-white bg-[rgba(139,255,247,.486)] px-2 py-px text-[15px] leading-[1.2] text-white shadow-[0_0_1px_3px_#9ee5e3,inset_0_4px_4px_0_#181a6040] ${FONT} [transition:background-color_.2s,box-shadow_.2s] hover:bg-[rgba(139,189,255,.59)] motion-reduce:transition-none`;
+/** Thumbnail stand-in for an input: placeholder styling until `data-filled` is true. */
+const STATIC_INPUT = `${INPUT_BASE} font-light tracking-[.1rem] text-shadow-[0_1px_5px_rgb(66,66,66)] data-[filled=true]:font-bold data-[filled=true]:tracking-[1.6px] data-[filled=true]:text-shadow-[0_1px_4px_rgb(243,243,243)]`;
+const BUTTON_BASE = `hl-button m-0 flex w-full items-center justify-center rounded-xs border-2 border-white bg-[linear-gradient(144deg,#9c11ffce,#2000eeb6_50%,#15efffbb)] p-0 text-center font-normal leading-none text-white ${FONT} [transition:translate_.2s,box-shadow_.2s,background_.2s] motion-reduce:transition-none`;
+const BUTTON_ACTIONS = "cursor-pointer hover:not-disabled:-translate-y-1 hover:not-disabled:bg-[linear-gradient(144deg,#9c11ff,#2000ee_50%,#15eff3)] hover:not-disabled:shadow-[0_0_2px_2px_#fff] focus-visible:shadow-[0_0_2px_2px_#fff,0_0_18px_#82e1ff] motion-reduce:hover:not-disabled:translate-y-0 [@container_hl_(max-width:340px)]:h-[54px] [@container_hl_(max-width:340px)]:text-[21px] [@container_hl_(max-width:340px)]:enabled:tracking-[.28rem]";
+const BUTTON_LARGE = "h-[60px] text-[24px] tracking-[.37rem]";
+const BUTTON_SMALL = "hl-button-small h-12 text-[18px] tracking-[.25rem]";
+const RAYS = "relative z-2 -mt-4 h-[148px] bg-[linear-gradient(180deg,#2f4d53_16px,#314f55_28px,#288392_73px,#13bed7_118px,#09d7f8_137px,#00e1ff)] [clip-path:polygon(0_0,100%_0,100%_16px,calc(50%+22px)_100%,calc(50%-22px)_100%,0_16px)] motion-reduce:opacity-[.85]";
+const EMITTER = "relative z-1 mt-[-17px] h-[49px] before:absolute before:inset-[11px_0_0] before:rounded-[0_0_50%_50%/0_0_13px_13px] before:bg-[linear-gradient(90deg,#101010,#262626_22%,#303030_50%,#262626_78%,#101010)] before:shadow-[0_0_10px_#ffffff38,0_8px_14px_#0009] after:absolute after:inset-[0_0_auto] after:h-[23px] after:rounded-[50%] after:border after:border-[#3a3a3a] after:bg-[radial-gradient(ellipse_at_50%_45%,#070707_30%,#141414_62%,#2c2c2c)] after:shadow-[inset_0_-2px_4px_#000]";
+const LENS = "absolute top-1.5 left-1/2 z-1 h-[11px] w-[65px] -translate-x-1/2 rounded-[50%] bg-[radial-gradient(ellipse_at_50%_50%,#12d6ff_0_48%,#0a6aa6_60%,#08436f_74%,#062b48_84%,transparent_88%)] shadow-[0_0_8px_#00c8ff,0_0_18px_#00a8ff70]";
+
 /** Light cone and projector puck drawn beneath the floating panel. */
-function Projector() {
+function Projector({ thumbnail = false }: { thumbnail?: boolean }) {
   return (
     <>
-      <div className="hl-rays" aria-hidden="true" />
-      <div className="hl-emitter" aria-hidden="true">
-        <span className="hl-lens" />
+      <div
+        className={thumbnail
+          ? `${RAYS} w-[254px]`
+          : `${RAYS} w-[min(254px,calc(100cqw-54px))] animate-[hl-rays_2s_ease-in-out_infinite] motion-reduce:animate-none`}
+        aria-hidden="true"
+      />
+      <div
+        className={thumbnail ? `${EMITTER} w-[164px]` : `${EMITTER} w-[164px] [@container_hl_(max-width:340px)]:w-[148px]`}
+        aria-hidden="true"
+      >
+        <span className={LENS} />
       </div>
     </>
   );
@@ -120,33 +152,49 @@ export default function HologramLogin({ className = "", title = "Login", onSubmi
   }
 
   return (
-    <section className={`hl-stage relative flex w-full flex-col items-center overflow-hidden ${className}`} aria-label="Hologram login">
+    // The ::after spacer lifts the rig toward center only when the stage has a definite height (e.g. full screen).
+    <section
+      className={`hl-stage @container/hl relative isolate flex min-h-[600px] w-full min-w-0 flex-col items-center justify-end overflow-hidden bg-[#212121] pt-12 pb-10 text-white ${FONT} after:h-[calc(50%-240px)] after:flex-[0_1_auto] ${className}`}
+      aria-label="Hologram login"
+    >
       <ComponentStyles css={HOLOGRAM_LOGIN_CSS} />
-      <div className="hl-rig">
-        <div className="hl-panel" data-state={status}>
+      <div className="flex w-full shrink-0 flex-col items-center [@container_hl_(max-width:480px)]:pb-2">
+        <div
+          className={`${PANEL} w-[min(276px,calc(100cqw-32px))] animate-[hl-float_2s_ease-in-out_infinite] motion-reduce:animate-none [@container_hl_(max-width:340px)]:gap-4 [@container_hl_(max-width:340px)]:p-[22px_18px]`}
+          data-state={status}
+        >
           {status === "success" ? (
-            <div className="hl-success">
-              <h2 className="hl-title hl-welcome" tabIndex={-1} ref={successHeading}>
-                Welcome, <span className="hl-welcome-name">{welcomeName}</span>
+            <div className={SUCCESS}>
+              <h2
+                className={`${WELCOME} hl-welcome focus-visible:rounded-[4px] [@container_hl_(max-width:340px)]:text-[1.35rem] [@container_hl_(max-width:340px)]:tracking-[3px]`}
+                tabIndex={-1}
+                ref={successHeading}
+              >
+                Welcome, <span className="block">{welcomeName}</span>
               </h2>
-              <p className="hl-success-note">
+              <p className={SUCCESS_NOTE}>
                 {onSubmit ? "Hologram link established." : "Demo only — no account was signed in."}
               </p>
-              <button className="hl-button hl-button-small" type="button" onClick={signOut}>Sign out</button>
+              <button className={`${BUTTON_BASE} ${BUTTON_SMALL} ${BUTTON_ACTIONS}`} type="button" onClick={signOut}>Sign out</button>
             </div>
           ) : (
             <>
-              <h2 className="hl-title" id={`${id}-title`}>{title}</h2>
-              <form className="hl-form" onSubmit={submit} noValidate aria-labelledby={`${id}-title`} aria-busy={pending}>
+              <h2
+                className={`${TITLE} [@container_hl_(max-width:340px)]:text-[1.9rem] [@container_hl_(max-width:340px)]:tracking-[7px]`}
+                id={`${id}-title`}
+              >
+                {title}
+              </h2>
+              <form className={FORM} onSubmit={submit} noValidate aria-labelledby={`${id}-title`} aria-busy={pending}>
                 {FIELDS.map(({ name, label, placeholder }) => {
                   const error = errors[name];
                   return (
-                    <div className="hl-field" key={name}>
-                      <label className="hl-sr-only" htmlFor={`${id}-${name}`}>{label}</label>
+                    <div className="flex flex-col gap-1.5" key={name}>
+                      <label className="sr-only" htmlFor={`${id}-${name}`}>{label}</label>
                       <input
                         id={`${id}-${name}`}
                         ref={(element) => { fields.current[name] = element; }}
-                        className="hl-input"
+                        className={`${INPUT_BASE} font-bold tracking-[1.6px] text-shadow-[0_1px_4px_rgb(243,243,243)] placeholder:font-light placeholder:tracking-[.1rem] placeholder:text-white placeholder:opacity-100 placeholder:text-shadow-[0_1px_5px_rgb(66,66,66)] focus-visible:bg-[rgba(139,189,255,.59)] focus-visible:shadow-[0_0_1px_4px_#9ee5e3] aria-invalid:border-[#ffd3e4] aria-invalid:shadow-[0_0_1px_3px_#ff9cc6,inset_0_4px_4px_0_#181a6040] disabled:cursor-wait disabled:opacity-70`}
                         name={name}
                         type={name === "password" ? "password" : "text"}
                         autoComplete={name === "password" ? "current-password" : "username"}
@@ -161,14 +209,33 @@ export default function HologramLogin({ className = "", title = "Login", onSubmi
                         disabled={pending}
                         onChange={(event) => updateField(name, event.target.value)}
                       />
-                      {error && <p className="hl-field-error" id={`${id}-${name}-error`}>{error}</p>}
+                      {error && (
+                        <p
+                          className="m-[2px_2px_0] text-[12px] leading-[1.35] font-bold tracking-[.3px] text-[#ffe1ee] text-shadow-[0_1px_3px_#6a0a3c99]"
+                          id={`${id}-${name}-error`}
+                        >
+                          {error}
+                        </p>
+                      )}
                     </div>
                   );
                 })}
-                <button className="hl-button" type="submit" disabled={pending} aria-busy={pending}>
+                <button
+                  className={`${BUTTON_BASE} ${BUTTON_LARGE} ${BUTTON_ACTIONS} disabled:cursor-wait disabled:tracking-[.2rem] disabled:opacity-85`}
+                  type="submit"
+                  disabled={pending}
+                  aria-busy={pending}
+                >
                   {pending ? "Verifying…" : "Continue"}
                 </button>
-                {submitError && <p className="hl-submit-error" role="alert">{submitError}</p>}
+                {submitError && (
+                  <p
+                    className="m-[-4px_0_0] rounded-md border border-[#ffd3e4] bg-[#6a0a3c40] px-2.5 py-[7px] text-center text-[12px] leading-[1.4] text-white"
+                    role="alert"
+                  >
+                    {submitError}
+                  </p>
+                )}
               </form>
             </>
           )}
@@ -185,100 +252,51 @@ export function HologramLoginThumbnail({ className = "", previewStep = 0 }: { cl
   const success = step === 3;
 
   return (
-    <div className={`hl-stage hl-thumbnail relative flex h-full w-full flex-col items-center overflow-hidden ${className}`} aria-hidden="true" inert>
+    <div
+      className={`hl-stage hl-thumbnail @container relative isolate flex h-full min-h-[260px] w-full min-w-0 flex-col items-center justify-center overflow-hidden bg-[#212121] p-0 text-white ${FONT} ${className}`}
+      aria-hidden="true"
+      inert
+    >
       <ComponentStyles css={HOLOGRAM_LOGIN_CSS} />
-      <div className="hl-rig">
-        <div className="hl-panel" data-state={success ? "success" : "idle"}>
+      <div className="flex w-full shrink-0 scale-50 flex-col items-center">
+        <div className={`${PANEL} w-[276px]`} data-state={success ? "success" : "idle"}>
           {success ? (
-            <div className="hl-success">
-              <span className="hl-title hl-welcome">Welcome, <span className="hl-welcome-name">alex</span></span>
-              <span className="hl-success-note">Hologram link established.</span>
-              <span className="hl-button hl-button-small">Sign out</span>
+            <div className={SUCCESS}>
+              <span className={WELCOME}>Welcome, <span className="block">alex</span></span>
+              <span className={SUCCESS_NOTE}>Hologram link established.</span>
+              <span className={`${BUTTON_BASE} ${BUTTON_SMALL}`}>Sign out</span>
             </div>
           ) : (
             <>
-              <span className="hl-title">Login</span>
-              <div className="hl-form">
-                <span className="hl-input hl-input-static" data-filled={step >= 1}>{step >= 1 ? "alex" : "UserName"}</span>
-                <span className="hl-input hl-input-static" data-filled={step >= 2}>{step >= 2 ? "••••••••" : "PassWord"}</span>
-                <span className="hl-button" data-hover={step === 2}>Continue</span>
+              <span className={TITLE}>Login</span>
+              <div className={FORM}>
+                <span className={STATIC_INPUT} data-filled={step >= 1}>{step >= 1 ? "alex" : "UserName"}</span>
+                <span className={STATIC_INPUT} data-filled={step >= 2}>{step >= 2 ? "••••••••" : "PassWord"}</span>
+                <span
+                  className={`${BUTTON_BASE} ${BUTTON_LARGE} data-[hover=true]:-translate-y-1 data-[hover=true]:bg-[linear-gradient(144deg,#9c11ff,#2000ee_50%,#15eff3)] data-[hover=true]:shadow-[0_0_2px_2px_#fff]`}
+                  data-hover={step === 2}
+                >
+                  Continue
+                </span>
               </div>
             </>
           )}
         </div>
-        <Projector />
+        <Projector thumbnail />
       </div>
     </div>
   );
 }
 
+/*
+ * Only what Tailwind cannot express: keyframes, Chrome's autofill repaint, and focus outlines,
+ * which stay unlayered so a host page's global :focus-visible outline cannot override them.
+ */
 const HOLOGRAM_LOGIN_CSS = `
-.hl-stage { box-sizing: border-box; container-type: inline-size; min-width: 0; min-height: 600px; justify-content: flex-end; padding: 48px 0 40px; background: #212121; color: #fff; font-family: Arial, Helvetica, sans-serif; isolation: isolate; }
-.hl-stage *, .hl-stage *::before, .hl-stage *::after { box-sizing: border-box; }
-.hl-stage .hl-rig { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 100%; }
-
-.hl-stage .hl-panel { position: relative; z-index: 3; display: flex; flex-direction: column; gap: 18px; width: min(276px, calc(100cqw - 32px)); min-height: 303px; padding: 28px; border: 4px solid #fff; border-radius: .5rem; background: rgba(0, 255, 240, .52); box-shadow: 0 0 16px 1px #82e1ff99, inset 0 0 40px 4px #a8f6ffe6; -webkit-backdrop-filter: blur(3.5px); backdrop-filter: blur(3.5px); animation: hl-float 2s ease-in-out infinite; transition: box-shadow .4s, background-color .4s; }
-.hl-stage .hl-panel[data-state="success"] { justify-content: center; background: rgba(0, 255, 240, .6); box-shadow: 0 0 30px 4px #82e1ffcc, inset 0 0 44px 6px #c8fffcf0; }
-.hl-stage .hl-title { display: block; margin: 0; color: #fff; font-size: 2.3rem; line-height: 42px; font-weight: 600; letter-spacing: 9px; text-align: center; text-shadow: 0 0 16px rgb(243, 243, 243); }
-.hl-stage .hl-form { display: flex; flex-direction: column; gap: 18px; margin: 0; }
-.hl-stage .hl-field { display: flex; flex-direction: column; gap: 6px; }
-
-.hl-stage .hl-input { display: flex; align-items: center; width: 100%; height: 42px; margin: 0; padding: 1px 8px; border: 2px solid #fff; border-radius: 6px; background: rgba(139, 255, 247, .486); box-shadow: 0 0 1px 3px #9ee5e3, inset 0 4px 4px 0 #181a6040; color: #fff; font: bold 15px/1.2 Arial, Helvetica, sans-serif; letter-spacing: 1.6px; text-shadow: 0 1px 4px rgb(243, 243, 243); transition: background-color .2s, box-shadow .2s; }
-.hl-stage .hl-input::placeholder { color: #fff; opacity: 1; font-weight: 300; letter-spacing: .1rem; text-shadow: 0 1px 5px rgb(66, 66, 66); }
-.hl-stage .hl-input:hover { background: rgba(139, 189, 255, .59); }
-.hl-stage .hl-input:focus-visible { outline: none; background: rgba(139, 189, 255, .59); box-shadow: 0 0 1px 4px #9ee5e3; }
-.hl-stage .hl-input[aria-invalid="true"] { border-color: #ffd3e4; box-shadow: 0 0 1px 3px #ff9cc6, inset 0 4px 4px 0 #181a6040; }
-.hl-stage .hl-input:disabled { opacity: .7; cursor: wait; }
-.hl-stage .hl-input:-webkit-autofill { -webkit-text-fill-color: #fff; -webkit-box-shadow: 0 0 1px 3px #9ee5e3, inset 0 0 0 100px #52c9cf; caret-color: #fff; }
-.hl-stage .hl-input-static { font-weight: 300; letter-spacing: .1rem; text-shadow: 0 1px 5px rgb(66, 66, 66); }
-.hl-stage .hl-input-static[data-filled="true"] { font-weight: bold; letter-spacing: 1.6px; text-shadow: 0 1px 4px rgb(243, 243, 243); }
-
-.hl-stage .hl-button { display: flex; align-items: center; justify-content: center; width: 100%; height: 60px; margin: 0; padding: 0; border: 2px solid #fff; border-radius: 2px; background: linear-gradient(144deg, #9c11ffce, #2000eeb6 50%, #15efffbb); color: #fff; font: 400 24px/1 Arial, Helvetica, sans-serif; letter-spacing: .37rem; text-align: center; transition: transform .2s, box-shadow .2s, background .2s; }
-.hl-stage button.hl-button { cursor: pointer; }
-.hl-stage button.hl-button:hover:not(:disabled), .hl-stage .hl-button[data-hover="true"] { transform: translateY(-4px); background: linear-gradient(144deg, #9c11ff, #2000ee 50%, #15eff3); box-shadow: 0 0 2px 2px #fff; }
-.hl-stage button.hl-button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; box-shadow: 0 0 2px 2px #fff, 0 0 18px #82e1ff; }
-.hl-stage button.hl-button:disabled { cursor: wait; opacity: .85; letter-spacing: .2rem; }
-.hl-stage .hl-button-small { height: 48px; font-size: 18px; letter-spacing: .25rem; }
-
-.hl-stage .hl-field-error { margin: 2px 2px 0; color: #ffe1ee; font-size: 12px; line-height: 1.35; font-weight: bold; letter-spacing: .3px; text-shadow: 0 1px 3px #6a0a3c99; }
-.hl-stage .hl-submit-error { margin: -4px 0 0; padding: 7px 10px; border: 1px solid #ffd3e4; border-radius: 6px; background: #6a0a3c40; color: #fff; font-size: 12px; line-height: 1.4; text-align: center; }
-.hl-stage .hl-success { display: flex; flex-direction: column; gap: 18px; text-align: center; }
-.hl-stage .hl-welcome { font-size: 1.6rem; line-height: 1.3; letter-spacing: 4px; overflow-wrap: anywhere; }
-.hl-stage .hl-welcome:focus { outline: none; }
-.hl-stage .hl-welcome:focus-visible { outline: 2px solid #fff; outline-offset: 4px; border-radius: 4px; }
-.hl-stage .hl-welcome-name { display: block; }
-.hl-stage .hl-success-note { display: block; margin: 0; color: #fff; font-size: 13px; line-height: 1.5; letter-spacing: .5px; text-shadow: 0 1px 4px rgb(66, 66, 66); }
-.hl-stage .hl-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-
-.hl-stage .hl-rays { position: relative; z-index: 2; width: min(254px, calc(100cqw - 54px)); height: 148px; margin-top: -16px; background: linear-gradient(180deg, #2f4d53 16px, #314f55 28px, #288392 73px, #13bed7 118px, #09d7f8 137px, #00e1ff); clip-path: polygon(0 0, 100% 0, 100% 16px, calc(50% + 22px) 100%, calc(50% - 22px) 100%, 0 16px); animation: hl-rays 2s ease-in-out infinite; }
-
-.hl-stage .hl-emitter { position: relative; z-index: 1; width: 164px; height: 49px; margin-top: -17px; }
-.hl-stage .hl-emitter::before { content: ""; position: absolute; inset: 11px 0 0; border-radius: 0 0 50% 50% / 0 0 13px 13px; background: linear-gradient(90deg, #101010, #262626 22%, #303030 50%, #262626 78%, #101010); box-shadow: 0 0 10px #ffffff38, 0 8px 14px #0009; }
-.hl-stage .hl-emitter::after { content: ""; position: absolute; inset: 0 0 auto; height: 23px; border: 1px solid #3a3a3a; border-radius: 50%; background: radial-gradient(ellipse at 50% 45%, #070707 30%, #141414 62%, #2c2c2c); box-shadow: inset 0 -2px 4px #000; }
-.hl-stage .hl-lens { position: absolute; z-index: 1; left: 50%; top: 6px; width: 65px; height: 11px; border-radius: 50%; transform: translateX(-50%); background: radial-gradient(ellipse at 50% 50%, #12d6ff 0 48%, #0a6aa6 60%, #08436f 74%, #062b48 84%, transparent 88%); box-shadow: 0 0 8px #00c8ff, 0 0 18px #00a8ff70; }
-
-.hl-stage.hl-thumbnail { min-height: 260px; justify-content: center; padding: 0; }
-.hl-stage.hl-thumbnail .hl-rig { transform: scale(.5); }
-.hl-stage.hl-thumbnail .hl-panel { width: 276px; animation: none; }
-.hl-stage.hl-thumbnail .hl-rays { width: 254px; animation: none; }
-
 @keyframes hl-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
 @keyframes hl-rays { 0%, 100% { opacity: .6; } 50% { opacity: 1; } }
-
-@container (max-width: 480px) {
-  .hl-stage:not(.hl-thumbnail) .hl-rig { padding-bottom: 8px; }
-}
-@container (max-width: 340px) {
-  .hl-stage:not(.hl-thumbnail) .hl-panel { padding: 22px 18px; gap: 16px; }
-  .hl-stage:not(.hl-thumbnail) .hl-title { font-size: 1.9rem; letter-spacing: 7px; }
-  .hl-stage:not(.hl-thumbnail) .hl-welcome { font-size: 1.35rem; letter-spacing: 3px; }
-  .hl-stage:not(.hl-thumbnail) .hl-button { height: 54px; font-size: 21px; letter-spacing: .28rem; }
-  .hl-stage:not(.hl-thumbnail) .hl-emitter { width: 148px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hl-stage .hl-panel, .hl-stage .hl-rays { animation: none; }
-  .hl-stage .hl-rays { opacity: .85; }
-  .hl-stage .hl-panel, .hl-stage .hl-input, .hl-stage .hl-button { transition: none; }
-  .hl-stage button.hl-button:hover:not(:disabled) { transform: none; }
-}
+.hl-stage .hl-input:focus-visible, .hl-stage .hl-welcome:focus { outline: none; }
+.hl-stage button.hl-button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.hl-stage .hl-welcome:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+.hl-stage .hl-input:-webkit-autofill { -webkit-text-fill-color: #fff; -webkit-box-shadow: 0 0 1px 3px #9ee5e3, inset 0 0 0 100px #52c9cf; caret-color: #fff; }
 `;

@@ -17,7 +17,7 @@ function RedBullMark({ compact = false }: { compact?: boolean }) {
   return (
     <svg
       aria-hidden="true"
-      className={compact ? "rb-mark rb-mark-compact" : "rb-mark"}
+      className={`block h-auto w-[73%] drop-shadow-[0_4px_10px_#060a24a8] ${compact ? "rb-mark-compact" : ""}`}
       viewBox="0 0 144 78"
       fill="none"
     >
@@ -55,7 +55,7 @@ function EnergyCan() {
     // A native image keeps the copied component usable outside Next.js.
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      className="rb-can"
+      className="block h-full max-w-full min-h-0 w-full min-w-0 overflow-visible object-contain drop-shadow-[0_10px_12px_#080d2580]"
       src="/redbull/energy-drink-can.webp"
       alt="Chilled 250 ml Red Bull Energy Drink can"
       width={686}
@@ -91,11 +91,23 @@ const PLAYBACK_STEPS: ReadonlyArray<{ phase: CardPhase; delay: number }> = [
   { phase: "compact", delay: 450 },
 ];
 
+/** Panel shape per phase; the size/shape transitions live on the panel itself. */
+const PANEL_PHASE_CLASSES: Record<CardPhase, string> = {
+  compact:
+    "h-[22cqw] w-[22cqw] max-w-[90%] rounded-[50%] bg-[radial-gradient(circle_at_50%_48%,#111319_0_49%,#080a10_70%)] shadow-[0_0_12px_#506eff72,0_0_34px_#3159da35,inset_0_0_0_1px_#9daaff21]",
+  card: "h-[22cqw] w-[22cqw] max-w-[90%] rounded-[17px] bg-[linear-gradient(145deg,#2e3e7c,#202e65_55%,#172552)] shadow-[0_0_21px_#546ff34a,0_0_60px_#3159da32,inset_0_1px_#ffffff18]",
+  expanded:
+    "max-h-[90%] rounded-[12px] bg-[linear-gradient(125deg,#293a78_0%,#263875_58%,#1e2c66_100%)] shadow-[0_0_24px_#586fff65,0_0_80px_#3159da3d,inset_0_1px_#ffffff1c]",
+};
+
+const SR_ONLY = "absolute h-px w-px overflow-hidden whitespace-nowrap [clip:rect(0,0,0,0)]";
+
 function ProductScene({
   phase,
   title = "REDBULL",
   description = DEFAULT_DESCRIPTION,
   interactive = false,
+  thumbnail = false,
   contentId,
   toggleRef,
   onToggle,
@@ -105,18 +117,34 @@ function ProductScene({
   title?: string;
   description?: string;
   interactive?: boolean;
+  /** Gallery frames use fixed, smaller type and skip the narrow-container layout. */
+  thumbnail?: boolean;
   contentId?: string;
   toggleRef?: Ref<HTMLButtonElement>;
   onToggle?: () => void;
   onShopNow?: () => void;
 }) {
   const expanded = phase === "expanded";
+  const shopButtonClass = `inline-flex items-center justify-center rounded-[4px] border-none bg-[#e8502f] py-0 font-bold text-white shadow-[0_4px_12px_#0c153c60] cursor-pointer [transition:transform_.2s_ease,background_.2s_ease,box-shadow_.2s_ease] hover:[transform:translateY(-2px)] hover:bg-[#ff7041] hover:shadow-[0_7px_16px_#0c153c70] ${
+    thumbnail
+      ? "mt-[5px] min-h-[16px] px-[6px] text-[6px]"
+      : "mt-[9px] min-h-[clamp(22px,5cqw,30px)] px-[clamp(8px,2.5cqw,13px)] text-[clamp(8px,1.65cqw,10px)] @max-[500px]:mt-[7px] @max-[500px]:min-h-[32px] @max-[500px]:text-[10px]"
+  }`;
   return (
-    <div className="rb-preview">
-      <div className="rb-night-sky" aria-hidden="true">
+    <div
+      className={`relative isolate grid w-full min-h-0 flex-auto place-items-center overflow-hidden bg-[#030406] @container ${
+        thumbnail ? "h-full aspect-auto" : "aspect-video"
+      }`}
+    >
+      <div
+        className="pointer-events-none absolute inset-0 overflow-hidden bg-[radial-gradient(ellipse_at_50%_53%,#10172d80,transparent_43%)] before:absolute before:inset-[-20%] before:rounded-[50%] before:bg-[radial-gradient(ellipse_at_35%_55%,#254cae52_0,transparent_37%)] before:opacity-38 before:blur-[30px] before:content-[''] after:absolute after:inset-[-20%] after:rounded-[50%] after:bg-[radial-gradient(ellipse_at_70%_48%,#6b3aaf30_0,transparent_38%)] after:opacity-38 after:blur-[30px] after:content-['']"
+        aria-hidden="true"
+      >
         {PARTICLES.map(([x, y, size, delay], index) => (
           <span
-            className="rb-particle"
+            className={`absolute block rounded-[50%] bg-[#c6d0f2] opacity-34 shadow-[0_0_8px_2px_#658fff43] motion-reduce:opacity-35 ${
+              thumbnail ? "" : "animate-[rb-twinkle_3.8s_ease-in-out_infinite_alternate]"
+            }`}
             key={index}
             style={{
               left: `${x}%`,
@@ -129,25 +157,67 @@ function ProductScene({
         ))}
       </div>
       <article
-        className="rb-product-panel"
+        className={`relative z-1 overflow-hidden border border-[#ffffff0c] [transition:width_.65s_cubic-bezier(.2,.8,.2,1),height_.65s_cubic-bezier(.2,.8,.2,1),border-radius_.55s_ease,box-shadow_.55s_ease,background_.5s_ease] ${PANEL_PHASE_CLASSES[phase]} ${
+          !expanded
+            ? ""
+            : thumbnail
+              ? "h-[40cqw] w-[68cqw] max-w-[94%]"
+              : "h-[32cqw] w-[56cqw] max-w-[88%] @max-[500px]:h-[48cqw] @max-[500px]:w-[82cqw] @max-[500px]:max-w-[94%]"
+        }`}
         data-phase={phase}
         aria-label="Red Bull energy drink"
       >
-        <div className="rb-panel-shine" aria-hidden="true" />
-        <div className="rb-logo-wrap" aria-hidden="true">
+        <div
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(110deg,transparent_5%,#ffffff0b_38%,transparent_73%)] opacity-75"
+          aria-hidden="true"
+        />
+        <div
+          className={`absolute inset-0 grid place-items-center [transition:opacity_.3s_ease,transform_.55s_cubic-bezier(.2,.8,.2,1)] ${
+            expanded
+              ? "pointer-events-none opacity-0 [transform:scale(.55)]"
+              : "opacity-100 [transform:scale(1)]"
+          }`}
+          aria-hidden="true"
+        >
           <RedBullMark />
         </div>
         <div
           id={contentId}
-          className="rb-copy"
+          className={`absolute top-[50%] z-2 max-w-[230px] ${
+            thumbnail
+              ? "left-[7%] w-[50%]"
+              : "left-[8%] w-[49%] @max-[500px]:left-[7%] @max-[500px]:w-[51%]"
+          } ${
+            expanded
+              ? "pointer-events-auto opacity-100 [transform:translate(0,-48%)]"
+              : "pointer-events-none opacity-0 [transform:translate(-12px,-48%)]"
+          } ${
+            expanded && !thumbnail
+              ? "[transition:opacity_.38s_ease_.19s,transform_.65s_cubic-bezier(.2,.8,.2,1)_.19s]"
+              : "[transition:opacity_.38s_ease,transform_.65s_cubic-bezier(.2,.8,.2,1)]"
+          }`}
           aria-hidden={!expanded}
           inert={!expanded}
         >
-          <h3>{title}</h3>
-          <p className="rb-description">{description}</p>
+          <h3
+            className={`font-extrabold leading-[1.05] tracking-[.015em] text-white ${
+              thumbnail ? "mb-[4px] text-[12px]" : "mb-[8px] text-[clamp(12px,4.2cqw,20px)]"
+            }`}
+          >
+            {title}
+          </h3>
+          <p
+            className={`max-w-[220px] text-[#d0d9f4] ${
+              thumbnail
+                ? "text-[7px] leading-[1.3]"
+                : "text-[clamp(7px,1.95cqw,10px)] leading-[1.45] @max-[500px]:text-[clamp(9px,2.7cqw,11px)]"
+            }`}
+          >
+            {description}
+          </p>
           {interactive ? (
             <button
-              className="rb-shop-button"
+              className={shopButtonClass}
               type="button"
               onClick={onShopNow}
               tabIndex={expanded ? 0 : -1}
@@ -155,16 +225,35 @@ function ProductScene({
               Shop Now
             </button>
           ) : (
-            <span className="rb-shop-button">Shop Now</span>
+            <span className={shopButtonClass}>Shop Now</span>
           )}
         </div>
-        <div className="rb-can-wrap" aria-hidden="true">
+        <div
+          className={`absolute top-[50%] z-1 grid h-[94%] origin-center place-items-center ${
+            thumbnail
+              ? "right-[4%] w-[38%]"
+              : "right-[8%] w-[35%] @max-[500px]:right-[5%] @max-[500px]:w-[37%]"
+          } ${
+            expanded
+              ? "opacity-100 [transform:translate(0,-48%)_rotate(13deg)_scale(1)]"
+              : "opacity-0 [transform:translate(20px,-45%)_rotate(13deg)_scale(.77)]"
+          } ${
+            expanded && !thumbnail
+              ? "[transition:opacity_.4s_ease_.18s,transform_.8s_cubic-bezier(.18,.8,.22,1)_.18s]"
+              : "[transition:opacity_.4s_ease,transform_.8s_cubic-bezier(.18,.8,.22,1)]"
+          }`}
+          aria-hidden="true"
+        >
           <EnergyCan />
         </div>
         {interactive && (
           <button
             ref={toggleRef}
-            className="rb-toggle"
+            className={`group/toggle absolute z-4 grid place-items-center border-none bg-transparent p-0 text-white cursor-pointer [transition:inset_.35s,width_.35s,height_.35s,background_.2s] ${
+              expanded
+                ? "top-[2px] right-[2px] bottom-auto left-auto h-[44px] w-[44px] rounded-[50%]"
+                : "inset-0 h-full w-full rounded-[inherit]"
+            }`}
             type="button"
             aria-expanded={expanded}
             aria-controls={contentId}
@@ -173,10 +262,15 @@ function ProductScene({
             }
             onClick={onToggle}
           >
-            <span className="rb-toggle-label">
-              {expanded ? "Close" : "Open"}
-            </span>
-            <span className="rb-toggle-icon" aria-hidden="true">
+            <span className={SR_ONLY}>{expanded ? "Close" : "Open"}</span>
+            <span
+              className={`grid h-[30px] w-[30px] place-items-center rounded-[50%] border border-[#ffffff36] bg-[#101a3b80] text-[20px] leading-none text-white [transition:opacity_.2s,transform_.2s] ${
+                expanded
+                  ? "opacity-100 [transform:scale(1.08)]"
+                  : "opacity-0 group-hover/toggle:opacity-100 group-hover/toggle:[transform:scale(1.08)] group-focus-visible/toggle:opacity-100 group-focus-visible/toggle:[transform:scale(1.08)]"
+              }`}
+              aria-hidden="true"
+            >
               {expanded ? "×" : "+"}
             </span>
           </button>
@@ -282,13 +376,13 @@ export default function RedBullCard({
 
   return (
     <section
-      className={`redbull-card ${className}`}
+      className={`redbull-card @container isolate flex w-full min-w-0 min-h-0 flex-col text-[#f7f8ff] [font-family:Arial,Helvetica,sans-serif] ${className}`}
       aria-label="Red Bull card animation demo"
     >
       <ComponentStyles css={REDBULL_STYLES} />
       <div
         ref={stageRef}
-        className="rb-demo"
+        className="flex w-full min-h-0 flex-auto flex-col bg-[#22212e] p-[clamp(20px,5cqw,48px)] @max-[500px]:p-[22px_16px]"
         onPointerEnter={() => {
           pointerWithin.current = true;
           playbackRef.current?.();
@@ -317,12 +411,16 @@ export default function RedBullCard({
           }
         }}
       >
-        <header className="rb-heading">
-          <h2>RedBull Card Animation</h2>
-          <p>Using HTML CSS</p>
+        <header className="mb-[clamp(16px,3cqw,24px)] @max-[500px]:mb-[14px]">
+          <h2 className="mb-[8px] text-[clamp(27px,5.6cqw,42px)] font-bold leading-[1.1] tracking-[-.035em] text-[#5894ff]">
+            RedBull Card Animation
+          </h2>
+          <p className="text-[clamp(24px,4.8cqw,36px)] font-bold leading-[1.15] tracking-[-.025em] text-[#f7f7fb]">
+            Using HTML CSS
+          </p>
         </header>
-        <div className="rb-showcase-border">
-          <div className="rb-preview-shell">
+        <div className="flex min-h-0 flex-auto flex-col border border-[#d7d6df] p-[clamp(12px,3cqw,22px)] @max-[500px]:p-[10px]">
+          <div className="flex min-h-0 flex-auto border border-[#dad9e1] p-px">
             <ProductScene
               phase={phase}
               title={title}
@@ -342,7 +440,7 @@ export default function RedBullCard({
             />
           </div>
         </div>
-        <p className="rb-status" role="status" aria-live="polite">
+        <p className={SR_ONLY} role="status" aria-live="polite">
           {shopMessage}
         </p>
       </div>
@@ -362,19 +460,23 @@ export function RedBullCardThumbnail({
   const phase = phases[Math.abs(Math.trunc(previewStep)) % phases.length];
   return (
     <div
-      className={`redbull-card rb-thumbnail ${className}`}
+      className={`redbull-card rb-thumbnail @container isolate flex w-full min-w-0 min-h-0 flex-col text-[#f7f8ff] [font-family:Arial,Helvetica,sans-serif] pointer-events-none h-full ${className}`}
       aria-hidden="true"
       inert
     >
       <ComponentStyles css={REDBULL_STYLES} />
-      <div className="rb-demo">
-        <div className="rb-heading">
-          <h2>RedBull Card Animation</h2>
-          <p>Using HTML CSS</p>
+      <div className="flex h-full w-full min-h-0 flex-auto flex-col bg-[#22212e] p-[14px]">
+        <div className="mb-[10px]">
+          <h2 className="mb-[4px] text-[16px] font-bold leading-[1.1] tracking-[-.03em] text-[#5894ff]">
+            RedBull Card Animation
+          </h2>
+          <p className="text-[13px] font-bold leading-[1.15] tracking-[-.025em] text-[#f7f7fb]">
+            Using HTML CSS
+          </p>
         </div>
-        <div className="rb-showcase-border">
-          <div className="rb-preview-shell">
-            <ProductScene phase={phase} />
+        <div className="flex min-h-0 flex-1 flex-col border border-[#d7d6df] p-[6px]">
+          <div className="flex h-full w-full min-h-0 flex-auto border border-[#dad9e1] p-px">
+            <ProductScene phase={phase} thumbnail />
           </div>
         </div>
       </div>
@@ -382,9 +484,11 @@ export function RedBullCardThumbnail({
   );
 }
 
-const REDBULL_STYLES = `.redbull-card{container-type:inline-size;width:100%;min-width:0;color:#f7f8ff;font-family:Arial,Helvetica,sans-serif;isolation:isolate}.redbull-card *{box-sizing:border-box}.redbull-card button{font:inherit}.redbull-card button:focus-visible{outline:3px solid #a9c6ff;outline-offset:4px}.redbull-card .rb-demo{width:100%;padding:clamp(20px,5cqw,48px);background:#22212e}.redbull-card .rb-heading{margin:0 0 clamp(16px,3cqw,24px)}.redbull-card .rb-heading h2{margin:0 0 8px;color:#5894ff;font-size:clamp(27px,5.6cqw,42px);font-weight:700;letter-spacing:-.035em;line-height:1.1}.redbull-card .rb-heading p{margin:0;color:#f7f7fb;font-size:clamp(24px,4.8cqw,36px);font-weight:700;letter-spacing:-.025em;line-height:1.15}.redbull-card .rb-showcase-border{padding:clamp(12px,3cqw,22px);border:1px solid #d7d6df}.redbull-card .rb-preview-shell{padding:1px;border:1px solid #dad9e1}.redbull-card .rb-preview{position:relative;display:grid;place-items:center;container-type:inline-size;width:100%;aspect-ratio:16/9;overflow:hidden;background:#030406;isolation:isolate}.redbull-card .rb-night-sky{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:radial-gradient(ellipse at 50% 53%,#10172d80,transparent 43%)}.redbull-card .rb-night-sky::before,.redbull-card .rb-night-sky::after{position:absolute;inset:-20%;content:"";border-radius:50%;filter:blur(30px);opacity:.38}.redbull-card .rb-night-sky::before{background:radial-gradient(ellipse at 35% 55%,#254cae52 0,transparent 37%)}.redbull-card .rb-night-sky::after{background:radial-gradient(ellipse at 70% 48%,#6b3aaf30 0,transparent 38%)}.redbull-card .rb-particle{position:absolute;display:block;border-radius:50%;background:#c6d0f2;box-shadow:0 0 8px 2px #658fff43;opacity:.34;animation:rb-twinkle 3.8s ease-in-out infinite alternate}.redbull-card .rb-product-panel{position:relative;z-index:1;width:22cqw;height:22cqw;max-width:90%;overflow:hidden;border:1px solid #ffffff0c;border-radius:50%;background:radial-gradient(circle at 50% 48%,#111319 0 49%,#080a10 70%);box-shadow:0 0 12px #506eff72,0 0 34px #3159da35,inset 0 0 0 1px #9daaff21;transition:width .65s cubic-bezier(.2,.8,.2,1),height .65s cubic-bezier(.2,.8,.2,1),border-radius .55s ease,box-shadow .55s ease,background .5s ease}.redbull-card .rb-product-panel[data-phase=card]{width:22cqw;height:22cqw;border-radius:17px;background:linear-gradient(145deg,#2e3e7c,#202e65 55%,#172552);box-shadow:0 0 21px #546ff34a,0 0 60px #3159da32,inset 0 1px #ffffff18}.redbull-card .rb-product-panel[data-phase=expanded]{width:56cqw;height:32cqw;max-width:88%;border-radius:12px;background:linear-gradient(125deg,#293a78 0%,#263875 58%,#1e2c66 100%);box-shadow:0 0 24px #586fff65,0 0 80px #3159da3d,inset 0 1px #ffffff1c}.redbull-card .rb-panel-shine{position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 5%,#ffffff0b 38%,transparent 73%);opacity:.75}.redbull-card .rb-logo-wrap{position:absolute;inset:0;display:grid;place-items:center;opacity:1;transform:scale(1);transition:opacity .3s ease,transform .55s cubic-bezier(.2,.8,.2,1)}.redbull-card .rb-mark{display:block;width:73%;height:auto;filter:drop-shadow(0 4px 10px #060a24a8)}.redbull-card .rb-product-panel[data-phase=expanded] .rb-logo-wrap{opacity:0;transform:scale(.55);pointer-events:none}.redbull-card .rb-copy{position:absolute;z-index:2;top:50%;left:8%;width:49%;max-width:230px;opacity:0;transform:translate(-12px,-48%);transition:opacity .38s ease,transform .65s cubic-bezier(.2,.8,.2,1);pointer-events:none}.redbull-card .rb-product-panel[data-phase=expanded] .rb-copy{opacity:1;transform:translate(0,-48%);transition-delay:.19s;pointer-events:auto}.redbull-card .rb-copy h3{margin:0 0 8px;color:#fff;font-size:clamp(12px,4.2cqw,20px);font-weight:800;letter-spacing:.015em;line-height:1.05}.redbull-card .rb-description{max-width:220px;margin:0;color:#d0d9f4;font-size:clamp(7px,1.95cqw,10px);line-height:1.45}.redbull-card .rb-shop-button{display:inline-flex;align-items:center;justify-content:center;min-height:clamp(22px,5cqw,30px);margin-top:9px;padding:0 clamp(8px,2.5cqw,13px);border:0;border-radius:4px;background:#e8502f;color:#fff;font-size:clamp(8px,1.65cqw,10px);font-weight:700;box-shadow:0 4px 12px #0c153c60;cursor:pointer;transition:transform .2s ease,background .2s ease,box-shadow .2s ease}.redbull-card .rb-shop-button:hover{transform:translateY(-2px);background:#ff7041;box-shadow:0 7px 16px #0c153c70}.redbull-card .rb-can-wrap{position:absolute;display:grid;place-items:center;z-index:1;top:50%;right:8%;width:35%;height:94%;opacity:0;transform:translate(20px,-45%) rotate(13deg) scale(.77);transform-origin:50% 50%;transition:opacity .4s ease,transform .8s cubic-bezier(.18,.8,.22,1)}.redbull-card .rb-product-panel[data-phase=expanded] .rb-can-wrap{opacity:1;transform:translate(0,-48%) rotate(13deg) scale(1);transition-delay:.18s}.redbull-card .rb-can{display:block;width:100%;height:100%;min-width:0;min-height:0;max-width:100%;object-fit:contain;overflow:visible;filter:drop-shadow(0 10px 12px #080d2580)}.redbull-card .rb-toggle{position:absolute;z-index:4;inset:0;display:grid;place-items:center;width:100%;height:100%;padding:0;border:0;border-radius:inherit;background:transparent;color:#fff;cursor:pointer;transform:none;transition:inset .35s,width .35s,height .35s,background .2s}.redbull-card .rb-toggle-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.redbull-card .rb-toggle-icon{display:grid;place-items:center;width:30px;height:30px;border:1px solid #ffffff36;border-radius:50%;background:#101a3b80;color:#fff;font-size:20px;line-height:1;opacity:0;transition:opacity .2s,transform .2s}.redbull-card .rb-product-panel:not([data-phase=expanded]) .rb-toggle:hover .rb-toggle-icon,.redbull-card .rb-product-panel:not([data-phase=expanded]) .rb-toggle:focus-visible .rb-toggle-icon{opacity:1;transform:scale(1.08)}.redbull-card .rb-product-panel[data-phase=expanded] .rb-toggle{top:2px;right:2px;bottom:auto;left:auto;width:44px;height:44px;border-radius:50%}.redbull-card .rb-product-panel[data-phase=expanded] .rb-toggle .rb-toggle-icon{opacity:1;transform:scale(1.08)}.redbull-card .rb-status{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+/**
+ * Only what utilities cannot express: the twinkle keyframes, a blanket reduced-motion
+ * reset, and a focus ring that must out-rank an app's unlayered global :focus-visible rule.
+ */
+const REDBULL_STYLES = `.redbull-card button:focus-visible{outline:3px solid #a9c6ff;outline-offset:4px}
 @keyframes rb-twinkle{0%{opacity:.18;transform:scale(.75)}100%{opacity:.72;transform:scale(1.2)}}
-@container(max-width:500px){.redbull-card .rb-demo{padding:22px 16px}.redbull-card .rb-heading{margin-bottom:14px}.redbull-card .rb-showcase-border{padding:10px}.redbull-card .rb-product-panel[data-phase=expanded]{width:82cqw;height:48cqw;max-width:94%}.redbull-card .rb-copy{left:7%;width:51%}.redbull-card .rb-description{font-size:clamp(9px,2.7cqw,11px)}.redbull-card .rb-shop-button{margin-top:7px;min-height:32px;font-size:10px}.redbull-card .rb-can-wrap{right:5%;width:37%;height:94%}}
-@media(prefers-reduced-motion:reduce){.redbull-card *,.redbull-card *::before,.redbull-card *::after{animation:none!important;scroll-behavior:auto!important;transition:none!important}.redbull-card .rb-particle{opacity:.35}.redbull-card .rb-product-panel{transition:none}}
-.redbull-card.rb-thumbnail{height:100%;pointer-events:none}.redbull-card.rb-thumbnail .rb-demo{height:100%;padding:14px;display:flex;flex-direction:column}.redbull-card.rb-thumbnail .rb-heading{margin-bottom:10px}.redbull-card.rb-thumbnail .rb-heading h2{font-size:16px;margin-bottom:4px;letter-spacing:-.03em}.redbull-card.rb-thumbnail .rb-heading p{font-size:13px}.redbull-card.rb-thumbnail .rb-showcase-border{flex:1;min-height:0;padding:6px;display:flex}.redbull-card.rb-thumbnail .rb-preview-shell{width:100%;height:100%}.redbull-card.rb-thumbnail .rb-preview{height:100%;aspect-ratio:auto}.redbull-card.rb-thumbnail .rb-product-panel[data-phase=expanded]{width:68cqw;height:40cqw;max-width:94%}.redbull-card.rb-thumbnail .rb-copy{left:7%;width:50%}.redbull-card.rb-thumbnail .rb-copy h3{font-size:12px;margin-bottom:4px}.redbull-card.rb-thumbnail .rb-description{font-size:7px;line-height:1.3}.redbull-card.rb-thumbnail .rb-shop-button{min-height:16px;margin-top:5px;padding:0 6px;font-size:6px}.redbull-card.rb-thumbnail .rb-can-wrap{right:4%;width:38%}.redbull-card.rb-thumbnail *,.redbull-card.rb-thumbnail *::before,.redbull-card.rb-thumbnail *::after{animation:none!important}.redbull-card.rb-thumbnail .rb-copy,.redbull-card.rb-thumbnail .rb-can-wrap{transition-delay:0s}
+@media(prefers-reduced-motion:reduce){.redbull-card *,.redbull-card *::before,.redbull-card *::after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
 `;

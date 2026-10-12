@@ -207,6 +207,30 @@ function planetStyle(planet: SolarPlanet): PlanetStyle {
   };
 }
 
+/*
+ * Sizes use container units (cqw) so the explorer scales as one composition.
+ * The interactive explorer is a container named `solar`; every `@max-[600px]/solar:`
+ * class is its narrow layout. The thumbnail has no `solar` container, so it always
+ * keeps the wide composition.
+ */
+const ROOT_CLASS =
+  "relative w-full bg-black font-[Arial,Helvetica,sans-serif] text-white [color-scheme:dark] [-webkit-font-smoothing:antialiased]";
+const STAGE_CLASS = "relative isolate aspect-[720/386] w-full touch-pan-y overflow-clip bg-black";
+const NAVIGATION_CLASS =
+  "absolute top-[12.5%] left-[2.8%] z-8 flex h-[73%] w-[16%] flex-col justify-around @max-[600px]/solar:top-[14%] @max-[600px]/solar:left-[4%] @max-[600px]/solar:h-[55%] @max-[600px]/solar:w-[32%]";
+const NAV_ITEM_CLASS =
+  "group/nav relative flex min-h-0 w-full min-w-0 flex-1 items-center gap-[1.7cqw] border-0 bg-transparent p-0 text-left @max-[600px]/solar:gap-[2cqw]";
+const NEXT_PLANET_CLASS =
+  "group/next absolute top-[14.7%] left-[56.3%] z-4 h-[24%] w-[22%] -translate-x-1/2 border-0 bg-transparent p-0 text-center text-[.77cqw] tracking-[.25cqw] text-[#8b868c] uppercase @max-[600px]/solar:top-[18%] @max-[600px]/solar:left-[65%] @max-[600px]/solar:w-[30%] @max-[600px]/solar:text-[length:max(10px,1.65cqw)] @max-[600px]/solar:tracking-[.5cqw]";
+const NEXT_PLANET_LABEL_CLASS =
+  "absolute top-0 left-1/2 -translate-x-1/2 [transition:color_.3s] group-hover/next:text-white";
+// `transform` rather than `-translate-x-1/2`: the entrance keyframes animate `translate`.
+const PLANET_COPY_CLASS =
+  "absolute top-[70.3%] left-[56.3%] z-6 w-[51%] [transform:translateX(-50%)] text-center uppercase @max-[600px]/solar:top-[68%] @max-[600px]/solar:left-1/2 @max-[600px]/solar:w-[88%]";
+const READ_MORE_CLASS =
+  "mt-[.72cqw] inline-block border-0 border-b border-b-[#787579] bg-transparent p-0 pb-[.2cqw] text-[.76cqw] leading-[1.5] tracking-[.31cqw] text-[#a8a5b0] uppercase [transition:color_.3s,border-color_.3s] hover:border-white hover:text-white @max-[600px]/solar:mt-[2cqw] @max-[600px]/solar:min-h-[40px] @max-[600px]/solar:border-b-0 @max-[600px]/solar:px-[6px] @max-[600px]/solar:py-[10px] @max-[600px]/solar:text-[length:max(12px,1.65cqw)] @max-[600px]/solar:tracking-[.55cqw] @max-[600px]/solar:underline @max-[600px]/solar:underline-offset-[5px]";
+const BUTTON_CLASS = "cursor-pointer [-webkit-tap-highlight-color:transparent]";
+
 function PlanetSphere({
   planet,
   miniature = false,
@@ -214,23 +238,52 @@ function PlanetSphere({
   planet: SolarPlanet;
   miniature?: boolean;
 }) {
+  const isEarth = planet.id === "earth";
+  const isMars = planet.id === "mars";
+  // Earth and Mars tint their maps; miniature globes trade the glow for a softer, centred shade.
+  const tone = isEarth
+    ? "bg-[#5776a5] bg-blend-luminosity saturate-[.65]"
+    : isMars
+      ? "bg-[#a74b50] bg-blend-luminosity [filter:saturate(.8)_brightness(.8)]"
+      : miniature
+        ? "bg-(color:--se-accent) brightness-[.85]"
+        : "bg-(color:--se-accent)";
+  const position = isEarth ? "bg-position-[50%_38%]" : miniature ? "bg-center" : "bg-position-[50%_32%]";
+  const shading = miniature
+    ? "after:bg-[radial-gradient(circle_at_34%_20%,transparent_0%,rgba(0,0,0,.24)_40%,#000_88%)]"
+    : "[box-shadow:0_-1px_2px_color-mix(in_srgb,var(--se-accent)_40%,transparent),0_-2cqw_7cqw_color-mix(in_srgb,var(--se-accent)_12%,transparent)] after:bg-[linear-gradient(to_bottom,transparent_0%,rgba(0,0,0,.12)_4%,rgba(0,0,0,.85)_17%,#000_27%)] after:shadow-[inset_2cqw_0_5cqw_1cqw_rgba(0,0,0,.38)]";
+
   return (
     <span
-      className={`se-globe${miniature ? " se-globe--mini" : ""}`}
+      className={
+        miniature
+          ? "absolute top-[.4cqw] left-[.8cqw] isolate block aspect-square w-[2.3cqw] @max-[600px]/solar:top-[.5cqw] @max-[600px]/solar:left-[1cqw] @max-[600px]/solar:w-[3.5cqw]"
+          : "relative isolate block aspect-square w-full"
+      }
       data-planet={planet.id}
       style={planetStyle(planet)}
     >
-      {planet.id === "saturn" && <span className="se-rings" />}
-      <span className="se-sphere" />
+      {planet.id === "saturn" && (
+        <span
+          className={`absolute left-[-28%] z-2 h-[40%] w-[156%] rotate-[-17deg] rounded-[50%] border-solid border-[rgba(161,148,119,.25)] [mask-image:linear-gradient(#000_0%,rgba(0,0,0,.6)_40%,transparent_85%)] ${
+            miniature
+              ? "top-[22%] border-[.16cqw] shadow-[0_0_0_.05cqw_rgba(166,152,120,.2)]"
+              : "top-[8%] border-[2cqw] shadow-[0_0_0_.45cqw_rgba(128,118,95,.16),inset_0_0_0_1.2cqw_rgba(182,168,130,.14)]"
+          }`}
+        />
+      )}
+      <span
+        className={`absolute inset-0 block overflow-hidden rounded-[50%] bg-(image:--se-texture) bg-cover after:absolute after:-inset-px after:rounded-[inherit] after:content-[''] ${tone} ${position} ${shading}`}
+      />
     </span>
   );
 }
 
-function PlanetScene({ planet }: { planet: SolarPlanet }) {
+function PlanetScene({ planet, still = false }: { planet: SolarPlanet; still?: boolean }) {
   const activeIndex = PLANETS.indexOf(planet);
 
   return (
-    <div className="se-scene" aria-hidden="true">
+    <div className="pointer-events-none absolute inset-0" aria-hidden="true">
       {PLANETS.map((body, index) => {
         const distance = (index - activeIndex + PLANETS.length) % PLANETS.length;
         const position: PlanetStyle = {
@@ -241,12 +294,19 @@ function PlanetScene({ planet }: { planet: SolarPlanet }) {
         };
 
         return (
-          <div key={body.id} className="se-planet-body" style={position}>
+          <div
+            key={body.id}
+            className="absolute top-(--se-body-top) left-[56.3%] aspect-square w-[82%] origin-[50%_0] [transform:translateX(-50%)_scale(var(--se-body-scale))] [transition:top_1.3s_cubic-bezier(.25,.75,.2,1),transform_1.3s_cubic-bezier(.25,.75,.2,1),opacity_1s_ease] will-change-transform @max-[600px]/solar:left-[65%] @max-[600px]/solar:w-[110%]"
+            style={position}
+          >
             <PlanetSphere planet={body} />
           </div>
         );
       })}
-      <div className="se-satellites" key={planet.id}>
+      <div
+        className={`absolute inset-0 z-3 ${still ? "" : "animate-[se-moons-enter_1.2s_.25s_both]"}`}
+        key={planet.id}
+      >
         {planet.moons.map((moon, index) => {
           const multiple = planet.moons.length > 1;
           const left = multiple ? [27, 49, 86][index] : 78.5;
@@ -256,11 +316,11 @@ function PlanetScene({ planet }: { planet: SolarPlanet }) {
           return (
             <div key={moon}>
               <span
-                className="se-orbit"
+                className="absolute left-[56.3%] h-[147%] w-[91%] origin-center rounded-[50%] border border-dashed border-[#77747d44] @max-[600px]/solar:left-[65%] @max-[600px]/solar:h-[86%] @max-[600px]/solar:w-[115%]"
                 style={{ top: `${45 - index * 2.8}%`, transform: `translateX(-50%) rotate(${index * 5 - 2}deg)` }}
               />
               <span
-                className="se-moon"
+                className="absolute block aspect-square -translate-x-1/2"
                 style={{
                   left: `${left}%`,
                   top: `${top}%`,
@@ -268,8 +328,11 @@ function PlanetScene({ planet }: { planet: SolarPlanet }) {
                   "--se-texture": `url("${PLANET_TEXTURES.moon}")`,
                 } as PlanetStyle}
               >
-                <span className="se-moon-label"><small>Moon</small>{moon}</span>
-                <span className="se-moon-sphere" />
+                <span className="absolute bottom-[calc(100%+1.7cqw)] left-1/2 grid w-max -translate-x-1/2 gap-[.4cqw] text-[1.15cqw] leading-none text-[#b2afb7] uppercase @max-[600px]/solar:bottom-[calc(100%+2.4cqw)] @max-[600px]/solar:gap-[1cqw] @max-[600px]/solar:text-[2cqw]">
+                  <small className="text-center text-[.55cqw] tracking-[.14cqw] text-[#625e68] @max-[600px]/solar:text-[1.2cqw]">Moon</small>
+                  {moon}
+                </span>
+                <span className="absolute inset-0 rounded-[50%] bg-[#b8b5bc] bg-(image:--se-texture) bg-cover bg-center shadow-[inset_-.6cqw_-.55cqw_1.1cqw_.2cqw_#0009,0_0_.5cqw_#fff1] brightness-[.66] saturate-[.3]" />
               </span>
             </div>
           );
@@ -281,10 +344,61 @@ function PlanetScene({ planet }: { planet: SolarPlanet }) {
 
 function ExplorerHeading() {
   return (
-    <div className="se-heading" aria-hidden="true">
+    <div
+      className="absolute top-[4.35%] left-[56.3%] z-5 grid w-max -translate-x-1/2 gap-[.18cqw] text-center text-[1.27cqw] leading-none font-normal tracking-[.35cqw] uppercase @max-[600px]/solar:top-[6%] @max-[600px]/solar:left-[62%] @max-[600px]/solar:gap-[.6cqw] @max-[600px]/solar:text-[length:max(10px,2.6cqw)] @max-[600px]/solar:tracking-[.5cqw]"
+      aria-hidden="true"
+    >
       <span>Solar Explorer</span>
-      <span>In only CSS</span>
+      <span className="text-[1.08cqw] tracking-[.34cqw] text-[#806779] @max-[600px]/solar:text-[length:max(9px,2cqw)] @max-[600px]/solar:tracking-[.5cqw]">
+        In only CSS
+      </span>
     </div>
+  );
+}
+
+function PlanetNavContent({ planet, selected }: { planet: SolarPlanet; selected: boolean }) {
+  return (
+    <>
+      <span
+        className="relative block aspect-square w-[3.1cqw] flex-[0_0_3.1cqw] @max-[600px]/solar:w-[4.6cqw] @max-[600px]/solar:basis-[4.6cqw]"
+        aria-hidden="true"
+      >
+        <PlanetSphere planet={planet} miniature />
+        <span
+          className={`absolute top-[.18cqw] left-[.14cqw] z-2 size-[1.4cqw] rounded-[50%] border-[.18cqw] border-solid border-[#bfc6c8] [transition:background_.35s,border-color_.35s] @max-[600px]/solar:size-[2.2cqw] @max-[600px]/solar:border-[.3cqw] ${
+            selected ? "bg-[#c6ceca] shadow-[inset_0_0_0_.22cqw_#080a0b]" : "shadow-[0_0_.2cqw_#fff8]"
+          }`}
+        />
+      </span>
+      <span className="grid min-w-0 gap-[.29cqw] uppercase @max-[600px]/solar:gap-[.8cqw]">
+        <span
+          className={`flex items-center gap-[.5cqw] text-[.96cqw] leading-none font-medium tracking-[.13cqw] [transition:color_.3s] before:h-[.85cqw] before:shrink-0 before:bg-(color:--se-accent) before:[transition:width_.4s] before:content-[''] @max-[600px]/solar:text-[length:max(10px,1.85cqw)] @max-[600px]/solar:tracking-[.12cqw] @max-[600px]/solar:before:h-[1.5cqw] ${
+            selected ? "text-[#dedee3] before:w-[2.65cqw]" : "text-[#6d6d6f] group-hover/nav:text-[#c9c9cf] before:w-0"
+          }`}
+        >
+          {planet.name}
+        </span>
+        <span className="text-[.71cqw] leading-none tracking-[.05cqw] text-[#4e4e52] @max-[600px]/solar:text-[length:max(8px,1.45cqw)]">
+          {planet.distance} AU
+        </span>
+      </span>
+    </>
+  );
+}
+
+function PlanetCopyContent({ planet }: { planet: SolarPlanet }) {
+  return (
+    <>
+      <p className="m-0 mb-[.75cqw] text-[.72cqw] leading-none tracking-[.36cqw] text-[#b6b4bb] @max-[600px]/solar:mb-[1.8cqw] @max-[600px]/solar:text-[length:max(9px,1.55cqw)] @max-[600px]/solar:tracking-[.6cqw]">
+        {planet.kind}
+      </p>
+      <h2 className="m-0 indent-[1.05cqw] text-[2.82cqw] leading-[1.25] font-light tracking-[1.05cqw] text-[#f1f1f5] [text-shadow:0_2px_8px_#000] @max-[600px]/solar:text-[length:max(23px,4.5cqw)] @max-[600px]/solar:tracking-[1.4cqw]">
+        {planet.name}
+      </h2>
+      <p className="mx-auto mt-[1.22cqw] mb-0 text-[.77cqw] leading-[2.8] font-normal tracking-[.29cqw] text-pretty text-[#aaabb3] @max-[600px]/solar:mt-[2.7cqw] @max-[600px]/solar:text-[length:max(10px,1.45cqw)] @max-[600px]/solar:leading-[1.8] @max-[600px]/solar:tracking-[.2cqw]">
+        {planet.description}
+      </p>
+    </>
   );
 }
 
@@ -368,11 +482,20 @@ export function SolarExplorer({
     selectPlanet(PLANETS[(PLANETS.indexOf(planet) + offset + PLANETS.length) % PLANETS.length]);
   }
 
+  const facts = [
+    { label: "From the Sun", value: `${planet.distance} AU` },
+    { label: "Mean diameter", value: planet.diameter },
+    { label: "One year", value: planet.year },
+  ];
+
   return (
-    <section className={`solar-explorer ${className}`} aria-label="Solar system explorer">
+    <section
+      className={`solar-explorer @container/solar flex flex-col ${ROOT_CLASS} ${className}`}
+      aria-label="Solar system explorer"
+    >
       <ComponentStyles css={SOLAR_STYLES} />
       <div
-        className="se-stage"
+        className={`${STAGE_CLASS} flex-[1_0_auto] @max-[600px]/solar:aspect-auto @max-[600px]/solar:min-h-[700px]`}
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
         onPointerCancel={() => { touchOriginRef.current = null; }}
@@ -380,7 +503,7 @@ export function SolarExplorer({
         <ExplorerHeading />
         <PlanetScene planet={planet} />
 
-        <div className="se-navigation" role="radiogroup" aria-label="Select a planet" onKeyDown={handleMenuKeyDown}>
+        <div className={NAVIGATION_CLASS} role="radiogroup" aria-label="Select a planet" onKeyDown={handleMenuKeyDown}>
           {NAV_PLANETS.map((item, index) => (
             <button
               key={item.id}
@@ -390,66 +513,78 @@ export function SolarExplorer({
               aria-checked={item.id === planet.id}
               aria-label={`${item.name}, ${item.distance} astronomical units from the Sun`}
               tabIndex={item.id === planet.id ? 0 : -1}
-              className="se-nav-item"
+              className={`${NAV_ITEM_CLASS} ${BUTTON_CLASS}`}
               style={planetStyle(item)}
               onClick={() => selectPlanet(item)}
             >
-              <span className="se-nav-orb" aria-hidden="true">
-                <PlanetSphere planet={item} miniature />
-                <span className="se-nav-marker" />
-              </span>
-              <span className="se-nav-copy">
-                <span className="se-nav-name">{item.name}</span>
-                <span className="se-nav-distance">{item.distance} AU</span>
-              </span>
+              <PlanetNavContent planet={item} selected={item.id === planet.id} />
             </button>
           ))}
         </div>
 
         <button
           type="button"
-          className="se-next-planet"
+          className={`${NEXT_PLANET_CLASS} ${BUTTON_CLASS}`}
           aria-label={`Explore ${nextPlanet.name}`}
           onClick={() => selectPlanet(nextPlanet)}
         >
-          <span>{nextPlanet.name}</span>
+          <span className={NEXT_PLANET_LABEL_CLASS}>{nextPlanet.name}</span>
         </button>
 
-        <div className="se-planet-copy" key={planet.id}>
-          <p className="se-planet-kind">{planet.kind}</p>
-          <h2>{planet.name}</h2>
-          <p className="se-description">{planet.description}</p>
-          <button type="button" className="se-read-more" onClick={openDetails}>Read more</button>
+        <div className={`${PLANET_COPY_CLASS} animate-[se-copy-enter_.85s_.14s_both]`} key={planet.id}>
+          <PlanetCopyContent planet={planet} />
+          <button type="button" className={`${READ_MORE_CLASS} ${BUTTON_CLASS}`} onClick={openDetails}>Read more</button>
         </div>
 
-        <span className="se-sr-only" role="status" aria-live="polite">
+        <span className="sr-only" role="status" aria-live="polite">
           {planet.name}. {planet.distance} astronomical units from the Sun.
         </span>
       </div>
 
       <dialog
         ref={dialogRef}
-        className="se-dialog"
+        className="fixed inset-0 m-auto max-h-[calc(100dvh-40px)] w-[min(600px,calc(100vw-32px))] overflow-auto rounded-[18px] border border-[#ffffff25] bg-[#090b11] p-0 font-[Arial,Helvetica,sans-serif] text-[#efeff5] shadow-[0_30px_120px_#000b] backdrop:bg-[#030409bf] backdrop:backdrop-blur-[8px]"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
         style={planetStyle(planet)}
         onClose={() => returnFocusRef.current?.focus()}
         onClick={(event) => { if (event.target === event.currentTarget) dialogRef.current?.close(); }}
       >
-        <div className="se-dialog-content">
-          <button type="button" className="se-dialog-close" aria-label="Close planet details" onClick={() => dialogRef.current?.close()}>
+        <div className="relative overflow-hidden px-[36px] pt-[230px] pb-[32px] max-[480px]:px-[24px] max-[480px]:pt-[185px] max-[480px]:pb-[26px]">
+          <button
+            type="button"
+            className={`absolute top-[16px] right-[16px] z-3 grid size-[36px] place-items-center rounded-[50%] border border-[#ffffff26] bg-[#0006] text-white hover:bg-[#ffffff15] ${BUTTON_CLASS}`}
+            aria-label="Close planet details"
+            onClick={() => dialogRef.current?.close()}
+          >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6" /></svg>
           </button>
-          <div className="se-dialog-art" aria-hidden="true"><PlanetSphere planet={planet} /></div>
-          <p className="se-dialog-eyebrow">Solar explorer / {planet.kind}</p>
-          <h2 id={titleId}>{planet.name}</h2>
-          <p id={descriptionId} className="se-dialog-description">{planet.detail}</p>
-          <dl className="se-facts">
-            <div><dt>From the Sun</dt><dd>{planet.distance} AU</dd></div>
-            <div><dt>Mean diameter</dt><dd>{planet.diameter}</dd></div>
-            <div><dt>One year</dt><dd>{planet.year}</dd></div>
+          <div
+            className="pointer-events-none absolute top-[30px] left-1/2 w-[440px] -translate-x-1/2 opacity-80 max-[480px]:top-[25px] max-[480px]:w-[350px]"
+            aria-hidden="true"
+          >
+            <PlanetSphere planet={planet} />
+          </div>
+          <p className="relative m-0 mb-[10px] text-[10px] leading-[1.6] tracking-[3px] text-(color:--se-accent) uppercase">
+            Solar explorer / {planet.kind}
+          </p>
+          <h2 id={titleId} className="relative m-0 text-[42px] font-light tracking-[8px] uppercase max-[480px]:text-[34px] max-[480px]:tracking-[5px]">
+            {planet.name}
+          </h2>
+          <p id={descriptionId} className="relative mx-0 mt-[20px] mb-[26px] text-[14px] leading-[1.8] text-[#b0b3bd]">
+            {planet.detail}
+          </p>
+          <dl className="relative m-0 grid grid-cols-3 gap-[15px] border-t border-t-[#ffffff1a] pt-[23px] max-[480px]:grid-cols-[1fr] max-[480px]:gap-[18px] max-[480px]:*:flex max-[480px]:*:items-baseline max-[480px]:*:justify-between max-[480px]:*:gap-[14px]">
+            {facts.map((fact) => (
+              <div key={fact.label}>
+                <dt className="text-[9px] leading-[1.5] tracking-[1px] text-[#747b89] uppercase">{fact.label}</dt>
+                <dd className="mx-0 mt-[9px] mb-0 text-[13px] leading-[1.5] text-[#e4e7ef] max-[480px]:m-0">{fact.value}</dd>
+              </div>
+            ))}
           </dl>
-          <p className="se-dialog-note">1 AU is the average distance from Earth to the Sun. Sizes and distances in the explorer are artistic representations.</p>
+          <p className="relative mx-0 mt-[26px] mb-0 text-[10px] leading-[1.7] text-[#747b89]">
+            1 AU is the average distance from Earth to the Sun. Sizes and distances in the explorer are artistic representations.
+          </p>
         </div>
       </dialog>
     </section>
@@ -471,128 +606,39 @@ export function SolarExplorerThumbnail({
   const nextPlanet = PLANETS[(PLANETS.indexOf(planet) + 1) % PLANETS.length];
 
   return (
-    <div className={`solar-explorer solar-explorer--thumbnail ${className}`} aria-hidden="true">
+    <div className={`solar-explorer solar-explorer--thumbnail @container ${ROOT_CLASS} ${className}`} aria-hidden="true">
       <ComponentStyles css={SOLAR_STYLES} />
-      <div className="se-stage">
+      <div className={`${STAGE_CLASS} pointer-events-none`}>
         <ExplorerHeading />
-        <PlanetScene planet={planet} />
-        <div className="se-navigation">
+        <PlanetScene planet={planet} still />
+        <div className={NAVIGATION_CLASS}>
           {NAV_PLANETS.map((item) => (
-            <div key={item.id} className="se-nav-item" data-selected={item.id === planet.id} style={planetStyle(item)}>
-              <span className="se-nav-orb"><PlanetSphere planet={item} miniature /><span className="se-nav-marker" /></span>
-              <span className="se-nav-copy"><span className="se-nav-name">{item.name}</span><span className="se-nav-distance">{item.distance} AU</span></span>
+            <div key={item.id} className={NAV_ITEM_CLASS} data-selected={item.id === planet.id} style={planetStyle(item)}>
+              <PlanetNavContent planet={item} selected={item.id === planet.id} />
             </div>
           ))}
         </div>
-        <div className="se-next-planet"><span>{nextPlanet.name}</span></div>
-        <div className="se-planet-copy">
-          <p className="se-planet-kind">{planet.kind}</p>
-          <h2>{planet.name}</h2>
-          <p className="se-description">{planet.description}</p>
-          <span className="se-read-more">Read more</span>
+        <div className={NEXT_PLANET_CLASS}>
+          <span className={NEXT_PLANET_LABEL_CLASS}>{nextPlanet.name}</span>
+        </div>
+        <div className={PLANET_COPY_CLASS}>
+          <PlanetCopyContent planet={planet} />
+          <span className={READ_MORE_CLASS}>Read more</span>
         </div>
       </div>
     </div>
   );
 }
 
+/*
+ * Only what utilities cannot carry stays here: the entrance keyframes, a blanket
+ * reduced-motion switch, and the focus ring. The ring is unlayered on purpose so it
+ * outranks host-app `:focus-visible` globals, exactly as the component always has.
+ */
 const SOLAR_STYLES = `
-  .solar-explorer{container-type:inline-size;position:relative;width:100%;background:#000;color:#fff;font-family:Arial,Helvetica,sans-serif;color-scheme:dark;-webkit-font-smoothing:antialiased}
-  .solar-explorer *{box-sizing:border-box}
-  .solar-explorer button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
   .solar-explorer button:focus-visible{outline:1px solid #b6e8e0;outline-offset:5px;border-radius:2px}
-  .solar-explorer .se-stage{position:relative;width:100%;aspect-ratio:720/386;overflow:clip;isolation:isolate;background:#000;touch-action:pan-y}
-  .solar-explorer .se-heading{position:absolute;z-index:5;left:56.3%;top:4.35%;display:grid;gap:.18cqw;width:max-content;transform:translateX(-50%);text-align:center;text-transform:uppercase;font-size:1.27cqw;line-height:1;letter-spacing:.35cqw;font-weight:400}
-  .solar-explorer .se-heading span:last-child{font-size:1.08cqw;letter-spacing:.34cqw;color:#806779}
-  .solar-explorer .se-scene{position:absolute;inset:0;pointer-events:none}
-  .solar-explorer .se-planet-body{position:absolute;left:56.3%;top:var(--se-body-top);width:82%;aspect-ratio:1;transform:translateX(-50%) scale(var(--se-body-scale));transform-origin:50% 0;transition:top 1.3s cubic-bezier(.25,.75,.2,1),transform 1.3s cubic-bezier(.25,.75,.2,1),opacity 1s ease;will-change:transform}
-  .solar-explorer .se-globe{position:relative;display:block;width:100%;aspect-ratio:1;isolation:isolate}
-  .solar-explorer .se-sphere{position:absolute;inset:0;display:block;overflow:hidden;border-radius:50%;background-color:var(--se-accent);background-image:var(--se-texture);background-position:50% 32%;background-size:cover;box-shadow:0 -1px 2px color-mix(in srgb,var(--se-accent) 40%,transparent),0 -2cqw 7cqw color-mix(in srgb,var(--se-accent) 12%,transparent)}
-  .solar-explorer .se-sphere:after{content:"";position:absolute;inset:-1px;border-radius:inherit;background:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.12) 4%,rgba(0,0,0,.85) 17%,#000 27%);box-shadow:inset 2cqw 0 5cqw 1cqw rgba(0,0,0,.38)}
-  .solar-explorer .se-globe[data-planet="earth"] .se-sphere{background-position:50% 38%;background-color:#5776a5;background-blend-mode:luminosity;filter:saturate(.65)}
-  .solar-explorer .se-globe[data-planet="mars"] .se-sphere{background-color:#a74b50;background-blend-mode:luminosity;filter:saturate(.8) brightness(.8)}
-  .solar-explorer .se-rings{position:absolute;z-index:2;left:-28%;top:8%;width:156%;height:40%;border:2cqw solid rgba(161,148,119,.25);border-radius:50%;box-shadow:0 0 0 .45cqw rgba(128,118,95,.16),inset 0 0 0 1.2cqw rgba(182,168,130,.14);transform:rotate(-17deg);mask-image:linear-gradient(#000 0%,rgba(0,0,0,.6) 40%,transparent 85%)}
-  .solar-explorer .se-navigation{position:absolute;z-index:8;left:2.8%;top:12.5%;display:flex;flex-direction:column;width:16%;height:73%;justify-content:space-around}
-  .solar-explorer .se-nav-item{display:flex;align-items:center;position:relative;flex:1;gap:1.7cqw;min-height:0;min-width:0;width:100%;padding:0;border:0;background:transparent;text-align:left}
-  .solar-explorer .se-nav-orb{position:relative;display:block;flex:0 0 3.1cqw;width:3.1cqw;aspect-ratio:1}
-  .solar-explorer .se-globe--mini{position:absolute;left:.8cqw;top:.4cqw;width:2.3cqw}
-  .solar-explorer .se-globe--mini .se-sphere{background-position:center;box-shadow:none;filter:brightness(.85)}
-  .solar-explorer .se-globe--mini .se-sphere:after{background:radial-gradient(circle at 34% 20%,transparent 0%,rgba(0,0,0,.24) 40%,#000 88%);box-shadow:none}
-  .solar-explorer .se-globe--mini .se-rings{border-width:.16cqw;box-shadow:0 0 0 .05cqw rgba(166,152,120,.2);top:22%}
-  .solar-explorer .se-nav-marker{position:absolute;z-index:2;left:.14cqw;top:.18cqw;width:1.4cqw;height:1.4cqw;border:.18cqw solid #bfc6c8;border-radius:50%;box-shadow:0 0 .2cqw #fff8;transition:background .35s,border-color .35s}
-  .solar-explorer .se-nav-copy{display:grid;gap:.29cqw;min-width:0;text-transform:uppercase}
-  .solar-explorer .se-nav-name{display:flex;align-items:center;gap:.5cqw;font-size:.96cqw;font-weight:500;line-height:1;letter-spacing:.13cqw;color:#6d6d6f;transition:color .3s}
-  .solar-explorer .se-nav-name:before{content:"";width:0;height:.85cqw;flex-shrink:0;background:var(--se-accent);transition:width .4s}
-  .solar-explorer .se-nav-distance{font-size:.71cqw;line-height:1;letter-spacing:.05cqw;color:#4e4e52}
-  .solar-explorer .se-nav-item:hover .se-nav-name{color:#c9c9cf}
-  .solar-explorer .se-nav-item[aria-checked="true"] .se-nav-name,.solar-explorer .se-nav-item[data-selected="true"] .se-nav-name{color:#dedee3}
-  .solar-explorer .se-nav-item[aria-checked="true"] .se-nav-name:before,.solar-explorer .se-nav-item[data-selected="true"] .se-nav-name:before{width:2.65cqw}
-  .solar-explorer .se-nav-item[aria-checked="true"] .se-nav-marker,.solar-explorer .se-nav-item[data-selected="true"] .se-nav-marker{background:#c6ceca;box-shadow:inset 0 0 0 .22cqw #080a0b}
-  .solar-explorer .se-next-planet{position:absolute;z-index:4;left:56.3%;top:14.7%;width:22%;height:24%;padding:0;border:0;background:none;transform:translateX(-50%);font-size:.77cqw;letter-spacing:.25cqw;text-align:center;text-transform:uppercase;color:#8b868c}
-  .solar-explorer .se-next-planet>span{position:absolute;left:50%;top:0;transform:translateX(-50%);transition:color .3s}
-  .solar-explorer .se-next-planet:hover>span{color:#fff}
-  .solar-explorer .se-planet-copy{position:absolute;z-index:6;left:56.3%;top:70.3%;width:51%;transform:translateX(-50%);text-align:center;text-transform:uppercase;animation:se-copy-enter .85s .14s both}
-  .solar-explorer .se-planet-kind{margin:0 0 .75cqw;font-size:.72cqw;line-height:1;letter-spacing:.36cqw;color:#b6b4bb}
-  .solar-explorer .se-planet-copy h2{margin:0;font-size:2.82cqw;line-height:1.25;font-weight:300;letter-spacing:1.05cqw;text-indent:1.05cqw;color:#f1f1f5;text-shadow:0 2px 8px #000}
-  .solar-explorer .se-description{margin:1.22cqw auto 0;font-size:.77cqw;line-height:2.8;letter-spacing:.29cqw;color:#aaabb3;font-weight:400;text-wrap:pretty}
-  .solar-explorer .se-read-more{display:inline-block;margin-top:.72cqw;padding:0 0 .2cqw;border:0;border-bottom:1px solid #787579;background:transparent;color:#a8a5b0;font-size:.76cqw;line-height:1.5;letter-spacing:.31cqw;text-transform:uppercase;transition:color .3s,border-color .3s}
-  .solar-explorer .se-read-more:hover{color:#fff;border-color:#fff}
-  .solar-explorer .se-satellites{position:absolute;inset:0;z-index:3;animation:se-moons-enter 1.2s .25s both}
-  .solar-explorer .se-orbit{position:absolute;left:56.3%;width:91%;height:147%;border:1px dashed #77747d44;border-radius:50%;transform-origin:50% 50%}
-  .solar-explorer .se-moon{position:absolute;display:block;aspect-ratio:1;transform:translateX(-50%)}
-  .solar-explorer .se-moon-sphere{position:absolute;inset:0;border-radius:50%;background:#b8b5bc var(--se-texture) center/cover;box-shadow:inset -.6cqw -.55cqw 1.1cqw .2cqw #0009,0 0 .5cqw #fff1;filter:brightness(.66) saturate(.3)}
-  .solar-explorer .se-moon-label{position:absolute;bottom:calc(100% + 1.7cqw);left:50%;display:grid;gap:.4cqw;width:max-content;transform:translateX(-50%);font-size:1.15cqw;line-height:1;color:#b2afb7;text-transform:uppercase}
-  .solar-explorer .se-moon-label small{font-size:.55cqw;letter-spacing:.14cqw;text-align:center;color:#625e68}
-  .solar-explorer .se-sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-  .solar-explorer .se-dialog{position:fixed;inset:0;width:min(600px,calc(100vw - 32px));max-height:calc(100dvh - 40px);margin:auto;padding:0;overflow:auto;color:#efeff5;background:#090b11;border:1px solid #ffffff25;border-radius:18px;font-family:Arial,Helvetica,sans-serif;box-shadow:0 30px 120px #000b}
-  .solar-explorer .se-dialog::backdrop{background:#030409bf;backdrop-filter:blur(8px)}
-  .solar-explorer .se-dialog-content{position:relative;overflow:hidden;padding:230px 36px 32px}
-  .solar-explorer .se-dialog-close{position:absolute;z-index:3;right:16px;top:16px;display:grid;place-items:center;width:36px;height:36px;border:1px solid #ffffff26;border-radius:50%;background:#0006;color:#fff}
-  .solar-explorer .se-dialog-close:hover{background:#ffffff15}
-  .solar-explorer .se-dialog-art{position:absolute;top:30px;left:50%;width:440px;transform:translateX(-50%);pointer-events:none;opacity:.8}
-  .solar-explorer .se-dialog-eyebrow{position:relative;margin:0 0 10px;color:var(--se-accent);font-size:10px;line-height:1.6;letter-spacing:3px;text-transform:uppercase}
-  .solar-explorer .se-dialog h2{position:relative;margin:0;font-size:42px;font-weight:300;letter-spacing:8px;text-transform:uppercase}
-  .solar-explorer .se-dialog-description{position:relative;margin:20px 0 26px;color:#b0b3bd;font-size:14px;line-height:1.8}
-  .solar-explorer .se-facts{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin:0;padding-top:23px;border-top:1px solid #ffffff1a}
-  .solar-explorer .se-facts dt{color:#747b89;font-size:9px;line-height:1.5;letter-spacing:1px;text-transform:uppercase}
-  .solar-explorer .se-facts dd{margin:9px 0 0;color:#e4e7ef;font-size:13px;line-height:1.5}
-  .solar-explorer .se-dialog-note{position:relative;margin:26px 0 0;font-size:10px;color:#747b89;line-height:1.7}
-  .solar-explorer--thumbnail .se-stage{pointer-events:none}
-  .solar-explorer--thumbnail .se-planet-copy,.solar-explorer--thumbnail .se-satellites{animation:none}
   @keyframes se-copy-enter{from{opacity:0;translate:0 14px}to{opacity:1;translate:0 0}}
   @keyframes se-moons-enter{from{opacity:0;translate:0 15px}to{opacity:1;translate:0 0}}
-  @container(max-width:600px){
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-stage{aspect-ratio:auto;min-height:700px}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-heading{top:6%;left:62%;font-size:max(10px,2.6cqw);letter-spacing:.5cqw;gap:.6cqw}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-heading span:last-child{font-size:max(9px,2cqw);letter-spacing:.5cqw}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-navigation{left:4%;top:14%;width:32%;height:55%}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-nav-item{gap:2cqw}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-nav-orb{flex-basis:4.6cqw;width:4.6cqw}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-globe--mini{width:3.5cqw;left:1cqw;top:.5cqw}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-nav-marker{width:2.2cqw;height:2.2cqw;border-width:.3cqw}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-nav-name{font-size:max(10px,1.85cqw);letter-spacing:.12cqw}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-nav-copy{gap:.8cqw}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-nav-distance{font-size:max(8px,1.45cqw)}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-nav-name:before{height:1.5cqw}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-planet-body{left:65%;width:110%}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-next-planet{left:65%;top:18%;width:30%;font-size:max(10px,1.65cqw);letter-spacing:.5cqw}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-planet-copy{left:50%;top:68%;width:88%}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-planet-kind{font-size:max(9px,1.55cqw);letter-spacing:.6cqw;margin-bottom:1.8cqw}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-planet-copy h2{font-size:max(23px,4.5cqw);letter-spacing:1.4cqw}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-description{font-size:max(10px,1.45cqw);line-height:1.8;letter-spacing:.2cqw;margin-top:2.7cqw}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-read-more{font-size:max(12px,1.65cqw);letter-spacing:.55cqw;margin-top:2cqw;min-height:40px;padding:10px 6px;border-bottom:0;text-decoration:underline;text-underline-offset:5px}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-moon-label{font-size:2cqw;gap:1cqw;bottom:calc(100% + 2.4cqw)}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-moon-label small{font-size:1.2cqw}
-    .solar-explorer:not(.solar-explorer--thumbnail) .se-orbit{left:65%;width:115%;height:86%}
-  }
-  @media(max-width:480px){
-    .solar-explorer .se-dialog-content{padding:185px 24px 26px}
-    .solar-explorer .se-dialog-art{width:350px;top:25px}
-    .solar-explorer .se-dialog h2{font-size:34px;letter-spacing:5px}
-    .solar-explorer .se-facts{grid-template-columns:1fr;gap:18px}
-    .solar-explorer .se-facts>div{display:flex;justify-content:space-between;align-items:baseline;gap:14px}
-    .solar-explorer .se-facts dd{margin:0}
-  }
   @media(prefers-reduced-motion:reduce){
     .solar-explorer *,.solar-explorer *:before,.solar-explorer *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
   }

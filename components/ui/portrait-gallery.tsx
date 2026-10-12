@@ -39,11 +39,25 @@ function galleryColumns(count: number, activeIndex: number): string {
   ).join(" ");
 }
 
+/** Root, stage, and portrait-tile utilities shared by the interactive and thumbnail views. */
+const ROOT_CLASSES =
+  'portrait-gallery @container isolate flex w-full flex-col bg-black text-white [font-family:"PortraitGalleryFigtree",Arial,sans-serif] **:box-border';
+const STAGE_CLASSES = "pg-stage grid flex-auto place-items-center";
+// Inactive tiles fade to grey whenever any tile is expanded; odd/even tiles sit staggered.
+const PORTRAIT_CLASSES =
+  "pg-portrait group/portrait relative block min-h-0 min-w-0 overflow-hidden rounded-none border-0 bg-black p-0 text-white [font:inherit] [-webkit-tap-highlight-color:transparent] odd:-translate-y-(--pg-offset) even:translate-y-(--pg-offset) transition-[filter] duration-400 ease-[ease] group-data-[expanded=true]/grid:not-data-[active=true]:[filter:grayscale(1)_opacity(.24)] motion-reduce:transition-none";
+const GRID_CLASSES =
+  "pg-grid group/grid grid aspect-[8/5] w-full max-w-[max(800px,min(60cqw,(100vh_-_160px)_*_1.6))] gap-[clamp(6px,1.86cqw,16px)] [--pg-offset:clamp(8px,1.86cqw,16px)] transition-[grid-template-columns] duration-400 ease-[ease] motion-reduce:transition-none";
+
+// The name label rises in only after the active tile has finished widening.
+const NAME_CLASSES =
+  "pg-name pointer-events-none absolute bottom-[clamp(12px,2.33cqw,20px)] left-1/2 max-w-[calc(100%-8px)] -translate-x-1/2 translate-y-[60px] overflow-hidden bg-black p-[clamp(7px,1.16cqw,10px)] pl-[clamp(9px,1.63cqw,14px)] text-[length:clamp(10px,1.86cqw,16px)] leading-[1.2] font-normal tracking-[clamp(2px,0.47cqw,4px)] text-ellipsis whitespace-nowrap text-white uppercase opacity-0 transition-[opacity,translate] duration-400 ease-[ease] group-data-[active=true]/portrait:translate-y-0 group-data-[active=true]/portrait:opacity-100 group-data-[active=true]/portrait:delay-400 motion-reduce:transition-none";
+
 function PortraitArtwork({ item }: { item: PortraitGalleryItem }) {
   return (
     <>
       <img
-        className="pg-image"
+        className="pg-image pointer-events-none absolute inset-0 block size-full max-w-none object-cover select-none"
         src={item.image}
         alt=""
         draggable={false}
@@ -51,7 +65,7 @@ function PortraitArtwork({ item }: { item: PortraitGalleryItem }) {
         loading="lazy"
         style={{ objectPosition: item.imagePosition ?? "center" }}
       />
-      <span className="pg-name" aria-hidden="true">{item.name}</span>
+      <span className={NAME_CLASSES} aria-hidden="true">{item.name}</span>
     </>
   );
 }
@@ -95,17 +109,17 @@ export function PortraitGallery({
   }
 
   return (
-    <section className={`portrait-gallery w-full bg-black text-white ${className}`} aria-label={ariaLabel}>
+    <section className={`${ROOT_CLASSES} ${className}`} aria-label={ariaLabel}>
       <ComponentStyles css={PORTRAIT_GALLERY_STYLES} />
-      <p id={instructionsId} className="pg-sr-only">
+      <p id={instructionsId} className="sr-only">
         Hover or focus a portrait to expand it. Use the left and right arrow keys,
         Home, or End to move between portraits. Click, tap, Enter, or Space to
         keep a portrait selected.
       </p>
-      <div className="pg-stage">
+      <div className={`${STAGE_CLASSES} px-[clamp(20px,3.5cqw,30px)] py-[clamp(40px,6.5cqw,64px)]`}>
         {items.length > 0 ? (
           <div
-            className="pg-grid"
+            className={GRID_CLASSES}
             role="group"
             aria-label="Portraits"
             data-expanded={activeIndex >= 0}
@@ -119,7 +133,7 @@ export function PortraitGallery({
               <button
                 key={item.id}
                 ref={(element) => { buttonRefs.current[index] = element; }}
-                className="pg-portrait"
+                className={`${PORTRAIT_CLASSES} cursor-pointer`}
                 type="button"
                 data-active={index === activeIndex}
                 aria-label={`Select ${item.name}`}
@@ -138,7 +152,7 @@ export function PortraitGallery({
             ))}
           </div>
         ) : (
-          <p className="pg-empty">No portraits to display.</p>
+          <p className="pg-empty m-0 px-0 py-20 text-[#999] [font:14px_Arial,sans-serif]">No portraits to display.</p>
         )}
       </div>
     </section>
@@ -154,16 +168,16 @@ export function PortraitGalleryThumbnail({
   const activeIndex = DEFAULT_PORTRAITS.length - 1 - (step % DEFAULT_PORTRAITS.length);
 
   return (
-    <div className={`portrait-gallery portrait-gallery--thumbnail w-full bg-black ${className}`} aria-hidden="true">
+    <div className={`${ROOT_CLASSES} portrait-gallery--thumbnail ${className}`} aria-hidden="true">
       <ComponentStyles css={PORTRAIT_GALLERY_STYLES} />
-      <div className="pg-stage">
+      <div className={`${STAGE_CLASSES} h-full px-[max(20px,7cqw)] py-9`}>
         <div
-          className="pg-grid"
+          className={GRID_CLASSES}
           data-expanded="true"
           style={{ gridTemplateColumns: galleryColumns(DEFAULT_PORTRAITS.length, activeIndex) }}
         >
           {DEFAULT_PORTRAITS.map((item, index) => (
-            <div className="pg-portrait" key={item.id} data-active={index === activeIndex}>
+            <div className={`${PORTRAIT_CLASSES} cursor-default`} key={item.id} data-active={index === activeIndex}>
               <PortraitArtwork item={item} />
             </div>
           ))}
@@ -175,6 +189,7 @@ export function PortraitGalleryThumbnail({
 
 export default PortraitGallery;
 
+/** Raw CSS Tailwind cannot express: the bundled @font-face and a focus ring that must beat unlayered host styles. */
 const PORTRAIT_GALLERY_STYLES = `
   @font-face {
     font-family: "PortraitGalleryFigtree";
@@ -183,110 +198,8 @@ const PORTRAIT_GALLERY_STYLES = `
     font-weight: 400;
     font-display: swap;
   }
-  .portrait-gallery {
-    container-type: inline-size;
-    isolation: isolate;
-    width: 100%;
-    background: #000;
-    color: #fff;
-    font-family: "PortraitGalleryFigtree", Arial, sans-serif;
-  }
-  .portrait-gallery * { box-sizing: border-box; }
-  .portrait-gallery .pg-stage {
-    display: grid;
-    place-items: center;
-    padding: clamp(40px, 6.5cqw, 64px) clamp(20px, 3.5cqw, 30px);
-  }
-  .portrait-gallery .pg-grid {
-    --pg-gap: clamp(6px, 1.86cqw, 16px);
-    --pg-offset: clamp(8px, 1.86cqw, 16px);
-    display: grid;
-    gap: var(--pg-gap);
-    width: 100%;
-    max-width: 800px;
-    aspect-ratio: 8 / 5;
-    min-height: 220px;
-    transition: grid-template-columns 400ms ease;
-  }
-  .portrait-gallery .pg-portrait {
-    position: relative;
-    display: block;
-    min-width: 0;
-    min-height: 0;
-    overflow: hidden;
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: #000;
-    color: #fff;
-    font: inherit;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    transition: filter 400ms ease;
-  }
-  .portrait-gallery .pg-portrait:nth-child(odd) { transform: translateY(calc(-1 * var(--pg-offset))); }
-  .portrait-gallery .pg-portrait:nth-child(even) { transform: translateY(var(--pg-offset)); }
-  .portrait-gallery .pg-grid[data-expanded="true"] .pg-portrait:not([data-active="true"]) {
-    filter: grayscale(1) opacity(.24);
-  }
+  /* Raw so it out-ranks a host page's unlayered :focus-visible rule; utilities would lose. */
   .portrait-gallery .pg-portrait:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
-  .portrait-gallery .pg-image {
-    position: absolute;
-    inset: 0;
-    display: block;
-    width: 100%;
-    height: 100%;
-    max-width: none;
-    object-fit: cover;
-    pointer-events: none;
-    user-select: none;
-  }
-  .portrait-gallery .pg-name {
-    position: absolute;
-    bottom: clamp(12px, 2.33cqw, 20px);
-    left: 50%;
-    max-width: calc(100% - 8px);
-    overflow: hidden;
-    padding: clamp(7px, 1.16cqw, 10px) clamp(7px, 1.16cqw, 10px) clamp(7px, 1.16cqw, 10px) clamp(9px, 1.63cqw, 14px);
-    background: #000;
-    color: #fff;
-    font-size: clamp(10px, 1.86cqw, 16px);
-    font-weight: 400;
-    line-height: 1.2;
-    letter-spacing: clamp(2px, .47cqw, 4px);
-    text-transform: uppercase;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    opacity: 0;
-    transform: translate(-50%, 60px);
-    transition: opacity 400ms ease, transform 400ms ease;
-    pointer-events: none;
-  }
-  .portrait-gallery .pg-portrait[data-active="true"] .pg-name {
-    opacity: 1;
-    transform: translate(-50%, 0);
-    transition-delay: 400ms;
-  }
-  .portrait-gallery .pg-sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    padding: 0;
-    margin: -1px;
-    clip-path: inset(50%);
-    white-space: nowrap;
-    border: 0;
-  }
-  .portrait-gallery .pg-empty { margin: 0; padding: 80px 0; color: #999; font: 14px Arial, sans-serif; }
-  .portrait-gallery--thumbnail .pg-stage { height: 100%; padding: 36px max(20px, 7cqw); }
-  .portrait-gallery--thumbnail .pg-grid { min-height: 0; }
-  .portrait-gallery--thumbnail .pg-portrait { cursor: default; }
-  @media (prefers-reduced-motion: reduce) {
-    .portrait-gallery .pg-grid,
-    .portrait-gallery .pg-portrait,
-    .portrait-gallery .pg-name { transition: none; }
-  }
 `;
 
 // Portraits from the supplied reference's Character Showcase Gallery:

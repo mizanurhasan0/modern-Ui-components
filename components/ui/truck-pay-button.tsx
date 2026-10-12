@@ -2,7 +2,7 @@
 
 import { ComponentStyles } from "./component-styles";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 export interface TruckPayButtonProps {
   className?: string;
@@ -29,12 +29,94 @@ const RESTORE_MS = 320;
 
 const PENDING: Phase[] = ["driving", "leaving", "restoring", "processing"];
 
+/** Phase durations handed to the CSS animations that must last exactly as long as the timers. */
+const TIMING = {
+  "--tpb-drive": `${DRIVE_MS}ms`,
+  "--tpb-leave": `${LEAVE_MS}ms`,
+  "--tpb-restore": `${RESTORE_MS}ms`,
+} as CSSProperties;
+
+/* The button is the `group/tpb`; its `data-state` drives every part of the scene below. */
+
+/** Shared by the live stage and the thumbnail. */
+const STAGE =
+  "tpb-stage relative box-border flex w-full min-w-0 flex-col overflow-hidden isolate bg-black text-[#0b1426] @container " +
+  "font-[family-name:system-ui,-apple-system,'Segoe_UI',Roboto,Helvetica,Arial,sans-serif]";
+
+/** Size tokens: compact stages, default, desktop previews, and wide stages such as full screen. */
+const SIZE_TOKENS =
+  "[--tpb-w:252px] [--tpb-h:54px] [--tpb-truck:108px] [--tpb-font:15px] [--tpb-creep:20px] " +
+  "[@container(max-width:340px)]:[--tpb-w:220px] [@container(max-width:340px)]:[--tpb-h:48px] [@container(max-width:340px)]:[--tpb-truck:94px] [@container(max-width:340px)]:[--tpb-font:14px] [@container(max-width:340px)]:[--tpb-creep:16px] " +
+  "@min-[600px]:[--tpb-w:300px] @min-[600px]:[--tpb-h:62px] @min-[600px]:[--tpb-truck:128px] @min-[600px]:[--tpb-font:17px] @min-[600px]:[--tpb-creep:24px] " +
+  "@min-[1000px]:[--tpb-w:380px] @min-[1000px]:[--tpb-h:76px] @min-[1000px]:[--tpb-truck:160px] @min-[1000px]:[--tpb-font:21px] @min-[1000px]:[--tpb-creep:30px]";
+
+/** Button shell: the pill, the road line and the label are layered inside. */
+const BUTTON =
+  "tpb-button group/tpb relative h-(--tpb-h) w-[min(var(--tpb-w),100%)] shrink-0 cursor-pointer rounded-[999px] " +
+  "text-(length:--tpb-font) font-bold tracking-[.01em] " +
+  SIZE_TOKENS;
+
+/** Idle/error pills lift on hover and press in; driving folds them into the road, restoring grows them back. */
+const PILL =
+  "tpb-pill absolute inset-0 z-1 rounded-[inherit] bg-[#0dc4f5] [transition:transform_.2s_ease,filter_.2s_ease] " +
+  "group-hover/tpb:group-data-[state=idle]/tpb:[filter:brightness(1.07)] group-hover/tpb:group-data-[state=idle]/tpb:[transform:scale(1.02)] " +
+  "group-hover/tpb:group-data-[state=error]/tpb:[filter:brightness(1.07)] group-hover/tpb:group-data-[state=error]/tpb:[transform:scale(1.02)] " +
+  "group-active/tpb:group-data-[state=idle]/tpb:[transform:scale(.97)] group-active/tpb:group-data-[state=error]/tpb:[transform:scale(.97)] " +
+  "group-data-[state=driving]/tpb:[transform:scaleY(0)] group-data-[state=leaving]/tpb:[transform:scaleY(0)] " +
+  "group-data-[state=driving]/tpb:animate-[tpb-pill-fold_.2s_cubic-bezier(.55,0,.8,.3)_both] " +
+  "group-data-[state=restoring]/tpb:animate-[tpb-pill-grow_var(--tpb-restore)_cubic-bezier(.2,.7,.3,1)_both]";
+
+/** The road: hidden until the pill folds, then fades while the pill grows back. */
+const LINE =
+  "tpb-line absolute inset-x-0 top-1/2 z-1 -mt-0.5 h-1 rounded-[2px] bg-[#0dc4f5] [transform:scaleY(0)] " +
+  "group-data-[state=driving]/tpb:[transform:scaleY(1)] group-data-[state=leaving]/tpb:[transform:scaleY(1)] " +
+  "group-data-[state=driving]/tpb:animate-[tpb-line-in_.16s_.1s_ease-out_both] group-data-[state=restoring]/tpb:opacity-0";
+
+const LABEL =
+  "tpb-label absolute inset-0 z-2 flex items-center justify-center gap-2 whitespace-nowrap [transition:opacity_.2s] " +
+  "group-data-[state=driving]/tpb:opacity-0 group-data-[state=leaving]/tpb:opacity-0 group-data-[state=restoring]/tpb:opacity-0 " +
+  "group-data-[state=driving]/tpb:animate-[tpb-label-fold_.18s_ease-in_both] " +
+  "group-data-[state=success]/tpb:animate-[tpb-fade-in_.3s_ease-out_both] group-data-[state=error]/tpb:animate-[tpb-shake_.4s_ease-out_both]";
+
+/** The scene overhangs the button so the truck can sit above the road and fade out past its end. */
+const SCENE =
+  "tpb-scene pointer-events-none invisible absolute -top-16 -right-8 -bottom-3.5 -left-10 z-0 overflow-hidden " +
+  "[mask-image:linear-gradient(90deg,#000_calc(100%_-_50px),transparent_calc(100%_-_10px))] " +
+  "group-data-[state=driving]/tpb:visible group-data-[state=leaving]/tpb:visible";
+
+/** Creeps forward while driving, then accelerates past the end of the road (a fixed frame in the thumbnail). */
+const TRUCK =
+  "tpb-truck absolute bottom-[calc(14px_+_var(--tpb-h)/2_+_2px)] left-[calc(40px_+_var(--tpb-w)*.05)] aspect-[124/60] w-(--tpb-truck) " +
+  "group-data-[state=driving]/tpb:[transform:translateX(var(--tpb-creep))] group-data-[state=driving]/tpb:animate-[tpb-creep_var(--tpb-drive)_ease-in-out_both]";
+const TRUCK_LEAVING =
+  "group-data-[state=leaving]/tpb:[transform:translateX(calc(var(--tpb-w)_+_24px))] group-data-[state=leaving]/tpb:animate-[tpb-leave_var(--tpb-leave)_cubic-bezier(.6,0,.9,.5)_both]";
+const TRUCK_LEAVING_THUMB = "group-data-[state=leaving]/tpb:[transform:translateX(calc(var(--tpb-w)*.66))]";
+
+const TRUCK_ART =
+  "tpb-truck-art block size-full origin-bottom " +
+  "group-data-[state=driving]/tpb:animate-[tpb-rock_.34s_ease-in-out_infinite_alternate] group-data-[state=leaving]/tpb:animate-[tpb-rock_.34s_ease-in-out_infinite_alternate]";
+
+const BEAM =
+  "tpb-beam absolute top-[61.5%] left-[99%] h-[23%] w-[38%] opacity-0 blur-[.5px] " +
+  "[clip-path:polygon(0_38%,100%_0,100%_100%,0_62%)] " +
+  "group-data-[state=driving]/tpb:opacity-100 group-data-[state=leaving]/tpb:opacity-100 group-data-[state=driving]/tpb:animate-[tpb-beam-on_.5s_.3s_both]";
+
+/** Parcels tossed into the cargo box, staggered while driving; the thumbnail freezes the first one mid-air. */
+const ITEM = "tpb-item absolute top-0 left-0 opacity-0";
+const ITEM_BOX = "tpb-item-box size-[7px] rounded-[1.5px] bg-white group-data-[state=driving]/tpb:animate-[tpb-toss_1.6s_ease-in_.5s_infinite]";
+const ITEM_BOX_THUMB = "group-data-[state=driving]/tpb:opacity-100 group-data-[state=driving]/tpb:[transform:translate(-12px,-12px)_rotate(-12deg)]";
+const ITEM_RING = "tpb-item-ring size-[7px] rounded-[50%] border-[2.5px] border-white group-data-[state=driving]/tpb:animate-[tpb-toss_1.6s_ease-in_.9s_infinite]";
+const ITEM_SPARK =
+  "tpb-item-spark h-[9px] w-[5px] bg-white [clip-path:polygon(60%_0,0_55%,45%_55%,30%_100%,100%_40%,55%_40%)] " +
+  "group-data-[state=driving]/tpb:animate-[tpb-toss_1.6s_ease-in_1.3s_infinite]";
+const ITEM_PUFF = "tpb-item-puff size-2 rounded-[50%] bg-[#eaf6ff] group-data-[state=driving]/tpb:animate-[tpb-toss_1.6s_ease-in_1.7s_infinite]";
+
 /** Side-view box truck facing right, with headlight beam. Neutral logo mark on the cargo box. */
-function Truck() {
+function Truck({ thumb }: { thumb: boolean }) {
   return (
-    <span className="tpb-truck" aria-hidden="true">
-      <span className="tpb-truck-body">
-        <svg className="tpb-truck-art" viewBox="0 0 124 60" fill="none">
+    <span className={`${TRUCK} ${thumb ? TRUCK_LEAVING_THUMB : TRUCK_LEAVING}`} aria-hidden="true">
+      <span className="tpb-truck-body relative block size-full group-data-[state=driving]/tpb:animate-[tpb-truck-in_.3s_ease-out_both]">
+        <svg className={TRUCK_ART} viewBox="0 0 124 60" fill="none">
           {/* Cargo box and rear door */}
           <rect x="18" y="0" width="66" height="50" rx="1.5" fill="#f2f4fc" />
           <path d="M18 44h66v6H18Z" fill="#e2e6f0" />
@@ -56,29 +138,33 @@ function Truck() {
           <circle cx="101" cy="50" r="8.5" fill="#0c5585" />
           <circle cx="101" cy="50" r="2.6" fill="#fff" />
         </svg>
-        <span className="tpb-beam" />
+        <span className={BEAM} />
       </span>
-      <span className="tpb-items">
-        <span className="tpb-item tpb-item-box" />
-        <span className="tpb-item tpb-item-ring" />
-        <span className="tpb-item tpb-item-spark" />
-        <span className="tpb-item tpb-item-puff" />
+      <span className="tpb-items absolute top-[28%] left-0 size-0">
+        <span className={`${ITEM} ${ITEM_BOX} ${thumb ? ITEM_BOX_THUMB : ""}`} />
+        <span className={`${ITEM} ${ITEM_RING}`} />
+        <span className={`${ITEM} ${ITEM_SPARK}`} />
+        <span className={`${ITEM} ${ITEM_PUFF}`} />
       </span>
     </span>
   );
 }
 
 /** Pill, road line, truck scene and label shared by the button and its thumbnail. */
-function Visual({ text, success }: { text: string; success: boolean }) {
+function Visual({ text, success, thumb = false }: { text: string; success: boolean; thumb?: boolean }) {
   return (
     <>
-      <span className="tpb-pill" aria-hidden="true" />
-      <span className="tpb-line" aria-hidden="true" />
-      <span className="tpb-scene" aria-hidden="true"><Truck /></span>
-      <span className="tpb-label">
+      <span className={PILL} aria-hidden="true" />
+      <span className={LINE} aria-hidden="true" />
+      <span className={SCENE} aria-hidden="true"><Truck thumb={thumb} /></span>
+      <span className={LABEL}>
         {text}
         {success && (
-          <svg className="tpb-check" viewBox="0 0 16 14" aria-hidden="true">
+          <svg
+            className="tpb-check h-3.5 w-4 fill-none stroke-current stroke-2 [stroke-dasharray:20px] [stroke-dashoffset:0] [stroke-linecap:round] [stroke-linejoin:round] group-data-[state=success]/tpb:animate-[tpb-draw_.35s_.15s_ease-out_both]"
+            viewBox="0 0 16 14"
+            aria-hidden="true"
+          >
             <path d="M1.5 7.5 5 11l9.5-9.5" />
           </svg>
         )}
@@ -171,12 +257,13 @@ export default function TruckPayButton({
   const text = phase === "success" ? successLabel : phase === "error" ? "Try again" : phase === "processing" ? "Processing…" : label;
 
   return (
-    <section className={`tpb-stage relative w-full overflow-hidden ${className}`} aria-label="Truck pay button">
+    <section className={`${STAGE} ${className}`} aria-label="Truck pay button">
       <ComponentStyles css={TRUCK_PAY_BUTTON_CSS} />
-      <div className="tpb-canvas">
+      <div className="tpb-canvas flex min-h-80 flex-[1_0_auto] items-center justify-center px-4 pt-18 pb-10 @min-[600px]:min-h-100 @min-[600px]:px-6 @min-[600px]:pt-22 @min-[600px]:pb-12">
         <button
           type="button"
-          className="tpb-button"
+          className={BUTTON}
+          style={TIMING}
           data-state={phase}
           onClick={() => void pay()}
           aria-disabled={locked}
@@ -185,7 +272,7 @@ export default function TruckPayButton({
         >
           <Visual text={text} success={phase === "success"} />
         </button>
-        <p className="tpb-sr-only" role="status" aria-live="polite">{message}</p>
+        <p className="sr-only" role="status" aria-live="polite">{message}</p>
       </div>
     </section>
   );
@@ -199,90 +286,24 @@ export function TruckPayButtonThumbnail({ className = "", previewStep = 0 }: { c
   const frame = THUMBNAIL_FRAMES[step];
 
   return (
-    <div className={`tpb-stage tpb-thumb relative h-full w-full overflow-hidden ${className}`} aria-hidden="true" inert>
+    <div className={`${STAGE} tpb-thumb h-full ${className}`} aria-hidden="true" inert>
       <ComponentStyles css={TRUCK_PAY_BUTTON_CSS} />
-      <div className="tpb-canvas">
-        <div className="tpb-button" data-state={frame}>
-          <Visual text={frame === "success" ? "Redirected" : "Yeah, I want that"} success={frame === "success"} />
+      <div className="tpb-canvas flex min-h-0 flex-1 items-center justify-center px-4 pt-12 pb-6">
+        <div className={BUTTON} data-state={frame}>
+          <Visual text={frame === "success" ? "Redirected" : "Yeah, I want that"} success={frame === "success"} thumb />
         </div>
       </div>
     </div>
   );
 }
 
+/* Raw CSS keeps only what utilities cannot: keyframes, two button rules that must beat unlayered
+   globals (button cursor, :focus-visible), the beam gradient (Tailwind's minifier would round its
+   .7 alpha to #f0a020b3), and the blanket motion switches for thumbnails and reduced motion. */
 const TRUCK_PAY_BUTTON_CSS = `
-.tpb-stage {
-  --tpb-blue: #0dc4f5;
-  --tpb-ink: #0b1426;
-  --tpb-w: 252px;
-  --tpb-h: 54px;
-  --tpb-truck: 108px;
-  --tpb-font: 15px;
-  --tpb-creep: 20px;
-  box-sizing: border-box;
-  container-type: inline-size;
-  min-width: 0;
-  background: #000;
-  color: var(--tpb-ink);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  isolation: isolate;
-}
-.tpb-stage *, .tpb-stage *::before, .tpb-stage *::after { box-sizing: border-box; }
-.tpb-stage .tpb-canvas { display: flex; align-items: center; justify-content: center; min-height: 320px; padding: 72px 16px 40px; }
-
-/* Button shell: the pill, the road line and the label are layered inside. */
-.tpb-stage .tpb-button { position: relative; flex-shrink: 0; width: min(var(--tpb-w), 100%); height: var(--tpb-h); margin: 0; padding: 0; border: 0; border-radius: 999px; background: none; color: inherit; font: inherit; font-size: var(--tpb-font); font-weight: 700; letter-spacing: .01em; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .tpb-stage .tpb-button[aria-disabled="true"] { cursor: default; }
 .tpb-stage .tpb-button:focus-visible { outline: 3px solid #8be4ff; outline-offset: 5px; }
-.tpb-stage .tpb-pill { position: absolute; z-index: 1; inset: 0; border-radius: inherit; background: var(--tpb-blue); transition: transform .2s ease, filter .2s ease; }
-.tpb-stage .tpb-button:is([data-state="idle"], [data-state="error"]):hover .tpb-pill { filter: brightness(1.07); transform: scale(1.02); }
-.tpb-stage .tpb-button:is([data-state="idle"], [data-state="error"]):active .tpb-pill { transform: scale(.97); }
-.tpb-stage .tpb-line { position: absolute; z-index: 1; left: 0; right: 0; top: 50%; height: 4px; margin-top: -2px; border-radius: 2px; background: var(--tpb-blue); transform: scaleY(0); }
-.tpb-stage .tpb-label { position: absolute; z-index: 2; inset: 0; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; transition: opacity .2s; }
-.tpb-stage .tpb-check { width: 16px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 20px; stroke-dashoffset: 0; }
-
-/* The scene overhangs the button so the truck can sit above the road and fade out past its end. */
-.tpb-stage .tpb-scene { position: absolute; z-index: 0; left: -40px; right: -32px; top: -64px; bottom: -14px; overflow: hidden; pointer-events: none; visibility: hidden; -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 50px), transparent calc(100% - 10px)); mask-image: linear-gradient(90deg, #000 calc(100% - 50px), transparent calc(100% - 10px)); }
-.tpb-stage .tpb-truck { position: absolute; left: calc(40px + var(--tpb-w) * .05); bottom: calc(14px + var(--tpb-h) / 2 + 2px); width: var(--tpb-truck); aspect-ratio: 124 / 60; }
-.tpb-stage .tpb-truck-body, .tpb-stage .tpb-truck-art { display: block; width: 100%; height: 100%; }
-.tpb-stage .tpb-truck-body { position: relative; }
-.tpb-stage .tpb-truck-art { transform-origin: 50% 100%; }
-.tpb-stage .tpb-beam { position: absolute; left: 99%; top: 61.5%; width: 38%; height: 23%; opacity: 0; background: linear-gradient(90deg, #ffc23a, rgb(240 160 32 / .7) 55%, transparent); clip-path: polygon(0 38%, 100% 0, 100% 100%, 0 62%); filter: blur(.5px); }
-.tpb-stage .tpb-items { position: absolute; left: 0; top: 28%; width: 0; height: 0; }
-.tpb-stage .tpb-item { position: absolute; left: 0; top: 0; width: 7px; height: 7px; opacity: 0; background: #fff; }
-.tpb-stage .tpb-item-box { border-radius: 1.5px; }
-.tpb-stage .tpb-item-ring { border-radius: 50%; background: none; border: 2.5px solid #fff; }
-.tpb-stage .tpb-item-spark { width: 5px; height: 9px; clip-path: polygon(60% 0, 0 55%, 45% 55%, 30% 100%, 100% 40%, 55% 40%); }
-.tpb-stage .tpb-item-puff { width: 8px; height: 8px; border-radius: 50%; background: #eaf6ff; }
-
-/* Driving: the pill folds into the road, the truck appears, rocks and creeps forward. */
-.tpb-stage .tpb-button:is([data-state="driving"], [data-state="leaving"]) .tpb-pill { transform: scaleY(0); }
-.tpb-stage .tpb-button:is([data-state="driving"], [data-state="leaving"]) .tpb-line { transform: scaleY(1); }
-.tpb-stage .tpb-button:is([data-state="driving"], [data-state="leaving"], [data-state="restoring"]) .tpb-label { opacity: 0; }
-.tpb-stage .tpb-button:is([data-state="driving"], [data-state="leaving"]) .tpb-scene { visibility: visible; }
-.tpb-stage .tpb-button[data-state="driving"] .tpb-truck { transform: translateX(var(--tpb-creep)); animation: tpb-creep ${DRIVE_MS}ms ease-in-out both; }
-.tpb-stage .tpb-button:is([data-state="driving"], [data-state="leaving"]) .tpb-beam { opacity: 1; }
-.tpb-stage .tpb-button[data-state="driving"] .tpb-pill { animation: tpb-pill-fold .2s cubic-bezier(.55, 0, .8, .3) both; }
-.tpb-stage .tpb-button[data-state="driving"] .tpb-label { animation: tpb-label-fold .18s ease-in both; }
-.tpb-stage .tpb-button[data-state="driving"] .tpb-line { animation: tpb-line-in .16s .1s ease-out both; }
-.tpb-stage .tpb-button[data-state="driving"] .tpb-truck-body { animation: tpb-truck-in .3s ease-out both; }
-.tpb-stage .tpb-button:is([data-state="driving"], [data-state="leaving"]) .tpb-truck-art { animation: tpb-rock .34s ease-in-out infinite alternate; }
-.tpb-stage .tpb-button[data-state="driving"] .tpb-beam { animation: tpb-beam-on .5s .3s both; }
-.tpb-stage .tpb-button[data-state="driving"] .tpb-item { animation: tpb-toss 1.6s ease-in infinite; }
-.tpb-stage .tpb-button[data-state="driving"] .tpb-item-box { animation-delay: .5s; }
-.tpb-stage .tpb-button[data-state="driving"] .tpb-item-ring { animation-delay: .9s; }
-.tpb-stage .tpb-button[data-state="driving"] .tpb-item-spark { animation-delay: 1.3s; }
-.tpb-stage .tpb-button[data-state="driving"] .tpb-item-puff { animation-delay: 1.7s; }
-
-/* Leaving: the truck accelerates past the end of the road. */
-.tpb-stage .tpb-button[data-state="leaving"] .tpb-truck { transform: translateX(calc(var(--tpb-w) + 24px)); animation: tpb-leave ${LEAVE_MS}ms cubic-bezier(.6, 0, .9, .5) both; }
-
-/* Restoring and result: the road grows back into the pill and the label returns. */
-.tpb-stage .tpb-button[data-state="restoring"] .tpb-pill { animation: tpb-pill-grow ${RESTORE_MS}ms cubic-bezier(.2, .7, .3, 1) both; }
-.tpb-stage .tpb-button[data-state="restoring"] .tpb-line { opacity: 0; }
-.tpb-stage .tpb-button[data-state="success"] .tpb-label { animation: tpb-fade-in .3s ease-out both; }
-.tpb-stage .tpb-button[data-state="success"] .tpb-check { animation: tpb-draw .35s .15s ease-out both; }
-.tpb-stage .tpb-button[data-state="error"] .tpb-label { animation: tpb-shake .4s ease-out both; }
+.tpb-stage .tpb-beam { background-image: linear-gradient(90deg, #ffc23a, rgb(240 160 32 / .7) 55%, transparent); }
 
 @keyframes tpb-pill-fold { from { transform: scaleY(1); } to { transform: scaleY(.07); } }
 @keyframes tpb-pill-grow { from { transform: scaleY(.07); } to { transform: scaleY(1); } }
@@ -303,23 +324,8 @@ const TRUCK_PAY_BUTTON_CSS = `
 @keyframes tpb-draw { from { stroke-dashoffset: 20px; } to { stroke-dashoffset: 0; } }
 @keyframes tpb-shake { 0%, 100% { transform: none; } 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
 
-.tpb-stage .tpb-sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
-
-/* Desktop previews get a larger button and truck. */
-@container (min-width: 600px) {
-  .tpb-stage .tpb-canvas { min-height: 400px; padding: 88px 24px 48px; }
-  .tpb-stage .tpb-button { --tpb-w: 300px; --tpb-h: 62px; --tpb-truck: 128px; --tpb-font: 17px; --tpb-creep: 24px; }
-}
-@container (max-width: 340px) {
-  .tpb-stage .tpb-button { --tpb-w: 220px; --tpb-h: 48px; --tpb-truck: 94px; --tpb-font: 14px; --tpb-creep: 16px; }
-}
-
 /* Thumbnail: static frames, no motion. */
-.tpb-stage.tpb-thumb { display: flex; }
-.tpb-stage.tpb-thumb .tpb-canvas { flex: 1; min-height: 0; padding: 48px 16px 24px; }
 .tpb-stage.tpb-thumb *, .tpb-stage.tpb-thumb *::before, .tpb-stage.tpb-thumb *::after { animation: none !important; transition: none !important; }
-.tpb-stage.tpb-thumb .tpb-button[data-state="driving"] .tpb-item-box { opacity: 1; transform: translate(-12px, -12px) rotate(-12deg); }
-.tpb-stage.tpb-thumb .tpb-button[data-state="leaving"] .tpb-truck { transform: translateX(calc(var(--tpb-w) * .66)); }
 
 /* Reduced motion: no drive; the pill reads "Processing…" and then shows the result. */
 @media (prefers-reduced-motion: reduce) {

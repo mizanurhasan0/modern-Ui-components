@@ -6,8 +6,10 @@ import {
   useId,
   useRef,
   useState,
+  useSyncExternalStore,
   type KeyboardEvent,
   type ReactNode,
+  type RefObject,
 } from "react";
 import { loadComponentSource } from "@/app/components/actions";
 import { CodeBlock } from "./code-block";
@@ -21,8 +23,16 @@ type ComponentPlaygroundProps = {
 };
 
 type Tab = "preview" | "code";
+type Viewport = "desktop" | "mobile";
 type IconName =
-  "preview" | "code" | "desktop" | "mobile" | "replay" | "chevron";
+  | "preview"
+  | "code"
+  | "desktop"
+  | "mobile"
+  | "replay"
+  | "chevron"
+  | "expand"
+  | "collapse";
 
 function Icon({
   name,
@@ -73,12 +83,136 @@ function Icon({
         </>
       )}
       {name === "chevron" && <path d="m9 5 7 7-7 7" />}
+      {name === "expand" && (
+        <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
+      )}
+      {name === "collapse" && (
+        <path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" />
+      )}
     </svg>
   );
 }
 
 const focusRing =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4666ee]";
+
+const FULLSCREEN_PARAM = "fullscreen";
+
+function subscribeToNothing() {
+  return () => {};
+}
+
+/** `?fullscreen` opens the preview expanded, which also makes the view linkable. */
+function readFullscreenParam() {
+  return new URLSearchParams(window.location.search).has(FULLSCREEN_PARAM);
+}
+
+/**
+ * Expands an element to cover the screen. The native Fullscreen API is used when
+ * the browser allows it; otherwise a fixed overlay gives the same layout.
+ */
+function useFullscreen(target: RefObject<HTMLElement | null>) {
+  const linked = useSyncExternalStore(
+    subscribeToNothing,
+    readFullscreenParam,
+    () => false,
+  );
+  const [requested, setRequested] = useState<boolean | null>(null);
+  const active = requested ?? linked;
+
+  useEffect(() => {
+    if (!active) return;
+
+    function handleFullscreenChange() {
+      if (!document.fullscreenElement) setRequested(false);
+    }
+    function handleKeyDown(event: globalThis.KeyboardEvent) {
+      // Native fullscreen handles Escape itself; leave component dialogs alone.
+      const componentModalOpen = Array.from(
+        document.querySelectorAll("dialog[open], [aria-modal='true']"),
+      ).some((modal) => modal !== target.current);
+      if (
+        event.key !== "Escape" ||
+        event.defaultPrevented ||
+        document.fullscreenElement ||
+        componentModalOpen
+      )
+        return;
+      setRequested(false);
+    }
+
+    const root = document.documentElement;
+    const previousOverflow = root.style.overflow;
+    root.style.overflow = "hidden";
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      root.style.overflow = previousOverflow;
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [active, target]);
+
+  function enter() {
+    setRequested(true);
+    // The overlay stays in place if the browser declines native fullscreen.
+    target.current?.requestFullscreen?.().catch(() => {});
+  }
+
+  function exit() {
+    setRequested(false);
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    const url = new URL(window.location.href);
+    if (url.searchParams.has(FULLSCREEN_PARAM)) {
+      url.searchParams.delete(FULLSCREEN_PARAM);
+      window.history.replaceState(window.history.state, "", url);
+    }
+  }
+
+  return { active, enter, exit };
+}
+
+function ViewportToggle({
+  viewport,
+  onChange,
+  tone = "light",
+}: {
+  viewport: Viewport;
+  onChange: (viewport: Viewport) => void;
+  tone?: "light" | "dark";
+}) {
+  const idle =
+    tone === "dark"
+      ? "text-white/70 hover:bg-white/10 hover:text-white"
+      : "text-[#707b8e] hover:bg-[#f4f5f8] hover:text-[#505b6d]";
+  const selected =
+    tone === "dark" ? "bg-white/15 text-white" : "bg-[#edf0fc] text-[#4666ee]";
+
+  return (
+    <div
+      className="hidden items-center gap-1 sm:flex"
+      role="group"
+      aria-label="Preview viewport"
+    >
+      {(["desktop", "mobile"] as const).map((device) => {
+        const label = `${device === "desktop" ? "Desktop" : "Mobile"} preview`;
+        return (
+          <button
+            key={device}
+            type="button"
+            aria-label={label}
+            title={label}
+            aria-pressed={viewport === device}
+            onClick={() => onChange(device)}
+            className={`grid size-8 place-items-center rounded-md transition motion-reduce:transition-none ${focusRing} ${viewport === device ? selected : idle}`}
+          >
+            <Icon name={device} />
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 export function ComponentPlayground({
   slug,
@@ -89,13 +223,25 @@ export function ComponentPlayground({
 }: ComponentPlaygroundProps) {
   const requiresThree = fileName === "creative-login.tsx";
   const [activeTab, setActiveTab] = useState<Tab>("preview");
-  const [viewport, setViewport] = useState<"desktop" | "mobile">("desktop");
+  const [viewport, setViewport] = useState<Viewport>("desktop");
   const [replay, setReplay] = useState(0);
   const [source, setSource] = useState<string | null>(null);
   const [sourceError, setSourceError] = useState("");
   const [sourceAttempt, setSourceAttempt] = useState(0);
   const id = useId();
   const tabRefs = useRef<Partial<Record<Tab, HTMLButtonElement | null>>>({});
+  const stageRef = useRef<HTMLDivElement>(null);
+  const enterButtonRef = useRef<HTMLButtonElement>(null);
+  const exitButtonRef = useRef<HTMLButtonElement>(null);
+  const fullscreen = useFullscreen(stageRef);
+  const wasFullscreen = useRef(false);
+
+  // Keep keyboard focus with the control that changed the view.
+  useEffect(() => {
+    if (fullscreen.active) exitButtonRef.current?.focus();
+    else if (wasFullscreen.current) enterButtonRef.current?.focus();
+    wasFullscreen.current = fullscreen.active;
+  }, [fullscreen.active]);
 
   // Load portable source on demand, keeping large embedded artwork off the initial page.
   useEffect(() => {
@@ -164,25 +310,7 @@ export function ComponentPlayground({
           </div>
           {activeTab === "preview" && (
             <div className="flex items-center gap-2 sm:gap-4">
-              <div
-                className="hidden items-center gap-1 sm:flex"
-                role="group"
-                aria-label="Preview viewport"
-              >
-                {(["desktop", "mobile"] as const).map((device) => (
-                  <button
-                    key={device}
-                    type="button"
-                    aria-label={`${device === "desktop" ? "Desktop" : "Mobile"} preview`}
-                    title={`${device === "desktop" ? "Desktop" : "Mobile"} preview`}
-                    aria-pressed={viewport === device}
-                    onClick={() => setViewport(device)}
-                    className={`grid size-8 place-items-center rounded-md transition motion-reduce:transition-none ${focusRing} ${viewport === device ? "bg-[#edf0fc] text-[#4666ee]" : "text-[#707b8e] hover:bg-[#f4f5f8] hover:text-[#505b6d]"}`}
-                  >
-                    <Icon name={device} />
-                  </button>
-                ))}
-              </div>
+              <ViewportToggle viewport={viewport} onChange={setViewport} />
               <span
                 className="hidden h-5 w-px bg-[#e8eaf0] sm:block"
                 aria-hidden="true"
@@ -195,6 +323,16 @@ export function ComponentPlayground({
                 className={`grid size-8 place-items-center rounded-md text-[#6a7588] transition hover:bg-[#f3f4f7] hover:text-[#344054] motion-reduce:transition-none ${focusRing}`}
               >
                 <Icon name="replay" />
+              </button>
+              <button
+                ref={enterButtonRef}
+                type="button"
+                onClick={fullscreen.enter}
+                aria-label="Open preview in full screen"
+                title="Full screen"
+                className={`grid size-8 place-items-center rounded-md text-[#6a7588] transition hover:bg-[#f3f4f7] hover:text-[#344054] motion-reduce:transition-none ${focusRing}`}
+              >
+                <Icon name="expand" />
               </button>
             </div>
           )}
@@ -211,19 +349,65 @@ export function ComponentPlayground({
           aria-labelledby={`${id}-preview-tab`}
           hidden={activeTab !== "preview"}
         >
+          {/* The same element is expanded in place, so component state survives. */}
           <div
-            className="grid min-h-[590px] place-items-center bg-[#f3f4f6] p-3 sm:min-h-[620px] sm:p-7 lg:p-9"
-            style={{
-              backgroundImage:
-                "radial-gradient(#dfe2e9 0.7px, transparent 0.7px)",
-              backgroundSize: "12px 12px",
-            }}
+            ref={stageRef}
+            role={fullscreen.active ? "dialog" : undefined}
+            aria-modal={fullscreen.active || undefined}
+            aria-label={fullscreen.active ? `${title} full screen preview` : undefined}
+            data-fullscreen={fullscreen.active}
+            className={
+              fullscreen.active
+                ? "fixed inset-0 z-[100] flex bg-[#0b0d12]"
+                : "grid min-h-[590px] place-items-center bg-[#f3f4f6] p-3 sm:min-h-[620px] sm:p-7 lg:p-9"
+            }
+            style={
+              fullscreen.active
+                ? undefined
+                : {
+                    backgroundImage:
+                      "radial-gradient(#dfe2e9 0.7px, transparent 0.7px)",
+                    backgroundSize: "12px 12px",
+                  }
+            }
           >
             <div
-              className={`w-full transition-[max-width] duration-300 motion-reduce:transition-none ${viewport === "mobile" ? "max-w-[390px]" : "max-w-[860px]"}`}
+              className={
+                fullscreen.active
+                  ? `mx-auto flex h-full w-full flex-col overflow-auto [&>*]:w-full [&>*]:flex-1 ${viewport === "mobile" ? "max-w-[390px]" : ""}`
+                  : `w-full transition-[max-width] duration-300 motion-reduce:transition-none ${viewport === "mobile" ? "max-w-[390px]" : "max-w-[860px]"}`
+              }
             >
               <Fragment key={replay}>{children}</Fragment>
             </div>
+            {fullscreen.active && (
+              <div className="absolute top-3 right-3 z-[101] flex items-center gap-1 rounded-xl border border-white/10 bg-[#11141b]/80 p-1 shadow-[0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-md">
+                <ViewportToggle
+                  viewport={viewport}
+                  onChange={setViewport}
+                  tone="dark"
+                />
+                <button
+                  type="button"
+                  onClick={() => setReplay((value) => value + 1)}
+                  aria-label="Restart component preview"
+                  title="Restart preview"
+                  className={`grid size-8 place-items-center rounded-md text-white/70 transition hover:bg-white/10 hover:text-white motion-reduce:transition-none ${focusRing}`}
+                >
+                  <Icon name="replay" />
+                </button>
+                <button
+                  ref={exitButtonRef}
+                  type="button"
+                  onClick={fullscreen.exit}
+                  title="Exit full screen (Esc)"
+                  className={`inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-[11px] font-medium text-white/85 transition hover:bg-white/10 hover:text-white motion-reduce:transition-none ${focusRing}`}
+                >
+                  <Icon name="collapse" />
+                  Exit full screen
+                </button>
+              </div>
+            )}
           </div>
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#e7e9ee] px-5 py-3.5 text-[11px] text-[#6b7587]">
             <span className="flex items-center gap-2">

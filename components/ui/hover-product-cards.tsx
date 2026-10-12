@@ -37,8 +37,33 @@ export interface HoverProductCardsProps {
   className?: string;
 }
 
+/*
+ * Tailwind class recipes shared by the live cards and the static gallery thumbnail.
+ * Each element keeps its `hpc-*` name as a stable styling hook. Size-specific
+ * utilities (live vs. thumbnail) are added where the element is rendered.
+ * `group` on the card drives every `group-data-[expanded=true]:` open state.
+ */
+const ROOT = "hover-product-cards @container min-w-0 isolate bg-white text-[#151b1e] [font-family:Arial,Helvetica,sans-serif]";
+const STAGE = "hpc-stage flex flex-auto flex-wrap items-center justify-center";
+const CARD = "hpc-card group @container relative isolate flex-none aspect-[320/450] overflow-hidden bg-[var(--hpc-background,#edf3f3)]";
+const CIRCLE = "hpc-circle absolute inset-0 z-0 bg-[var(--hpc-accent,#03a9f4)] [clip-path:circle(47cqw_at_80%_20%)] [transition:clip-path_.65s_ease,background-color_.4s] group-data-[expanded=true]:[clip-path:circle(94cqw_at_80%_-20%)]";
+const BRAND = "hpc-brand pointer-events-none absolute top-[23%] left-[-20%] z-1 text-[60cqw] leading-[1.2] font-extrabold italic text-white opacity-65 select-none";
+const IMAGE_BUTTON = "hpc-image-button absolute top-[50%] left-0 z-3 flex h-[68.75cqw] w-full items-center justify-center border-none bg-transparent p-0 [transform:translateY(-50%)] [transition:top_.55s_ease,transform_.55s_ease] [-webkit-tap-highlight-color:transparent] group-data-[expanded=true]:top-0 group-data-[expanded=true]:[transform:translateY(0)]";
+const CONTENT = "hpc-content absolute bottom-0 left-0 z-4 h-[31.25cqw] w-full text-center [transition:height_.55s_ease] group-data-[expanded=true]:h-[67.5cqw]";
+const TITLE = "font-[650] leading-[1.25] text-[#1c2425]";
+const OPTIONS = "hpc-options invisible opacity-0 [transform:translateY(14px)] [transition:opacity_.25s_ease,transform_.35s_ease,visibility_.25s] group-data-[expanded=true]:visible group-data-[expanded=true]:opacity-100 group-data-[expanded=true]:[transform:translateY(0)] group-data-[expanded=true]:[transition-delay:.1s]";
+const OPTION_ROW = "hpc-option-row m-0 flex min-w-0 items-center justify-center border-none p-0";
+const OPTION_LABEL = "hpc-option-label font-normal text-[#78888c]";
+const SIZE = "hpc-size grid place-items-center border-none bg-[#141b1c] p-0 text-white [transition:background_.15s]";
+const COLOR = "hpc-color group/color grid shrink-0 place-items-center rounded-[50%] border-none bg-transparent";
+const SWATCH = "block rounded-[50%] [box-shadow:0_0_0_1px_#00000006] group-aria-pressed/color:[outline:1px_solid_#81919a] group-aria-pressed/color:outline-offset-3";
+const BUY = "hpc-buy inline-flex items-center justify-center border-none bg-[#11191a] font-semibold text-white [transition:background_.2s]";
+/** Interactive buttons only (the thumbnail renders inert spans). Focus rings live in the raw CSS below. */
+const BUTTON = "cursor-pointer disabled:cursor-default disabled:opacity-65";
+const SR_ONLY = "hpc-sr-only absolute size-px overflow-hidden p-0 whitespace-nowrap [clip-path:inset(50%)]";
+
 function ShoeArtwork({ product, color }: { product: HoverProduct; color: HoverProductColor }) {
-  return <span className="hpc-shoe-shadow"><img src={color.image ?? product.image} alt={`${color.name} ${product.imageAlt ?? product.name}`} draggable={false} style={{ filter: color.imageFilter, clipPath: product.imageClipPath }} /></span>;
+  return <span className="hpc-shoe-shadow pointer-events-none block w-[96%] [filter:drop-shadow(0_4px_2px_#1729421c)]"><img className="block h-auto w-full select-none [transition:filter_.45s]" src={color.image ?? product.image} alt={`${color.name} ${product.imageAlt ?? product.name}`} draggable={false} style={{ filter: color.imageFilter, clipPath: product.imageClipPath }} /></span>;
 }
 
 function ProductCard({ product, onBuy }: { product: HoverProduct; onBuy?: HoverProductCardsProps["onBuy"] }) {
@@ -94,7 +119,7 @@ function ProductCard({ product, onBuy }: { product: HoverProduct; onBuy?: HoverP
 
   return <article
     ref={cardRef}
-    className="hpc-card"
+    className={`${CARD} w-[clamp(300px,24cqw,380px)] rounded-[11px] [@container(max-width:650px)]:w-[min(300px,100%)]`}
     data-expanded={expanded}
     style={{ "--hpc-accent": color.color, "--hpc-background": product.background ?? "#edf3f3" } as CSSProperties}
     onPointerEnter={(event) => { if (event.pointerType === "mouse") { hovered.current = true; setExpanded(true); } }}
@@ -106,10 +131,10 @@ function ProductCard({ product, onBuy }: { product: HoverProduct; onBuy?: HoverP
     onFocusCapture={() => setExpanded(true)}
     onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget) && !hovered.current && !pinned.current) setExpanded(false); }}
   >
-    <span className="hpc-circle" aria-hidden="true" />
-    <span className="hpc-brand" aria-hidden="true">{product.brand ?? "NIKE"}</span>
+    <span className={CIRCLE} aria-hidden="true" />
+    <span className={`${BRAND} tracking-[-5px]`} aria-hidden="true">{product.brand ?? "NIKE"}</span>
     <button
-      className="hpc-image-button"
+      className={`${IMAGE_BUTTON} ${BUTTON}`}
       type="button"
       aria-label={`Customize ${color.name} ${product.name}`}
       aria-expanded={expanded}
@@ -118,37 +143,37 @@ function ProductCard({ product, onBuy }: { product: HoverProduct; onBuy?: HoverP
     >
       <ShoeArtwork product={product} color={color} />
     </button>
-    <div className="hpc-content">
-      <h2>{product.name}</h2>
-      <div className="hpc-options" id={`${id}-options`} inert={!expanded}>
-        <fieldset className="hpc-option-row" disabled={pending}>
-          <legend className="hpc-sr-only">Choose a shoe size</legend>
-          <span className="hpc-option-label" aria-hidden="true">SIZE :</span>
-          <div className="hpc-sizes">{product.sizes.map((option, index) => <button
+    <div className={`${CONTENT} px-3`}>
+      <h2 className={`${TITLE} mb-2 text-[20px] tracking-[.6px]`}>{product.name}</h2>
+      <div className={OPTIONS} id={`${id}-options`} inert={!expanded}>
+        <fieldset className={`${OPTION_ROW} min-h-[31px] gap-[9px]`} disabled={pending}>
+          <legend className={SR_ONLY}>Choose a shoe size</legend>
+          <span className={`${OPTION_LABEL} text-[11px] tracking-[1px]`} aria-hidden="true">SIZE :</span>
+          <div className="hpc-sizes flex gap-[5px]">{product.sizes.map((option, index) => <button
             key={option}
             ref={(element) => { sizeRefs.current[index] = element; }}
             type="button"
-            className="hpc-size"
+            className={`${SIZE} ${BUTTON} size-7 rounded-[3px] text-[11px] hover:bg-[#217cc9] aria-pressed:bg-[#217cc9]`}
             aria-label={`Size ${option}`}
             aria-pressed={option === selectedSize}
             onClick={() => { setSize(option); resetFeedback(); }}
           >{option}</button>)}</div>
         </fieldset>
-        {product.colors.length > 0 && <fieldset className="hpc-option-row" disabled={pending}>
-          <legend className="hpc-sr-only">Choose a shoe color</legend>
-          <span className="hpc-option-label" aria-hidden="true">COLOR :</span>
-          <div className="hpc-colors">{product.colors.map((option, index) => <button
+        {product.colors.length > 0 && <fieldset className={`${OPTION_ROW} min-h-[31px] gap-[9px]`} disabled={pending}>
+          <legend className={SR_ONLY}>Choose a shoe color</legend>
+          <span className={`${OPTION_LABEL} text-[11px] tracking-[1px]`} aria-hidden="true">COLOR :</span>
+          <div className="hpc-colors flex gap-px">{product.colors.map((option, index) => <button
             type="button"
             key={option.name}
-            className="hpc-color"
+            className={`${COLOR} ${BUTTON} size-[29px] p-[5px]`}
             aria-label={option.name}
             aria-pressed={index === selectedColor}
             title={option.name}
             onClick={() => { setColorIndex(index); resetFeedback(); }}
-          ><span style={{ background: option.color }} /></button>)}</div>
+          ><span className={`${SWATCH} size-[19px]`} style={{ background: option.color }} /></button>)}</div>
         </fieldset>}
-        <button type="button" className="hpc-buy" disabled={pending || status === "success" || !product.sizes.length} onClick={() => void buy()}>{pending ? "Please wait…" : status === "success" ? "Selected ✓" : !product.sizes.length ? "Unavailable" : "Buy Now"}</button>
-        <p className="hpc-feedback" role={status === "error" ? "alert" : "status"} data-error={status === "error"}>{feedback}</p>
+        <button type="button" className={`${BUY} ${BUTTON} mt-2 min-h-[34px] min-w-[94px] rounded-[3px] px-[17px] py-2 text-[12px] enabled:hover:bg-[#2c393d]`} disabled={pending || status === "success" || !product.sizes.length} onClick={() => void buy()}>{pending ? "Please wait…" : status === "success" ? "Selected ✓" : !product.sizes.length ? "Unavailable" : "Buy Now"}</button>
+        <p className="hpc-feedback mt-2 min-h-[29px] text-[10px] leading-[1.45] text-[#506b61] data-[error=true]:text-[#a63532]" role={status === "error" ? "alert" : "status"} data-error={status === "error"}>{feedback}</p>
       </div>
     </div>
   </article>;
@@ -156,17 +181,35 @@ function ProductCard({ product, onBuy }: { product: HoverProduct; onBuy?: HoverP
 
 /** Hover, focus, or tap to reveal product options. Default purchases are local demos. */
 export default function HoverProductCards({ products = DEFAULT_PRODUCTS, onBuy, className = "" }: HoverProductCardsProps) {
-  return <section className={`hover-product-cards relative w-full ${className}`} aria-label="Interactive shoe collection"><ComponentStyles css={HOVER_PRODUCT_STYLES} /><div className="hpc-stage">{products.map((product) => <ProductCard key={product.id} product={product} onBuy={onBuy} />)}{!products.length && <p className="hpc-empty">No products to display.</p>}</div></section>;
+  return <section className={`${ROOT} relative flex w-full flex-col ${className}`} aria-label="Interactive shoe collection"><ComponentStyles css={HOVER_PRODUCT_STYLES} /><div className={`${STAGE} min-h-[570px] gap-9 px-6 py-[60px] [@container(max-width:650px)]:gap-8 [@container(max-width:650px)]:px-5 [@container(max-width:650px)]:py-[38px]`}>{products.map((product) => <ProductCard key={product.id} product={product} onBuy={onBuy} />)}{!products.length && <p className="hpc-empty text-[14px] text-[#71818a]">No products to display.</p>}</div></section>;
 }
 
 /** The gallery selects the frame. No timers, hooks, inputs, or buttons are rendered. */
 export function HoverProductCardsThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   const step = Number.isFinite(previewStep) ? Math.abs(Math.trunc(previewStep)) % 4 : 0;
-  return <div className={`hover-product-cards hpc-thumbnail ${className}`} aria-hidden="true" inert><ComponentStyles css={HOVER_PRODUCT_STYLES} /><div className="hpc-stage">{DEFAULT_PRODUCTS.map((product, index) => {
+  return <div className={`${ROOT} hpc-thumbnail pointer-events-none h-full ${className}`} aria-hidden="true" inert><ComponentStyles css={HOVER_PRODUCT_STYLES} /><div className={`${STAGE} h-full min-h-0 gap-[7%] px-[18px] py-[28px]`}>{DEFAULT_PRODUCTS.map((product, index) => {
     const active = step < 2 ? index === 0 : index === 1;
     const colorIndex = index === 0 && step === 1 ? 1 : index === 1 && step === 3 ? 2 : 0;
     const color = product.colors[colorIndex];
-    return <div className="hpc-card" key={product.id} data-expanded={active} style={{ "--hpc-accent": color.color, "--hpc-background": "#edf3f3" } as CSSProperties}><span className="hpc-circle" /><span className="hpc-brand">NIKE</span><div className="hpc-image-button"><ShoeArtwork product={product} color={color} /></div><div className="hpc-content"><h2>{product.name}</h2><div className="hpc-options"><div className="hpc-option-row"><span className="hpc-option-label">SIZE :</span><div className="hpc-sizes">{product.sizes.map((size, sizeIndex) => <span className="hpc-size" data-selected={sizeIndex === step % 4} key={size}>{size}</span>)}</div></div><div className="hpc-option-row"><span className="hpc-option-label">COLOR :</span><div className="hpc-colors">{product.colors.map((option) => <span className="hpc-color" key={option.name}><span style={{ background: option.color }} /></span>)}</div></div><span className="hpc-buy">Buy Now</span></div></div></div>;
+    return <div className={`${CARD} w-[38%] max-w-[190px] rounded-[6px]`} key={product.id} data-expanded={active} style={{ "--hpc-accent": color.color, "--hpc-background": "#edf3f3" } as CSSProperties}>
+      <span className={CIRCLE} />
+      <span className={`${BRAND} tracking-[-2px]`}>NIKE</span>
+      <div className={IMAGE_BUTTON}><ShoeArtwork product={product} color={color} /></div>
+      <div className={`${CONTENT} px-[5px]`}>
+        <h2 className={`${TITLE} mb-[3cqw] text-[6.5cqw] tracking-[.3px]`}>{product.name}</h2>
+        <div className={OPTIONS}>
+          <div className={`${OPTION_ROW} min-h-[10cqw] gap-[2cqw]`}>
+            <span className={`${OPTION_LABEL} text-[3.4cqw] tracking-[.3px]`}>SIZE :</span>
+            <div className="hpc-sizes flex gap-[1.5cqw]">{product.sizes.map((size, sizeIndex) => <span className={`${SIZE} size-[8cqw] rounded-[1px] text-[3.7cqw] data-[selected=true]:bg-[#217cc9]`} data-selected={sizeIndex === step % 4} key={size}>{size}</span>)}</div>
+          </div>
+          <div className={`${OPTION_ROW} min-h-[10cqw] gap-[2cqw]`}>
+            <span className={`${OPTION_LABEL} text-[3.4cqw] tracking-[.3px]`}>COLOR :</span>
+            <div className="hpc-colors flex gap-px">{product.colors.map((option) => <span className={`${COLOR} size-[9cqw] p-[1.5cqw]`} key={option.name}><span className={`${SWATCH} size-[6cqw]`} style={{ background: option.color }} /></span>)}</div>
+          </div>
+          <span className={`${BUY} mt-[2cqw] min-h-[11cqw] min-w-[30cqw] rounded-[1px] px-[4cqw] py-[2.4cqw] text-[4cqw]`}>Buy Now</span>
+        </div>
+      </div>
+    </div>;
   })}</div></div>;
 }
 
@@ -199,12 +242,12 @@ const DEFAULT_PRODUCTS: readonly HoverProduct[] = [
   },
 ];
 
+// Tailwind utilities on the JSX carry the styling. Only two rules stay raw:
+// - Focus rings: the host app's unlayered global :focus-visible rule would beat
+//   Tailwind's layered focus-visible: utilities, so the ring is set here.
+// - Reduced motion: a safety net reaching every descendant (and ::before/::after)
+//   with !important, which no single utility expresses cleanly.
 const HOVER_PRODUCT_STYLES = `
-.hover-product-cards{container-type:inline-size;min-width:0;isolation:isolate;background:white;color:#151b1e;font-family:Arial,Helvetica,sans-serif}.hover-product-cards *{box-sizing:border-box}.hover-product-cards button{font:inherit;cursor:pointer}.hover-product-cards button:disabled{cursor:default;opacity:.65}.hover-product-cards button:focus-visible{outline:3px solid #176bd0;outline-offset:4px}
-.hover-product-cards .hpc-stage{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:36px;min-height:570px;padding:60px 24px}.hover-product-cards .hpc-card{container-type:inline-size;position:relative;flex:0 0 auto;width:300px;aspect-ratio:320/450;overflow:hidden;border-radius:11px;background:var(--hpc-background,#edf3f3);isolation:isolate}.hover-product-cards .hpc-circle{position:absolute;z-index:0;inset:0;background:var(--hpc-accent,#03a9f4);clip-path:circle(47cqw at 80% 20%);transition:clip-path .65s ease,background-color .4s}.hover-product-cards .hpc-card[data-expanded=true] .hpc-circle{clip-path:circle(94cqw at 80% -20%)}.hover-product-cards .hpc-brand{position:absolute;z-index:1;top:23%;left:-20%;font-size:60cqw;line-height:1.2;font-weight:800;font-style:italic;letter-spacing:-5px;color:#fff;opacity:.65;pointer-events:none;user-select:none}
-.hover-product-cards .hpc-image-button{position:absolute;z-index:3;top:50%;left:0;display:flex;align-items:center;justify-content:center;transform:translateY(-50%);width:100%;height:68.75cqw;padding:0;background:transparent;border:0;transition:top .55s ease,transform .55s ease;-webkit-tap-highlight-color:transparent}.hover-product-cards .hpc-image-button:focus-visible{outline-offset:-8px;border-radius:12px}.hover-product-cards .hpc-card[data-expanded=true] .hpc-image-button{top:0;transform:translateY(0)}.hover-product-cards .hpc-shoe-shadow{display:block;width:96%;filter:drop-shadow(0 4px 2px #1729421c);pointer-events:none}.hover-product-cards .hpc-shoe-shadow img{display:block;width:100%;height:auto;user-select:none;transition:filter .45s}
-.hover-product-cards .hpc-content{position:absolute;z-index:4;bottom:0;left:0;width:100%;height:31.25cqw;text-align:center;transition:height .55s ease;padding:0 12px}.hover-product-cards .hpc-card[data-expanded=true] .hpc-content{height:67.5cqw}.hover-product-cards .hpc-content h2{margin:0 0 8px;color:#1c2425;font-size:20px;font-weight:650;line-height:1.25;letter-spacing:.6px}.hover-product-cards .hpc-options{opacity:0;visibility:hidden;transform:translateY(14px);transition:opacity .25s ease,transform .35s ease,visibility .25s}.hover-product-cards .hpc-card[data-expanded=true] .hpc-options{opacity:1;visibility:visible;transform:translateY(0);transition-delay:.1s}.hover-product-cards .hpc-option-row{display:flex;align-items:center;justify-content:center;gap:9px;min-width:0;min-height:31px;margin:0;padding:0;border:0}.hover-product-cards .hpc-option-label{color:#78888c;letter-spacing:1px;font-size:11px;font-weight:400}.hover-product-cards .hpc-sizes{display:flex;gap:5px}.hover-product-cards .hpc-size{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:3px;background:#141b1c;color:#fff;font-size:11px;transition:background .15s}.hover-product-cards .hpc-size:hover,.hover-product-cards .hpc-size[aria-pressed=true],.hover-product-cards .hpc-size[data-selected=true]{background:#217cc9}.hover-product-cards .hpc-colors{display:flex;gap:1px}.hover-product-cards .hpc-color{display:grid;place-items:center;flex-shrink:0;width:29px;height:29px;border:0;background:transparent;border-radius:50%;padding:5px}.hover-product-cards .hpc-color>span{display:block;width:19px;height:19px;border-radius:50%;box-shadow:0 0 0 1px #00000006}.hover-product-cards .hpc-color[aria-pressed=true]>span{outline:1px solid #81919a;outline-offset:3px}.hover-product-cards .hpc-buy{display:inline-flex;align-items:center;justify-content:center;min-width:94px;min-height:34px;padding:8px 17px;border:0;border-radius:3px;background:#11191a;color:#fff;font-size:12px;font-weight:600;margin-top:8px;transition:background .2s}.hover-product-cards .hpc-buy:hover:not(:disabled){background:#2c393d}.hover-product-cards .hpc-feedback{min-height:29px;margin:8px 0 0;font-size:10px;line-height:1.45;color:#506b61}.hover-product-cards .hpc-feedback[data-error=true]{color:#a63532}.hover-product-cards .hpc-sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.hover-product-cards .hpc-empty{color:#71818a;font-size:14px}
-@container(max-width:650px){.hover-product-cards:not(.hpc-thumbnail) .hpc-stage{gap:32px;padding:38px 20px}.hover-product-cards:not(.hpc-thumbnail) .hpc-card{width:min(300px,100%)}}
-.hover-product-cards.hpc-thumbnail{height:100%;pointer-events:none}.hover-product-cards.hpc-thumbnail .hpc-stage{height:100%;min-height:0;padding:28px 18px;gap:7%}.hover-product-cards.hpc-thumbnail .hpc-card{width:38%;max-width:190px;border-radius:6px}.hover-product-cards.hpc-thumbnail .hpc-content{padding:0 5px}.hover-product-cards.hpc-thumbnail .hpc-content h2{font-size:6.5cqw;margin-bottom:3cqw;letter-spacing:.3px}.hover-product-cards.hpc-thumbnail .hpc-option-row{gap:2cqw;min-height:10cqw}.hover-product-cards.hpc-thumbnail .hpc-option-label{font-size:3.4cqw;letter-spacing:.3px}.hover-product-cards.hpc-thumbnail .hpc-sizes{gap:1.5cqw}.hover-product-cards.hpc-thumbnail .hpc-size{width:8cqw;height:8cqw;font-size:3.7cqw;border-radius:1px}.hover-product-cards.hpc-thumbnail .hpc-color{width:9cqw;height:9cqw;padding:1.5cqw}.hover-product-cards.hpc-thumbnail .hpc-color>span{width:6cqw;height:6cqw}.hover-product-cards.hpc-thumbnail .hpc-buy{min-width:30cqw;min-height:11cqw;padding:2.4cqw 4cqw;font-size:4cqw;margin-top:2cqw;border-radius:1px}.hover-product-cards.hpc-thumbnail .hpc-brand{letter-spacing:-2px}
+.hover-product-cards button:focus-visible{outline:3px solid #176bd0;outline-offset:4px}.hover-product-cards .hpc-image-button:focus-visible{outline-offset:-8px;border-radius:12px}
 @media(prefers-reduced-motion:reduce){.hover-product-cards *,.hover-product-cards *::before,.hover-product-cards *::after{transition:none!important;animation:none!important}}
 `;

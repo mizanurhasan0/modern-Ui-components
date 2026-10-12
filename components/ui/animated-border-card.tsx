@@ -27,12 +27,31 @@ type Profile = Required<
   Pick<AnimatedBorderCardProps, "imageSrc" | "displayName" | "role" | "stats">
 >;
 
+/** The dark stage; it is also the container that the `@max-[380.02px]` variants respond to. */
+const STAGE =
+  "abc-stage @container relative isolate flex w-full min-w-0 items-center justify-center overflow-hidden bg-[#222] font-['Poppins',Arial,sans-serif] text-white [--abc-cyan:#45f3ff] [--abc-pink:#ff3c7b]";
+/** The card grows when `data-expanded` is true; descendants react through `group-data-[expanded=true]/card:`. */
+const CARD =
+  "group/card relative h-[190px] w-[350px] shrink-0 bg-[#333] transition-[height] duration-500 ease-[ease] data-[expanded=true]:h-[450px]";
+/** Shared by the portrait and the invisible button laid over it. */
+const PORTRAIT =
+  "absolute -top-[50px] left-1/2 size-[150px] -translate-x-1/2 transition-[width,height] duration-500 ease-[ease] group-data-[expanded=true]/card:size-[250px] @max-[380.02px]:group-data-[expanded=true]/card:aspect-square @max-[380.02px]:group-data-[expanded=true]/card:h-auto @max-[380.02px]:group-data-[expanded=true]/card:w-[min(250px,calc(100%-20px))]";
+/** The inner panel that hides the moving light strips except for a 3px rim. */
+const INNER_PANEL = "after:absolute after:inset-[3px] after:bg-[#292929] after:content-['']";
+const ACTION =
+  "flex min-w-0 flex-1 items-center justify-center rounded-[5px] px-3 py-2.5 text-[16px] leading-[1.5] font-medium whitespace-nowrap text-[#222]";
+/** Content panel inside the card; it slides up into view when the card expands. */
+const CONTENT = "absolute inset-0 flex items-end justify-center overflow-hidden";
+const DETAILS =
+  "w-full translate-y-[145px] p-10 text-center transition-transform duration-500 ease-[ease] group-data-[expanded=true]/card:translate-y-0 @max-[380.02px]:px-[25px]";
+const ACTION_BUTTON = `${ACTION} cursor-pointer transition-opacity duration-200 ease-[ease] hover:opacity-85 disabled:cursor-wait disabled:opacity-60 @max-[380.02px]:text-[14px]`;
+
 function Avatar({ imageSrc, displayName }: Pick<Profile, "imageSrc" | "displayName">) {
   return (
-    <div className="abc-avatar" aria-hidden="true">
+    <div className={`abc-avatar ${PORTRAIT} z-2 overflow-hidden bg-black ${INNER_PANEL}`} aria-hidden="true">
       {/* A standard image keeps this component portable outside Next.js. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={imageSrc} alt={displayName} draggable={false} />
+      <img className="absolute inset-[10px] z-1 size-[calc(100%-20px)] object-cover" src={imageSrc} alt={displayName} draggable={false} />
     </div>
   );
 }
@@ -40,21 +59,22 @@ function Avatar({ imageSrc, displayName }: Pick<Profile, "imageSrc" | "displayNa
 function ProfileDetails({ displayName, role, stats, statsVisible = true }: Omit<Profile, "imageSrc"> & { statsVisible?: boolean }) {
   return (
     <>
-      <h2 className="abc-name">
+      <h2 className="text-[20px] leading-[1.2] font-semibold text-(--abc-cyan)">
         {displayName}
-        <span>{role}</span>
+        <span className="mt-[5px] block text-[15px] leading-[1.2] font-medium whitespace-nowrap text-white @max-[380.02px]:text-[13px]">{role}</span>
       </h2>
-      <dl className="abc-stats" aria-hidden={!statsVisible}>
+      <dl className="my-5 flex justify-between gap-2.5" aria-hidden={!statsVisible}>
         {(["posts", "followers", "following"] as const).map((label) => (
-          <div key={label}>
-            <dt>{label}</dt>
-            <dd>{stats[label]}</dd>
+          <div key={label} className="flex flex-col-reverse text-center">
+            <dt className="text-[13.6px] leading-[1.4] font-normal text-white capitalize">{label}</dt>
+            <dd className="text-[16px] leading-[1.2] font-semibold text-(--abc-cyan)">{stats[label]}</dd>
           </div>
         ))}
       </dl>
     </>
   );
 }
+
 
 /** Hover, focus the portrait, or tap it to reveal the profile's actions. */
 export default function AnimatedBorderCard({
@@ -122,13 +142,10 @@ export default function AnimatedBorderCard({
   }
 
   return (
-    <section
-      className={`abc-stage relative flex min-h-[620px] w-full items-center justify-center overflow-hidden ${className}`}
-      aria-label="Animated border profile card"
-    >
+    <section className={`${STAGE} min-h-[620px] ${className}`} aria-label="Animated border profile card">
       <ComponentStyles css={STYLES} />
       <article
-        className="abc-card"
+        className={`${CARD} max-w-[calc(100%-40px)] @max-[380.02px]:max-w-[calc(100%-28px)]`}
         data-expanded={expanded}
         aria-label={`${displayName}'s profile`}
         onPointerEnter={(event) => {
@@ -145,40 +162,58 @@ export default function AnimatedBorderCard({
           if (!dialog.current?.open && !event.currentTarget.contains(event.relatedTarget)) setExpanded(false);
         }}
       >
-        <div className="abc-lines" aria-hidden="true" />
+        <div className={`abc-lines absolute inset-0 overflow-hidden bg-black ${INNER_PANEL}`} aria-hidden="true" />
         <Avatar imageSrc={imageSrc} displayName={displayName} />
         <button
           type="button"
-          className="abc-avatar-trigger"
+          className={`${PORTRAIT} z-3 cursor-pointer rounded-none bg-transparent p-0`}
           aria-label={`${expanded ? "Collapse" : "Expand"} ${displayName}'s profile`}
           aria-expanded={expanded}
           aria-controls={`${id}-actions`}
           onClick={() => setExpanded((current) => !current)}
         />
-        <div className="abc-content">
-          <div className="abc-details">
+        <div className={CONTENT}>
+          <div className={DETAILS}>
             <ProfileDetails displayName={displayName} role={role} stats={stats} statsVisible={expanded} />
-            <div className="abc-actions" id={`${id}-actions`} inert={!expanded} aria-hidden={!expanded}>
-              <button type="button" onClick={toggleFollow} aria-pressed={following} disabled={followPending}>
+            <div className="flex justify-between gap-5 @max-[380.02px]:gap-3" id={`${id}-actions`} inert={!expanded} aria-hidden={!expanded}>
+              <button
+                type="button"
+                className={`${ACTION_BUTTON} bg-(--abc-cyan) aria-pressed:bg-[#213f41] aria-pressed:text-(--abc-cyan) aria-pressed:shadow-[inset_0_0_0_1px_var(--abc-cyan)]`}
+                onClick={toggleFollow}
+                aria-pressed={following}
+                disabled={followPending}
+              >
                 {followPending ? "Updating…" : following ? "Following" : "Follow"}
               </button>
-              <button type="button" onClick={openComposer}>Message</button>
+              <button type="button" className={`${ACTION_BUTTON} bg-white`} onClick={openComposer}>Message</button>
             </div>
           </div>
         </div>
       </article>
-      <p className="abc-follow-status" role="status" aria-live="polite">{followStatus}</p>
-      <dialog className="abc-dialog" ref={dialog} aria-labelledby={`${id}-message-title`}>
+      <p className="absolute right-5 bottom-[18px] left-5 text-center text-[12px] text-[#c1c6c7]" role="status" aria-live="polite">{followStatus}</p>
+      <dialog
+        className="abc-dialog fixed inset-0 m-auto max-h-[calc(100dvh-40px)] w-[min(430px,calc(100vw-32px))] overflow-y-auto rounded-[10px] border border-[#4d6c70] bg-[#292929] p-[26px] font-['Poppins',Arial,sans-serif] text-white shadow-[0_24px_100px_#0009] backdrop:bg-[#000a] backdrop:backdrop-blur-[5px]"
+        ref={dialog}
+        aria-labelledby={`${id}-message-title`}
+      >
         <form onSubmit={submitMessage}>
-          <div className="abc-dialog-heading">
-            <h2 id={`${id}-message-title`}>Message {displayName}</h2>
-            <button type="button" className="abc-close" aria-label="Close message" onClick={() => dialog.current?.close()}>×</button>
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-[19px] font-semibold text-(--abc-cyan)" id={`${id}-message-title`}>Message {displayName}</h2>
+            <button
+              type="button"
+              className="grid size-8 shrink-0 cursor-pointer place-items-center rounded-[4px] bg-[#ffffff0d] text-[26px] leading-none text-white"
+              aria-label="Close message"
+              onClick={() => dialog.current?.close()}
+            >
+              ×
+            </button>
           </div>
-          <p className="abc-dialog-description">
+          <p className="mt-3 mb-6 text-[13px] leading-[1.6] text-[#b9bec0]">
             {onMessage ? "Start a conversation." : "Try the composer. Your draft stays in this preview."}
           </p>
-          <label htmlFor={`${id}-message`}>Your message</label>
+          <label className="mb-[9px] block text-[13px]" htmlFor={`${id}-message`}>Your message</label>
           <textarea
+            className="block max-h-[45dvh] min-h-[120px] w-full resize-y rounded-[6px] border border-[#535759] bg-[#202020] p-3 text-[14px] leading-[1.6] text-white"
             id={`${id}-message`}
             value={draft}
             onChange={(event) => { setDraft(event.target.value); setMessageStatus(""); }}
@@ -188,13 +223,17 @@ export default function AnimatedBorderCard({
             required
             disabled={messagePending}
           />
-          <div className="abc-composer-footer">
-            <span>{draft.length}/2000</span>
-            <button type="submit" disabled={!draft.trim() || messagePending}>
+          <div className="mt-3.5 flex items-center justify-between gap-3">
+            <span className="text-[11px] text-[#b9bec0]">{draft.length}/2000</span>
+            <button
+              type="submit"
+              className="cursor-pointer rounded-[5px] bg-(--abc-cyan) px-4 py-2.5 text-[13px] font-semibold text-[#222] disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={!draft.trim() || messagePending}
+            >
               {messagePending ? "Saving…" : onMessage ? "Send message" : "Save draft"}
             </button>
           </div>
-          <p className="abc-message-status" role="status" aria-live="polite">{messageStatus}</p>
+          <p className="mt-3.5 text-[13px] leading-[1.6] empty:hidden" role="status" aria-live="polite">{messageStatus}</p>
         </form>
       </dialog>
     </section>
@@ -204,15 +243,18 @@ export default function AnimatedBorderCard({
 /** An inert, expanded preview that can safely be nested inside a gallery link. */
 export function AnimatedBorderCardThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   return (
-    <div className={`abc-stage abc-thumbnail relative flex h-full min-h-[260px] w-full items-center justify-center overflow-hidden ${className}`} aria-hidden="true" inert>
+    <div className={`${STAGE} abc-thumbnail h-full min-h-[260px] ${className}`} aria-hidden="true" inert>
       <ComponentStyles css={STYLES} />
-      <div className="abc-card" data-expanded={previewStep % 3 !== 1}>
-        <div className="abc-lines" />
+      <div className={`${CARD} max-w-none translate-y-[13px] scale-[.52]`} data-expanded={previewStep % 3 !== 1}>
+        <div className={`abc-lines absolute inset-0 overflow-hidden bg-black ${INNER_PANEL}`} />
         <Avatar imageSrc={DEFAULT_AVATAR} displayName="Mr. Skeleton" />
-        <div className="abc-content">
-          <div className="abc-details">
+        <div className={CONTENT}>
+          <div className={DETAILS}>
             <ProfileDetails displayName="Mr. Skeleton" role="Senior UX/UI Designer Player" stats={DEFAULT_STATS} />
-            <div className="abc-actions"><span>Follow</span><span>Message</span></div>
+            <div className="flex justify-between gap-5 @max-[380.02px]:gap-3">
+              <span className={`${ACTION} bg-(--abc-cyan)`}>Follow</span>
+              <span className={`${ACTION} bg-white`}>Message</span>
+            </div>
           </div>
         </div>
       </div>
@@ -220,105 +262,31 @@ export function AnimatedBorderCardThumbnail({ className = "", previewStep = 0 }:
   );
 }
 
+/*
+ * Only what Tailwind utilities cannot express cleanly stays here:
+ * - the rotating light strips (pseudo-elements driven by @keyframes, which
+ *   components/showcase/gallery-thumbnail.css restarts via .abc-lines / .abc-avatar);
+ * - focus outlines, because app/globals.css styles :focus-visible outside any
+ *   cascade layer and would otherwise override layered utilities;
+ * - the reduced-motion reset for every descendant.
+ */
 const STYLES = `
-.abc-stage {
-  container-type: inline-size;
-  min-width: 0;
-  width: 100%;
-  --abc-cyan: #45f3ff;
-  --abc-pink: #ff3c7b;
-  background: #222;
-  color: #fff;
-  font-family: "Poppins", Arial, sans-serif;
-  isolation: isolate;
-}
-.abc-stage *, .abc-stage *::before, .abc-stage *::after { box-sizing: border-box; }
-.abc-card {
-  position: relative;
-  width: 350px;
-  max-width: calc(100% - 40px);
-  height: 190px;
-  background: #333;
-  transition: height .5s;
-  flex-shrink: 0;
-}
-.abc-card[data-expanded="true"] { height: 450px; }
-.abc-lines { position: absolute; inset: 0; background: #000; overflow: hidden; }
+.abc-lines::before, .abc-avatar::before { content: ""; position: absolute; top: 50%; left: 50%; }
 .abc-lines::before {
-  content: "";
-  position: absolute;
-  top: 50%; left: 50%;
   width: 600px; height: 120px;
   background: linear-gradient(transparent, var(--abc-cyan), var(--abc-cyan), var(--abc-cyan), transparent);
   animation: abc-orbit 4s linear infinite;
 }
-.abc-lines::after { content: ""; position: absolute; inset: 3px; background: #292929; }
-.abc-avatar, .abc-avatar-trigger {
-  position: absolute;
-  top: -50px; left: 50%;
-  width: 150px; height: 150px;
-  transform: translateX(-50%);
-  transition: width .5s, height .5s;
-}
-.abc-avatar { z-index: 2; overflow: hidden; background: #000; }
 .abc-avatar::before {
-  content: "";
-  position: absolute;
-  top: 50%; left: 50%;
   width: 500px; height: 150px;
   background: linear-gradient(transparent, var(--abc-pink), var(--abc-pink), var(--abc-pink), transparent);
   animation: abc-orbit 6s linear infinite reverse;
 }
-.abc-avatar::after { content: ""; position: absolute; inset: 3px; background: #292929; }
-.abc-avatar img { position: absolute; z-index: 1; inset: 10px; width: calc(100% - 20px); height: calc(100% - 20px); object-fit: cover; }
-.abc-avatar-trigger { z-index: 3; border: 0; border-radius: 0; padding: 0; background: transparent; cursor: pointer; }
-.abc-card[data-expanded="true"] .abc-avatar, .abc-card[data-expanded="true"] .abc-avatar-trigger { width: 250px; height: 250px; }
-.abc-content { position: absolute; inset: 0; display: flex; justify-content: center; align-items: flex-end; overflow: hidden; }
-.abc-details { padding: 40px; width: 100%; text-align: center; transition: transform .5s; transform: translateY(145px); }
-.abc-card[data-expanded="true"] .abc-details { transform: translateY(0); }
-.abc-name { margin: 0; color: var(--abc-cyan); font-size: 20px; font-weight: 600; line-height: 1.2; }
-.abc-name > span { display: block; margin-top: 5px; color: #fff; font-size: 15px; font-weight: 500; line-height: 1.2; white-space: nowrap; }
-.abc-stats { display: flex; justify-content: space-between; gap: 10px; margin: 20px 0; }
-.abc-stats > div { display: flex; flex-direction: column-reverse; text-align: center; }
-.abc-stats dt { color: #fff; font-size: 13.6px; line-height: 1.4; font-weight: 400; text-transform: capitalize; }
-.abc-stats dd { margin: 0; color: var(--abc-cyan); font-size: 16px; line-height: 1.2; font-weight: 600; }
-.abc-actions { display: flex; justify-content: space-between; gap: 20px; }
-.abc-actions button, .abc-actions > span { display: flex; align-items: center; justify-content: center; min-width: 0; flex: 1; border: 0; border-radius: 5px; padding: 10px 12px; background: var(--abc-cyan); color: #222; font: inherit; font-size: 16px; font-weight: 500; line-height: 1.5; white-space: nowrap; }
-.abc-actions button { cursor: pointer; transition: opacity .2s; }
-.abc-actions > :nth-child(2) { background: #fff; }
-.abc-actions button:hover { opacity: .85; }
-.abc-actions button[aria-pressed="true"] { background: #213f41; color: var(--abc-cyan); box-shadow: inset 0 0 0 1px var(--abc-cyan); }
-.abc-stage button:focus-visible { outline: 2px solid #fff; outline-offset: 5px; }
-.abc-stage button:disabled { cursor: wait; opacity: .6; }
-.abc-follow-status { position: absolute; bottom: 18px; left: 20px; right: 20px; margin: 0; text-align: center; color: #c1c6c7; font-size: 12px; }
-.abc-dialog { position: fixed; inset: 0; width: min(430px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); margin: auto; padding: 26px; overflow-y: auto; border: 1px solid #4d6c70; border-radius: 10px; background: #292929; color: #fff; font-family: "Poppins", Arial, sans-serif; box-shadow: 0 24px 100px #0009; }
-.abc-dialog::backdrop { background: #000a; backdrop-filter: blur(5px); }
-.abc-dialog-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
-.abc-dialog-heading h2 { margin: 0; color: var(--abc-cyan); font-size: 19px; font-weight: 600; }
-.abc-close { display: grid; place-items: center; flex-shrink: 0; width: 32px; height: 32px; border: 0; border-radius: 4px; background: #ffffff0d; color: #fff; font-size: 26px; line-height: 1; cursor: pointer; }
-.abc-dialog-description { margin: 12px 0 24px; font-size: 13px; line-height: 1.6; color: #b9bec0; }
-.abc-dialog label { display: block; margin-bottom: 9px; font-size: 13px; }
-.abc-dialog textarea { display: block; resize: vertical; width: 100%; min-height: 120px; max-height: 45dvh; border: 1px solid #535759; border-radius: 6px; padding: 12px; background: #202020; color: #fff; font: inherit; font-size: 14px; line-height: 1.6; }
-.abc-dialog textarea:focus { outline: 2px solid var(--abc-cyan); outline-offset: 2px; }
-.abc-composer-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 14px; }
-.abc-composer-footer > span { color: #b9bec0; font-size: 11px; }
-.abc-composer-footer button { border: 0; border-radius: 5px; padding: 10px 16px; background: var(--abc-cyan); color: #222; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
-.abc-composer-footer button:disabled { cursor: not-allowed; }
-.abc-message-status { margin: 14px 0 0; font-size: 13px; line-height: 1.6; }
-.abc-message-status:empty { display: none; }
-.abc-thumbnail .abc-card { transform: translateY(13px) scale(.52); max-width: none; }
 .abc-thumbnail .abc-lines::before { animation: none; transform: translate(-50%, -50%) rotate(25deg); }
 .abc-thumbnail .abc-avatar::before { animation: none; transform: translate(-50%, -50%) rotate(-25deg); }
+.abc-stage button:focus-visible { outline: 2px solid #fff; outline-offset: 5px; }
+.abc-dialog textarea:focus { outline: 2px solid var(--abc-cyan); outline-offset: 2px; }
 @keyframes abc-orbit { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
-@container (max-width: 380px) {
-  .abc-card { max-width: calc(100% - 28px); }
-  .abc-details { padding-right: 25px; padding-left: 25px; }
-  .abc-name > span { font-size: 13px; }
-  .abc-actions { gap: 12px; }
-  .abc-actions button { font-size: 14px; }
-  .abc-card[data-expanded="true"] .abc-avatar,
-  .abc-card[data-expanded="true"] .abc-avatar-trigger { width: min(250px, calc(100% - 20px)); height: auto; aspect-ratio: 1; }
-}
 @media (prefers-reduced-motion: reduce) {
   .abc-stage *, .abc-stage *::before, .abc-stage *::after { transition: none !important; animation: none !important; }
   .abc-lines::before { transform: translate(-50%, -50%) rotate(25deg); }

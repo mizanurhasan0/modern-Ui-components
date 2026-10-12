@@ -174,15 +174,15 @@ function OrbitScene({ products, offset = 0, highlight = -1, staticFrame = false 
   if (!products.length) return null;
   const rows = 10;
   const columns = 14;
-  return <div className="so-cylinder" data-static={staticFrame} style={{ "--so-offset": `${offset}deg` } as CSSProperties} aria-hidden="true">
+  return <div className={`so-cylinder absolute top-1/2 left-1/2 size-0 transform-3d [--so-turn:0deg] [transform:rotateY(calc(var(--so-turn)+var(--so-offset)))] animate-[so-revolve_75s_linear_infinite] group-data-[paused=true]/stage:[animation-play-state:paused] group-[:hover]/stage:[animation-play-state:paused] group-focus-visible/stage:[animation-play-state:paused] data-[static=true]:[animation-play-state:paused] ${staticFrame ? "[--so-radius:172px] [scale:.5] [transition:transform_1s_ease]" : "[--so-radius:min(26cqw,calc(172*var(--so-u)))] [@container(max-width:440px)]:[--so-radius:136px] [@container(max-width:440px)]:[scale:.86]"}`} data-static={staticFrame} style={{ "--so-offset": `${offset}deg` } as CSSProperties} aria-hidden="true">
     {Array.from({ length: rows * columns }, (_, slot) => {
       const row = Math.floor(slot / columns);
       const index = slot % products.length;
       const product = products[index];
       const radius = Math.sqrt(1 - Math.pow((row - 4.5) / 5.8, 2));
-      return <span key={slot} data-product-index={index} className="so-shoe" data-highlighted={index === highlight} style={{ "--so-angle": `${slot % columns * 360 / columns + (row % 2) * 10}deg`, "--so-y": `${(row - 4.5) * 45}px`, "--so-radius-factor": radius } as CSSProperties}>
+      return <span key={slot} data-product-index={index} className={`so-shoe absolute top-[calc(-22*var(--so-u))] left-[calc(-35*var(--so-u))] grid h-[calc(44*var(--so-u))] w-[calc(70*var(--so-u))] place-items-center transform-3d [&:hover]:[filter:drop-shadow(0_0_3px_#3877bf)] data-[highlighted=true]:[filter:drop-shadow(0_0_3px_#3877bf)] ${staticFrame ? "[transition:transform_1s_ease,opacity_1s_ease]" : "[transition:filter_.15s]"}`} data-highlighted={index === highlight} style={{ "--so-angle": `${slot % columns * 360 / columns + (row % 2) * 10}deg`, "--so-y": (row - 4.5) * 45, "--so-radius-factor": radius } as CSSProperties}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={product.image} alt="" draggable={false} />
+        <img className="pointer-events-none block size-full object-contain mix-blend-multiply select-none [-webkit-user-drag:none]" src={product.image} alt="" draggable={false} />
       </span>;
     })}
   </div>;
@@ -209,18 +209,27 @@ function ProductDialog({ product, onClose, onBuy }: { product: SneakerProduct; o
     } catch { setStatus("Could not add this sneaker. Please try again."); }
     finally { busy.current = false; setPending(false); }
   }
-  return <dialog ref={dialog} className="so-dialog" aria-labelledby={`${id}-title`} onCancel={(event) => { event.preventDefault(); onClose(); }} onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-    <div className="so-dialog-content">
-      <button type="button" className="so-close" onClick={onClose} aria-label="Close product">×</button>
+  return <dialog ref={dialog} className="so-dialog fixed inset-0 m-auto h-[540px] max-h-[calc(100dvh-36px)] w-[min(640px,calc(100vw-28px))] overflow-auto rounded-[24px] border-none bg-[#f0f0f0ed] p-0 text-[#111] shadow-[0_30px_120px_#0002] [font-family:Arial,Helvetica,sans-serif] backdrop:bg-[#eeeeeeba] backdrop:backdrop-blur-[2px]" aria-labelledby={`${id}-title`} onCancel={(event) => { event.preventDefault(); onClose(); }} onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <div className="so-dialog-content relative flex min-h-full flex-col items-center px-[30px] pt-[76px] pb-[30px] text-center">
+      <button type="button" className="so-close absolute top-[18px] right-[20px] size-[32px] cursor-pointer rounded-[50%] border-none bg-white text-[23px] text-[#777]" onClick={onClose} aria-label="Close product">×</button>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="so-selected-image" src={product.image} alt={product.name} />
-      <h2 id={`${id}-title`}>{product.name}</h2>
-      <p className="so-price">${product.price.toFixed(0)}</p>
-      <button type="button" className="so-buy" onClick={buy} disabled={pending}>{pending ? "Adding…" : "Buy Now"}</button>
-      <p className="so-purchase-status" role="status">{status}</p>
+      <img className="so-selected-image block h-[200px] w-[290px] max-w-full object-contain mix-blend-multiply [filter:drop-shadow(0_12px_8px_#00000007)] animate-[so-arrive_.4s_ease-out]" src={product.image} alt={product.name} />
+      <h2 id={`${id}-title`} className="mx-0 mt-[12px] mb-[5px] max-w-[360px] text-[13px]/[1.5] font-normal">{product.name}</h2>
+      <p className="so-price mx-0 mt-0 mb-[45px] text-[11px] text-[#999]">${product.price.toFixed(0)}</p>
+      <button type="button" className="so-buy min-h-[38px] cursor-pointer rounded-[40px] border-none bg-[#111] px-[24px] py-[10px] text-white [font:bold_11px_Arial,sans-serif] disabled:cursor-wait disabled:opacity-50" onClick={buy} disabled={pending}>{pending ? "Adding…" : "Buy Now"}</button>
+      <p className="so-purchase-status mx-0 mt-[18px] mb-0 min-h-[34px] max-w-[330px] text-[12px]/[1.5] text-[#595959]" role="status">{status}</p>
     </div>
   </dialog>;
 }
+
+// Shared class lists. `[@container(max-width:440px)]:` mirrors the original
+// inclusive breakpoint exactly (Tailwind's `@max-[440px]:` would be exclusive).
+const ROOT_CLASSES = "relative isolate @container-size bg-[#eee] text-[#151515] [font-family:Arial,Helvetica,sans-serif]";
+const STAGE_CLASSES = "so-stage group/stage absolute inset-x-0 top-0 block w-full overflow-hidden border-none bg-transparent p-0 text-inherit touch-pan-y [-webkit-tap-highlight-color:transparent]";
+const CHIP_CLASSES = "min-h-[30px] cursor-pointer whitespace-nowrap rounded-[20px] border-none bg-transparent px-[8px] py-[5px] text-[#8c8c8c] [font:10px/1.1_Arial,sans-serif] aria-pressed:bg-[#171717] aria-pressed:text-white [@container(max-width:440px)]:p-[5px] [@container(max-width:440px)]:text-[9px]";
+const thumbChipClasses = (active = false) => `min-h-0 cursor-pointer whitespace-nowrap rounded-[20px] border-none px-[4px] py-[3px] [font:1.6cqw/1.1_Arial,sans-serif] ${active ? "so-active bg-[#171717] text-white" : "bg-transparent text-[#8c8c8c]"}`;
+const PANEL_SELECT_CLASSES = "h-[35px] w-full max-w-full rounded-[7px] border border-[#ddd] bg-[#fafafa] px-[7px] text-[#222] [font:11px_Arial,sans-serif]";
+const PANEL_BUTTON_CLASSES = "min-h-[34px] cursor-pointer rounded-[20px] border border-[#ddd] bg-[#f6f6f6] text-[#333] [font:11px_Arial,sans-serif] disabled:cursor-default disabled:opacity-40";
 
 /** A rotating sneaker catalog. Drag, use arrow keys, or pick a sneaker to inspect it. */
 export default function SneakerOrbit({ products = PRODUCTS, autoRotate = true, onBuy, className = "" }: SneakerOrbitProps) {
@@ -269,9 +278,9 @@ export default function SneakerOrbit({ products = PRODUCTS, autoRotate = true, o
   }
   function reset() { setBrand(""); setCategory("All"); setUnder150(false); setColor(""); setCursor(0); }
 
-  return <section className={`sneaker-orbit relative w-full overflow-hidden ${className}`} aria-label="Sneaker orbit catalog">
+  return <section className={`sneaker-orbit ${ROOT_CLASSES} min-h-[640px] w-full overflow-hidden ${className}`} aria-label="Sneaker orbit catalog">
     <ComponentStyles css={STYLES} />
-    <button type="button" className="so-stage" data-paused={paused || Boolean(selected)} aria-describedby={`${id}-instructions`} aria-label={active ? `Inspect ${active.name}. Use left and right arrow keys to choose a sneaker.` : "No sneakers match these filters"} disabled={!filtered.length}
+    <button type="button" className={`${STAGE_CLASSES} bottom-[66px] perspective-[calc(950*var(--so-u))] [--so-u:clamp(1px,100cqmin/640,1.6px)] focus-visible:rounded-[18px]`} data-paused={paused || Boolean(selected)} aria-describedby={`${id}-instructions`} aria-label={active ? `Inspect ${active.name}. Use left and right arrow keys to choose a sneaker.` : "No sneakers match these filters"} disabled={!filtered.length}
       onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerLeave={(event) => { if (!event.currentTarget.hasPointerCapture(event.pointerId)) gesture.current = null; }} onPointerCancel={() => { gesture.current = null; ignoreClick.current = true; }}
       onClick={(event) => {
         if (ignoreClick.current) { ignoreClick.current = false; return; }
@@ -285,27 +294,27 @@ export default function SneakerOrbit({ products = PRODUCTS, autoRotate = true, o
         const next = event.key === "Home" ? 0 : event.key === "End" ? filtered.length - 1 : (activeIndex + (event.key === "ArrowRight" ? 1 : -1) + filtered.length) % filtered.length;
         setCursor(next); setOffset((value) => value + (event.key === "ArrowLeft" ? 360 / 14 : -360 / 14)); setKeyboardActive(true);
       }}>
-      {filtered.length ? <OrbitScene products={filtered} offset={offset} highlight={keyboardActive ? activeIndex : -1} /> : <span className="so-empty">No sneakers match your filters.</span>}
+      {filtered.length ? <OrbitScene products={filtered} offset={offset} highlight={keyboardActive ? activeIndex : -1} /> : <span className="so-empty block p-[24px] text-[14px] text-[#666]">No sneakers match your filters.</span>}
     </button>
-    <p className="so-sr" id={`${id}-instructions`}>Drag to rotate. Use arrow keys to choose, then Enter to inspect. Additional filters include a product list.</p>
-    <div className="so-tools">
-      <div className="so-toolbar" aria-label="Catalog filters">
-        <button type="button" className="so-more" aria-expanded={filtersOpen} aria-controls={`${id}-filters`} aria-label={filtersOpen ? "Hide additional filters" : "Show additional filters"} onClick={() => setFiltersOpen((value) => !value)}>{filtersOpen ? "−" : "+"}</button>
-        {brands.map((item) => <button type="button" key={item} aria-pressed={brand === item} onClick={() => { setBrand(brand === item ? "" : item); setCursor(0); }}>{item}</button>)}
-        <button type="button" aria-pressed={under150} onClick={() => { setUnder150((value) => !value); setCursor(0); }}>Under $150</button>
-        <span className="so-divider" />
-        {categories.map((item) => <button type="button" key={item} aria-pressed={category === item} onClick={() => { setCategory(item); setCursor(0); }}>{item}</button>)}
+    <p className="so-sr absolute -m-px size-px overflow-hidden whitespace-nowrap p-0 [clip-path:inset(50%)]" id={`${id}-instructions`}>Drag to rotate. Use arrow keys to choose, then Enter to inspect. Additional filters include a product list.</p>
+    <div className="so-tools absolute right-[20px] bottom-[24px] left-[20px] flex items-center justify-center gap-[9px] [@container(max-width:440px)]:right-[8px] [@container(max-width:440px)]:left-[8px] [@container(max-width:440px)]:gap-[4px]">
+      <div className="so-toolbar flex max-w-full flex-wrap items-center justify-center gap-[5px] rounded-[40px] border border-[#fff8] bg-[#f6f6f6] px-[9px] py-[5px] shadow-[0_4px_10px_#8881] [@container(max-width:440px)]:gap-[1px] [@container(max-width:440px)]:p-[5px]" aria-label="Catalog filters">
+        <button type="button" className="so-more min-h-[30px] min-w-[28px] cursor-pointer whitespace-nowrap rounded-[20px] border-none bg-transparent p-0 text-[#222] [font:18px/1.1_Arial,sans-serif] [@container(max-width:440px)]:p-[5px] [@container(max-width:440px)]:text-[9px]" aria-expanded={filtersOpen} aria-controls={`${id}-filters`} aria-label={filtersOpen ? "Hide additional filters" : "Show additional filters"} onClick={() => setFiltersOpen((value) => !value)}>{filtersOpen ? "−" : "+"}</button>
+        {brands.map((item) => <button type="button" key={item} className={CHIP_CLASSES} aria-pressed={brand === item} onClick={() => { setBrand(brand === item ? "" : item); setCursor(0); }}>{item}</button>)}
+        <button type="button" className={CHIP_CLASSES} aria-pressed={under150} onClick={() => { setUnder150((value) => !value); setCursor(0); }}>Under $150</button>
+        <span className="so-divider mx-[2px] h-[14px] w-px bg-[#dedede]" />
+        {categories.map((item) => <button type="button" key={item} className={CHIP_CLASSES} aria-pressed={category === item} onClick={() => { setCategory(item); setCursor(0); }}>{item}</button>)}
       </div>
-      <button type="button" className="so-motion" aria-label={paused ? "Start rotation" : "Pause rotation"} aria-pressed={paused} onClick={() => setPaused((value) => !value)}>{paused ? "▶" : "Ⅱ"}</button>
+      <button type="button" className="so-motion size-[30px] flex-[0_0_30px] cursor-pointer rounded-[50%] border border-[#e2e2e2] bg-[#f8f8f8] text-[11px] text-[#666] disabled:cursor-default disabled:opacity-40 [@container(max-width:440px)]:w-[26px] [@container(max-width:440px)]:basis-[26px]" aria-label={paused ? "Start rotation" : "Pause rotation"} aria-pressed={paused} onClick={() => setPaused((value) => !value)}>{paused ? "▶" : "Ⅱ"}</button>
     </div>
-    <div className="so-additional" id={`${id}-filters`} hidden={!filtersOpen}>
-      <label>Color<select value={color} onChange={(event) => { setColor(event.target.value); setCursor(0); }}><option value="">All colors</option>{colors.map((item) => <option key={item}>{item}</option>)}</select></label>
-      <label>Sneaker<select value={active?.id ?? ""} onChange={(event) => { const index = filtered.findIndex((item) => item.id === event.target.value); if (index >= 0) { setCursor(index); setSelected(filtered[index]); } }} disabled={!filtered.length}><option value="" disabled>{filtered.length ? "Choose a sneaker" : "No matching sneakers"}</option>{filtered.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
-      <button type="button" onClick={() => { if (active) setSelected(active); }} disabled={!active}>Inspect</button>
-      <button type="button" onClick={reset}>Reset filters</button>
+    <div className="so-additional absolute bottom-[84px] left-1/2 z-[5] grid w-[min(430px,calc(100%-32px))] -translate-x-1/2 grid-cols-[1fr_1fr] gap-[12px] rounded-[18px] border border-[#ddd] bg-white p-[18px] shadow-[0_16px_40px_#0002]" id={`${id}-filters`} hidden={!filtersOpen}>
+      <label className="grid gap-[7px] text-[11px]">Color<select className={PANEL_SELECT_CLASSES} value={color} onChange={(event) => { setColor(event.target.value); setCursor(0); }}><option value="">All colors</option>{colors.map((item) => <option key={item}>{item}</option>)}</select></label>
+      <label className="grid min-w-0 gap-[7px] text-[11px]">Sneaker<select className={PANEL_SELECT_CLASSES} value={active?.id ?? ""} onChange={(event) => { const index = filtered.findIndex((item) => item.id === event.target.value); if (index >= 0) { setCursor(index); setSelected(filtered[index]); } }} disabled={!filtered.length}><option value="" disabled>{filtered.length ? "Choose a sneaker" : "No matching sneakers"}</option>{filtered.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+      <button type="button" className={PANEL_BUTTON_CLASSES} onClick={() => { if (active) setSelected(active); }} disabled={!active}>Inspect</button>
+      <button type="button" className={PANEL_BUTTON_CLASSES} onClick={reset}>Reset filters</button>
     </div>
-    {!filtered.length && <button className="so-reset" type="button" onClick={reset}>Reset filters</button>}
-    <span className="so-sr" role="status">{filtered.length} sneakers match. {keyboardActive && active ? active.name : ""}</span>
+    {!filtered.length && <button className="so-reset absolute top-[53%] left-1/2 -translate-x-1/2 cursor-pointer border-b border-b-[#999] bg-transparent p-[6px] text-[#444]" type="button" onClick={reset}>Reset filters</button>}
+    <span className="so-sr absolute -m-px size-px overflow-hidden whitespace-nowrap p-0 [clip-path:inset(50%)]" role="status">{filtered.length} sneakers match. {keyboardActive && active ? active.name : ""}</span>
     {selected && <ProductDialog key={selected.id} product={selected} onClose={() => setSelected(null)} onBuy={onBuy} />}
   </section>;
 }
@@ -313,51 +322,33 @@ export default function SneakerOrbit({ products = PRODUCTS, autoRotate = true, o
 export function SneakerOrbitThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   const step = Math.abs(Math.trunc(previewStep)) % 4;
   const products = step === 2 ? PRODUCTS.filter((product) => product.category === "Jordan") : PRODUCTS;
-  return <div className={`sneaker-orbit so-thumbnail ${className}`} aria-hidden="true" inert><ComponentStyles css={STYLES} />
-    <div className="so-stage" data-paused="true"><OrbitScene products={products} offset={step * 17} staticFrame /></div>
-    {step === 3 && <div className="so-static-focus">
+  return <div className={`sneaker-orbit so-thumbnail ${ROOT_CLASSES} h-full min-h-0 overflow-hidden ${className}`} aria-hidden="true" inert><ComponentStyles css={STYLES} />
+    <div className={`${STAGE_CLASSES} bottom-[30px] perspective-[700px] [--so-u:1px]`} data-paused="true"><OrbitScene products={products} offset={step * 17} staticFrame /></div>
+    {step === 3 && <div className="so-static-focus absolute inset-x-0 top-0 bottom-[32px] z-[4] flex flex-col items-center justify-center bg-[#eeeeeeda] text-[2cqw]">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={PRODUCTS[7].image} alt="" /><span>{PRODUCTS[7].name}</span><small>${PRODUCTS[7].price}</small><b>Buy Now</b>
+      <img className="h-[90px] w-[38%] object-contain mix-blend-multiply" src={PRODUCTS[7].image} alt="" /><span>{PRODUCTS[7].name}</span><small className="mt-[4px] text-[#888]">${PRODUCTS[7].price}</small><b className="mt-[22px] rounded-[20px] bg-[#111] px-[9px] py-[5px] text-[1.9cqw] text-white">Buy Now</b>
     </div>}
-    <div className="so-tools"><div className="so-toolbar"><span>＋</span><span>Nike</span><span>New Balance</span><span>Under $150</span><span className="so-divider" /><span className={step === 2 ? "" : "so-active"}>All</span><span className={step === 2 ? "so-active" : ""}>Jordan</span><span>Dunk</span></div></div>
+    <div className="so-tools absolute right-[5px] bottom-[10px] left-[5px] flex items-center justify-center gap-[9px]">
+      <div className="so-toolbar flex max-w-full flex-wrap items-center justify-center gap-[1px] rounded-[40px] border border-[#fff8] bg-[#f6f6f6] px-[4px] py-[2px] shadow-[0_4px_10px_#8881]">
+        <span className={thumbChipClasses()}>＋</span><span className={thumbChipClasses()}>Nike</span><span className={thumbChipClasses()}>New Balance</span><span className={thumbChipClasses()}>Under $150</span>
+        <span className="so-divider mx-[2px] h-[7px] w-px bg-[#dedede]" />
+        <span className={thumbChipClasses(step !== 2)}>All</span><span className={thumbChipClasses(step === 2)}>Jordan</span><span className={thumbChipClasses()}>Dunk</span>
+      </div>
+    </div>
   </div>;
 }
 
+// Only what utilities cannot express stays here: the animated custom property and
+// keyframes, the 3D tile transform/opacity derived from several custom properties,
+// and rules that must out-rank the site's unlayered `button` cursor and
+// `:focus-visible` outline globals.
 const STYLES = `
 @property --so-turn{syntax:"<angle>";inherits:true;initial-value:0deg}
-.sneaker-orbit{container-type:inline-size;position:relative;min-height:640px;background:#eee;color:#151515;font-family:Arial,Helvetica,sans-serif;isolation:isolate}
-.sneaker-orbit *,.so-dialog *{box-sizing:border-box}
-.so-stage{position:absolute;inset:0 0 66px;display:block;width:100%;border:0;background:transparent;padding:0;perspective:950px;cursor:grab;touch-action:pan-y;overflow:hidden;color:inherit;-webkit-tap-highlight-color:transparent}
-.so-stage:active{cursor:grabbing}.so-stage:focus-visible{outline:2px solid #444;outline-offset:-8px;border-radius:18px}
-.so-cylinder{--so-turn:0deg;--so-radius:min(26cqw,172px);position:absolute;top:50%;left:50%;width:0;height:0;transform-style:preserve-3d;transform:rotateY(calc(var(--so-turn) + var(--so-offset)));animation:so-revolve 75s linear infinite}
-.so-shoe{position:absolute;top:-22px;left:-35px;width:70px;height:44px;display:grid;place-items:center;transform-style:preserve-3d;transform:translateY(var(--so-y)) rotateY(var(--so-angle)) translateZ(calc(var(--so-radius) * var(--so-radius-factor))) rotateY(calc(-1 * (var(--so-angle) + var(--so-turn) + var(--so-offset))));opacity:clamp(.08,calc(.3 + cos(var(--so-angle) + var(--so-turn) + var(--so-offset)) * .85),1);transition:filter .15s}
-.so-shoe img{display:block;pointer-events:none;width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;user-select:none;-webkit-user-drag:none}
-.so-shoe:hover,.so-shoe[data-highlighted="true"]{filter:drop-shadow(0 0 3px #3877bf)}
-.so-stage[data-paused="true"] .so-cylinder,.so-stage:hover .so-cylinder,.so-stage:focus-visible .so-cylinder,.so-cylinder[data-static="true"]{animation-play-state:paused}
-.so-tools{position:absolute;bottom:24px;left:20px;right:20px;display:flex;align-items:center;justify-content:center;gap:9px}
-.so-toolbar{display:flex;align-items:center;justify-content:center;gap:5px;padding:5px 9px;border:1px solid #fff8;border-radius:40px;background:#f6f6f6;box-shadow:0 4px 10px #8881;max-width:100%;flex-wrap:wrap}
-.so-toolbar button,.so-toolbar>span:not(.so-divider){border:0;background:transparent;border-radius:20px;min-height:30px;padding:5px 8px;color:#8c8c8c;font:10px/1.1 Arial,sans-serif;white-space:nowrap;cursor:pointer}
-.so-toolbar button[aria-pressed="true"],.so-toolbar .so-active{background:#171717!important;color:white!important}
-.so-toolbar .so-more{font-size:18px;color:#222;min-width:28px;padding:0}
-.so-divider{height:14px;width:1px;background:#dedede;margin:0 2px}
-.so-motion{width:30px;height:30px;flex:0 0 30px;border:1px solid #e2e2e2;border-radius:50%;background:#f8f8f8;color:#666;font-size:11px;cursor:pointer}
-.sneaker-orbit button:focus-visible,.sneaker-orbit select:focus-visible,.so-dialog button:focus-visible{outline:2px solid #3377a5;outline-offset:3px}
-.so-motion:disabled{opacity:.4;cursor:default}
-.so-additional{position:absolute;z-index:5;left:50%;bottom:84px;transform:translateX(-50%);width:min(430px,calc(100% - 32px));padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:12px;background:#fff;border:1px solid #ddd;border-radius:18px;box-shadow:0 16px 40px #0002}
-.so-additional[hidden]{display:none}.so-additional label{font-size:11px;display:grid;gap:7px}.so-additional label:nth-child(2){min-width:0}.so-additional select{max-width:100%;width:100%;height:35px;border:1px solid #ddd;border-radius:7px;background:#fafafa;padding:0 7px;font:11px Arial,sans-serif;color:#222}
-.so-additional>button{min-height:34px;border:1px solid #ddd;border-radius:20px;background:#f6f6f6;color:#333;font:11px Arial,sans-serif;cursor:pointer}
-.so-additional>button:disabled{opacity:.4;cursor:default}.so-empty{display:block;padding:24px;font-size:14px;color:#666}.so-reset{position:absolute;top:53%;left:50%;transform:translateX(-50%);border:0;border-bottom:1px solid #999;background:transparent;padding:6px;color:#444;cursor:pointer}
-.so-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-.so-dialog{position:fixed;inset:0;width:min(640px,calc(100vw - 28px));height:540px;max-height:calc(100dvh - 36px);margin:auto;border:0;padding:0;border-radius:24px;background:#f0f0f0ed;color:#111;box-shadow:0 30px 120px #0002;font-family:Arial,Helvetica,sans-serif;overflow:auto}
-.so-dialog::backdrop{background:#eeeeeeba;backdrop-filter:blur(2px)}
-.so-dialog-content{position:relative;min-height:100%;padding:76px 30px 30px;text-align:center;display:flex;align-items:center;flex-direction:column}
-.so-close{position:absolute;top:18px;right:20px;width:32px;height:32px;border:0;border-radius:50%;background:#fff;color:#777;font-size:23px;cursor:pointer}
-.so-selected-image{display:block;width:290px;max-width:100%;height:200px;object-fit:contain;mix-blend-mode:multiply;filter:drop-shadow(0 12px 8px #00000007);animation:so-arrive .4s ease-out}
-.so-dialog h2{font-size:13px;font-weight:400;line-height:1.5;margin:12px 0 5px;max-width:360px}.so-price{font-size:11px;color:#999;margin:0 0 45px}.so-buy{border:0;border-radius:40px;min-height:38px;padding:10px 24px;background:#111;color:white;font:bold 11px Arial,sans-serif;cursor:pointer}.so-buy:disabled{opacity:.5;cursor:wait}.so-purchase-status{max-width:330px;min-height:34px;font-size:12px;color:#595959;line-height:1.5;margin:18px 0 0}
-.so-thumbnail{min-height:0;height:100%;overflow:hidden}.so-thumbnail .so-stage{bottom:30px;perspective:700px}.so-thumbnail .so-cylinder{scale:.5;--so-radius:172px;transition:transform 1s ease}.so-thumbnail .so-shoe{transition:transform 1s ease,opacity 1s ease}.so-thumbnail .so-tools{bottom:10px;left:5px;right:5px}.so-thumbnail .so-toolbar{padding:2px 4px;gap:1px}.so-thumbnail .so-toolbar>span:not(.so-divider){min-height:0;font-size:1.6cqw;padding:3px 4px}.so-thumbnail .so-divider{height:7px}.so-static-focus{position:absolute;inset:0 0 32px;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#eeeeeeda;font-size:2cqw}.so-static-focus img{width:38%;height:90px;object-fit:contain;mix-blend-mode:multiply}.so-static-focus small{margin-top:4px;color:#888}.so-static-focus b{font-size:1.9cqw;border-radius:20px;background:#111;color:#fff;padding:5px 9px;margin-top:22px}
 @keyframes so-revolve{to{--so-turn:360deg}}
 @keyframes so-arrive{from{opacity:0;transform:scale(.65)}to{opacity:1;transform:scale(1)}}
-@container(max-width:440px){.sneaker-orbit:not(.so-thumbnail) .so-cylinder{--so-radius:136px;scale:.86}.sneaker-orbit:not(.so-thumbnail) .so-tools{left:8px;right:8px;gap:4px}.sneaker-orbit:not(.so-thumbnail) .so-toolbar{gap:1px;padding:5px}.sneaker-orbit:not(.so-thumbnail) .so-toolbar button{font-size:9px;padding:5px}.sneaker-orbit:not(.so-thumbnail) .so-motion{width:26px;flex-basis:26px}}
+.so-shoe{transform:translateY(calc(var(--so-y) * var(--so-u))) rotateY(var(--so-angle)) translateZ(calc(var(--so-radius) * var(--so-radius-factor))) rotateY(calc(-1 * (var(--so-angle) + var(--so-turn) + var(--so-offset))));opacity:clamp(.08,calc(.3 + cos(var(--so-angle) + var(--so-turn) + var(--so-offset)) * .85),1)}
+.so-stage{cursor:grab}.so-stage:active{cursor:grabbing}
+.sneaker-orbit button:focus-visible,.sneaker-orbit select:focus-visible,.so-dialog button:focus-visible{outline:2px solid #3377a5;outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.sneaker-orbit *,.so-dialog *{animation:none!important;transition:none!important}}
 `;
 

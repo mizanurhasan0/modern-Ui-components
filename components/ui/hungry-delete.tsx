@@ -23,18 +23,54 @@ type Wait = {
   resolve: (active: boolean) => void;
 };
 
-function Bin() {
+// Shared Tailwind class lists (complete literals, so Tailwind can detect them).
+const ROOT =
+  "@container min-w-0 isolate font-[family-name:Arial,Helvetica,sans-serif] text-[#19181c] **:box-border";
+/** The playground's full-screen mode: centre a 4:3 stage on a dotted backdrop. */
+const FULLSCREEN_ROOT =
+  "in-data-[fullscreen=true]:flex in-data-[fullscreen=true]:max-w-none in-data-[fullscreen=true]:@container-size in-data-[fullscreen=true]:items-center in-data-[fullscreen=true]:justify-center in-data-[fullscreen=true]:bg-[#eee9d7] in-data-[fullscreen=true]:bg-[radial-gradient(#d8d3c4_.8px,transparent_.8px)] in-data-[fullscreen=true]:bg-[length:calc(min(100cqw,133.333cqh)*.025)_calc(min(100cqw,133.333cqh)*.025)] in-data-[fullscreen=true]:bg-center";
+const STAGE =
+  "@container relative w-full overflow-hidden bg-[#eee9d7] bg-[radial-gradient(#d8d3c4_.8px,transparent_.8px)] bg-[length:2.5cqw_2.5cqw]";
+const PANEL =
+  "absolute top-[27.6cqw] left-[12.5cqw] h-[38.6cqw] w-[75cqw] rounded-[3.6cqw] border-[.45cqw] border-solid border-[#19181c] bg-[#fffaf1] shadow-[1.3cqw_1.3cqw_0_#19181c]";
+const ACTIONS =
+  "absolute inset-x-[4.8cqw] top-[10.8cqw] flex items-center justify-between gap-[3.5cqw]";
+const TOOLS =
+  "absolute inset-x-0 bottom-[3cqw] flex items-center justify-center gap-[1.3cqw] text-[1.65cqw] font-bold";
+const SOUND =
+  "inline-flex items-center justify-center rounded-[20cqw] border-[.3cqw] border-solid border-[#19181c] bg-[#c3fa42] px-[1.65cqw] py-[1.05cqw] [font-family:inherit] [font-size:inherit] leading-[1.2] [font-weight:inherit] text-[#19181c] shadow-[.3cqw_.35cqw_0_#19181c] cursor-pointer";
+const COUNT =
+  "rounded-[20cqw] bg-[#19181c] px-[2cqw] py-[1.4cqw] leading-[1.2] text-[#c3fa42]";
+
+/** Phases where the button shrinks to a filled bin while the word is "digested". */
+function isCollapsed(phase: Phase) {
+  return phase === "digesting" || phase === "success" || phase === "error";
+}
+
+function Bin({ variant, phase }: { variant: Variant; phase: Phase }) {
+  const collapsed = isCollapsed(phase);
   return (
-    <svg className="hd-bin" viewBox="0 0 32 38" fill="none" aria-hidden="true">
+    <svg
+      className={`absolute top-[2.9cqw] h-[5cqw] w-[4.2cqw] overflow-visible [transition:left_.35s] ${collapsed ? "left-[3.6cqw]" : "left-[4cqw]"} ${phase === "eating" ? "animate-[hd-chomp_.22s_ease_.2s_5]" : ""}`}
+      viewBox="0 0 32 38"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
-        className="hd-bin-body"
+        className={`[transition:fill_.2s] ${collapsed ? "fill-current" : ""}`}
         d="m7 12 2 22h14l2-22Z"
         stroke="currentColor"
         strokeWidth="2.4"
         strokeLinejoin="round"
       />
       <g
-        className="hd-bin-lid"
+        className={`origin-[25px_9px] ${
+          phase === "eating"
+            ? "animate-[hd-open-lid_.26s_ease_forwards]"
+            : phase === "returning" && variant === "failure"
+              ? "animate-[hd-spit-lid_.5s_ease]"
+              : ""
+        }`}
         stroke="currentColor"
         strokeWidth="2.4"
         strokeLinecap="round"
@@ -60,11 +96,22 @@ function DeleteControl({
   onClick?: () => void;
 }) {
   const busy = phase !== "idle";
+  const collapsed = isCollapsed(phase);
   return (
-    <div className={`hd-control hd-${variant}`}>
+    <div className="relative flex h-[17cqw] w-[27.6cqw] shrink-0 flex-col items-center">
       <button
         type="button"
-        className="hd-action"
+        className={`hd-action relative block h-[11.4cqw] shrink-0 cursor-pointer overflow-visible rounded-[20cqw] border-none outline-none [-webkit-tap-highlight-color:transparent] [transition:width_.35s_cubic-bezier(.22,1,.36,1),transform_.2s,box-shadow_.2s] hover:not-aria-disabled:transform-[translateY(-.4cqw)] disabled:opacity-40 ${
+          variant === "failure"
+            ? "bg-[linear-gradient(145deg,#7c7bff_0%,#4141fa_45%,#1616e9_100%)] text-white shadow-[0_1.6cqw_4cqw_#4545f83d,inset_0_.2cqw_.3cqw_#ffffff50]"
+            : "bg-[linear-gradient(155deg,#45444c_0%,#17161d_65%,#111016_100%)] text-[#c1fb3f] shadow-[0_2cqw_3.5cqw_#28252d30,inset_0_.2cqw_.3cqw_#ffffff30]"
+        } ${collapsed ? "w-[11.4cqw]" : "w-[27.6cqw]"} ${
+          phase === "success"
+            ? "animate-[hd-burp_.4s_ease]"
+            : phase === "error"
+              ? "animate-[hd-nope_.4s_ease]"
+              : ""
+        }`}
         data-phase={phase}
         disabled={disabled}
         aria-label={`${variant === "failure" ? "Try failed deletion demo" : label}${busy ? " — processing" : ""}`}
@@ -72,13 +119,39 @@ function DeleteControl({
         aria-disabled={busy || disabled}
         onClick={onClick}
       >
-        <span className="hd-orbit" aria-hidden="true" />
-        <Bin />
-        <span className="hd-letters" aria-hidden="true">
+        <span
+          className={`hd-orbit pointer-events-none absolute -inset-[1.4cqw] rounded-[50%] border-[.3cqw] border-solid border-transparent border-t-[#19181c] border-r-[#19181c] ${
+            phase === "digesting"
+              ? "opacity-100 animate-[hd-spin_.7s_linear_infinite]"
+              : phase === "returning"
+                ? "opacity-0 animate-[hd-ring-fade_.4s_ease_both]"
+                : "opacity-0"
+          }`}
+          aria-hidden="true"
+        />
+        <Bin variant={variant} phase={phase} />
+        <span
+          className={`absolute top-[3.2cqw] left-[10.5cqw] flex text-[4.1cqw] leading-[1.2] font-bold tracking-[-.06cqw] whitespace-nowrap ${
+            collapsed
+              ? "opacity-0"
+              : phase === "eating"
+                ? "motion-reduce:opacity-0"
+                : ""
+          }`}
+          aria-hidden="true"
+        >
           {Array.from(label).map((letter, index) => (
             <span
               key={`${index}-${letter}`}
-              className="hd-letter"
+              className={`hd-letter block origin-bottom ${
+                phase === "eating"
+                  ? "animate-[hd-eat-letter_.6s_cubic-bezier(.4,0,.35,1)_var(--delay)_both]"
+                  : phase === "returning"
+                    ? variant === "success"
+                      ? "animate-[hd-label-back_.4s_ease_.25s_both]"
+                      : "animate-[hd-return-letter_.5s_cubic-bezier(.2,.8,.2,1)_var(--return-delay)_both]"
+                    : ""
+              }`}
               style={
                 {
                   "--delay": `${index * 95}ms`,
@@ -93,7 +166,7 @@ function DeleteControl({
           ))}
         </span>
       </button>
-      <span className="hd-caption">
+      <span className="absolute top-[14.5cqw] text-[1.4cqw] font-bold tracking-[.17cqw] whitespace-nowrap text-[#89847d] uppercase">
         {variant === "success" ? "Succeeds" : "Fails · spits it back"}
       </span>
     </div>
@@ -102,12 +175,19 @@ function DeleteControl({
 
 function Heading() {
   return (
-    <header className="hd-heading">
-      <p>Micro-interaction Nº 02</p>
-      <h2>
-        Hungry <span>Delete</span>
+    <header className="absolute inset-x-0 top-[1.25cqw] text-center">
+      <p className="m-0 mb-[1.1cqw] text-[1.65cqw] font-semibold tracking-[.3cqw] text-[#787369] uppercase">
+        Micro-interaction Nº 02
+      </p>
+      <h2 className="m-0 flex items-center justify-center gap-[1.7cqw] text-[8.2cqw] leading-none font-extrabold tracking-[-.35cqw]">
+        Hungry{" "}
+        <span className="inline-block -rotate-3 rounded-[2cqw] border-[.45cqw] border-solid border-[#17161c] bg-[#c3fa42] px-[1.3cqw] pt-[.3cqw] pb-[.4cqw] tracking-[-.35cqw] shadow-[.6cqw_.6cqw_0_#17161c]">
+          Delete
+        </span>
       </h2>
-      <div>Press a button. The bin eats the word.</div>
+      <div className="mt-[2.3cqw] text-[2cqw] leading-[1.4] text-[#5e584f]">
+        Press a button. The bin eats the word.
+      </div>
     </header>
   );
 }
@@ -272,15 +352,17 @@ export default function HungryDelete({
 
   return (
     <section
-      className={`hungry-delete relative mx-auto w-full ${className}`}
+      className={`hungry-delete ${ROOT} relative mx-auto w-full max-w-[840px] ${FULLSCREEN_ROOT} ${className}`}
       aria-label="Hungry Delete interactive demo"
       aria-describedby={statusId}
     >
       <ComponentStyles css={HUNGRY_DELETE_STYLES} />
-      <div className="hd-stage">
+      <div
+        className={`${STAGE} aspect-[4/3] in-data-[fullscreen=true]:w-[min(100cqw,133.333cqh)] in-data-[fullscreen=true]:flex-none in-data-[fullscreen=true]:[background:none]`}
+      >
         <Heading />
-        <div className="hd-panel">
-          <div className="hd-actions flex items-center justify-between">
+        <div className={PANEL}>
+          <div className={ACTIONS}>
             <DeleteControl
               variant="success"
               phase={phases.success}
@@ -296,20 +378,20 @@ export default function HungryDelete({
               onClick={() => void run("failure")}
             />
           </div>
-          <div className="hd-tools flex items-center justify-center">
+          <div className={TOOLS}>
             <button
               type="button"
-              className="hd-sound"
+              className={`hd-sound ${SOUND} aria-[pressed=false]:bg-[#eee9d7]`}
               aria-pressed={soundEnabled}
               onClick={() => setSoundEnabled((value) => !value)}
             >
               Sound {soundEnabled ? "on" : "off"}
             </button>
-            <span className="hd-count">{lettersEaten} letters eaten</span>
+            <span className={COUNT}>{lettersEaten} letters eaten</span>
           </div>
         </div>
         <p
-          className="hd-feedback"
+          className="absolute inset-x-[5%] bottom-[1.5cqw] m-0 text-center text-[1.5cqw] leading-[1.5] text-[#5e584f]"
           id={statusId}
           role="status"
           aria-live="polite"
@@ -332,15 +414,15 @@ export function HungryDeleteThumbnail({
   const step = Math.abs(Math.trunc(previewStep)) % 4;
   return (
     <div
-      className={`hungry-delete hd-thumbnail ${className}`}
+      className={`hungry-delete hd-thumbnail ${ROOT} pointer-events-none h-full ${className}`}
       aria-hidden="true"
       inert
     >
       <ComponentStyles css={HUNGRY_DELETE_STYLES} />
-      <div className="hd-stage">
+      <div className={`${STAGE} h-full min-h-0`}>
         <Heading />
-        <div className="hd-panel">
-          <div className="hd-actions flex items-center justify-between">
+        <div className={PANEL}>
+          <div className={ACTIONS}>
             <DeleteControl
               variant="success"
               phase={step === 1 ? "digesting" : "idle"}
@@ -354,9 +436,9 @@ export function HungryDeleteThumbnail({
               label="Delete"
             />
           </div>
-          <div className="hd-tools flex items-center justify-center">
-            <span className="hd-sound">Sound on</span>
-            <span className="hd-count">{step ? 24 : 18} letters eaten</span>
+          <div className={TOOLS}>
+            <span className={SOUND}>Sound on</span>
+            <span className={COUNT}>{step ? 24 : 18} letters eaten</span>
           </div>
         </div>
       </div>
@@ -364,10 +446,12 @@ export function HungryDeleteThumbnail({
   );
 }
 
+// Raw CSS is limited to keyframes, the gallery's frozen thumbnail poses, the
+// reduced-motion reset, and two state rules that must outrank the host page's
+// unlayered global button-cursor and :focus-visible styles.
 const HUNGRY_DELETE_STYLES = `
-.hungry-delete{container-type:inline-size;max-width:840px;min-width:0;isolation:isolate;font-family:Arial,Helvetica,sans-serif;color:#19181c}.hungry-delete *{box-sizing:border-box}.hungry-delete .hd-stage{container-type:inline-size;width:100%;aspect-ratio:4/3;position:relative;overflow:hidden;background-color:#eee9d7;background-image:radial-gradient(#d8d3c4 .8px,transparent .8px);background-size:2.5cqw 2.5cqw}.hungry-delete .hd-heading{position:absolute;left:0;right:0;top:1.25cqw;text-align:center}.hungry-delete .hd-heading p{margin:0 0 1.1cqw;text-transform:uppercase;font-size:1.65cqw;letter-spacing:.3cqw;font-weight:600;color:#787369}.hungry-delete .hd-heading h2{margin:0;display:flex;align-items:center;justify-content:center;gap:1.7cqw;font-size:8.2cqw;font-weight:800;line-height:1;letter-spacing:-.35cqw}.hungry-delete .hd-heading h2>span{display:inline-block;background:#c3fa42;border:.45cqw solid #17161c;border-radius:2cqw;padding:.3cqw 1.3cqw .4cqw;box-shadow:.6cqw .6cqw 0 #17161c;transform:rotate(-3deg);letter-spacing:-.35cqw}.hungry-delete .hd-heading>div{margin-top:2.3cqw;font-size:2cqw;color:#5e584f;line-height:1.4}.hungry-delete .hd-panel{position:absolute;left:12.5cqw;top:27.6cqw;width:75cqw;height:38.6cqw;border:.45cqw solid #19181c;border-radius:3.6cqw;background:#fffaf1;box-shadow:1.3cqw 1.3cqw 0 #19181c}.hungry-delete .hd-actions{position:absolute;left:4.8cqw;right:4.8cqw;top:10.8cqw;gap:3.5cqw}.hungry-delete .hd-control{position:relative;width:27.6cqw;height:17cqw;display:flex;flex-direction:column;align-items:center;flex-shrink:0}.hungry-delete .hd-action{position:relative;display:block;border:0;width:27.6cqw;height:11.4cqw;border-radius:20cqw;flex-shrink:0;background:linear-gradient(155deg,#45444c 0%,#17161d 65%,#111016 100%);box-shadow:0 2cqw 3.5cqw #28252d30,inset 0 .2cqw .3cqw #ffffff30;color:#c1fb3f;cursor:pointer;transition:width .35s cubic-bezier(.22,1,.36,1),transform .2s,box-shadow .2s;overflow:visible;outline:none;-webkit-tap-highlight-color:transparent}.hungry-delete .hd-failure .hd-action{background:linear-gradient(145deg,#7c7bff 0%,#4141fa 45%,#1616e9 100%);box-shadow:0 1.6cqw 4cqw #4545f83d,inset 0 .2cqw .3cqw #ffffff50;color:#fff}.hungry-delete .hd-action:hover:not([aria-disabled=true]){transform:translateY(-.4cqw)}.hungry-delete .hd-action:focus-visible,.hungry-delete .hd-sound:focus-visible{outline:.4cqw solid #7671d9;outline-offset:.8cqw}.hungry-delete .hd-action:disabled{opacity:.4;cursor:not-allowed}.hungry-delete .hd-action[aria-disabled=true]{cursor:wait}.hungry-delete .hd-bin{position:absolute;left:4cqw;top:2.9cqw;width:4.2cqw;height:5cqw;overflow:visible;transition:left .35s}.hungry-delete .hd-bin-lid{transform-origin:25px 9px}.hungry-delete .hd-bin-body{transition:fill .2s}.hungry-delete .hd-letters{position:absolute;left:10.5cqw;top:3.2cqw;display:flex;white-space:nowrap;font-size:4.1cqw;font-weight:700;line-height:1.2;letter-spacing:-.06cqw}.hungry-delete .hd-letter{display:block;transform-origin:center bottom}.hungry-delete .hd-caption{position:absolute;top:14.5cqw;font-size:1.4cqw;color:#89847d;text-transform:uppercase;font-weight:700;letter-spacing:.17cqw;white-space:nowrap}.hungry-delete .hd-tools{position:absolute;bottom:3cqw;left:0;right:0;gap:1.3cqw;font-size:1.65cqw;font-weight:700}.hungry-delete .hd-sound{display:inline-flex;align-items:center;justify-content:center;border:.3cqw solid #19181c;border-radius:20cqw;background:#c3fa42;box-shadow:.3cqw .35cqw 0 #19181c;padding:1.05cqw 1.65cqw;font-family:inherit;font-size:inherit;font-weight:inherit;color:#19181c;cursor:pointer;line-height:1.2}.hungry-delete .hd-sound[aria-pressed=false]{background:#eee9d7}.hungry-delete .hd-count{padding:1.4cqw 2cqw;border-radius:20cqw;line-height:1.2;background:#19181c;color:#c3fa42}.hungry-delete .hd-feedback{position:absolute;left:5%;right:5%;bottom:1.5cqw;margin:0;text-align:center;font-size:1.5cqw;line-height:1.5;color:#5e584f}.hungry-delete .hd-orbit{position:absolute;inset:-1.4cqw;border:.3cqw solid transparent;border-top-color:#19181c;border-right-color:#19181c;border-radius:50%;opacity:0;pointer-events:none}.hungry-delete .hd-action[data-phase=eating] .hd-bin-lid{animation:hd-open-lid .26s ease forwards}.hungry-delete .hd-action[data-phase=eating] .hd-bin{animation:hd-chomp .22s ease .2s 5}.hungry-delete .hd-action[data-phase=eating] .hd-letter{animation:hd-eat-letter .6s cubic-bezier(.4,0,.35,1) var(--delay) both}.hungry-delete .hd-action:is([data-phase=digesting],[data-phase=success],[data-phase=error]){width:11.4cqw}.hungry-delete .hd-action:is([data-phase=digesting],[data-phase=success],[data-phase=error]) .hd-bin{left:3.6cqw}.hungry-delete .hd-action:is([data-phase=digesting],[data-phase=success],[data-phase=error]) .hd-bin-body{fill:currentColor}.hungry-delete .hd-action:is([data-phase=digesting],[data-phase=success],[data-phase=error]) .hd-letters{opacity:0}.hungry-delete .hd-action[data-phase=digesting] .hd-orbit{opacity:1;animation:hd-spin .7s linear infinite}.hungry-delete .hd-action[data-phase=success]{animation:hd-burp .4s ease}.hungry-delete .hd-action[data-phase=error]{animation:hd-nope .4s ease}.hungry-delete .hd-action[data-phase=returning] .hd-letter{animation:hd-return-letter .5s cubic-bezier(.2,.8,.2,1) var(--return-delay) both}.hungry-delete .hd-failure .hd-action[data-phase=returning] .hd-bin-lid{animation:hd-spit-lid .5s ease}.hungry-delete .hd-action[data-phase=returning] .hd-orbit{animation:hd-ring-fade .4s ease both}
-.hungry-delete .hd-success .hd-action[data-phase=returning] .hd-letter{animation:hd-label-back .4s ease .25s both}
+.hungry-delete .hd-action[aria-disabled=true]{cursor:wait}.hungry-delete .hd-action:focus-visible,.hungry-delete .hd-sound:focus-visible{outline:.4cqw solid #7671d9;outline-offset:.8cqw}
 @keyframes hd-label-back{from{opacity:0;transform:translateY(.4cqw)}to{opacity:1;transform:translateY(0)}}@keyframes hd-eat-letter{0%{transform:translate(0,0) rotate(0);opacity:1}40%{transform:translate(calc(var(--travel) * .4),-5cqw) rotate(var(--spin));opacity:1}85%{transform:translate(var(--travel),.3cqw) rotate(-30deg) scale(.4);opacity:1}100%{transform:translate(var(--travel),1cqw) scale(0);opacity:0}}@keyframes hd-open-lid{to{transform:translateY(-3px) rotate(35deg)}}@keyframes hd-chomp{50%{transform:rotate(-9deg)}100%{transform:rotate(0)}}@keyframes hd-spin{to{transform:rotate(360deg)}}@keyframes hd-burp{40%{transform:scale(1.12,.9)}75%{transform:scale(.96,1.05)}}@keyframes hd-nope{25%,75%{transform:translateX(-.8cqw) rotate(-7deg)}50%{transform:translateX(.8cqw) rotate(7deg)}}@keyframes hd-return-letter{0%{opacity:0;transform:translate(var(--travel),1cqw) scale(0)}35%{opacity:1;transform:translate(calc(var(--travel) * .55),-4cqw) rotate(var(--spin))}100%{opacity:1;transform:translate(0,0) rotate(0)}}@keyframes hd-spit-lid{35%{transform:translateY(-4px) rotate(-35deg)}100%{transform:rotate(0)}}@keyframes hd-ring-fade{from{opacity:1;transform:scale(.7)}to{opacity:0;transform:scale(1.3)}}
-.hungry-delete.hd-thumbnail{max-width:none;height:100%;pointer-events:none}.hungry-delete.hd-thumbnail .hd-stage{height:100%;aspect-ratio:auto;min-height:0}.hungry-delete.hd-thumbnail *{animation:none!important}.hungry-delete.hd-thumbnail .hd-action[data-phase=digesting] .hd-orbit{opacity:1;transform:rotate(35deg)}.hungry-delete.hd-thumbnail .hd-action[data-phase=returning] .hd-letter:nth-child(-n+3){transform:translate(-2cqw,-3cqw) rotate(-25deg)}
-@media(prefers-reduced-motion:reduce){.hungry-delete *,.hungry-delete *::before,.hungry-delete *::after{animation:none!important;transition:none!important}.hungry-delete .hd-action[data-phase=eating] .hd-letters{opacity:0}}
+.hungry-delete.hd-thumbnail *{animation:none!important}.hungry-delete.hd-thumbnail .hd-action[data-phase=digesting] .hd-orbit{transform:rotate(35deg)}.hungry-delete.hd-thumbnail .hd-action[data-phase=returning] .hd-letter:nth-child(-n+3){transform:translate(-2cqw,-3cqw) rotate(-25deg)}
+@media(prefers-reduced-motion:reduce){.hungry-delete *,.hungry-delete *::before,.hungry-delete *::after{animation:none!important;transition:none!important}}
 `;

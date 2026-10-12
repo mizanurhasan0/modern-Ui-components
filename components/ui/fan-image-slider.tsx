@@ -56,6 +56,20 @@ function positionStyle(index: number, selected: number, count: number): CSSPrope
   } as CSSProperties;
 }
 
+// Classes shared by the live slider and its gallery thumbnail. Each element adds its own sizing; the live
+// slider also adds narrow-container overrides with `[@container(max-width:520px)]:` (matches width <= 520px).
+const ROOT = "fan-image-slider @container min-w-0 bg-[#090707] text-white [font-family:Arial,Helvetica,sans-serif] [color-scheme:dark]";
+const STAGE = "relative w-full overflow-clip isolate touch-pan-y";
+const SPREAD = "absolute left-0 w-full perspective-[1200px]";
+const CARD = "fis-card absolute top-0 left-1/2 h-full w-[20%] cursor-pointer overflow-hidden rounded-[3cqw] border-none bg-[#151516] p-0 origin-center shadow-[0_5px_12px_#0003] [-webkit-tap-highlight-color:transparent] [transition:transform_.72s_cubic-bezier(.22,.75,.25,1),opacity_.5s] motion-reduce:[transition:none]";
+const CARD_IMAGE = "block size-full object-cover pointer-events-none select-none";
+const CONTROLS = "absolute left-1/2 flex max-w-[96%] -translate-x-1/2 items-center justify-center";
+const ARROW = "grid shrink-0 cursor-pointer place-items-center rounded-[50%] border border-[#ffffff22] bg-[#ffffff07] text-[#bfc0c3] [transition:background_.2s,color_.2s] hover:bg-[#ffffff14] hover:text-white disabled:cursor-default disabled:opacity-30 motion-reduce:[transition:none]";
+const LIVE_ARROW = `${ARROW} size-8 [@container(max-width:520px)]:size-10`;
+const DOTS = "flex max-w-[220px] flex-wrap items-center justify-center";
+const DOT = "group grid cursor-pointer place-items-center border-none bg-transparent p-0";
+const PIP = "rounded-[50%] bg-[#4a4545] [transition:background_.3s,transform_.3s] group-aria-[current=true]:bg-[#e4e4e7] group-aria-[current=true]:[transform:scale(1.25)] motion-reduce:[transition:none]";
+
 function Arrow({ next = false }: { next?: boolean }) {
   return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d={next ? "m9 6 6 6-6 6" : "m15 6-6 6 6 6"} /></svg>;
 }
@@ -143,10 +157,10 @@ export default function FanImageSlider({
   }
 
   return (
-    <section className={`fan-image-slider relative w-full ${className}`} aria-label="Landscape image carousel" aria-roledescription="carousel">
+    <section className={`${ROOT} relative flex w-full flex-col ${className}`} aria-label="Landscape image carousel" aria-roledescription="carousel">
       <ComponentStyles css={FAN_STYLES} />
       <div
-        className="fis-stage"
+        className={`${STAGE} my-auto aspect-[604/326] min-h-[260px] shrink-0 [@container(max-width:520px)]:aspect-auto [@container(max-width:520px)]:min-h-[360px]`}
         onKeyDown={handleKeyDown}
         onPointerEnter={() => setHovered(true)}
         onPointerLeave={() => { origin.current = null; setHovered(false); }}
@@ -154,12 +168,12 @@ export default function FanImageSlider({
         onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}
       >
         {current ? <>
-          <div className="fis-spread" onPointerDown={handlePointerDown} onPointerUp={handlePointerUp} onPointerCancel={() => { origin.current = null; }}>
+          <div className={`${SPREAD} top-[12%] h-[65%] [@container(max-width:520px)]:top-[16%] [@container(max-width:520px)]:h-[56%]`} onPointerDown={handlePointerDown} onPointerUp={handlePointerUp} onPointerCancel={() => { origin.current = null; }}>
             {images.map((item, index) => (
               <button
                 key={item.id}
                 ref={(element) => { cardRefs.current[index] = element; }}
-                className="fis-card"
+                className={`${CARD} [@container(max-width:520px)]:w-[32%] [@container(max-width:520px)]:rounded-[5cqw]`}
                 type="button"
                 style={positionStyle(index, selected, images.length)}
                 aria-label={`${index === selected ? "Open" : "Select"} image ${index + 1}: ${item.alt}`}
@@ -173,28 +187,34 @@ export default function FanImageSlider({
               >
                 {/* Standard images keep the exported file portable outside Next.js. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.src} alt={item.alt} draggable={false} />
+                <img className={CARD_IMAGE} src={item.src} alt={item.alt} draggable={false} />
               </button>
             ))}
           </div>
-          <div className="fis-controls" aria-label="Image navigation">
-            <button type="button" className="fis-arrow" aria-label="Previous image" onClick={() => move(-1)} disabled={images.length < 2}><Arrow /></button>
-            <div className="fis-dots">
-              {images.map((item, index) => <button key={item.id} type="button" className="fis-dot" aria-label={`Go to image ${index + 1}`} aria-current={index === selected ? "true" : undefined} onClick={() => setActiveIndex(index)}><span /></button>)}
+          <div className={`${CONTROLS} bottom-[6.2%] gap-[7px] [@container(max-width:520px)]:bottom-[8%] [@container(max-width:520px)]:gap-1`} aria-label="Image navigation">
+            <button type="button" className={LIVE_ARROW} aria-label="Previous image" onClick={() => move(-1)} disabled={images.length < 2}><Arrow /></button>
+            <div className={DOTS}>
+              {images.map((item, index) => <button key={item.id} type="button" className={`${DOT} h-8 w-3 [@container(max-width:520px)]:h-10`} aria-label={`Go to image ${index + 1}`} aria-current={index === selected ? "true" : undefined} onClick={() => setActiveIndex(index)}><span className={`${PIP} size-1`} /></button>)}
             </div>
-            <button type="button" className="fis-arrow" aria-label="Next image" onClick={() => move(1)} disabled={images.length < 2}><Arrow next /></button>
-            {autoPlay && <button type="button" className="fis-arrow" aria-label={paused ? "Resume slideshow" : "Pause slideshow"} aria-pressed={paused} onClick={() => setPaused((value) => !value)}>{paused ? "▶" : "Ⅱ"}</button>}
+            <button type="button" className={LIVE_ARROW} aria-label="Next image" onClick={() => move(1)} disabled={images.length < 2}><Arrow next /></button>
+            {autoPlay && <button type="button" className={LIVE_ARROW} aria-label={paused ? "Resume slideshow" : "Pause slideshow"} aria-pressed={paused} onClick={() => setPaused((value) => !value)}>{paused ? "▶" : "Ⅱ"}</button>}
           </div>
-          <p className="fis-sr-only" aria-live="polite">Image {selected + 1} of {images.length}: {current.alt}</p>
-        </> : <p className="fis-empty">Add some images to start exploring.</p>}
+          <p className="sr-only" aria-live="polite">Image {selected + 1} of {images.length}: {current.alt}</p>
+        </> : <p className="absolute inset-0 m-6 grid place-items-center text-center text-[14px] text-[#a5a3a3]">Add some images to start exploring.</p>}
       </div>
-      <dialog ref={dialogRef} className="fis-dialog" aria-labelledby={`${id}-caption`} onClose={() => setOpenedImage(null)} onClick={(event) => { if (event.target === event.currentTarget) dialogRef.current?.close(); }}>
-        <div className="fis-dialog-content">
-          <button type="button" className="fis-close" aria-label="Close image" onClick={() => dialogRef.current?.close()}>×</button>
+      <dialog
+        ref={dialogRef}
+        className="fixed inset-0 m-auto max-h-[calc(100dvh-40px)] w-[min(520px,calc(100vw-32px))] overflow-auto rounded-[18px] border border-[#ffffff30] bg-[#141212] p-0 text-white backdrop:bg-[#000c] backdrop:backdrop-blur-[8px]"
+        aria-labelledby={`${id}-caption`}
+        onClose={() => setOpenedImage(null)}
+        onClick={(event) => { if (event.target === event.currentTarget) dialogRef.current?.close(); }}
+      >
+        <div className="relative p-4">
+          <button type="button" className="absolute top-6 right-6 z-[1] size-9 cursor-pointer rounded-[50%] border border-[#ffffff55] bg-[#111a] text-white [font:24px/1_Arial,sans-serif]" aria-label="Close image" onClick={() => dialogRef.current?.close()}>×</button>
           {openedImage && <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={openedImage.src} alt={openedImage.alt} />
-            <p id={`${id}-caption`}>{openedImage.alt}</p>
+            <img className="block h-[min(65dvh,600px)] w-full rounded-[10px] bg-[#090707] object-contain" src={openedImage.src} alt={openedImage.alt} />
+            <p id={`${id}-caption`} className="mx-1 mt-4 mb-1 text-[13px] leading-[1.6] text-[#d2cccc]">{openedImage.alt}</p>
           </>}
         </div>
       </dialog>
@@ -204,57 +224,24 @@ export default function FanImageSlider({
 
 /** Static artwork with no nested interactive elements for the gallery link. */
 export function FanImageSliderThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
-  return <div className={`fan-image-slider fis-thumbnail ${className}`} aria-hidden="true" inert>
+  const selected = (4 + previewStep) % DEFAULT_IMAGES.length;
+  return <div className={`${ROOT} fis-thumbnail ${className}`} aria-hidden="true" inert>
     <ComponentStyles css={FAN_STYLES} />
-    <div className="fis-stage">
-      <div className="fis-spread">{DEFAULT_IMAGES.map((item, index) => <div key={item.id} className="fis-card" style={positionStyle(index, (4 + previewStep) % DEFAULT_IMAGES.length, DEFAULT_IMAGES.length)}>
+    <div className={`${STAGE} h-full min-h-0 aspect-auto`}>
+      <div className={`${SPREAD} top-[20%] h-[55%]`}>{DEFAULT_IMAGES.map((item, index) => <div key={item.id} className={CARD} style={positionStyle(index, selected, DEFAULT_IMAGES.length)}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={item.src} alt="" draggable={false} />
+        <img className={CARD_IMAGE} src={item.src} alt="" draggable={false} />
       </div>)}</div>
-      <div className="fis-controls"><span className="fis-arrow"><Arrow /></span><div className="fis-dots">{DEFAULT_IMAGES.map((item,index)=><span key={item.id} className="fis-dot" aria-current={index===(4 + previewStep) % DEFAULT_IMAGES.length ? "true":undefined}><span /></span>)}</div><span className="fis-arrow"><Arrow next /></span></div>
+      <div className={`${CONTROLS} bottom-[11%] gap-1`}><span className={`${ARROW} size-5`}><Arrow /></span><div className={DOTS}>{DEFAULT_IMAGES.map((item, index) => <span key={item.id} className={`${DOT} h-5 w-[7px]`} aria-current={index === selected ? "true" : undefined}><span className={`${PIP} size-[3px]`} /></span>)}</div><span className={`${ARROW} size-5`}><Arrow next /></span></div>
     </div>
   </div>;
 }
 
+// Kept as CSS: the card transform combines four per-card custom properties (set inline by positionStyle),
+// and focus rings must outrank the site's unlayered `:focus-visible` rule, which beats layered utilities.
 const FAN_STYLES = `
-.fan-image-slider{container-type:inline-size;min-width:0;background:#090707;color:#fff;font-family:Arial,Helvetica,sans-serif;color-scheme:dark}
-.fan-image-slider *{box-sizing:border-box}
-.fis-stage{position:relative;width:100%;aspect-ratio:604/326;min-height:260px;overflow:clip;isolation:isolate;touch-action:pan-y}
-.fis-spread{position:absolute;top:12%;left:0;width:100%;height:65%;perspective:1200px}
-.fis-card{position:absolute;left:50%;top:0;width:20%;height:100%;padding:0;overflow:hidden;border:0;border-radius:3cqw;background:#151516;transform:translate(calc(-50% + var(--fis-x)),var(--fis-y)) rotate(var(--fis-angle)) scale(var(--fis-scale));transform-origin:50% 50%;transition:transform .72s cubic-bezier(.22,.75,.25,1),opacity .5s;box-shadow:0 5px 12px #0003;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.fis-card img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;user-select:none}
+.fis-card{transform:translate(calc(-50% + var(--fis-x)),var(--fis-y)) rotate(var(--fis-angle)) scale(var(--fis-scale))}
 .fis-card:hover,.fis-card:focus-visible{transform:translate(calc(-50% + var(--fis-x)),calc(var(--fis-y) - 2.2cqw)) rotate(var(--fis-angle)) scale(calc(var(--fis-scale) * 1.04))}
-.fis-card:focus-visible{outline:2px solid #fff;outline-offset:4px}
-.fis-controls{position:absolute;left:50%;bottom:6.2%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:7px;max-width:96%}
-.fis-arrow{display:grid;place-items:center;flex-shrink:0;width:32px;height:32px;border:1px solid #ffffff22;border-radius:50%;background:#ffffff07;color:#bfc0c3;cursor:pointer;transition:background .2s,color .2s}
-.fis-arrow:hover{background:#ffffff14;color:#fff}
-.fis-arrow:disabled{opacity:.3;cursor:default}
-.fis-dots{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;max-width:220px}
-.fis-dot{display:grid;place-items:center;width:12px;height:32px;padding:0;background:none;border:0;cursor:pointer}
-.fis-dot>span{width:4px;height:4px;border-radius:50%;background:#4a4545;transition:background .3s,transform .3s}
-.fis-dot[aria-current="true"]>span{background:#e4e4e7;transform:scale(1.25)}
-.fis-controls button:focus-visible,.fis-close:focus-visible{outline:2px solid #fff;outline-offset:3px}
-.fis-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;clip-path:inset(50%);overflow:hidden;white-space:nowrap}
-.fis-empty{display:grid;place-items:center;position:absolute;inset:0;margin:24px;color:#a5a3a3;font-size:14px;text-align:center}
-.fis-dialog{position:fixed;inset:0;margin:auto;width:min(520px,calc(100vw - 32px));max-height:calc(100dvh - 40px);padding:0;border:1px solid #ffffff30;border-radius:18px;background:#141212;color:#fff;overflow:auto}
-.fis-dialog::backdrop{background:#000c;backdrop-filter:blur(8px)}
-.fis-dialog-content{position:relative;padding:16px}
-.fis-dialog img{display:block;width:100%;height:min(65dvh,600px);object-fit:contain;border-radius:10px;background:#090707}
-.fis-dialog p{margin:16px 4px 4px;font-size:13px;line-height:1.6;color:#d2cccc}
-.fis-close{position:absolute;top:24px;right:24px;z-index:1;width:36px;height:36px;border:1px solid #ffffff55;border-radius:50%;color:white;background:#111a;font:24px/1 Arial,sans-serif;cursor:pointer}
-.fis-thumbnail .fis-stage{height:100%;min-height:0;aspect-ratio:auto}
-.fis-thumbnail .fis-spread{top:20%;height:55%}
-.fis-thumbnail .fis-controls{bottom:11%;gap:4px}
-.fis-thumbnail .fis-arrow{width:20px;height:20px}
-.fis-thumbnail .fis-dot{width:7px;height:20px}
-.fis-thumbnail .fis-dot>span{width:3px;height:3px}
-@container(max-width:520px){
- .fan-image-slider:not(.fis-thumbnail) .fis-stage{aspect-ratio:auto;min-height:360px}
- .fan-image-slider:not(.fis-thumbnail) .fis-spread{top:16%;height:56%}
- .fan-image-slider:not(.fis-thumbnail) .fis-card{width:32%;border-radius:5cqw}
- .fan-image-slider:not(.fis-thumbnail) .fis-controls{bottom:8%;gap:4px}
- .fan-image-slider:not(.fis-thumbnail) .fis-arrow{width:40px;height:40px}
- .fan-image-slider:not(.fis-thumbnail) .fis-dot{height:40px;width:12px}
-}
-@media(prefers-reduced-motion:reduce){.fan-image-slider *{transition:none!important;animation:none!important}}
+.fan-image-slider button:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.fan-image-slider .fis-card:focus-visible{outline-offset:4px}
 `;

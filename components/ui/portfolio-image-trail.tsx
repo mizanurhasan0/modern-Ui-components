@@ -278,6 +278,62 @@ const STILL_PATHS = [
   "M.08 .76Q.36 .66 .54 .37Q.73 .08 1 .12V.38Q.77 .34 .65 .53Q.46 .82 .10 .91L.05 .85Z",
 ] as const;
 
+/*
+ * Styling lives in Tailwind classes. Most elements have two sizing modes:
+ * - live: the interactive hero, scaled with container units. `@min-[541px]:`
+ *   also follows the stage height (the portrait carries the recorded navbar),
+ *   and `@max-[541px]:` (container width <= 540px) is the stacked phone layout.
+ * - still: the fixed-scale gallery thumbnail.
+ * `sized(thumbnail, shared, live, still)` picks the mode for one element; the
+ * tuples below are `[shared, live, still]` class lists.
+ */
+function sized(thumbnail: boolean, shared: string, live: string, still = "") {
+  return `${shared} ${thumbnail ? still : live}`;
+}
+
+const ROOT_CLASS =
+  "portfolio-image-trail isolate min-w-0 text-white @container [font-family:var(--font-geist-sans),Arial,Helvetica,sans-serif]";
+const STAGE_CLASS =
+  "pit-stage relative isolate aspect-[1440/690] w-full overflow-hidden bg-[radial-gradient(ellipse_at_50%_42%,#f6f2ef_0%,#eae6e4_72%)]";
+const MONO_FONT = "[font-family:Courier_New,monospace]";
+const LINE_FADE =
+  "transition-[background] duration-200 ease-[ease] motion-reduce:transition-none";
+
+const PILL = [
+  "inline-flex items-center rounded-[999px] bg-[#8d8b8bbb] leading-none whitespace-nowrap text-white backdrop-blur-[14px]",
+  "h-[clamp(20px,2.85cqw,32px)] gap-[clamp(3px,.5cqw,7px)] px-[clamp(6px,.85cqw,12px)] py-[3px] text-[clamp(6.5px,.93cqw,11px)] @min-[541px]:h-[max(clamp(20px,2.85cqw,32px),5.95cqh)] @min-[541px]:gap-[max(clamp(3px,.5cqw,7px),1.04cqh)] @min-[541px]:px-[max(clamp(6px,.85cqw,12px),1.77cqh)] @min-[541px]:text-[max(clamp(6.5px,.93cqw,11px),1.94cqh)] @max-[541px]:h-[25px] @max-[541px]:text-[9px]",
+  "h-[13px] gap-[3px] px-[4px] py-[2px] text-[4.5px]",
+] as const;
+const NAV_LINK = [
+  "pit-nav-link flex h-full cursor-pointer items-center justify-center rounded-[99px] border-0 bg-transparent leading-none text-white",
+  `no-underline ${LINE_FADE} px-[clamp(4px,.7cqw,10px)] py-0 text-[clamp(6.5px,.93cqw,11px)] hover:bg-[#ffffff21] @min-[541px]:px-[max(clamp(4px,.7cqw,10px),1.46cqh)] @min-[541px]:text-[max(clamp(6.5px,.93cqw,11px),1.94cqh)] @max-[541px]:flex-1 @max-[541px]:px-0 @max-[541px]:text-[max(9px,1.7cqh)]`,
+  "flex-1 p-0 text-[3.2px]",
+] as const;
+const ACTION = [
+  "inline-flex cursor-pointer items-center justify-center rounded-[999px] border-0 leading-none font-medium tracking-[-.035em]",
+  `no-underline min-h-[clamp(23px,3.15cqw,38px)] gap-[clamp(4px,.75cqw,10px)] py-[3px] text-[clamp(7px,.97cqw,12px)] transition-[transform,background] duration-200 ease-[ease] motion-reduce:transition-none @max-[541px]:min-h-[29px] @max-[541px]:text-[8px]`,
+  "min-h-[13px] gap-[3px] py-[2px] text-[3.8px]",
+] as const;
+const WORK_ACTION = [
+  "pit-work-action bg-[#d8ff63] text-[#141910] shadow-[0_0_15px_#d8ff6330]",
+  "px-[clamp(8px,1.2cqw,16px)] pr-[4px] hover:bg-[#e3ff8c] hover:[transform:translateY(-1px)] @max-[541px]:px-[10px] @max-[541px]:pr-[4px]",
+  "px-[4px] pr-[2px]",
+] as const;
+const CONTACT_ACTION = [
+  "pit-contact-action bg-[#ffffff13] text-white",
+  "px-[clamp(7px,.9cqw,13px)] hover:bg-[#ffffff28] @max-[541px]:px-[10px]",
+  "px-[4px]",
+] as const;
+const CHIP = [
+  "inline-flex items-center justify-center rounded-[999px] bg-[#8e8c8fbb] text-[#fbfaf9] backdrop-blur-[12px]",
+  "min-h-[clamp(16px,2.15cqw,24px)] px-[clamp(6px,.9cqw,12px)] py-[4px] @max-[541px]:min-h-[17px] @max-[541px]:px-[8px]",
+  "min-h-[10px] gap-[3px] px-[4px] py-[3px]",
+] as const;
+const EM_CLASS =
+  "font-normal tracking-[-.045em] text-[#d7ff59] [font-family:Georgia,Times_New_Roman,serif]";
+const PANEL_TEXT = "m-0 text-[12px] leading-[1.6] text-[#edeceb]";
+const PANEL_ACCENT = "text-[13px] font-[550] text-[#e2ff94]";
+
 function PortfolioVisual({
   data,
   thumbnail = false,
@@ -300,6 +356,12 @@ function PortfolioVisual({
   const technologies = data.technologies ?? DEFAULT_TECHNOLOGIES;
   const stillPath =
     STILL_PATHS[Math.abs(Math.trunc(previewStep)) % STILL_PATHS.length];
+  const pick = (shared: string, live: string, still = "") =>
+    sized(thumbnail, shared, live, still);
+  const pill = pick(...PILL);
+  const navLink = pick(...NAV_LINK);
+  const actionClass = pick(...ACTION);
+  const chip = pick(...CHIP);
 
   function action(
     section: PortfolioSection,
@@ -311,7 +373,14 @@ function PortfolioVisual({
       <>
         {label}
         {cta && section === "work" && (
-          <span className="pit-arrow" aria-hidden="true">
+          <span
+            className={pick(
+              "pit-arrow grid shrink-0 place-items-center rounded-[50%] bg-[#161b14] text-[#d8ff63] [font-family:Arial,sans-serif]",
+              "size-[clamp(16px,2.25cqw,27px)] text-[clamp(10px,1.4cqw,17px)] @max-[541px]:size-[20px] @max-[541px]:text-[13px]",
+              "size-[9px] text-[7px]",
+            )}
+            aria-hidden="true"
+          >
             ↗
           </span>
         )}
@@ -355,9 +424,21 @@ function PortfolioVisual({
     );
   }
 
+  const navigationClass = pick(
+    "pit-navigation absolute left-1/2 flex -translate-x-1/2 items-center rounded-[999px] bg-[#8d8b8bcc] whitespace-nowrap backdrop-blur-[16px]",
+    "h-[clamp(21px,3cqw,34px)] gap-[clamp(3px,.45cqw,7px)] px-[clamp(5px,.9cqw,12px)] py-[3px] @min-[541px]:left-[calc(50%+min(0px,2.78cqw-5.8cqh))] @min-[541px]:h-[max(clamp(21px,3cqw,34px),6.26cqh)] @min-[541px]:gap-[max(clamp(3px,.45cqw,7px),.94cqh)] @min-[541px]:px-[max(clamp(5px,.9cqw,12px),1.88cqh)] @max-[541px]:top-[max(74px,calc(17.6cqh-16px))] @max-[541px]:left-[calc(55%-max(25px,4.9cqh))] @max-[541px]:h-[max(29px,5.49cqh)] @max-[541px]:w-[max(180px,34.9cqh)] @max-[541px]:gap-0 @max-[541px]:px-[6px]",
+    "h-[3.05cqw] w-[19.45cqw] gap-0 px-[2px] py-[1px]",
+  );
+  const navigationLinks = NAVIGATION.map((section) =>
+    action(section, section[0].toUpperCase() + section.slice(1), navLink),
+  );
+
   return (
     <>
-      <div className="pit-floor" aria-hidden="true" />
+      <div
+        className="pit-floor absolute inset-x-0 bottom-0 z-0 h-[7%] bg-[linear-gradient(#ece7e3,#fbf5ed)] shadow-[0_-4px_15px_#b8aba519] before:absolute before:bottom-0 before:left-[22.5%] before:h-[75%] before:w-[55%] before:rounded-[50%] before:bg-[#70686238] before:blur-[12px] before:content-['']"
+        aria-hidden="true"
+      />
       {thumbnail ? (
         <>
           {stillPath && (
@@ -373,7 +454,7 @@ function PortfolioVisual({
                 </defs>
               </svg>
               <img
-                className="pit-still-trail"
+                className="pit-still-trail pointer-events-none absolute inset-0 z-[1] size-full object-cover"
                 src={data.trailSrc ?? "/portfolio-trail/tech-texture.webp"}
                 alt=""
                 style={{ clipPath: `url(#${id}-trail)` }}
@@ -382,12 +463,19 @@ function PortfolioVisual({
           )}
         </>
       ) : (
-        <canvas ref={canvasRef} className="pit-trail" aria-hidden="true" />
+        <canvas
+          ref={canvasRef}
+          className="pit-trail pointer-events-none absolute inset-0 z-[1] size-full"
+          aria-hidden="true"
+        />
       )}
       {/* Plain images keep the copied component portable outside Next.js. */}
 
       <img
-        className="pit-portrait"
+        className={pick(
+          "pit-portrait pointer-events-none absolute bottom-0 left-[52.78%] z-[2] h-full w-auto max-w-none -translate-x-1/2 object-contain select-none",
+          "[clip-path:inset(0_0_0_1%)] @max-[541px]:left-[55%] @max-[541px]:h-[86%]",
+        )}
         src={data.portraitSrc ?? "/portfolio-trail/portrait.webp"}
         alt={
           thumbnail
@@ -396,70 +484,140 @@ function PortfolioVisual({
         }
         draggable={false}
       />
-      <header className="pit-header flex items-center justify-between">
-        <div className="pit-identity">
-          <span className="pit-initials">{data.initials ?? "YN"}</span>
+      <header
+        className={pick(
+          "pit-header absolute top-[4.35%] right-[2%] left-[2%] z-[4] flex items-center justify-between gap-[10px]",
+          "@max-[541px]:top-[16px] @max-[541px]:right-[14px] @max-[541px]:left-[14px]",
+        )}
+      >
+        <div
+          className={`pit-identity ${pill} ${thumbnail ? "pl-[2px]" : "pl-[3px] @min-[541px]:pl-[3px]"}`}
+        >
+          <span
+            className={pick(
+              "pit-initials grid place-items-center rounded-[50%] bg-[#daff74] font-[650] text-[#30352a]",
+              "size-[clamp(15px,2.1cqw,25px)] text-[clamp(6px,.85cqw,10px)] @min-[541px]:size-[max(clamp(15px,2.1cqw,25px),4.38cqh)] @min-[541px]:text-[max(clamp(6px,.85cqw,10px),1.77cqh)] @max-[541px]:size-[19px] @max-[541px]:text-[8px]",
+              "size-[9px] text-[4px]",
+            )}
+          >
+            {data.initials ?? "YN"}
+          </span>
           <span>{name}</span>
         </div>
         {thumbnail ? (
-          <div className="pit-navigation">
-            {NAVIGATION.map((section) =>
-              action(
-                section,
-                section[0].toUpperCase() + section.slice(1),
-                "pit-nav-link",
-              ),
-            )}
-          </div>
+          <div className={navigationClass}>{navigationLinks}</div>
         ) : (
-          <nav className="pit-navigation" aria-label="Portfolio navigation">
-            {NAVIGATION.map((section) =>
-              action(
-                section,
-                section[0].toUpperCase() + section.slice(1),
-                "pit-nav-link",
-              ),
-            )}
+          <nav className={navigationClass} aria-label="Portfolio navigation">
+            {navigationLinks}
           </nav>
         )}
-        <span className="pit-availability">
-          <span aria-hidden="true" />
+        <span className={`pit-availability ${pill}`}>
+          <span
+            className={`block rounded-[50%] bg-[#d8ff7a] shadow-[0_0_6px_#d8ff7a44] ${thumbnail ? "size-[2px]" : "size-[4px]"}`}
+            aria-hidden="true"
+          />
           {data.availability ?? "Open for projects"}
         </span>
       </header>
-      <div className="pit-introduction">
-        <p className="pit-role">
-          <span aria-hidden="true" />
+      <div
+        className={pick(
+          "pit-introduction absolute bottom-[4.4%] left-[2%] z-[5] w-[28.5%] border border-[#ffffff18] bg-[#737273b5] shadow-[0_8px_18px_#55504f0d] backdrop-blur-[20px]",
+          "rounded-[clamp(12px,1.75cqw,22px)] p-[clamp(12px,1.7cqw,23px)] @max-[541px]:bottom-[62px] @max-[541px]:left-[14px] @max-[541px]:w-[234px] @max-[541px]:rounded-[16px] @max-[541px]:p-[15px]",
+          "rounded-[7px] p-[6px]",
+        )}
+      >
+        <p
+          className={pick(
+            `pit-role m-0 flex items-center leading-[1.4] font-normal whitespace-nowrap ${MONO_FONT}`,
+            "mb-[clamp(7px,1cqw,14px)] gap-[6px] text-[clamp(5px,.68cqw,9px)] tracking-[.12em] @max-[541px]:mb-[9px] @max-[541px]:text-[6px]",
+            "mb-[4px] gap-[3px] text-[3px] tracking-[.05em]",
+          )}
+        >
+          <span
+            className={`h-px bg-[#d7ff7955] ${thumbnail ? "w-[5px]" : "w-[10px]"}`}
+            aria-hidden="true"
+          />
           {data.role ?? "FULL-STACK ENGINEER"}
         </p>
-        <h2>
+        <h2
+          className={pick(
+            "m-0 font-medium tracking-[-.065em]",
+            "text-[clamp(18px,3.35cqw,42px)] leading-[1.05] @max-[541px]:text-[27px]",
+            "text-[clamp(10px,3.35cqw,16px)] leading-[1.06]",
+          )}
+        >
           {data.headline ?? "Software, built"}
           <br />
-          with <em>{data.accentText ?? "taste."}</em>
+          with <em className={EM_CLASS}>{data.accentText ?? "taste."}</em>
         </h2>
-        <p className="pit-description">
+        <p
+          className={pick(
+            "pit-description mx-0 leading-[1.45] tracking-[-.025em] whitespace-pre-line text-[#f5f4f4]",
+            "mt-[clamp(8px,1.25cqw,16px)] mb-[clamp(10px,1.4cqw,19px)] text-[clamp(7px,.98cqw,12px)] @max-[541px]:mt-[10px] @max-[541px]:mb-[12px] @max-[541px]:text-[8px]",
+            "my-[6px] text-[3.5px]",
+          )}
+        >
           {data.description ??
             "I design and ship fast, considered web products,\nfrom the first sketch to production."}
         </p>
-        <div className="pit-actions flex items-center">
-          {action("work", "View selected work", "pit-work-action", true)}
-          {action("contact", "Get in touch", "pit-contact-action", true)}
+        <div
+          className={pick(
+            "pit-actions flex items-center whitespace-nowrap",
+            "gap-[clamp(4px,.7cqw,10px)] @max-[541px]:gap-[7px]",
+            "gap-[3px]",
+          )}
+        >
+          {action(
+            "work",
+            "View selected work",
+            `${actionClass} ${pick(...WORK_ACTION)}`,
+            true,
+          )}
+          {action(
+            "contact",
+            "Get in touch",
+            `${actionClass} ${pick(...CONTACT_ACTION)}`,
+            true,
+          )}
         </div>
       </div>
-      <span className="pit-signature">
+      <span
+        className={pick(
+          `pit-signature absolute top-[42%] z-[4] leading-none font-semibold tracking-[.15em] text-[#858182] [writing-mode:vertical-rl] ${MONO_FONT}`,
+          "right-[1.9%] text-[clamp(5px,.72cqw,9px)] @max-[541px]:top-[32%] @max-[541px]:right-[13px] @max-[541px]:text-[6px]",
+          "right-[3%] text-[3px]",
+        )}
+      >
         {data.signature ?? "PORTFOLIO / 2026"}
       </span>
-      <div className="pit-metadata">
-        <div className="pit-technologies">
+      <div
+        className={pick(
+          `pit-metadata absolute right-[2%] bottom-[4.4%] z-[4] flex flex-col items-end leading-[1.1] font-[650] whitespace-nowrap ${MONO_FONT}`,
+          "gap-[5px] text-[clamp(5px,.64cqw,8px)] tracking-[.11em] @max-[541px]:right-[14px] @max-[541px]:bottom-[15px] @max-[541px]:text-[6px]",
+          "gap-[3px] text-[3px] tracking-[.05em]",
+        )}
+      >
+        <div
+          className={`pit-technologies flex ${thumbnail ? "gap-[3px]" : "gap-[5px]"}`}
+        >
           {technologies.map((technology, index) => (
-            <span key={`${technology}-${index}`}>{technology}</span>
+            <span key={`${technology}-${index}`} className={chip}>
+              {technology}
+            </span>
           ))}
         </div>
-        <div className="pit-location">
-          <span>
-            LOCAL <strong>{data.localTime ?? "05:42 PM"}</strong>
+        <div
+          className={`pit-location flex ${thumbnail ? "gap-[3px]" : "gap-[5px]"}`}
+        >
+          <span className={`${chip} ${thumbnail ? "" : "gap-[5px]"}`}>
+            LOCAL{" "}
+            <strong className="text-[#daef85] [font-weight:inherit]">
+              {data.localTime ?? "05:42 PM"}
+            </strong>
           </span>
-          <span>{data.location ?? "REMOTE / WORLDWIDE"}</span>
+          <span className={`${chip} ${thumbnail ? "" : "gap-[5px]"}`}>
+            {data.location ?? "REMOTE / WORLDWIDE"}
+          </span>
         </div>
       </div>
     </>
@@ -517,13 +675,13 @@ export default function PortfolioImageTrail(props: PortfolioImageTrailProps) {
 
   return (
     <section
-      className={`portfolio-image-trail relative w-full ${props.className ?? ""}`}
+      className={`${ROOT_CLASS} relative flex w-full flex-col ${props.className ?? ""}`}
       aria-label={`${props.name ?? "Your Name"} portfolio`}
     >
       <ComponentStyles css={PORTFOLIO_STYLES} />
       <div
         ref={stage}
-        className="pit-stage relative overflow-hidden"
+        className={`${STAGE_CLASS} min-h-[320px] flex-[1_0_auto] [container-type:size] @max-[541px]:aspect-auto @max-[541px]:min-h-[510px]`}
         onPointerEnter={(event) => reveal(event.clientX, event.clientY, true)}
         onPointerMove={(event) => reveal(event.clientX, event.clientY)}
         onPointerDown={(event) => reveal(event.clientX, event.clientY, true)}
@@ -548,14 +706,19 @@ export default function PortfolioImageTrail(props: PortfolioImageTrailProps) {
           <aside
             ref={panel}
             tabIndex={-1}
-            className="pit-details"
+            className="pit-details absolute top-[17%] right-[3%] z-[7] w-[min(330px,44%)] rounded-[18px] border border-[#ffffff3d] bg-[#656463ee] p-[20px] text-white shadow-[0_16px_45px_#49424130] backdrop-blur-[22px] @max-[541px]:top-[97px] @max-[541px]:right-[14px] @max-[541px]:left-[14px] @max-[541px]:w-auto @max-[541px]:p-[18px]"
             aria-labelledby={panelTitle}
           >
-            <div className="pit-details-heading">
-              <h3 id={panelTitle}>{PANEL_TITLES[activeSection]}</h3>
+            <div className="pit-details-heading mb-[12px] flex items-center justify-between gap-[12px]">
+              <h3
+                id={panelTitle}
+                className="m-0 text-[18px] font-[550] tracking-[-.04em]"
+              >
+                {PANEL_TITLES[activeSection]}
+              </h3>
               <button
                 type="button"
-                className="pit-close"
+                className="pit-close grid size-[30px] shrink-0 cursor-pointer place-items-center rounded-[50%] border border-[#ffffff20] bg-[#ffffff12] p-0 text-[22px] leading-none text-white"
                 aria-label="Close portfolio details"
                 onClick={close}
               >
@@ -563,42 +726,57 @@ export default function PortfolioImageTrail(props: PortfolioImageTrailProps) {
               </button>
             </div>
             {activeSection === "work" && (
-              <ul className="pit-projects">
+              <ul className="pit-projects m-0 list-none p-0">
                 {(props.projects ?? DEFAULT_PROJECTS).map((project, index) => (
-                  <li key={`${project.title}-${index}`}>
+                  <li
+                    key={`${project.title}-${index}`}
+                    className="not-first:mt-[15px] not-first:border-t not-first:border-t-[#ffffff20] not-first:pt-[15px]"
+                  >
                     {project.href ? (
-                      <a href={project.href}>
+                      <a
+                        className={`${PANEL_ACCENT} no-underline`}
+                        href={project.href}
+                      >
                         {project.title}
                         <span aria-hidden="true"> ↗</span>
                       </a>
                     ) : (
-                      <strong>{project.title}</strong>
+                      <strong className={PANEL_ACCENT}>{project.title}</strong>
                     )}
-                    <p>{project.description}</p>
+                    <p className="m-0 mt-[3px] text-[11px] leading-[1.6] text-[#edeceb]">
+                      {project.description}
+                    </p>
                   </li>
                 ))}
               </ul>
             )}
             {activeSection === "about" && (
-              <p>
+              <p className={PANEL_TEXT}>
                 {props.aboutText ??
                   "I build thoughtful digital experiences, bringing design and engineering together from the first sketch to production."}
               </p>
             )}
             {activeSection === "stack" && (
-              <div className="pit-detail-chips">
+              <div className="pit-detail-chips flex flex-wrap gap-[6px]">
                 {(props.technologies ?? DEFAULT_TECHNOLOGIES).map(
                   (technology, index) => (
-                    <span key={`${technology}-${index}`}>{technology}</span>
+                    <span
+                      key={`${technology}-${index}`}
+                      className="rounded-[99px] border border-[#d8ff6340] px-[10px] py-[7px] text-[10px] text-[#e2ff94]"
+                    >
+                      {technology}
+                    </span>
                   ),
                 )}
               </div>
             )}
             {activeSection === "contact" && (
               <>
-                <p>Have a project in mind? Let’s make something thoughtful.</p>
+                <p className={PANEL_TEXT}>
+                  Have a project in mind? Let’s make something thoughtful.
+                </p>
                 <a
-                  className="pit-email"
+                  className={`pit-email mt-[12px] block text-[13px] wrap-anywhere text-[#e2ff94] no-underline`}
                   href={`mailto:${props.contactEmail ?? "hello@yourname.dev"}`}
                 >
                   {props.contactEmail ?? "hello@yourname.dev"}{" "}
@@ -623,21 +801,25 @@ export function PortfolioImageTrailThumbnail({
 }) {
   return (
     <div
-      className={`portfolio-image-trail pit-thumbnail ${className}`}
+      className={`${ROOT_CLASS} pit-thumbnail pointer-events-none flex h-full items-center bg-[#ece8e5] ${className}`}
       aria-hidden="true"
       inert
     >
       <ComponentStyles css={PORTFOLIO_STYLES} />
-      <div className="pit-stage">
+      <div className={`${STAGE_CLASS} h-auto min-h-0 shrink-0`}>
         <PortfolioVisual data={{}} thumbnail previewStep={previewStep} />
       </div>
     </div>
   );
 }
 
+/*
+ * Raw CSS keeps only interaction resets: a vendor-only tap highlight, and focus
+ * rules that must beat the host app's global unlayered :focus-visible ring
+ * (Tailwind utilities live in a cascade layer and would lose to it).
+ */
 const PORTFOLIO_STYLES = `
-.portfolio-image-trail{isolation:isolate;container-type:inline-size;min-width:0;font-family:var(--font-geist-sans),Arial,Helvetica,sans-serif;color:#fff}.portfolio-image-trail *{box-sizing:border-box}.portfolio-image-trail button,.portfolio-image-trail a{font:inherit;-webkit-tap-highlight-color:transparent}.portfolio-image-trail a{text-decoration:none}.portfolio-image-trail button:focus-visible,.portfolio-image-trail a:focus-visible{outline:2px solid #e2ff8f;outline-offset:4px}.portfolio-image-trail .pit-stage{position:relative;width:100%;aspect-ratio:1440/690;min-height:320px;overflow:hidden;background:radial-gradient(ellipse at 50% 42%,#f6f2ef 0%,#eae6e4 72%);isolation:isolate}.portfolio-image-trail .pit-floor{position:absolute;z-index:0;left:0;right:0;bottom:0;height:7%;background:linear-gradient(#ece7e3,#fbf5ed);box-shadow:0 -4px 15px #b8aba519}.portfolio-image-trail .pit-floor::before{content:"";position:absolute;width:55%;height:75%;left:22.5%;bottom:0;border-radius:50%;background:#70686238;filter:blur(12px)}.portfolio-image-trail .pit-trail,.portfolio-image-trail .pit-still-trail{position:absolute;z-index:1;inset:0;width:100%;height:100%;pointer-events:none}.portfolio-image-trail .pit-still-trail{object-fit:cover}.portfolio-image-trail .pit-portrait{position:absolute;z-index:2;height:100%;width:auto;max-width:none;left:52.78%;bottom:0;transform:translateX(-50%);pointer-events:none;user-select:none;object-fit:contain}.portfolio-image-trail .pit-header{position:absolute;z-index:4;left:2%;right:2%;top:4.35%;display:flex;align-items:center;justify-content:space-between;gap:10px}.portfolio-image-trail .pit-identity,.portfolio-image-trail .pit-availability{display:inline-flex;align-items:center;gap:clamp(3px,.5cqw,7px);height:clamp(20px,2.85cqw,32px);padding:3px clamp(6px,.85cqw,12px);border-radius:999px;background:#8d8b8bbb;backdrop-filter:blur(14px);color:#fff;white-space:nowrap;font-size:clamp(6.5px,.93cqw,11px);line-height:1}.portfolio-image-trail .pit-identity{padding-left:3px}.portfolio-image-trail .pit-initials{width:clamp(15px,2.1cqw,25px);height:clamp(15px,2.1cqw,25px);display:grid;place-items:center;border-radius:50%;background:#daff74;color:#30352a;font-size:clamp(6px,.85cqw,10px);font-weight:650}.portfolio-image-trail .pit-availability>span{display:block;width:4px;height:4px;border-radius:50%;background:#d8ff7a;box-shadow:0 0 6px #d8ff7a44}.portfolio-image-trail .pit-navigation{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:clamp(3px,.45cqw,7px);padding:3px clamp(5px,.9cqw,12px);height:clamp(21px,3cqw,34px);border-radius:999px;background:#8d8b8bcc;backdrop-filter:blur(16px);white-space:nowrap}.portfolio-image-trail .pit-nav-link{display:flex;align-items:center;justify-content:center;height:100%;padding:0 clamp(4px,.7cqw,10px);border:0;border-radius:99px;color:#fff;background:transparent;font-size:clamp(6.5px,.93cqw,11px);line-height:1;cursor:pointer;transition:background .2s}.portfolio-image-trail .pit-nav-link:hover{background:#ffffff21}.portfolio-image-trail .pit-introduction{position:absolute;z-index:5;left:2%;bottom:4.4%;width:28.5%;padding:clamp(12px,1.7cqw,23px);border:1px solid #ffffff18;border-radius:clamp(12px,1.75cqw,22px);background:#737273b5;backdrop-filter:blur(20px);box-shadow:0 8px 18px #55504f0d}.portfolio-image-trail .pit-role{display:flex;align-items:center;gap:6px;margin:0 0 clamp(7px,1cqw,14px);font-family:"Courier New",monospace;font-size:clamp(5px,.68cqw,9px);font-weight:400;letter-spacing:.12em;line-height:1.4;white-space:nowrap}.portfolio-image-trail .pit-role>span{width:10px;height:1px;background:#d7ff7955}.portfolio-image-trail .pit-introduction h2{margin:0;font-size:clamp(18px,3.35cqw,42px);line-height:1.05;font-weight:500;letter-spacing:-.065em}.portfolio-image-trail .pit-introduction em{font-family:Georgia,"Times New Roman",serif;font-weight:400;color:#d7ff59;letter-spacing:-.045em}.portfolio-image-trail .pit-description{margin:clamp(8px,1.25cqw,16px) 0 clamp(10px,1.4cqw,19px);font-size:clamp(7px,.98cqw,12px);line-height:1.45;letter-spacing:-.025em;color:#f5f4f4;white-space:pre-line}.portfolio-image-trail .pit-actions{display:flex;align-items:center;gap:clamp(4px,.7cqw,10px);white-space:nowrap}.portfolio-image-trail .pit-work-action,.portfolio-image-trail .pit-contact-action{display:inline-flex;align-items:center;justify-content:center;gap:clamp(4px,.75cqw,10px);min-height:clamp(23px,3.15cqw,38px);padding:3px clamp(8px,1.2cqw,16px);border:0;border-radius:999px;font-size:clamp(7px,.97cqw,12px);font-weight:500;letter-spacing:-.035em;line-height:1;cursor:pointer;transition:transform .2s,background .2s}.portfolio-image-trail .pit-work-action{padding-right:4px;background:#d8ff63;color:#141910;box-shadow:0 0 15px #d8ff6330}.portfolio-image-trail .pit-work-action:hover{background:#e3ff8c;transform:translateY(-1px)}.portfolio-image-trail .pit-contact-action{background:#ffffff13;color:#fff;padding-left:clamp(7px,.9cqw,13px);padding-right:clamp(7px,.9cqw,13px)}.portfolio-image-trail .pit-contact-action:hover{background:#ffffff28}.portfolio-image-trail .pit-arrow{display:grid;place-items:center;flex-shrink:0;width:clamp(16px,2.25cqw,27px);height:clamp(16px,2.25cqw,27px);border-radius:50%;background:#161b14;color:#d8ff63;font-family:Arial,sans-serif;font-size:clamp(10px,1.4cqw,17px)}.portfolio-image-trail .pit-signature{position:absolute;z-index:4;right:1.9%;top:42%;writing-mode:vertical-rl;font-family:"Courier New",monospace;color:#858182;font-size:clamp(5px,.72cqw,9px);font-weight:600;letter-spacing:.15em;line-height:1}.portfolio-image-trail .pit-metadata{position:absolute;z-index:4;right:2%;bottom:4.4%;display:flex;align-items:flex-end;flex-direction:column;gap:5px;font-family:"Courier New",monospace;font-size:clamp(5px,.64cqw,8px);letter-spacing:.11em;line-height:1.1;font-weight:650;white-space:nowrap}.portfolio-image-trail .pit-technologies,.portfolio-image-trail .pit-location{display:flex;gap:5px}.portfolio-image-trail .pit-technologies>span,.portfolio-image-trail .pit-location>span{display:inline-flex;align-items:center;justify-content:center;min-height:clamp(16px,2.15cqw,24px);padding:4px clamp(6px,.9cqw,12px);border-radius:999px;background:#8e8c8fbb;backdrop-filter:blur(12px);color:#fbfaf9}.portfolio-image-trail .pit-location>span{gap:5px}.portfolio-image-trail .pit-location strong{color:#daef85;font-weight:inherit}.portfolio-image-trail .pit-details{position:absolute;z-index:7;right:3%;top:17%;width:min(330px,44%);padding:20px;border:1px solid #ffffff3d;border-radius:18px;background:#656463ee;backdrop-filter:blur(22px);box-shadow:0 16px 45px #49424130;color:#fff}.portfolio-image-trail .pit-details:focus{outline:none}.portfolio-image-trail .pit-details-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.portfolio-image-trail .pit-details h3{margin:0;font-size:18px;font-weight:550;letter-spacing:-.04em}.portfolio-image-trail .pit-close{display:grid;place-items:center;flex-shrink:0;width:30px;height:30px;padding:0;border:1px solid #ffffff20;border-radius:50%;background:#ffffff12;color:white;font-size:22px;line-height:1;cursor:pointer}.portfolio-image-trail .pit-details p{margin:0;color:#edeceb;font-size:12px;line-height:1.6}.portfolio-image-trail .pit-projects{list-style:none;padding:0;margin:0}.portfolio-image-trail .pit-projects li+li{margin-top:15px;padding-top:15px;border-top:1px solid #ffffff20}.portfolio-image-trail .pit-projects strong,.portfolio-image-trail .pit-projects a{font-size:13px;font-weight:550;color:#e2ff94}.portfolio-image-trail .pit-projects p{margin-top:3px;font-size:11px}.portfolio-image-trail .pit-detail-chips{display:flex;flex-wrap:wrap;gap:6px}.portfolio-image-trail .pit-detail-chips>span{padding:7px 10px;border:1px solid #d8ff6340;border-radius:99px;font-size:10px;color:#e2ff94}.portfolio-image-trail .pit-email{display:block;margin-top:12px;font-size:13px;color:#e2ff94;overflow-wrap:anywhere}
-@container(max-width:540px){.portfolio-image-trail:not(.pit-thumbnail) .pit-stage{aspect-ratio:auto;min-height:510px}.portfolio-image-trail:not(.pit-thumbnail) .pit-header{top:16px;left:14px;right:14px}.portfolio-image-trail:not(.pit-thumbnail) .pit-identity,.portfolio-image-trail:not(.pit-thumbnail) .pit-availability{height:25px;font-size:9px}.portfolio-image-trail:not(.pit-thumbnail) .pit-initials{width:19px;height:19px;font-size:8px}.portfolio-image-trail:not(.pit-thumbnail) .pit-navigation{top:74px;left:calc(55% - 25px);width:180px;height:29px;gap:0;padding:3px 6px}.portfolio-image-trail:not(.pit-thumbnail) .pit-nav-link{flex:1;font-size:9px;padding:0}.portfolio-image-trail:not(.pit-thumbnail) .pit-portrait{height:86%;left:55%}.portfolio-image-trail:not(.pit-thumbnail) .pit-introduction{left:14px;bottom:62px;width:234px;padding:15px;border-radius:16px}.portfolio-image-trail:not(.pit-thumbnail) .pit-role{font-size:6px;margin-bottom:9px}.portfolio-image-trail:not(.pit-thumbnail) .pit-introduction h2{font-size:27px}.portfolio-image-trail:not(.pit-thumbnail) .pit-description{font-size:8px;margin:10px 0 12px}.portfolio-image-trail:not(.pit-thumbnail) .pit-actions{gap:7px}.portfolio-image-trail:not(.pit-thumbnail) .pit-work-action,.portfolio-image-trail:not(.pit-thumbnail) .pit-contact-action{font-size:8px;min-height:29px;padding:3px 10px}.portfolio-image-trail:not(.pit-thumbnail) .pit-work-action{padding-right:4px}.portfolio-image-trail:not(.pit-thumbnail) .pit-arrow{width:20px;height:20px;font-size:13px}.portfolio-image-trail:not(.pit-thumbnail) .pit-metadata{right:14px;bottom:15px;font-size:6px;gap:5px}.portfolio-image-trail:not(.pit-thumbnail) .pit-technologies>span,.portfolio-image-trail:not(.pit-thumbnail) .pit-location>span{min-height:17px;padding:4px 8px}.portfolio-image-trail:not(.pit-thumbnail) .pit-signature{right:13px;top:32%;font-size:6px}.portfolio-image-trail:not(.pit-thumbnail) .pit-details{top:97px;left:14px;right:14px;width:auto;padding:18px}}
-.portfolio-image-trail.pit-thumbnail{height:100%;display:flex;align-items:center;background:#ece8e5;pointer-events:none}.portfolio-image-trail.pit-thumbnail .pit-stage{height:auto;min-height:0;aspect-ratio:1440/690;flex-shrink:0}.portfolio-image-trail.pit-thumbnail .pit-header{top:4.35%;left:2%;right:2%}.portfolio-image-trail.pit-thumbnail .pit-identity,.portfolio-image-trail.pit-thumbnail .pit-availability{height:13px;padding:2px 4px;font-size:4.5px;gap:3px}.portfolio-image-trail.pit-thumbnail .pit-initials{width:9px;height:9px;font-size:4px}.portfolio-image-trail.pit-thumbnail .pit-identity{padding-left:2px}.portfolio-image-trail.pit-thumbnail .pit-navigation{width:19.45cqw;height:3.05cqw;padding:1px 2px;gap:0}.portfolio-image-trail.pit-thumbnail .pit-nav-link{flex:1;font-size:3.2px;padding:0}.portfolio-image-trail.pit-thumbnail .pit-availability>span{width:2px;height:2px}.portfolio-image-trail.pit-thumbnail .pit-introduction{width:28.5%;left:2%;bottom:4.4%;padding:6px;border-radius:7px}.portfolio-image-trail.pit-thumbnail .pit-role{font-size:3px;letter-spacing:.05em;gap:3px;margin-bottom:4px}.portfolio-image-trail.pit-thumbnail .pit-role>span{width:5px}.portfolio-image-trail.pit-thumbnail .pit-introduction h2{font-size:clamp(10px,3.35cqw,16px);line-height:1.06}.portfolio-image-trail.pit-thumbnail .pit-description{font-size:3.5px;line-height:1.45;margin:6px 0}.portfolio-image-trail.pit-thumbnail .pit-actions{gap:3px}.portfolio-image-trail.pit-thumbnail .pit-work-action,.portfolio-image-trail.pit-thumbnail .pit-contact-action{min-height:13px;font-size:3.8px;padding:2px 4px;gap:3px}.portfolio-image-trail.pit-thumbnail .pit-work-action{padding-right:2px}.portfolio-image-trail.pit-thumbnail .pit-arrow{width:9px;height:9px;font-size:7px}.portfolio-image-trail.pit-thumbnail .pit-metadata{font-size:3px;gap:3px;right:2%;bottom:4.4%;letter-spacing:.05em}.portfolio-image-trail.pit-thumbnail .pit-technologies,.portfolio-image-trail.pit-thumbnail .pit-location{gap:3px}.portfolio-image-trail.pit-thumbnail .pit-technologies>span,.portfolio-image-trail.pit-thumbnail .pit-location>span{min-height:10px;padding:3px 4px;gap:3px}.portfolio-image-trail.pit-thumbnail .pit-signature{font-size:3px;right:3%}.portfolio-image-trail.pit-thumbnail *,.portfolio-image-trail.pit-thumbnail *::before,.portfolio-image-trail.pit-thumbnail *::after{animation:none!important;transition:none!important}
-@media(prefers-reduced-motion:reduce){.portfolio-image-trail *,.portfolio-image-trail *::before,.portfolio-image-trail *::after{animation:none!important;transition:none!important}}
+.portfolio-image-trail :is(a,button){-webkit-tap-highlight-color:transparent}
+.portfolio-image-trail :is(a,button):focus-visible{outline:2px solid #e2ff8f;outline-offset:4px}
+.portfolio-image-trail .pit-details:focus{outline:none}
 `;

@@ -58,74 +58,65 @@ export default function GlassProductCard({ name = "Nike Air Zoom", variants = VA
     } catch { setStatus("Could not add this item. Please try again."); }
     finally { busy.current = false; setPending(false); }
   }
-  return <section className={`glass-product-card relative flex w-full items-center justify-center overflow-hidden ${className}`} aria-label={`${name} product selector`}>
+  return <section className={`glass-product-card ${ROOT} relative flex min-h-[620px] w-full items-center justify-center overflow-hidden ${className}`} aria-label={`${name} product selector`}>
     <ComponentStyles css={STYLES} />
-    {variant ? <div className="gpc-layout">
-      <div className="gpc-thumbnails" role="group" aria-label="Shoe color">
-        {variants.map((item) => <button type="button" key={item.id} aria-label={item.name} aria-pressed={item.id === variant.id} disabled={pending} onClick={() => selectVariant(item.id)} onPointerEnter={(event) => { if (event.pointerType === "mouse") selectVariant(item.id); }}>
+    {variant ? <div className="gpc-layout relative h-[465px] w-[460px] max-w-[calc(100%-44px)] [@container(max-width:430px)]:w-[340px] [@container(max-width:430px)]:max-w-[calc(100%-24px)] [@media(min-height:720px)]:@min-[1100px]:[zoom:1.25] [@media(min-height:900px)]:@min-[1600px]:[zoom:1.45]">
+      <div className={`gpc-thumbnails ${SWATCHES} [@container(max-width:430px)]:top-[60px] [@container(max-width:430px)]:left-0`} role="group" aria-label="Shoe color">
+        {variants.map((item) => <button type="button" key={item.id} className={`${SWATCH} cursor-pointer hover:bg-[#ffffff50] hover:transform-[translateY(-3px)] [@container(max-width:430px)]:h-[96px] [@container(max-width:430px)]:w-[78px]`} aria-label={item.name} aria-pressed={item.id === variant.id} disabled={pending} onClick={() => selectVariant(item.id)} onPointerEnter={(event) => { if (event.pointerType === "mouse") selectVariant(item.id); }}>
           {/* Standard images keep the copied file framework-independent. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={item.image} alt="" draggable={false} />
+          <img className={SWATCH_IMAGE} src={item.image} alt="" draggable={false} />
         </button>)}
       </div>
-      <div className="gpc-panel">
-        <h2>{name}</h2>
-        <button className="gpc-hero" type="button" data-zoomed={zoomed} aria-label={`${zoomed ? "Reduce" : "Enlarge"} ${variant.name} shoe`} aria-pressed={zoomed} onClick={() => setZoomed((value) => !value)} onPointerEnter={(event) => { if (event.pointerType === "mouse") setZoomed(true); }} onPointerLeave={(event) => { if (event.pointerType === "mouse") setZoomed(false); }}>
+      <div className={`gpc-panel ${PANEL} [@container(max-width:430px)]:left-[50px]`}>
+        <h2 className={`${TITLE} [@container(max-width:430px)]:text-[21px]`}>{name}</h2>
+        <button className={`gpc-hero ${HERO} [@container(max-width:430px)]:top-[127px] [@container(max-width:430px)]:left-[26px]`} type="button" data-zoomed={zoomed} aria-label={`${zoomed ? "Reduce" : "Enlarge"} ${variant.name} shoe`} aria-pressed={zoomed} onClick={() => setZoomed((value) => !value)} onPointerEnter={(event) => { if (event.pointerType === "mouse") setZoomed(true); }} onPointerLeave={(event) => { if (event.pointerType === "mouse") setZoomed(false); }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={variant.image} alt={`${name} in ${variant.name}`} draggable={false} />
+          <img className={HERO_IMAGE} src={variant.image} alt={`${name} in ${variant.name}`} draggable={false} />
         </button>
-        <div className="gpc-sizes" role="group" aria-labelledby={`${id}-size`}>
-          <span id={`${id}-size`}>Size</span>
-          {sizes.map((item, index) => <button ref={index === 0 ? sizeRef : undefined} type="button" key={item} aria-label={`Size ${item}`} aria-pressed={item === size} disabled={pending} onClick={() => { setSize(item); setStatus(""); }}>{item}</button>)}
+        <div className={`gpc-sizes ${SIZE_ROW} [@container(max-width:430px)]:gap-[7px]`} role="group" aria-labelledby={`${id}-size`}>
+          <span id={`${id}-size`} className={SIZE_LABEL}>Size</span>
+          {sizes.map((item, index) => <button ref={index === 0 ? sizeRef : undefined} type="button" key={item} className={`${SIZE} cursor-pointer aria-pressed:bg-[#377c88] aria-pressed:text-white disabled:cursor-wait disabled:opacity-60 [@container(max-width:430px)]:h-[38px] [@container(max-width:430px)]:w-[31px]`} aria-label={`Size ${item}`} aria-pressed={item === size} disabled={pending} onClick={() => { setSize(item); setStatus(""); }}>{item}</button>)}
         </div>
-        <button type="button" className="gpc-cart" disabled={pending || !sizes.length} onClick={addToCart}>{pending ? "Adding…" : "Add To Cart"}</button>
+        <button type="button" className={`gpc-cart ${CART} hover:shadow-[0_8px_25px_#977dbe33] disabled:cursor-wait disabled:opacity-60`} disabled={pending || !sizes.length} onClick={addToCart}>{pending ? "Adding…" : "Add To Cart"}</button>
       </div>
-    </div> : <p className="gpc-empty">Add a product image to get started.</p>}
-    <p className="gpc-status" role="status">{status}</p>
-    {cartCount > 0 && <span className="gpc-count" aria-label={`${cartCount} items added`}>Bag · {cartCount}</span>}
+    </div> : <p className="gpc-empty text-[15px] text-[#365f72]">Add a product image to get started.</p>}
+    <p className="gpc-status absolute inset-x-6 bottom-5 m-0 min-h-5 text-center text-[13px]/[1.5] text-[#365f72]" role="status">{status}</p>
+    {cartCount > 0 && <span className="gpc-count absolute top-5 right-5 rounded-[30px] border border-[#ffffffaa] bg-[#ffffff55] px-3 py-2 text-[12px] text-[#365f72]" aria-label={`${cartCount} items added`}>Bag · {cartCount}</span>}
   </section>;
 }
 
 export function GlassProductCardThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   const step = Math.abs(Math.trunc(previewStep)) % 4;
   const variant = VARIANTS[step % 3];
-  return <div className={`glass-product-card gpc-thumbnail ${className}`} aria-hidden="true" inert><ComponentStyles css={STYLES} />
-    <div className="gpc-layout"><div className="gpc-thumbnails">{VARIANTS.map((item) => <span key={item.id}>
+  return <div className={`glass-product-card gpc-thumbnail ${ROOT} relative flex h-full min-h-0 items-center justify-center overflow-hidden ${className}`} aria-hidden="true" inert><ComponentStyles css={STYLES} />
+    <div className="gpc-layout relative h-[465px] w-[460px] max-w-none shrink-0 transform-[scale(.52)]"><div className={`gpc-thumbnails ${SWATCHES}`}>{VARIANTS.map((item) => <span key={item.id} className={SWATCH}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={item.image} alt="" />
-    </span>)}</div><div className="gpc-panel"><h3>Nike Air Zoom</h3><div className="gpc-hero" data-zoomed={step === 3}>
+      <img className={SWATCH_IMAGE} src={item.image} alt="" />
+    </span>)}</div><div className={`gpc-panel ${PANEL}`}><h3 className={TITLE}>Nike Air Zoom</h3><div className={`gpc-hero ${HERO}`} data-zoomed={step === 3}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={variant.image} alt="" />
-    </div><div className="gpc-sizes"><span>Size</span>{SIZES.map((size) => <span className="gpc-size-static" key={size}>{size}</span>)}</div><span className="gpc-cart">Add To Cart</span></div></div>
+      <img className={HERO_IMAGE} src={variant.image} alt="" />
+    </div><div className={`gpc-sizes ${SIZE_ROW}`}><span className={SIZE_LABEL}>Size</span>{SIZES.map((size) => <span className={`gpc-size-static ${SIZE}`} key={size}>{size}</span>)}</div><span className={`gpc-cart ${CART}`}>Add To Cart</span></div></div>
   </div>;
 }
 
+// Tailwind classes shared by the interactive card and its gallery thumbnail.
+const ROOT = "@container isolate bg-[radial-gradient(ellipse_at_9%_13%,#fa86ff,transparent_62%),radial-gradient(ellipse_at_65%_95%,#a1ddff,transparent_62%),linear-gradient(120deg,#c182fc,#fde2ff_70%)] font-[Arial,Helvetica,sans-serif] text-white";
+const PANEL = "absolute top-[10px] right-0 bottom-10 left-[75px] rounded-[28px] bg-[#ffffff33] shadow-[inset_0_1px_0_#ffffff44,0_10px_20px_#9279c00a] backdrop-blur-[12px]";
+const TITLE = "absolute inset-x-0 top-[63px] m-0 text-center text-[24px] font-bold text-white text-shadow-[0_1px_3px_#ffffff44]";
+const SWATCHES = "absolute top-[50px] left-5 z-3 flex flex-col gap-3";
+const SWATCH = "grid h-[105px] w-[110px] place-items-center rounded-[23px] border border-[#ffffff15] bg-[#ffffff30] p-2.5 backdrop-blur-[10px] [transition:background_.25s,transform_.25s] motion-reduce:transition-none";
+const SWATCH_IMAGE = "block h-auto w-full object-contain drop-shadow-[0_6px_4px_#53416815]";
+const HERO = "group absolute top-[122px] right-3 left-[35px] z-2 grid h-[155px] cursor-zoom-in place-items-center border-none bg-transparent p-0";
+const HERO_IMAGE = "h-full w-full object-contain drop-shadow-[0_15px_10px_#a75ec316] [transition:transform_.5s_cubic-bezier(.2,.8,.2,1)] group-data-[zoomed=true]:transform-[scale(1.5)_rotate(-15deg)_translateX(20px)] motion-reduce:transition-none";
+const SIZE_ROW = "absolute inset-x-0 bottom-[62px] flex items-center justify-center gap-2.5";
+const SIZE_LABEL = "mr-0.5 text-[18px] tracking-[1px]";
+const SIZE = "grid size-8 place-items-center rounded-[3px] border-none bg-white p-0 text-[15px] font-bold text-[#387a80] [transition:background_.2s,color_.2s] motion-reduce:transition-none";
+const CART = "absolute -bottom-7 left-1/2 flex min-h-[54px] min-w-[162px] -translate-x-1/2 items-center justify-center rounded-[30px] border-none bg-white px-6 py-3 [font:15px/1.2_Arial,sans-serif] whitespace-nowrap text-[#568e91] shadow-[0_5px_12px_#90aecc18]";
+
+// Kept as raw CSS: these must out-rank the site's unlayered global `:focus-visible` and
+// `button:not(:disabled)` cursor rules, which always beat Tailwind's layered utilities.
 const STYLES = `
-.glass-product-card{container-type:inline-size;position:relative;min-height:620px;background:radial-gradient(ellipse at 9% 13%,#fa86ff,transparent 62%),radial-gradient(ellipse at 65% 95%,#a1ddff,transparent 62%),linear-gradient(120deg,#c182fc,#fde2ff 70%);color:white;font-family:Arial,Helvetica,sans-serif;isolation:isolate}
-.glass-product-card *{box-sizing:border-box}
-.gpc-layout{position:relative;width:460px;height:465px;max-width:calc(100% - 44px)}
-.gpc-panel{position:absolute;inset:10px 0 40px 75px;border-radius:28px;background:#ffffff33;box-shadow:inset 0 1px 0 #ffffff44,0 10px 20px #9279c00a;backdrop-filter:blur(12px)}
-.gpc-panel h2,.gpc-panel h3{position:absolute;top:63px;left:0;right:0;margin:0;text-align:center;font-size:24px;font-weight:700;color:white;text-shadow:0 1px 3px #ffffff44}
-.gpc-thumbnails{position:absolute;left:20px;top:50px;z-index:3;display:flex;flex-direction:column;gap:12px}
-.gpc-thumbnails>button,.gpc-thumbnails>span{display:grid;place-items:center;width:110px;height:105px;padding:10px;border:1px solid #ffffff15;border-radius:23px;background:#ffffff30;backdrop-filter:blur(10px);transition:background .25s,transform .25s}
-.gpc-thumbnails button{cursor:pointer}.gpc-thumbnails button:hover{background:#ffffff50;transform:translateY(-3px)}
-.gpc-thumbnails img{display:block;width:100%;height:auto;object-fit:contain;filter:drop-shadow(0 6px 4px #53416815)}
-.gpc-hero{position:absolute;z-index:2;top:122px;left:35px;right:12px;height:155px;border:0;padding:0;background:transparent;cursor:zoom-in;display:grid;place-items:center}
-.gpc-hero img{width:100%;height:100%;object-fit:contain;transition:transform .5s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 15px 10px #a75ec316)}
-.gpc-hero[data-zoomed="true"] img{transform:scale(1.5) rotate(-15deg) translateX(20px)}
-.gpc-hero[data-zoomed="true"]{cursor:zoom-out}
-.gpc-sizes{position:absolute;bottom:62px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:10px}
-.gpc-sizes>span:first-child{font-size:18px;letter-spacing:1px;margin-right:2px}
-.gpc-sizes button,.gpc-size-static{display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:3px;background:#fff;color:#387a80;font-size:15px;font-weight:700;transition:background .2s,color .2s}
-.gpc-sizes button{cursor:pointer}.gpc-sizes button[aria-pressed="true"]{background:#377c88;color:white}
-.gpc-cart{position:absolute;left:50%;bottom:-28px;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;min-width:162px;min-height:54px;padding:12px 24px;border:0;border-radius:30px;background:white;color:#568e91;font:15px/1.2 Arial,sans-serif;white-space:nowrap;box-shadow:0 5px 12px #90aecc18}
-.gpc-cart:hover{box-shadow:0 8px 25px #977dbe33}.gpc-cart:disabled,.gpc-sizes button:disabled{opacity:.6;cursor:wait}
 .glass-product-card button:focus-visible{outline:3px solid #427888;outline-offset:4px}
-.gpc-status{position:absolute;bottom:20px;left:24px;right:24px;min-height:20px;margin:0;text-align:center;font-size:13px;line-height:1.5;color:#365f72}
-.gpc-count{position:absolute;right:20px;top:20px;border:1px solid #ffffffaa;border-radius:30px;padding:8px 12px;background:#ffffff55;color:#365f72;font-size:12px}
-.gpc-empty{color:#365f72;font-size:15px}
-.gpc-thumbnail{min-height:0;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.gpc-thumbnail .gpc-layout{flex-shrink:0;max-width:none;width:460px;transform:scale(.52)}
-@container(max-width:430px){.glass-product-card:not(.gpc-thumbnail) .gpc-layout{width:340px;max-width:calc(100% - 24px)}.glass-product-card:not(.gpc-thumbnail) .gpc-panel{left:50px}.glass-product-card:not(.gpc-thumbnail) .gpc-thumbnails{left:0;top:60px}.glass-product-card:not(.gpc-thumbnail) .gpc-thumbnails>button{width:78px;height:96px}.glass-product-card:not(.gpc-thumbnail) .gpc-panel h2{font-size:21px}.glass-product-card:not(.gpc-thumbnail) .gpc-hero{left:26px;height:155px;top:127px}.glass-product-card:not(.gpc-thumbnail) .gpc-sizes{gap:7px}.glass-product-card:not(.gpc-thumbnail) .gpc-sizes button{height:38px;width:31px}}
-@media(prefers-reduced-motion:reduce){.glass-product-card *{transition:none!important;animation:none!important}}
+.gpc-hero[data-zoomed="true"]{cursor:zoom-out}
 `;

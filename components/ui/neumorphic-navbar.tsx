@@ -45,8 +45,46 @@ const DEFAULT_NAV_ITEMS: readonly NeumorphicNavItem[] = [
   { id: "contact", label: "Contact" },
 ];
 
-function BrandMark() {
-  return <span className="nn-brand-mark" aria-hidden="true"><span /></span>;
+/*
+ * Styling is Tailwind-first. Shared surface tokens live on the root as custom properties
+ * (--nn-surface, --nn-shadow, --nn-light). The `[@container_neumorphic-navbar_(max-width:680px)]`
+ * variant keeps the original inclusive breakpoint (Tailwind's `@max-*` variants are exclusive)
+ * and matches the menu's ResizeObserver, which closes it above 680px. Only the menu keyframes
+ * remain in raw CSS. The nn-* class names are kept as readable hooks.
+ */
+const RAISED_SHADOW = "shadow-[4px_4px_8px_var(--nn-shadow),-4px_-4px_8px_var(--nn-light)]";
+const PRESSED_SHADOW = "shadow-[inset_4px_4px_8px_var(--nn-shadow),inset_-4px_-4px_8px_var(--nn-light)]";
+const PRESSED_ON_ACTIVE = "active:shadow-[inset_3px_3px_6px_var(--nn-shadow),inset_-3px_-3px_6px_var(--nn-light)]";
+// Shared by every link and button. `!` lets the focus ring beat the site-wide unlayered
+// :focus-visible outline, as the old raw rule did.
+const INTERACTIVE = "[-webkit-tap-highlight-color:transparent] focus-visible:outline-2! focus-visible:outline-[#c44817]! focus-visible:outline-offset-[3px]!";
+const ROOT = "@container/neumorphic-navbar w-full min-w-0 bg-(--nn-surface) font-[family-name:Arial,Helvetica,sans-serif] text-[#202020] [--nn-light:#fff] [--nn-shadow:#bcbcbc] [--nn-surface:#e0e0e0]";
+const NAVBAR = "relative grid items-center bg-(--nn-surface)";
+const BRAND = "inline-flex w-fit min-w-0 max-w-full items-center border-0 bg-transparent p-0 font-bold leading-[1.1] text-[#161616] no-underline";
+const TRACK = `relative isolate min-w-0 items-center rounded-[999px] bg-(--nn-surface) ${PRESSED_SHADOW}`;
+const HIGHLIGHT = `pointer-events-none absolute left-0 z-0 w-0 rounded-[999px] bg-(--nn-surface) opacity-0 ${RAISED_SHADOW} [transition:transform_.32s_cubic-bezier(.2,.8,.2,1),width_.32s_cubic-bezier(.2,.8,.2,1),opacity_.12s_ease] motion-reduce:[transition:none]`;
+const ITEM = "relative z-[1] block flex-[0_0_auto] rounded-[999px] border-0 bg-transparent leading-none whitespace-nowrap text-[#626262] no-underline [transition:color_.2s_ease] hover:text-[#202020] data-[active=true]:text-[#202020] motion-reduce:[transition:none]";
+const ACTION = `block max-w-full rounded-[999px] border-0 bg-(--nn-surface) font-bold leading-none whitespace-nowrap text-[#202020] no-underline ${RAISED_SHADOW} [transition:box-shadow_.18s_ease] motion-reduce:[transition:none]`;
+const TOGGLE = `flex-[0_0_36px] place-items-center rounded-[50%] [justify-self:end] border-0 bg-(--nn-surface) p-0 text-[#333] ${RAISED_SHADOW}`;
+const PANEL = "bg-(--nn-surface) shadow-[8px_8px_18px_var(--nn-shadow),-8px_-8px_18px_var(--nn-light)] animate-[nn-menu-enter_.2s_ease_both] motion-reduce:animate-none";
+const MOBILE_ITEM = `block w-full rounded-[999px] border-0 bg-transparent text-left leading-none text-[#626262] no-underline [transition:color_.18s_ease,box-shadow_.18s_ease] hover:text-[#202020] data-[active=true]:text-[#202020] data-[active=true]:shadow-[inset_4px_4px_8px_var(--nn-shadow),inset_-4px_-4px_8px_var(--nn-light)] motion-reduce:[transition:none]`;
+const ACTION_CONTROL = `nn-action ${ACTION} ${INTERACTIVE} cursor-pointer px-[18px] py-3 text-[12px] ${PRESSED_ON_ACTIVE}`;
+
+function BrandMark({ compact = false }: { compact?: boolean }) {
+  return (
+    <span
+      className={compact
+        ? "nn-brand-mark grid size-6 flex-[0_0_24px] place-items-center rounded-[50%] bg-(--nn-surface) shadow-[3px_3px_6px_var(--nn-shadow),-3px_-3px_6px_var(--nn-light)]"
+        : `nn-brand-mark grid size-9 flex-[0_0_36px] place-items-center rounded-[50%] bg-(--nn-surface) ${RAISED_SHADOW}`}
+      aria-hidden="true"
+    >
+      <span className={`${compact ? "size-[7px]" : "size-[10px]"} rounded-[50%] bg-[#ff7a45] shadow-[0_0_0_1px_rgba(255,122,69,.08)]`} />
+    </span>
+  );
+}
+
+function BrandLabel({ children }: { children: string }) {
+  return <span className="min-w-0 truncate">{children}</span>;
 }
 
 function MenuIcon() {
@@ -147,7 +185,9 @@ export default function NeumorphicNavbar({
   function renderItem(item: NeumorphicNavItem, mobile = false) {
     const active = item.id === currentId;
     const shared = {
-      className: mobile ? "nn-mobile-item" : "nn-item",
+      className: mobile
+        ? `nn-mobile-item ${MOBILE_ITEM} ${INTERACTIVE} cursor-pointer px-4 py-3 text-[14px]`
+        : `nn-item ${ITEM} ${INTERACTIVE} cursor-pointer px-[15px] py-[10px] text-[13px]`,
       "data-active": active,
       "aria-current": active ? "page" as const : undefined,
       onClick: () => selectItem(item, mobile),
@@ -164,38 +204,38 @@ export default function NeumorphicNavbar({
   }
 
   return (
-    <div ref={rootRef} className={`nn-root w-full bg-[#e0e0e0] text-neutral-900 ${className}`}>
+    <div ref={rootRef} className={`nn-root ${ROOT} ${className}`}>
       <ComponentStyles css={NEUMORPHIC_NAVBAR_STYLES} />
-      <div className="nn-stage">
-        <nav ref={navRef} className="nn-navigation" aria-label={ariaLabel}>
-          <div className="nn-navbar">
+      <div className="nn-stage min-h-[460px] px-[18px] pt-[22px] pb-10 in-data-[fullscreen=true]:pt-[72px]">
+        <nav ref={navRef} className="nn-navigation mx-auto w-full max-w-[1100px]" aria-label={ariaLabel}>
+          <div className={`nn-navbar ${NAVBAR} min-h-[62px] rounded-[999px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-[14px] px-3 py-[10px] shadow-[8px_8px_18px_var(--nn-shadow),-8px_-8px_18px_var(--nn-light)] [@container_neumorphic-navbar_(max-width:680px)]:grid-cols-[minmax(0,1fr)_auto] [@container_neumorphic-navbar_(max-width:680px)]:gap-[10px]`}>
             {brandHref ? (
-              <a className="nn-brand" href={brandHref} onClick={onBrandClick}>
-                <BrandMark /><span>{brand}</span>
+              <a className={`nn-brand ${BRAND} ${INTERACTIVE} gap-[10px] text-[16px]`} href={brandHref} onClick={onBrandClick}>
+                <BrandMark /><BrandLabel>{brand}</BrandLabel>
               </a>
             ) : onBrandClick ? (
-              <button className="nn-brand" type="button" onClick={onBrandClick}>
-                <BrandMark /><span>{brand}</span>
+              <button className={`nn-brand ${BRAND} ${INTERACTIVE} gap-[10px] text-[16px]`} type="button" onClick={onBrandClick}>
+                <BrandMark /><BrandLabel>{brand}</BrandLabel>
               </button>
             ) : (
-              <span className="nn-brand"><BrandMark /><span>{brand}</span></span>
+              <span className={`nn-brand ${BRAND} gap-[10px] text-[16px]`}><BrandMark /><BrandLabel>{brand}</BrandLabel></span>
             )}
-            <div ref={trackRef} className="nn-track">
-              <span ref={highlightRef} className="nn-highlight" aria-hidden="true" />
+            <div ref={trackRef} className={`nn-track ${TRACK} flex p-[5px] [@container_neumorphic-navbar_(max-width:680px)]:hidden`}>
+              <span ref={highlightRef} className={`nn-highlight ${HIGHLIGHT} top-[5px] bottom-[5px]`} aria-hidden="true" />
               {items.map((item) => renderItem(item))}
             </div>
             {actionLabel && (
-              <div className="nn-action-wrap">
+              <div className="nn-action-wrap flex min-w-0 justify-end [@container_neumorphic-navbar_(max-width:680px)]:hidden">
                 {actionHref ? (
-                  <a className="nn-action" href={actionHref} onClick={onAction}>{actionLabel}</a>
+                  <a className={ACTION_CONTROL} href={actionHref} onClick={onAction}>{actionLabel}</a>
                 ) : (
-                  <button className="nn-action" type="button" onClick={onAction}>{actionLabel}</button>
+                  <button className={ACTION_CONTROL} type="button" onClick={onAction}>{actionLabel}</button>
                 )}
               </div>
             )}
             <button
               ref={toggleRef}
-              className="nn-toggle"
+              className={`nn-toggle ${TOGGLE} ${INTERACTIVE} hidden size-9 cursor-pointer ${PRESSED_ON_ACTIVE} [@container_neumorphic-navbar_(max-width:680px)]:grid`}
               type="button"
               aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={isOpen}
@@ -205,7 +245,7 @@ export default function NeumorphicNavbar({
               <MenuIcon />
             </button>
           </div>
-          <div id={menuId} className="nn-mobile-panel" hidden={!isOpen}>
+          <div id={menuId} className={`nn-mobile-panel ${PANEL} mt-[18px] hidden rounded-[28px] p-[10px] [@container_neumorphic-navbar_(max-width:680px)]:block`} hidden={!isOpen}>
             {items.map((item) => renderItem(item, true))}
           </div>
         </nav>
@@ -230,28 +270,44 @@ export function NeumorphicNavbarThumbnail({
   } satisfies CSSProperties;
 
   return (
-    <div className={`nn-root nn-thumbnail ${mobile ? "nn-thumbnail-mobile" : ""} w-full ${className}`} aria-hidden="true" inert>
+    <div className={`nn-root nn-thumbnail ${mobile ? "nn-thumbnail-mobile" : ""} ${ROOT} h-full min-h-0 overflow-hidden ${className}`} aria-hidden="true" inert>
       <ComponentStyles css={NEUMORPHIC_NAVBAR_STYLES} />
-      <div className="nn-stage">
-        <div className="nn-navigation">
-          <div className="nn-navbar">
-            <span className="nn-brand"><BrandMark /><span>Brandly</span></span>
+      <div className="nn-stage h-full min-h-0 px-4 pt-10 pb-5">
+        <div className={`nn-navigation mx-auto w-full ${mobile ? "max-w-[280px]" : "max-w-[1100px]"}`}>
+          <div className={`nn-navbar ${NAVBAR} min-h-[46px] gap-[7px] rounded-[30px] p-2 shadow-[6px_6px_13px_var(--nn-shadow),-6px_-6px_13px_var(--nn-light)] ${mobile ? "grid-cols-[minmax(0,1fr)_auto]" : "grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"}`}>
+            <span className={`nn-brand ${BRAND} gap-[6px] ${mobile ? "text-[13px]" : "text-[length:clamp(9px,2.3cqw,13px)]"}`}>
+              <BrandMark compact /><BrandLabel>Brandly</BrandLabel>
+            </span>
             {!mobile && (
-              <div className="nn-track">
-                <span className="nn-highlight" style={highlightStyle} />
+              <div className={`nn-track ${TRACK} grid h-[29px] w-[clamp(155px,43cqw,250px)] grid-cols-5 p-0`}>
+                <span className={`nn-highlight ${HIGHLIGHT} top-[2px] bottom-[2px]`} style={highlightStyle} />
                 {DEFAULT_NAV_ITEMS.map((item, itemIndex) => (
-                  <span key={item.id} className="nn-item" data-active={itemIndex === index}>{item.label}</span>
+                  <span
+                    key={item.id}
+                    className={`nn-item ${ITEM} cursor-default px-[3px] py-0 text-center text-[length:clamp(7px,1.85cqw,10px)]`}
+                    data-active={itemIndex === index}
+                  >
+                    {item.label}
+                  </span>
                 ))}
               </div>
             )}
-            {mobile ? <span className="nn-toggle"><MenuIcon /></span> : (
-              <span className="nn-action-wrap"><span className="nn-action">Get started</span></span>
+            {mobile ? <span className={`nn-toggle ${TOGGLE} grid size-7 cursor-default`}><MenuIcon /></span> : (
+              <span className="nn-action-wrap flex min-w-0 justify-end">
+                <span className={`nn-action ${ACTION} cursor-default px-[11px] py-[9px] text-[length:clamp(7px,1.85cqw,10px)]`}>Get started</span>
+              </span>
             )}
           </div>
           {mobile && open && (
-            <div className="nn-mobile-panel">
+            <div className={`nn-mobile-panel ${PANEL} mt-[15px] block rounded-[22px] p-2`}>
               {DEFAULT_NAV_ITEMS.map((item, itemIndex) => (
-                <span key={item.id} className="nn-mobile-item" data-active={itemIndex === index}>{item.label}</span>
+                <span
+                  key={item.id}
+                  className={`nn-mobile-item ${MOBILE_ITEM} cursor-default px-3 py-[10px] text-[11px]`}
+                  data-active={itemIndex === index}
+                >
+                  {item.label}
+                </span>
               ))}
             </div>
           )}
@@ -262,53 +318,5 @@ export function NeumorphicNavbarThumbnail({
 }
 
 const NEUMORPHIC_NAVBAR_STYLES = `
-.nn-root{--nn-surface:#e0e0e0;--nn-shadow:#bcbcbc;--nn-light:#fff;container:neumorphic-navbar / inline-size;min-width:0;width:100%;background:var(--nn-surface);color:#202020;font-family:Arial,Helvetica,sans-serif}
-.nn-root *{box-sizing:border-box}
-.nn-root button,.nn-root a{font-family:inherit;-webkit-tap-highlight-color:transparent}
-.nn-stage{min-height:460px;padding:22px 18px 40px}
-.nn-navigation{width:100%;max-width:1100px;margin:0 auto}
-.nn-navbar{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:14px;min-height:62px;padding:10px 12px;border-radius:999px;background:var(--nn-surface);box-shadow:8px 8px 18px var(--nn-shadow),-8px -8px 18px var(--nn-light)}
-.nn-brand{display:inline-flex;align-items:center;gap:10px;min-width:0;width:fit-content;max-width:100%;padding:0;border:0;background:transparent;color:#161616;font-size:16px;font-weight:700;line-height:1.1;text-decoration:none}
-.nn-brand>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.nn-brand-mark{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:50%;background:var(--nn-surface);box-shadow:4px 4px 8px var(--nn-shadow),-4px -4px 8px var(--nn-light)}
-.nn-brand-mark>span{width:10px;height:10px;border-radius:50%;background:#ff7a45;box-shadow:0 0 0 1px rgba(255,122,69,.08)}
-.nn-track{position:relative;isolation:isolate;display:flex;align-items:center;min-width:0;padding:5px;border-radius:999px;background:var(--nn-surface);box-shadow:inset 4px 4px 8px var(--nn-shadow),inset -4px -4px 8px var(--nn-light)}
-.nn-highlight{position:absolute;z-index:0;left:0;top:5px;bottom:5px;width:0;opacity:0;border-radius:999px;background:var(--nn-surface);box-shadow:4px 4px 8px var(--nn-shadow),-4px -4px 8px var(--nn-light);pointer-events:none;transition:transform .32s cubic-bezier(.2,.8,.2,1),width .32s cubic-bezier(.2,.8,.2,1),opacity .12s ease}
-.nn-item{position:relative;z-index:1;display:block;flex:0 0 auto;border:0;border-radius:999px;padding:10px 15px;background:transparent;color:#626262;font-size:13px;line-height:1;white-space:nowrap;text-decoration:none;cursor:pointer;transition:color .2s ease}
-.nn-item[data-active=true],.nn-mobile-item[data-active=true]{color:#202020}
-.nn-item:hover,.nn-mobile-item:hover{color:#202020}
-.nn-action-wrap{display:flex;justify-content:flex-end;min-width:0}
-.nn-action{display:block;max-width:100%;padding:12px 18px;border:0;border-radius:999px;background:var(--nn-surface);color:#202020;font-size:12px;font-weight:700;line-height:1;white-space:nowrap;text-decoration:none;cursor:pointer;box-shadow:4px 4px 8px var(--nn-shadow),-4px -4px 8px var(--nn-light);transition:box-shadow .18s ease}
-.nn-action:active,.nn-toggle:active{box-shadow:inset 3px 3px 6px var(--nn-shadow),inset -3px -3px 6px var(--nn-light)}
-.nn-toggle{display:none;place-items:center;justify-self:end;flex:0 0 36px;width:36px;height:36px;padding:0;border:0;border-radius:50%;background:var(--nn-surface);color:#333;cursor:pointer;box-shadow:4px 4px 8px var(--nn-shadow),-4px -4px 8px var(--nn-light)}
-.nn-root :is(a,button):focus-visible{outline:2px solid #c44817;outline-offset:3px}
-.nn-mobile-panel{display:none;margin-top:18px;padding:10px;border-radius:28px;background:var(--nn-surface);box-shadow:8px 8px 18px var(--nn-shadow),-8px -8px 18px var(--nn-light);animation:nn-menu-enter .2s ease both}
-.nn-mobile-panel[hidden]{display:none!important}
-.nn-mobile-item{display:block;width:100%;padding:12px 16px;border:0;border-radius:999px;background:transparent;color:#626262;font-size:14px;line-height:1;text-align:left;text-decoration:none;cursor:pointer;transition:color .18s ease,box-shadow .18s ease}
-.nn-mobile-item[data-active=true]{box-shadow:inset 4px 4px 8px var(--nn-shadow),inset -4px -4px 8px var(--nn-light)}
 @keyframes nn-menu-enter{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-@container neumorphic-navbar (max-width:680px){
-.nn-root:not(.nn-thumbnail) .nn-stage{padding:22px 18px 40px}
-.nn-root:not(.nn-thumbnail) .nn-navbar{grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:10px 12px}
-.nn-root:not(.nn-thumbnail) .nn-track,.nn-root:not(.nn-thumbnail) .nn-action-wrap{display:none}
-.nn-root:not(.nn-thumbnail) .nn-toggle{display:grid}
-.nn-root:not(.nn-thumbnail) .nn-mobile-panel{display:block}
-}
-.nn-thumbnail{height:100%;min-height:0;overflow:hidden}
-.nn-thumbnail .nn-stage{min-height:0;height:100%;padding:40px 16px 20px}
-.nn-thumbnail .nn-navbar{min-height:46px;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:7px;padding:8px;border-radius:30px;box-shadow:6px 6px 13px var(--nn-shadow),-6px -6px 13px var(--nn-light)}
-.nn-thumbnail .nn-brand{gap:6px;font-size:clamp(9px,2.3cqw,13px)}
-.nn-thumbnail .nn-brand-mark{flex-basis:24px;width:24px;height:24px;box-shadow:3px 3px 6px var(--nn-shadow),-3px -3px 6px var(--nn-light)}
-.nn-thumbnail .nn-brand-mark>span{width:7px;height:7px}
-.nn-thumbnail .nn-track{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:0;min-width:0;width:clamp(155px,43cqw,250px);height:29px}
-.nn-thumbnail .nn-highlight{top:2px;bottom:2px}
-.nn-thumbnail .nn-item{padding:0 3px;text-align:center;font-size:clamp(7px,1.85cqw,10px);cursor:default}
-.nn-thumbnail .nn-action{padding:9px 11px;font-size:clamp(7px,1.85cqw,10px);cursor:default}
-.nn-thumbnail-mobile .nn-navigation{max-width:280px}
-.nn-thumbnail-mobile .nn-navbar{grid-template-columns:minmax(0,1fr) auto}
-.nn-thumbnail-mobile .nn-brand{font-size:13px}
-.nn-thumbnail-mobile .nn-toggle{display:grid;width:28px;height:28px;cursor:default}
-.nn-thumbnail-mobile .nn-mobile-panel{display:block;margin-top:15px;padding:8px;border-radius:22px}
-.nn-thumbnail-mobile .nn-mobile-item{font-size:11px;padding:10px 12px;cursor:default}
-@media(prefers-reduced-motion:reduce){.nn-highlight,.nn-item,.nn-mobile-item,.nn-action{transition:none}.nn-mobile-panel{animation:none}}
 `;
