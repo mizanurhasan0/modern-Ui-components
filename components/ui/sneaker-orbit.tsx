@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import { useEffect, useId, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 
 export interface SneakerProduct {
@@ -268,7 +270,7 @@ export default function SneakerOrbit({ products = PRODUCTS, autoRotate = true, o
   function reset() { setBrand(""); setCategory("All"); setUnder150(false); setColor(""); setCursor(0); }
 
   return <section className={`sneaker-orbit relative w-full overflow-hidden ${className}`} aria-label="Sneaker orbit catalog">
-    <style>{STYLES}</style>
+    <ComponentStyles css={STYLES} />
     <button type="button" className="so-stage" data-paused={paused || Boolean(selected)} aria-describedby={`${id}-instructions`} aria-label={active ? `Inspect ${active.name}. Use left and right arrow keys to choose a sneaker.` : "No sneakers match these filters"} disabled={!filtered.length}
       onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerLeave={(event) => { if (!event.currentTarget.hasPointerCapture(event.pointerId)) gesture.current = null; }} onPointerCancel={() => { gesture.current = null; ignoreClick.current = true; }}
       onClick={(event) => {
@@ -311,7 +313,7 @@ export default function SneakerOrbit({ products = PRODUCTS, autoRotate = true, o
 export function SneakerOrbitThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   const step = Math.abs(Math.trunc(previewStep)) % 4;
   const products = step === 2 ? PRODUCTS.filter((product) => product.category === "Jordan") : PRODUCTS;
-  return <div className={`sneaker-orbit so-thumbnail ${className}`} aria-hidden="true" inert><style>{STYLES}</style>
+  return <div className={`sneaker-orbit so-thumbnail ${className}`} aria-hidden="true" inert><ComponentStyles css={STYLES} />
     <div className="so-stage" data-paused="true"><OrbitScene products={products} offset={step * 17} staticFrame /></div>
     {step === 3 && <div className="so-static-focus">
       {/* eslint-disable-next-line @next/next/no-img-element */}

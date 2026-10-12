@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import { useEffect, useId, useRef, useState } from "react";
 
 export interface DeliveryButtonProps {
@@ -111,7 +113,7 @@ export default function DeliveryButton({ onOrder, label = "Complete Order", succ
   }
 
   return <section className={`delivery-button relative w-full ${className}`} aria-label="Animated order button">
-    <style>{DELIVERY_STYLES}</style>
+    <ComponentStyles css={DELIVERY_STYLES} />
     <div className="db-stage">
       <button ref={button} type="button" className="db-button" data-state={state} onClick={() => void placeOrder()} disabled={disabled} aria-disabled={pending || state === "success" || disabled} aria-busy={pending} aria-describedby={feedback ? `${id}-feedback` : undefined} aria-label={pending ? "Processing order" : state === "success" ? onOrder ? successLabel : "Order animation complete — demo only" : state === "error" ? "Retry order" : label}>
         <span className="db-label">{state === "error" ? "Try again" : state === "success" ? <>{successLabel}<svg className="db-check" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg></> : state === "waiting" ? "Processing…" : label}</span>
@@ -126,7 +128,7 @@ export default function DeliveryButton({ onOrder, label = "Complete Order", succ
 export function DeliveryButtonThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   const states = ["idle", "loading", "driving", "success"] as const;
   const state = states[Math.abs(Math.trunc(previewStep)) % states.length];
-  return <div className={`delivery-button db-thumbnail ${className}`} aria-hidden="true" inert><style>{DELIVERY_STYLES}</style><div className="db-stage"><div className="db-button" data-state={state}><span className="db-label">{state === "success" ? <>Order Placed<svg className="db-check" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 4 4L19 6" /></svg></> : "Complete Order"}</span><DeliveryScene /></div></div></div>;
+  return <div className={`delivery-button db-thumbnail ${className}`} aria-hidden="true" inert><ComponentStyles css={DELIVERY_STYLES} /><div className="db-stage"><div className="db-button" data-state={state}><span className="db-label">{state === "success" ? <>Order Placed<svg className="db-check" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 4 4L19 6" /></svg></> : "Complete Order"}</span><DeliveryScene /></div></div></div>;
 }
 
 const DELIVERY_STYLES = `

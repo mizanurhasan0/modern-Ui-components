@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 
 export interface GlowingLoginValues {
@@ -194,7 +196,7 @@ export default function GlowingLogin({
 
   return (
     <section className={`gl-stage relative flex min-h-[640px] w-full items-center justify-center overflow-hidden ${className}`} aria-label="Glowing animated login form">
-      <style>{STYLES}</style>
+      <ComponentStyles css={STYLES} />
       <div
         className="gl-box"
         data-open={expanded}
@@ -276,7 +278,7 @@ export default function GlowingLogin({
 export function GlowingLoginThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   return (
     <div className={`gl-stage gl-thumbnail relative flex h-full min-h-[260px] w-full items-center justify-center overflow-hidden ${className}`} aria-hidden="true" inert>
-      <style>{STYLES}</style>
+      <ComponentStyles css={STYLES} />
       <div className="gl-box" data-open={previewStep % 3 !== 1}>
         <div className="gl-frame" />
         <div className="gl-inner">

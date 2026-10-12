@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
 
 export interface HungryDeleteProps {
@@ -274,7 +276,7 @@ export default function HungryDelete({
       aria-label="Hungry Delete interactive demo"
       aria-describedby={statusId}
     >
-      <style>{HUNGRY_DELETE_STYLES}</style>
+      <ComponentStyles css={HUNGRY_DELETE_STYLES} />
       <div className="hd-stage">
         <Heading />
         <div className="hd-panel">
@@ -334,7 +336,7 @@ export function HungryDeleteThumbnail({
       aria-hidden="true"
       inert
     >
-      <style>{HUNGRY_DELETE_STYLES}</style>
+      <ComponentStyles css={HUNGRY_DELETE_STYLES} />
       <div className="hd-stage">
         <Heading />
         <div className="hd-panel">

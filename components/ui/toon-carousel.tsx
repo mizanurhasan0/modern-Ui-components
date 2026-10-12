@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import {
   useEffect,
   useId,
@@ -425,7 +427,7 @@ export function ToonCarouselThumbnail({ className = "", previewStep = 0 }: { cla
 
 function ToonStyles() {
   return (
-    <style>{`
+    <ComponentStyles css={`
       .toon-carousel {
         container-type: inline-size;
         container-name: toon-carousel;
@@ -497,7 +499,7 @@ function ToonStyles() {
       @media (prefers-reduced-motion: reduce) {
         .toon-carousel, .toon-carousel *, .toon-carousel *::before, .toon-carousel *::after { animation: none !important; transition: none !important; }
       }
-    `}</style>
+    `} />
   );
 }
 

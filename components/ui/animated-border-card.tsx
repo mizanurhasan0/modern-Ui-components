@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import { useId, useRef, useState, type FormEvent } from "react";
 
 export interface AnimatedBorderCardProps {
@@ -124,7 +126,7 @@ export default function AnimatedBorderCard({
       className={`abc-stage relative flex min-h-[620px] w-full items-center justify-center overflow-hidden ${className}`}
       aria-label="Animated border profile card"
     >
-      <style>{STYLES}</style>
+      <ComponentStyles css={STYLES} />
       <article
         className="abc-card"
         data-expanded={expanded}
@@ -203,7 +205,7 @@ export default function AnimatedBorderCard({
 export function AnimatedBorderCardThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   return (
     <div className={`abc-stage abc-thumbnail relative flex h-full min-h-[260px] w-full items-center justify-center overflow-hidden ${className}`} aria-hidden="true" inert>
-      <style>{STYLES}</style>
+      <ComponentStyles css={STYLES} />
       <div className="abc-card" data-expanded={previewStep % 3 !== 1}>
         <div className="abc-lines" />
         <Avatar imageSrc={DEFAULT_AVATAR} displayName="Mr. Skeleton" />

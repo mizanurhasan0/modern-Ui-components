@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import { useId, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 
 export interface GalleryFlipPhoto { id: string; src: string; alt: string }
@@ -173,7 +175,7 @@ export default function GalleryFlip({ photos = DEFAULT_PHOTOS, title = "Gallery 
   }
 
   return <section className={`gallery-flip relative flex w-full flex-col items-center justify-center ${className}`} aria-labelledby={`${id}-title`}>
-    <style>{STYLES}</style>
+    <ComponentStyles css={STYLES} />
     <h2 id={`${id}-title`} className="gf-title">{title} <span aria-hidden="true">🏙️</span></h2>
     <p className="gf-help" id={`${id}-help`}>{expanded ? "Click any tile to get back" : "Choose a photo and watch the gallery unfold"}</p>
     {photos.length ? <div className="gf-grid" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, "--gf-photo": `url(${JSON.stringify(photos[active].src)})` } as CSSProperties}>
@@ -200,7 +202,7 @@ export function GalleryFlipThumbnail({ className = "", previewStep = 0 }: { clas
   const step = Math.abs(Math.trunc(previewStep)) % 4;
   const active = step === 3 ? 16 : 8;
   return <div className={`gallery-flip gf-thumbnail ${className}`} aria-hidden="true" inert>
-    <style>{STYLES}</style><h3 className="gf-title">Gallery Flip <span>🏙️</span></h3>
+    <ComponentStyles css={STYLES} /><h3 className="gf-title">Gallery Flip <span>🏙️</span></h3>
     <p className="gf-help">{step ? "Click any tile to get back" : "Choose a photo and watch the gallery unfold"}</p>
     <div className="gf-grid" style={{ "--gf-photo": `url(${JSON.stringify(DEFAULT_PHOTOS[active].src)})` } as CSSProperties}>{DEFAULT_PHOTOS.map((photo, index) => <div key={photo.id} className="gf-tile" data-expanded={step === 2 || step === 3 || (step === 1 && index % 6 < 3)} style={tileStyle(index, active, 6, 4, false)}><span className="gf-front" style={{ backgroundImage: `url(${JSON.stringify(photo.src)})` }} /><span className="gf-back" /></div>)}</div>
   </div>;

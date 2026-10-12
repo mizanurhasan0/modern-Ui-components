@@ -1,5 +1,23 @@
-import LiquidGlassPlayground, { LiquidGlassPlaygroundThumbnail } from "@/components/ui/liquid-glass-playground";
-import NeumorphicNavbar, { NeumorphicNavbarThumbnail } from "@/components/ui/neumorphic-navbar";
+import CharacterDeckSlider, { CharacterDeckSliderThumbnail } from "@/components/ui/character-deck-slider";
+import HologramLogin, { HologramLoginThumbnail } from "@/components/ui/hologram-login";
+import NeonRingAuth, { NeonRingAuthThumbnail } from "@/components/ui/neon-ring-auth";
+import OrbitLogin, { OrbitLoginThumbnail } from "@/components/ui/orbit-login";
+import SpiderReveal, { SpiderRevealThumbnail } from "@/components/ui/spider-reveal";
+import TextRain, { TextRainThumbnail } from "@/components/ui/text-rain";
+import LuxuryClock, { LuxuryClockThumbnail } from "@/components/ui/luxury-clock";
+import AuraCart, { AuraCartThumbnail } from "@/components/ui/aura-cart";
+import PortfolioImageTrail, {
+  PortfolioImageTrailThumbnail,
+} from "@/components/ui/portfolio-image-trail";
+import LiquidCursor, {
+  LiquidCursorThumbnail,
+} from "@/components/ui/liquid-cursor";
+import LiquidGlassPlayground, {
+  LiquidGlassPlaygroundThumbnail,
+} from "@/components/ui/liquid-glass-playground";
+import NeumorphicNavbar, {
+  NeumorphicNavbarThumbnail,
+} from "@/components/ui/neumorphic-navbar";
 import HungryDelete, {
   HungryDeleteThumbnail,
 } from "@/components/ui/hungry-delete";
@@ -78,11 +96,25 @@ import CreativeLogin, {
 import ConnectSocialBar, {
   ConnectSocialBarThumbnail,
 } from "@/components/ui/connect-social-bar";
-import BasketballUpload from "@/components/ui/basketball-upload";
-import RedBullCard from "@/components/ui/redbull-card";
+import BasketballUpload, {
+  BasketballUploadThumbnail,
+} from "@/components/ui/basketball-upload";
+import RedBullCard, {
+  RedBullCardThumbnail,
+} from "@/components/ui/redbull-card";
 
 /** Interactive demos are separate from serializable catalog metadata. */
 export const componentPreviews: Partial<Record<string, ComponentType>> = {
+  "character-deck-slider": CharacterDeckSlider,
+  "hologram-login": HologramLogin,
+  "neon-ring-auth": NeonRingAuth,
+  "orbit-login": OrbitLogin,
+  "spider-reveal": SpiderReveal,
+  "text-rain": TextRain,
+  "luxury-clock": LuxuryClock,
+  "liquid-cursor": LiquidCursor,
+  "portfolio-image-trail": PortfolioImageTrail,
+  "aura-cart": AuraCart,
   "liquid-glass-playground": LiquidGlassPlayground,
   "neumorphic-navbar": NeumorphicNavbar,
   "hungry-delete": HungryDelete,
@@ -122,6 +154,16 @@ export const componentPreviews: Partial<Record<string, ComponentType>> = {
 export const componentThumbnails: Partial<
   Record<string, ComponentType<{ className?: string; previewStep?: number }>>
 > = {
+  "character-deck-slider": CharacterDeckSliderThumbnail,
+  "hologram-login": HologramLoginThumbnail,
+  "neon-ring-auth": NeonRingAuthThumbnail,
+  "orbit-login": OrbitLoginThumbnail,
+  "spider-reveal": SpiderRevealThumbnail,
+  "text-rain": TextRainThumbnail,
+  "luxury-clock": LuxuryClockThumbnail,
+  "aura-cart": AuraCartThumbnail,
+  "liquid-cursor": LiquidCursorThumbnail,
+  "portfolio-image-trail": PortfolioImageTrailThumbnail,
   "liquid-glass-playground": LiquidGlassPlaygroundThumbnail,
   "neumorphic-navbar": NeumorphicNavbarThumbnail,
   "hungry-delete": HungryDeleteThumbnail,
@@ -130,6 +172,8 @@ export const componentThumbnails: Partial<
   "verification-code": VerificationCodeThumbnail,
   "portrait-gallery": PortraitGalleryThumbnail,
   "connect-social-bar": ConnectSocialBarThumbnail,
+  "basketball-upload": BasketballUploadThumbnail,
+  "redbull-card": RedBullCardThumbnail,
   "gallery-flip": GalleryFlipThumbnail,
   "sneaker-orbit": SneakerOrbitThumbnail,
   "scorpion-cursor": ScorpionCursorThumbnail,

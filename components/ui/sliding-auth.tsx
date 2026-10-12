@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 
 export type SlidingAuthMode = "login" | "register";
@@ -122,7 +124,7 @@ export default function SlidingAuth({ initialMode = "login", onLogin, onRegister
   }
 
   return <section className={`sliding-auth relative w-full ${className}`} aria-label="Sliding login and registration">
-    <style>{SLIDING_STYLES}</style>
+    <ComponentStyles css={SLIDING_STYLES} />
     <div className="sa-stage"><div className="sa-card" data-register={registering} data-switching={switching}>
       <div className="sa-form-panel" inert={switching}>
         <h2 className="sa-title" ref={headingRef} tabIndex={-1}>{completed ? "All set!" : title}</h2>
@@ -151,7 +153,7 @@ export default function SlidingAuth({ initialMode = "login", onLogin, onRegister
 /** Static states for a gallery; no timers, forms, or interactive descendants. */
 export function SlidingAuthThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   const registering = Math.abs(Math.trunc(previewStep)) % 2 === 1;
-  return <div className={`sliding-auth sa-thumbnail ${className}`} aria-hidden="true" inert><style>{SLIDING_STYLES}</style><div className="sa-stage"><div className="sa-card" data-register={registering}><div className="sa-form-panel"><h2 className="sa-title">{registering ? "Registration" : "Login"}</h2><div className="sa-input-wrap sa-fake-field">Username<SlidingIcon name="username" /></div>{registering && <div className="sa-input-wrap sa-fake-field">Email<SlidingIcon name="email" /></div>}<div className="sa-input-wrap sa-fake-field">Password<SlidingIcon name="password" /></div>{!registering && <span className="sa-forgot">Forgot Password?</span>}<span className="sa-primary">{registering ? "Register" : "Login"}</span><p className="sa-social-copy">or {registering ? "register" : "login"} with social platforms</p><div className="sa-socials">{PROVIDERS.map((provider) => <span key={provider}><SlidingIcon name={provider} /></span>)}</div></div><div className="sa-color-panel"><div className="sa-welcome"><h2>{registering ? "Welcome Back!" : "Hello, Welcome!"}</h2><p>{registering ? "Already have an account?" : "Don’t have an account?"}</p><span className="sa-switch-look">{registering ? "Login" : "Register"}</span></div></div></div></div></div>;
+  return <div className={`sliding-auth sa-thumbnail ${className}`} aria-hidden="true" inert><ComponentStyles css={SLIDING_STYLES} /><div className="sa-stage"><div className="sa-card" data-register={registering}><div className="sa-form-panel"><h2 className="sa-title">{registering ? "Registration" : "Login"}</h2><div className="sa-input-wrap sa-fake-field">Username<SlidingIcon name="username" /></div>{registering && <div className="sa-input-wrap sa-fake-field">Email<SlidingIcon name="email" /></div>}<div className="sa-input-wrap sa-fake-field">Password<SlidingIcon name="password" /></div>{!registering && <span className="sa-forgot">Forgot Password?</span>}<span className="sa-primary">{registering ? "Register" : "Login"}</span><p className="sa-social-copy">or {registering ? "register" : "login"} with social platforms</p><div className="sa-socials">{PROVIDERS.map((provider) => <span key={provider}><SlidingIcon name={provider} /></span>)}</div></div><div className="sa-color-panel"><div className="sa-welcome"><h2>{registering ? "Welcome Back!" : "Hello, Welcome!"}</h2><p>{registering ? "Already have an account?" : "Don’t have an account?"}</p><span className="sa-switch-look">{registering ? "Login" : "Register"}</span></div></div></div></div></div>;
 }
 
 const SLIDING_STYLES = `

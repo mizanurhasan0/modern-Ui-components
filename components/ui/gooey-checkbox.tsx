@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import { useId, type InputHTMLAttributes } from "react";
 
 export interface GooeyCheckboxProps extends Omit<
@@ -84,7 +86,7 @@ export default function GooeyCheckbox({
     <div
       className={`gooey-checkbox gc-stage grid w-full place-items-center bg-white ${className}`}
     >
-      <style>{GOOEY_CHECKBOX_STYLES}</style>
+      <ComponentStyles css={GOOEY_CHECKBOX_STYLES} />
       <label className="gc-control" htmlFor={inputId} data-disabled={disabled}>
         <input
           {...inputProps}
@@ -121,7 +123,7 @@ export function GooeyCheckboxThumbnail({
       aria-hidden="true"
       inert
     >
-      <style>{GOOEY_CHECKBOX_STYLES}</style>
+      <ComponentStyles css={GOOEY_CHECKBOX_STYLES} />
       <div
         className="gc-control"
         data-checked={step === 1 || step === 2}

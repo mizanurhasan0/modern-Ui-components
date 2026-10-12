@@ -4,6 +4,394 @@
 
 Detailed setup, props, interaction notes, and artwork credits for every component.
 
+## Use Character Deck Slider in your project
+
+Copy **Character Deck Slider → Code** into `components/ui/character-deck-slider.tsx`. The scoped styles and the five default anime portraits are embedded in the export, so no public folder or extra package is required.
+
+```tsx
+import CharacterDeckSlider from "@/components/ui/character-deck-slider";
+
+export default function CharactersPage() {
+  return <CharacterDeckSlider />;
+}
+```
+
+The active portrait sits in full color at the front of a vertical deck; two smaller grayscale cards peek above and two below. Every card animates between positions on the same `0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)` curve. Browse with the round up/down buttons, the pagination lines, a click on a peeking card, a vertical swipe or drag, or the arrow keys and Home/End while the deck is focused. A polite live region announces each change.
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `items` | `CharacterDeckItem[]` | Five built-in characters. Each item has `id`, `name`, `title`, `image`, and optional `alt` and `imagePosition`. |
+| `initialIndex` | `number` | `0`; clamped to the available items. |
+| `loop` | `boolean` | `true`; set `false` to stop at the first and last card. |
+| `onChange` | `(index: number, item: CharacterDeckItem) => void` | Called after every change. |
+| `className` | `string` | Additional container classes. |
+
+`CharacterDeckSliderThumbnail({ className?, previewStep? })` renders an inert deck at a different active card for each gallery frame. Reduced motion removes the card and caption transitions.
+
+Visual reference: the supplied anime character card-deck recording. Its copyrighted series artwork is not reused; the default portraits are the same images used by Portrait Gallery. Replace them with your own artwork through `items`.
+
+## Use Hologram Login in your project
+
+Copy **Hologram Login → Code** into `components/ui/hologram-login.tsx`. The projector, light cone, glass panel, and scoped styles are pure CSS inside the file; no image or package is required.
+
+```tsx
+import HologramLogin from "@/components/ui/hologram-login";
+
+export default function LoginPage() {
+  return <HologramLogin />;
+}
+```
+
+A translucent cyan panel floats above a dark emitter puck while a clip-path light cone pulses between them. The form has visually hidden labels, required validation with `aria-invalid`, a **Verifying…** state, an error alert, and a welcome screen with **Sign out**.
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `title` | `string` | `"Login"`. |
+| `onSubmit` | `(values: HologramLoginValues) => void \| Promise<void>` | Receives `username` and `password`. Resolve to show success; reject with an `Error` to display its message. |
+| `className` | `string` | Additional container classes. |
+
+Without `onSubmit`, the component simulates a local sign-in after about a second; it performs no remote authentication. Reduced motion stops the floating panel and pulsing rays. `HologramLoginThumbnail({ className?, previewStep? })` cycles through empty, typing, hover, and welcome frames.
+
+Visual reference: the supplied hologram login recording (CodeByGaurav). Browser chrome, the code editor, and stickers in the recording are context only.
+
+## Use Neon Ring Auth in your project
+
+Copy **Neon Ring Auth → Code** into `components/ui/neon-ring-auth.tsx`. The circular cyan/magenta frame, inset form controls, SVG icons, rotating transition, and scoped styles are bundled in the export. No external animation or icon package is required.
+
+```tsx
+import NeonRingAuth from "@/components/ui/neon-ring-auth";
+
+export default function LoginPage() {
+  return <NeonRingAuth />;
+}
+```
+
+The dark circular form is surrounded by cyan bloom and a traveling magenta edge. Login and sign-up trade places through a three-dimensional rotation. Password visibility, remember-me, recovery, validation, cancel, and retry are included. The inactive side of the form is inert and disabled so it cannot receive focus or submit.
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `initialView` | `NeonAuthView` | `"login"`; also accepts `"signup"` or `"reset"`. |
+| `onLogin` | `(credentials: NeonLoginCredentials, signal: AbortSignal) => void \| Promise<void>` | Receives `email`, `password`, and `remember`. |
+| `onSignUp` | `(details: NeonSignUpDetails, signal: AbortSignal) => void \| Promise<void>` | Receives `fullName`, `email`, and `password`. |
+| `onResetPassword` | `(details: NeonResetDetails, signal: AbortSignal) => void \| Promise<void>` | Receives the recovery `email`. |
+| `className` | `string` | Additional container classes. |
+
+Callbacks should resolve when the service accepts the action and reject to display an error. Pending submissions are protected from repeat clicks. **Cancel**, changing views, or unmounting aborts the supplied signal; abandoned completions do not update the current form. Pass callbacks from a Client Component and forward the signal to your network requests.
+
+```tsx
+"use client";
+
+import NeonRingAuth, { type NeonLoginCredentials } from "@/components/ui/neon-ring-auth";
+
+export default function ConnectedLogin() {
+  async function login(details: NeonLoginCredentials, signal: AbortSignal) {
+    const response = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(details),
+      signal,
+    });
+    if (!response.ok) throw new Error("Please check your email and password.");
+  }
+  return <NeonRingAuth onLogin={login} />;
+}
+```
+
+The endpoint is supplied by your application. Without callbacks, the component reports explicit local demo success; it creates no account, sends no email, and performs no remote authentication. Initial view configures a newly mounted component. Native required/email/password validation and accessible names support ordinary keyboard use.
+
+Decorative animation pauses when hidden or offscreen, and reduced motion removes the continuous ring and rotating transition. `NeonRingAuthThumbnail({ className?, previewStep? })` provides inert login, typing, hover, and sign-up scenes; homepage autoplay supplies each frame.
+
+Visual reference: the supplied cyan circular login/sign-up recording. The interface uses CSS and inline SVG; browser/editor chrome and reaction stickers are recording context.
+
+## Use Orbit Login in your project
+
+Copy **Orbit Login → Code** into `components/ui/orbit-login.tsx`. The radial ticks, orange login panel, SVG field icons, and scoped styles are included in the exported file; no icon or animation package is required.
+
+```tsx
+import OrbitLogin from "@/components/ui/orbit-login";
+
+export default function LoginPage() {
+  return <OrbitLogin />;
+}
+```
+
+The raised navy form and traveling orange tick segment follow the supplied login recording. Login, sign-up, and password recovery are usable local forms. Show/hide the password, choose a social action, or connect the async callbacks to your own service.
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `initialView` | `OrbitAuthView` | `"login"`; may also be `"signup"` or `"reset"`. |
+| `onLogin` | `(credentials: OrbitLoginCredentials, signal: AbortSignal) => void \| Promise<void>` | Receives `email` and `password`. |
+| `onSignUp` | `(details: OrbitSignUpDetails, signal: AbortSignal) => void \| Promise<void>` | Receives `fullName`, `email`, and `password`. |
+| `onResetPassword` | `(details: OrbitResetDetails, signal: AbortSignal) => void \| Promise<void>` | Receives the recovery `email`. |
+| `onSocialAuth` | `(provider: OrbitSocialProvider, signal: AbortSignal) => void \| Promise<void>` | Receives `"facebook"`, `"x"`, or `"google"`; supply your provider integration. |
+| `socialProviders` | `readonly OrbitSocialProvider[]` | Facebook/X/Google; pass `[]` to hide social actions. |
+| `className` | `string` | Additional container classes. |
+
+Callbacks must resolve on acceptance and reject on failure. Pending actions disable repeat submission and can be canceled. Switching forms or unmounting aborts the supplied signal; late completions do not update the abandoned view. Forward the signal to network requests and pass callbacks from a Client Component in Next.js.
+
+```tsx
+"use client";
+
+import OrbitLogin, { type OrbitLoginCredentials } from "@/components/ui/orbit-login";
+
+export default function ConnectedLogin() {
+  async function login(credentials: OrbitLoginCredentials, signal: AbortSignal) {
+    const response = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(credentials),
+      signal,
+    });
+    if (!response.ok) throw new Error("Please check your email and password.");
+  }
+  return <OrbitLogin onLogin={login} />;
+}
+```
+
+The `/api/login` endpoint is application-defined. Without callbacks, success is explicitly labeled as a local demo; recovery sends no email, and social buttons perform no external sign-in. Native form validation and accessible labels are provided, and changing forms moves focus to the first input.
+
+`OrbitLoginThumbnail({ className?, previewStep? })` contains inert login, typing, sign-up, and recovery frames. Reduced motion stops the decorative tick animation, and the gallery drives thumbnail autoplay.
+
+Visual reference: the supplied orange login-card recording. All design elements are rendered with CSS and inline SVG; browser/editor framing and reaction stickers are excluded.
+
+## Use Spider Reveal in your project
+
+Copy **Spider Reveal → Code** into `components/ui/spider-reveal.tsx`. The masked/unmasked portraits, anomaly photographs, scoped styles, and stylesheet helper are bundled in the export. No separate image or animation package is required.
+
+```tsx
+import SpiderReveal from "@/components/ui/spider-reveal";
+
+export default function DossierPage() {
+  return <SpiderReveal />;
+}
+```
+
+A moving spotlight reveals the human portrait beneath the mask. Tap the portrait on touch screens, or focus the scene and use Enter/Space to toggle the spotlight and arrow keys to move it. Escape hides the spotlight. **Initialize Override Sequence** reveals the whole portrait and changes the dossier's visual state. Scroll inside the scene to see the black **Known Anomalies** section; its cards open local detail panels.
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `maskedImage` | `string` | Embedded reference masked portrait; replace it with an image or data URL. |
+| `revealedImage` | `string` | Embedded human portrait; use the same framing as the masked image. |
+| `subject` | `SpiderSubject` | `{ firstName: "Peter", lastName: "Parker", alias: "ARACHNID" }`. |
+| `anomalies` | `readonly SpiderAnomaly[]` | Three reference-inspired cards; use unique IDs and your own content. |
+| `revealRadius` | `number` | `140`; pixels at the reference width of 720px, bounded to 30–350 and scaled to the local scene. |
+| `initialOverride` | `boolean` | `false`; initial full-portrait reveal state. |
+| `onOverrideChange` | `(enabled: boolean) => void` | Receives override changes. |
+| `onNavigate` | `(target: SpiderSystem) => void` | Connect `"systems"`, `"database"`, or `"diagnostics"` to your application. |
+| `onAnomalySelect` | `(anomaly: SpiderAnomaly) => void` | Receives a selected card; the local detail panel also opens. |
+| `className` | `string` | Additional container classes. |
+
+Each `SpiderAnomaly` contains `id`, `name`, `classification`, and `description`, plus optional `image` and `accent`. The default Systems/Diagnostics actions open accessible native dialogs; Database scrolls to the anomalies. Dialog dismissal restores focus to its trigger. Pass callback props from a Client Component in Next.js.
+
+```tsx
+<SpiderReveal
+  subject={{ firstName: "Your", lastName: "Name", alias: "DESIGNER" }}
+  maskedImage="/portraits/masked.webp"
+  revealedImage="/portraits/revealed.webp"
+  revealRadius={150}
+/>
+```
+
+The viewport and spotlight remain local to the component. A touch gesture can scroll the scene, and reduced motion removes decorative transitions. `SpiderRevealThumbnail({ className?, previewStep? })` renders inert spotlight, override, and anomaly scenes driven by the homepage autoplay controller.
+
+Visual reference: the supplied **Hover Reveal / E.D.I.T.H** recording. The default raster artwork was extracted from its native video frames; compression and recorded distortion limit the detail. Replace the portraits and anomaly artwork with your own when adapting the dossier.
+
+## Use Text Rain in your project
+
+Copy **Text Rain → Code** into `components/ui/text-rain.tsx`. The glowing cloud, characters, scoped styles, and animation are included in the exported file, without a canvas or particle package.
+
+```tsx
+import TextRain from "@/components/ui/text-rain";
+
+export default function RainPage() {
+  return <TextRain characters="CREATIVE" color="#ffffff" />;
+}
+```
+
+Glowing letters emerge from behind a wide, rounded white cloud over a charcoal stage. The two-second cycle moves each letter 290px during its first 70%, then shrinks it in place during the remaining 30%, following the supplied recording. Mixed letter sizes create the small sparkling points in the rain. Completed particles receive a fresh character and position without a JavaScript timer or frame loop. Deterministic first frames keep server and client rendering consistent.
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `characters` | `string` | `"ABCDEFGHIJKLMNOPQRSTUVWXYZ"`; the character set used by the particles. |
+| `color` | `string` | `"#ffffff"`; cloud and letter color. |
+| `density` | `number` | `100`; bounded to 1–160 concurrent particles. |
+| `speed` | `number` | `2`; seconds per cycle, bounded to 0.6–12. |
+| `paused` | `boolean` | Optional controlled pause state. Update it in `onPausedChange`. |
+| `defaultPaused` | `boolean` | `false`; initial uncontrolled pause state. |
+| `showControls` | `boolean` | `false`; enable optional pause/play and replay controls. |
+| `onPausedChange` | `(paused: boolean) => void` | Receives changes requested through the pause control. |
+| `ariaLabel` | `string` | `"Glowing text rain"`; accessible name for the effect. |
+| `className` | `string` | Additional container classes. |
+
+Pass callbacks from a Client Component when using Next.js. CSS animation pauses while hidden or offscreen, and reduced motion provides a stable cloud and letter scene. Particle count and duration are bounded to keep the effect practical when embedded alongside other components.
+
+`TextRainThumbnail({ className?, previewStep? })` uses the same cloud and falling-letter animation. It stays inert, owns no timer or event handlers, and pauses through the homepage's visibility and reduced-motion controls. Use `<TextRain showControls />` to enable playback controls on the full component.
+
+Visual reference: the supplied CSS Text Rain video. The cloud is rendered with vector/CSS artwork; browser, creator, and code-editor framing are not component assets.
+
+## Use Luxury Clock in your project
+
+Copy **Luxury Clock → Code** into `components/ui/luxury-clock.tsx`. The dial, hands, crown mark, and scoped styles are bundled in the exported file. No clock package, remote logo, or asset folder is required.
+
+```tsx
+import LuxuryClock from "@/components/ui/luxury-clock";
+
+export default function ClockPage() {
+  return <LuxuryClock timeZone="Asia/Dhaka" />;
+}
+```
+
+The teal stage, black dial, gold 12/3/6/9 numerals, white hour and minute hands, and fine glowing second hand follow the supplied clock video. The default display reads the browser's local time once each second. An accessible time label accompanies the visual dial.
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `date` | `Date \| string \| number` | Supply a fixed instant to stop the live timer. Prefer an ISO timestamp with an explicit offset. |
+| `timeZone` | `string` | An IANA zone, such as `"Asia/Dhaka"`; defaults to the browser's local zone. |
+| `brand` | `string` | `"ROLEX"`; replace the reference label for your own design. |
+| `ariaLabel` | `string` | `"Luxury analog clock"`; the reading is appended to this accessible name. |
+| `className` | `string` | Additional container classes. |
+
+```tsx
+<LuxuryClock
+  date="2026-10-12T10:10:30+06:00"
+  timeZone="Asia/Dhaka"
+  brand="YOUR STUDIO"
+/>
+```
+
+A deterministic first frame avoids hydration differences. Live local time is read after mounting; a supplied fixed instant initially uses the supplied zone, or UTC until the local zone is available. The one-second timer pauses while the clock is hidden or offscreen and is released on unmount. Invalid zones fall back to UTC; an invalid fixed date falls back to live time.
+
+`LuxuryClockThumbnail({ className?, previewStep? })` renders an inert dial with deterministic sample hand positions. The homepage controls its autoplay; it mounts no real clock timer.
+
+Visual reference: the supplied black-and-gold analog clock recording. The crown is inline vector artwork, and the label is configurable.
+
+## Use Portfolio Image Trail in your project
+
+Copy **Portfolio Image Trail → Code** into `components/ui/portfolio-image-trail.tsx`. The portrait and technology artwork are embedded in the exported file, together with the scoped styles. No separate image folder or animation package is required.
+
+```tsx
+import PortfolioImageTrail from "@/components/ui/portfolio-image-trail";
+
+export default function PortfolioPage() {
+  return (
+    <PortfolioImageTrail
+      name="Your Name"
+      initials="YN"
+      workHref="#work"
+      contactHref="mailto:hello@example.com"
+    />
+  );
+}
+```
+
+Move the pointer across the cream hero, or drag on a touch screen, to reveal the fading blue image ribbon. The frosted card, lime action, central character and laptop, compact navigation, and technology labels follow the first supplied video. The reference footage provides the raster artwork; the interface and interactions are rendered as live elements.
+
+Use `name`, `initials`, `role`, `headline`, `accentText`, `description`, `availability`, `technologies`, `localTime`, `location`, and `signature` to personalize the scene. Replace `portraitSrc`, `portraitAlt`, or `trailSrc` with your own artwork. Custom image URLs are supplied by your application; the default artwork is already included in the copied source.
+
+`navigation` supplies links for `work`, `about`, `stack`, and `contact`. `workHref` and `contactHref` connect the two call-to-action buttons. Alternatively, supply `onNavigate(section)`, `onViewWork()`, or `onContact()` from a Client Component. With no destination or callback, the demo opens a local detail panel containing the matching project, about, technology, or contact information. Customize it through `projects`, `aboutText`, and `contactEmail`. Escape closes the panel and returns focus to its trigger.
+
+The trail stays within its stage and releases animation frames, observers, and listeners on unmount. Hidden/offscreen scenes pause their rendering, and reduced motion keeps the interface usable without a continuously animated trail. `PortfolioImageTrailThumbnail({ className?, previewStep? })` contains an inert scene; the homepage controller supplies its preview frames.
+
+## Use Liquid Cursor in your project
+
+Copy **Liquid Cursor → Code** into `components/ui/liquid-cursor.tsx`. Its liquid effect, scoped styling, and portfolio views are included in the file; no cursor or animation dependency is required.
+
+```tsx
+import LiquidCursor from "@/components/ui/liquid-cursor";
+
+export default function PortfolioPage() {
+  return <LiquidCursor />;
+}
+```
+
+The second supplied video starts on a white portfolio hero with three tightly spaced lines of oversized type. Moving the pointer creates a liquid shape with an elastic tail. Hovering a navigation item turns its highlight into a pill. Scroll or swipe inside the component to enter the dark gridded project section, where the cursor appears white and project rows reveal their details.
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `brand` | `string` | `"PIXELFLOW"`; the studio label. |
+| `headline` | `readonly string[]` | The three reference lines; each item occupies one line. |
+| `projects` | `readonly LiquidCursorProject[]` | Three reference projects; each has a unique `id`, `title`, `discipline`, and `description`. |
+| `onProjectSelect` | `(project: LiquidCursorProject) => void` | Receives the selected project when its detail preview opens. |
+| `onContact` | `() => void` | Replaces the local contact panel with your own action. |
+| `className` | `string` | Additional container classes. |
+
+Pass callbacks from a Client Component in Next.js. The About and Updates navigation opens local information panels. Escape dismisses a panel and restores focus to its trigger.
+
+The scene provides native buttons and keyboard navigation for both sections, with a usable touch layout. The custom cursor stays within the component and does not replace the native cursor on touch devices. Rendering pauses when the scene is hidden or offscreen and stops after the liquid settles. Reduced motion keeps the content and controls usable while removing continuous liquid movement.
+
+`LiquidCursorThumbnail({ className?, previewStep? })` is an inert sample of the white hero and dark projects. The gallery controls its frames and pauses them with the rest of the collection.
+
+## Use Aura Cart Animation in your project
+
+Copy **Aura Cart Animation → Code** into `components/ui/aura-cart.tsx`. The component includes its product photography, icons, scoped styles, and gallery-to-detail animation. The Code export also includes the stylesheet helper, so the copied file needs no local helper or asset folder.
+
+```tsx
+import AuraCart from "@/components/ui/aura-cart";
+
+export default function ShopPage() {
+  return <AuraCart />;
+}
+```
+
+The six-image AURA storefront opens a selected product into a cream detail page. Choose a color to crossfade its photograph, save a favorite, or select **Add to Cart** to send a small product image along a curved path into the bag. The bag count responds when the addition completes. Back returns to the product mosaic; the bag opens the local cart with remove and undo actions. Collections and Editorial open their own demo views unless you provide a navigation callback.
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `products` | `readonly AuraCartProduct[]` | Six demo products. Supply your own products with unique IDs and at least one variant. |
+| `initialProductId` | `string` | Optional product ID to open directly in the detail view. |
+| `initialCart` | `readonly AuraCartLine[]` | The reference demo starts with two cart items. Custom products start with an empty cart unless you supply initial lines. Pass `[]` to start the default demo empty. |
+| `initialSavedIds` | `readonly string[]` | `[]`; initial saved product IDs. |
+| `currency` | `string` | `"USD"`; currency used to format product prices. |
+| `onAddToCart` | `(selection: AuraCartSelection, signal: AbortSignal) => void \| Promise<void>` | Connect your cart service. The callback must resolve before the flight animation and local cart update proceed. |
+| `onCartChange` | `(lines: readonly AuraCartLine[]) => void` | Receives the local cart after additions, removals, and undo. |
+| `onSaveChange` | `(product: AuraCartProduct, saved: boolean) => void` | Receives saved-item changes so you can connect your own persistence. |
+| `onNavigate` | `(target: AuraNavigationTarget) => void` | Handle `"shop"`, `"collections"`, or `"editorial"` navigation in your application. |
+| `className` | `string` | Additional container classes. |
+
+`AuraCartProduct` contains `id`, `name`, `price`, `description`, and `variants`, with optional `badge`, `rating`, and `reviewCount`. Prices use major currency units: `185` is displayed as `$185` with the default currency. Each `AuraCartVariant` contains `id`, `label`, `color`, and `image`. Replace `image` with your own image URL or data URL. `AuraCartSelection` contains the chosen `product`, `variant`, and `quantity: 1`; `AuraCartLine` has the same product and variant with a numeric quantity.
+
+`AURA_CART_PRODUCTS` is also exported, so you can copy and customize the default catalog without rebuilding all six products.
+
+The initial props configure newly mounted state. The default cart and saved items are local to the component and do not persist between page visits. Cart actions demonstrate the shopping interaction; provide your own server integration and checkout flow for a live store. Keep product and variant IDs stable when replacing content.
+
+Pass callbacks from a Client Component in Next.js. This example starts with an empty cart and waits for an application-defined `/api/cart` endpoint:
+
+```tsx
+"use client";
+
+import AuraCart, { type AuraCartSelection } from "@/components/ui/aura-cart";
+
+export default function ConnectedShop() {
+  async function addToCart(
+    { product, variant, quantity }: AuraCartSelection,
+    signal: AbortSignal,
+  ) {
+    const response = await fetch("/api/cart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        productId: product.id,
+        variantId: variant.id,
+        quantity,
+      }),
+      signal,
+    });
+
+    if (!response.ok) {
+      throw new Error("We could not add this item. Please try again.");
+    }
+  }
+
+  return <AuraCart initialCart={[]} onAddToCart={addToCart} />;
+}
+```
+
+Forward the supplied signal to requests so canceled or unmounted work can be aborted. A rejected or thrown callback leaves the cart count unchanged and shows an error instead of completing the success animation. Resolve the callback only after your service accepts the addition; returning `false` is not part of this API.
+
+`AuraCartThumbnail({ className?, previewStep? })` supplies lightweight inert frames of the mosaic, product detail, and cart flight. The homepage controller drives autoplay and handles pausing. The full component adapts to its container and respects reduced-motion preferences.
+
+Visual reference: the supplied **AURA Add to Cart Animation** video. Seven demo photographs were extracted from that recording and embedded in the component; image sharpness is limited by the video resolution. Product labels and prices are demonstration content. Replace them and the photographs with your own catalog when adapting the storefront.
+
 ## Use Liquid Glass Playground in your project
 
 Copy **Liquid Glass Playground → Code** into `components/ui/liquid-glass-playground.tsx`. Its renderer, shaders, scoped styles, display fonts, and license notices are included in the exported file. No separate rendering package or asset folder is required.
@@ -866,7 +1254,7 @@ Exported types: `ConnectSocialBarProps`, `SocialNetwork`.
 
 ## Use Basketball Upload in your project
 
-Import `BasketballUpload` from the standalone source. It includes a file picker, drag-and-drop target, hoop artwork, and local progress feedback.
+Copy **Basketball Upload → Code** for a single reusable TSX file. It includes the file picker, drag-and-drop target, hoop artwork, scoped styles, and stylesheet helper.
 
 ```tsx
 import BasketballUpload from "@/components/ui/basketball-upload";
@@ -876,21 +1264,23 @@ export default function UploadPage() {
 }
 ```
 
-Choose a file or drop it onto the court to play the upload animation. The default action is a local demonstration; pass `onUpload` to connect the selected file to your storage service.
+The court starts idle. Choose a file or drop it onto the court to play the upload animation; `accept` and `multiple` apply to both paths. Drag the sample document, click it, or focus it and press Enter/Space for a local shot. Sample shots never call `onUpload`. Real selected files use your `onUpload` callback; without one, progress is simulated. A rejected upload keeps its error and filename visible until the next attempt, while queued files can continue. Select the same file again to retry. Timers, queued work, and late callback results are guarded on unmount.
 
 | Prop | Type | Default / behavior |
 | --- | --- | --- |
 | `onUpload` | `(file: File) => void \| Promise<void>` | Optional upload callback. Resolving marks the local item as uploaded; rejecting shows an error. |
-| `accept` | `string` | `"*/*"` |
+| `onError` | `(error: unknown, file: File) => void` | Reports a failed real upload. |
+| `disabled` | `boolean` | `false`; prevents picking, dropping, and shooting. |
+| `accept` | `string` | `"*/*"`; MIME types, MIME wildcards, or extensions, comma-separated. |
 | `multiple` | `boolean` | `true` |
 | `initialUploadedCount` | `number` | `2` |
 | `className` | `string` | Optional container classes. |
 
-Exported type: `BasketballUploadProps`.
+Exported type: `BasketballUploadProps`. `BasketballUploadThumbnail({ className?, previewStep? })` supplies four inert gallery frames; it has no file controls, upload effects, or audio. The shared gallery clock handles pause, visibility, and reduced motion.
 
 ## Use Red Bull Card in your project
 
-Import `RedBullCard` from the standalone source. The card uses inline SVG artwork and CSS effects, so it needs no image assets or animation package.
+Copy **Red Bull Card → Code** for a single reusable TSX file. The real can photo, CSS effects, and stylesheet helper are included. The Code tab embeds the WebP photo directly, so copied components need no image folder or animation package. Product photography comes from [Red Bull’s official product page](https://www.redbull.com/int-en/energydrink/products/red-bull-energy-drink).
 
 ```tsx
 import RedBullCard from "@/components/ui/redbull-card";
@@ -900,7 +1290,7 @@ export default function ProductPage() {
 }
 ```
 
-The glowing badge opens into a product card and collapses again. The animation respects reduced-motion preferences; select the card control to pause automatic playback and switch states manually. `onShopNow` runs when the shop action is selected.
+The glowing badge opens into a product card and collapses again. Autoplay pauses offscreen, in a hidden tab, while hovered or focused, and when reduced motion is requested. Selecting Open, Close, or Shop Now stops autoplay so it cannot interrupt the interaction. Escape closes the card and returns focus to its toggle. Collapsed product content is inert. `onShopNow` runs when the shop action is selected; without it, a local status message explains that no destination is connected.
 
 | Prop | Type | Default / behavior |
 | --- | --- | --- |
@@ -910,7 +1300,7 @@ The glowing badge opens into a product card and collapses again. The animation r
 | `onShopNow` | `() => void` | Optional shop action callback. |
 | `className` | `string` | Optional container classes. |
 
-Exported type: `RedBullCardProps`.
+Exported type: `RedBullCardProps`. `RedBullCardThumbnail({ className?, previewStep? })` renders compact, card, and expanded gallery frames without interactive controls or playback effects.
 
 ## Project structure
 
@@ -947,3 +1337,7 @@ lib/
 Keep the metadata registry free of component imports and server APIs. It drives component counts and generated routes, while the preview maps supply the actual React components. The Code tab reads the registered component file on the server, so the copied code stays in sync with the preview. Unknown slugs return a 404.
 
 Before changing Next.js integration, read the relevant guide in `node_modules/next/dist/docs/` as described in `AGENTS.md`.
+
+## Component stylesheet resources
+
+`ComponentStyles` registers scoped CSS through React 19's stylesheet resource handling. Identical CSS is deduplicated in the document head, and a content fingerprint gives edited CSS a fresh resource identity during development. This also avoids the reported hydration mismatch when a dark-mode browser extension adds `native-dark-class-modified` to inline style elements before React starts. Hydration warnings remain enabled for ordinary component markup. The Code tab embeds this small helper in every exported component, so copied files have no project-local stylesheet import.

@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import {
   useCallback,
   useEffect,
@@ -451,7 +453,7 @@ export default function DestinationCarousel({
 
   return (
     <div className={`dest-root w-full ${className}`}>
-      <style>{DESTINATION_STYLES}</style>
+      <ComponentStyles css={DESTINATION_STYLES} />
       <div
         ref={stageRef}
         className="dest-stage relative isolate overflow-hidden bg-stone-950 text-white"
@@ -823,7 +825,7 @@ export function DestinationCarouselThumbnail({
   const upcoming = [1, 2, 3].map((offset) => DEFAULT_SLIDES[(selected + offset) % DEFAULT_SLIDES.length]);
   return (
     <div className={`dest-root dest-thumbnail ${className}`} aria-hidden="true">
-      <style>{DESTINATION_STYLES}</style>
+      <ComponentStyles css={DESTINATION_STYLES} />
       <div className="dest-stage dest-thumbnail-stage">
         <div
           key={active.id}

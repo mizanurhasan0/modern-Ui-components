@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
 
 export interface FanImage {
@@ -142,7 +144,7 @@ export default function FanImageSlider({
 
   return (
     <section className={`fan-image-slider relative w-full ${className}`} aria-label="Landscape image carousel" aria-roledescription="carousel">
-      <style>{FAN_STYLES}</style>
+      <ComponentStyles css={FAN_STYLES} />
       <div
         className="fis-stage"
         onKeyDown={handleKeyDown}
@@ -203,7 +205,7 @@ export default function FanImageSlider({
 /** Static artwork with no nested interactive elements for the gallery link. */
 export function FanImageSliderThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   return <div className={`fan-image-slider fis-thumbnail ${className}`} aria-hidden="true" inert>
-    <style>{FAN_STYLES}</style>
+    <ComponentStyles css={FAN_STYLES} />
     <div className="fis-stage">
       <div className="fis-spread">{DEFAULT_IMAGES.map((item, index) => <div key={item.id} className="fis-card" style={positionStyle(index, (4 + previewStep) % DEFAULT_IMAGES.length, DEFAULT_IMAGES.length)}>
         {/* eslint-disable-next-line @next/next/no-img-element */}

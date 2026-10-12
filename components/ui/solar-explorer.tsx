@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import {
   useId,
   useRef,
@@ -368,7 +370,7 @@ export function SolarExplorer({
 
   return (
     <section className={`solar-explorer ${className}`} aria-label="Solar system explorer">
-      <style>{SOLAR_STYLES}</style>
+      <ComponentStyles css={SOLAR_STYLES} />
       <div
         className="se-stage"
         onPointerDown={handlePointerDown}
@@ -470,7 +472,7 @@ export function SolarExplorerThumbnail({
 
   return (
     <div className={`solar-explorer solar-explorer--thumbnail ${className}`} aria-hidden="true">
-      <style>{SOLAR_STYLES}</style>
+      <ComponentStyles css={SOLAR_STYLES} />
       <div className="se-stage">
         <ExplorerHeading />
         <PlanetScene planet={planet} />

@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import {
   useEffect,
   useId,
@@ -271,7 +273,7 @@ export default function VerificationCode({
       className={`verification-code vc-stage grid w-full place-items-center ${className}`}
       aria-label="Code verification"
     >
-      <style>{VERIFICATION_STYLES}</style>
+      <ComponentStyles css={VERIFICATION_STYLES} />
       <div className="vc-card" data-state={state}>
         <LockArtwork verified={state === "success"} />
         <h2 id={`${id}-title`} className="vc-title">
@@ -392,7 +394,7 @@ export function VerificationCodeThumbnail({
   const verified = step === 5;
   return (
     <div className={`verification-code vc-stage vc-thumbnail ${className}`}>
-      <style>{VERIFICATION_STYLES}</style>
+      <ComponentStyles css={VERIFICATION_STYLES} />
       <div className="vc-card" data-state={verified ? "success" : "idle"}>
         <LockArtwork verified={verified} />
         <span className="vc-title">Verification Code</span>

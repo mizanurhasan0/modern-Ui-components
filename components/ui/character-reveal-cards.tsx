@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 /* eslint-disable @next/next/no-img-element -- Embedded image assets keep this component portable without Next.js image configuration. */
 
 import { useEffect, useId, useRef, useState, type CSSProperties, type MouseEvent } from "react";
@@ -77,7 +79,7 @@ export function CharacterRevealCards({
 
   return (
     <section className={`character-reveal-cards ${className}`} aria-label="Fantasy character cards">
-      <style>{CHARACTER_REVEAL_STYLES}</style>
+      <ComponentStyles css={CHARACTER_REVEAL_STYLES} />
       <p id={instructionsId} className="cr-sr-only">
         Hover or focus a card to reveal its character. Press Enter to view details. On a touch screen, tap once to reveal and again to view details.
       </p>
@@ -140,7 +142,7 @@ export function CharacterRevealCards({
 export function CharacterRevealCardsThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   return (
     <div className={`character-reveal-cards character-reveal-cards--thumbnail ${className}`} aria-hidden="true">
-      <style>{CHARACTER_REVEAL_STYLES}</style>
+      <ComponentStyles css={CHARACTER_REVEAL_STYLES} />
       <div className="cr-stage">
         {DEFAULT_CARDS.map((card, index) => (
           <div key={card.id} className="cr-card" data-revealed={index === previewStep % 3}>

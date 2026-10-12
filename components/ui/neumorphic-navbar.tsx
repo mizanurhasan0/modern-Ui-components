@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import {
   useEffect,
   useId,
@@ -163,7 +165,7 @@ export default function NeumorphicNavbar({
 
   return (
     <div ref={rootRef} className={`nn-root w-full bg-[#e0e0e0] text-neutral-900 ${className}`}>
-      <style>{NEUMORPHIC_NAVBAR_STYLES}</style>
+      <ComponentStyles css={NEUMORPHIC_NAVBAR_STYLES} />
       <div className="nn-stage">
         <nav ref={navRef} className="nn-navigation" aria-label={ariaLabel}>
           <div className="nn-navbar">
@@ -229,7 +231,7 @@ export function NeumorphicNavbarThumbnail({
 
   return (
     <div className={`nn-root nn-thumbnail ${mobile ? "nn-thumbnail-mobile" : ""} w-full ${className}`} aria-hidden="true" inert>
-      <style>{NEUMORPHIC_NAVBAR_STYLES}</style>
+      <ComponentStyles css={NEUMORPHIC_NAVBAR_STYLES} />
       <div className="nn-stage">
         <div className="nn-navigation">
           <div className="nn-navbar">

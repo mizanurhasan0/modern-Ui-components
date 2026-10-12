@@ -15,6 +15,316 @@ export type ComponentEntry = {
 /** The catalog drives the gallery, detail pages, and available source files. */
 export const components: ComponentEntry[] = [
   {
+    "slug": "character-deck-slider",
+    "title": "Character Deck Slider",
+    "description": "A white character card stacks anime portraits into a vertical deck: the active card blooms into color while neighbors fade to grayscale above and below.",
+    "category": "Carousels",
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Accessible"
+    ],
+    "sourceFile": "character-deck-slider.tsx",
+    "fileName": "character-deck-slider.tsx",
+    "number": "041",
+    "demoNote": "Interactive demo · Use the round up/down buttons, click a peeking card or a pagination line, swipe the deck vertically, or focus it and use the arrow keys.",
+    "features": [
+      {
+        "title": "A deck with depth",
+        "description": "Five card positions scale, shift, and desaturate together on one smooth cubic-bezier curve, so every step feels physical."
+      },
+      {
+        "title": "Every way to browse",
+        "description": "Buttons, pagination lines, peeking-card clicks, vertical swipe, and arrow keys all move the same deck, with a polite live announcement."
+      },
+      {
+        "title": "Bring your own cast",
+        "description": "Typed items, an onChange callback, optional looping, and embedded default artwork keep the copied file ready to use."
+      }
+    ],
+    "usage": "import CharacterDeckSlider from \"@/components/ui/character-deck-slider\";\n\nexport default function CharactersPage() {\n  return <CharacterDeckSlider />;\n}"
+  },
+  {
+    "slug": "hologram-login",
+    "title": "Hologram Login",
+    "description": "A translucent cyan login panel floats above a glowing projector, beamed up by a pulsing cone of holographic light.",
+    "category": "Forms",
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Accessible"
+    ],
+    "sourceFile": "hologram-login.tsx",
+    "fileName": "hologram-login.tsx",
+    "number": "040",
+    "demoNote": "Interactive demo · Enter any username and password and press Continue. Sign-in runs locally until you connect onSubmit to your own service.",
+    "features": [
+      {
+        "title": "Projected from below",
+        "description": "A CSS-only emitter puck and clip-path light cone pulse beneath a frosted, gently floating glass panel."
+      },
+      {
+        "title": "A real form",
+        "description": "Labelled fields, required validation, a verifying state, error alerts, and a welcome screen with sign-out are all built in."
+      },
+      {
+        "title": "Connect your auth",
+        "description": "Pass an async onSubmit: resolve to show success or reject to display your error message. Reduced motion stops the float and pulse."
+      }
+    ],
+    "usage": "import HologramLogin from \"@/components/ui/hologram-login\";\n\nexport default function LoginPage() {\n  return <HologramLogin />;\n}"
+  },
+  {
+    "slug": "neon-ring-auth",
+    "title": "Neon Ring Auth",
+    "description": "A glowing cyan and magenta circular frame surrounds dark inset form fields, rotating between login and account creation.",
+    "category": "Forms",
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Accessible"
+    ],
+    "sourceFile": "neon-ring-auth.tsx",
+    "fileName": "neon-ring-auth.tsx",
+    "number": "039",
+    "demoNote": "Interactive demo · Switch between login and sign-up, reveal a password, or try account recovery. Connect the typed callbacks for real authentication.",
+    "features": [
+      {
+        "title": "A luminous frame",
+        "description": "Cyan bloom and a moving magenta edge surround the circular dark form, matching the supplied neon reference."
+      },
+      {
+        "title": "Two sides of the form",
+        "description": "Login and sign-up trade places through a rotating transition, with remember-me and password visibility controls."
+      },
+      {
+        "title": "Ready for your service",
+        "description": "Typed async actions, validation, cancellation, and error feedback keep the reusable component practical."
+      }
+    ],
+    "usage": "import NeonRingAuth from \"@/components/ui/neon-ring-auth\";\n\nexport default function Page() {\n  return <NeonRingAuth />;\n}"
+  },
+  {
+    "slug": "orbit-login",
+    "title": "Orbit Login",
+    "description": "An orange-accented login card sits inside a ring of rotating illuminated ticks, against a softly shaded navy background.",
+    "category": "Forms",
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Accessible"
+    ],
+    "sourceFile": "orbit-login.tsx",
+    "fileName": "orbit-login.tsx",
+    "number": "038",
+    "demoNote": "Interactive demo · Try login, password visibility, recovery, and sign-up. Supply callbacks to connect authentication and social actions.",
+    "features": [
+      {
+        "title": "An illuminated orbit",
+        "description": "Rounded radial ticks travel around a raised navy card while orange highlights bring the form to life."
+      },
+      {
+        "title": "A complete interaction",
+        "description": "Accessible form fields, password visibility, recovery, and sign-up complement the social action buttons."
+      },
+      {
+        "title": "Your authentication",
+        "description": "Typed callbacks support real services, with pending, success, and error states in an independently reusable component."
+      }
+    ],
+    "usage": "import OrbitLogin from \"@/components/ui/orbit-login\";\n\nexport default function Page() {\n  return <OrbitLogin />;\n}"
+  },
+  {
+    "slug": "spider-reveal",
+    "title": "Spider Reveal",
+    "description": "A cinematic identity interface reveals the face beneath a masked portrait with a moving spotlight, glitch accents, and live mission panels.",
+    "category": "Effects",
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Accessible"
+    ],
+    "sourceFile": "spider-reveal.tsx",
+    "fileName": "spider-reveal.tsx",
+    "number": "035",
+    "demoNote": "Interactive demo · Move your pointer or use the reveal control to uncover the portrait. Explore system panels, initialize the sequence, and open the anomaly cards.",
+    "features": [
+      {
+        "title": "A hidden identity",
+        "description": "A spotlight uncovers the portrait beneath the mask with bounded pointer and touch interactions and a keyboard alternative."
+      },
+      {
+        "title": "A working command interface",
+        "description": "Biometric styling, live coordinate feedback, system actions, and anomaly details turn the supplied cinematic scene into an interactive component."
+      },
+      {
+        "title": "A portable scene",
+        "description": "The reference artwork and scoped styles are included in the Code export, with typed customization and reduced-motion behavior."
+      }
+    ],
+    "usage": "import SpiderReveal from \"@/components/ui/spider-reveal\";\n\nexport default function Page() {\n  return <SpiderReveal />;\n}"
+  },
+  {
+    "slug": "text-rain",
+    "title": "Text Rain",
+    "description": "A luminous white cloud rains glowing characters over a charcoal stage, with falling letters that shrink and fade as they land.",
+    "category": "Effects",
+    "tags": [
+      "Animated",
+      "Accessible",
+      "Customizable"
+    ],
+    "sourceFile": "text-rain.tsx",
+    "fileName": "text-rain.tsx",
+    "number": "037",
+    "demoNote": "Animated demo · Glowing letters fall from behind the cloud and shrink at the bottom. Customize the characters, color, density, and speed; enable optional playback controls in your project.",
+    "features": [
+      {
+        "title": "Letters in the rain",
+        "description": "Glowing characters fall from a crisp cloud and fade out with the timing shown in the video."
+      },
+      {
+        "title": "A controllable effect",
+        "description": "Choose the character set, color, particle density, and duration; pause or replay the local scene."
+      },
+      {
+        "title": "Considerate animation",
+        "description": "Deterministic particles avoid hydration surprises, with reduced-motion and visibility handling."
+      }
+    ],
+    "usage": "import TextRain from \"@/components/ui/text-rain\";\n\nexport default function Page() {\n  return <TextRain />;\n}"
+  },
+  {
+    "slug": "luxury-clock",
+    "title": "Luxury Clock",
+    "description": "A black analog dial floats over a deep teal backdrop, with gold numerals, a glowing second hand, and a crown-inspired mark.",
+    "category": "Displays",
+    "tags": [
+      "Animated",
+      "Accessible",
+      "Customizable"
+    ],
+    "sourceFile": "luxury-clock.tsx",
+    "fileName": "luxury-clock.tsx",
+    "number": "036",
+    "demoNote": "Live demo · The dial follows your local time. Supply a fixed date, time zone, or brand when reusing the component.",
+    "features": [
+      {
+        "title": "A precise dial",
+        "description": "White hour and minute hands, a fine luminous second hand, and gold cardinal numerals follow the supplied clock design."
+      },
+      {
+        "title": "Your time",
+        "description": "Show live local time, choose a time zone, or supply a fixed date for a reproducible display."
+      },
+      {
+        "title": "A self-contained detail",
+        "description": "The dial, crown artwork, and scoped styles need no external clock or image package."
+      }
+    ],
+    "usage": "import LuxuryClock from \"@/components/ui/luxury-clock\";\n\nexport default function Page() {\n  return <LuxuryClock />;\n}"
+  },
+  {
+    slug: "liquid-cursor",
+    title: "Liquid Cursor",
+    description:
+      "An elastic liquid cursor flows over oversized typography, stretches into navigation pills, and turns white as the portfolio changes to its dark project view.",
+    category: "Effects",
+    tags: ["Interactive", "Animated", "Accessible"],
+    sourceFile: "liquid-cursor.tsx",
+    fileName: "liquid-cursor.tsx",
+    number: "034",
+    demoNote:
+      "Interactive demo · Move your pointer across the stage, hover a navigation item, and scroll or swipe to the projects. Keyboard controls and project selection are included.",
+    features: [
+      {
+        title: "Motion with a little weight",
+        description:
+          "Connected liquid forms follow the pointer with inertia, stretching on movement and settling into a soft circle.",
+      },
+      {
+        title: "Two sides of a portfolio",
+        description:
+          "A crisp white typography hero gives way to a dark project list, with an inverted cursor and fluid hover highlights.",
+      },
+      {
+        title: "Built to be embedded",
+        description:
+          "The cursor stays inside the component, with customizable content, project callbacks, responsive layouts, and reduced-motion support.",
+      },
+    ],
+    usage: `import LiquidCursor from "@/components/ui/liquid-cursor";
+
+export default function PortfolioPage() {
+  return <LiquidCursor />;
+}`,
+  },
+  {
+    slug: "portfolio-image-trail",
+    title: "Portfolio Image Trail",
+    description:
+      "A character-led cream portfolio reveals a ribbon of blue technology artwork behind your pointer, framed by frosted navigation and bright lime accents.",
+    category: "Effects",
+    tags: ["Interactive", "Animated", "Accessible"],
+    sourceFile: "portfolio-image-trail.tsx",
+    fileName: "portfolio-image-trail.tsx",
+    number: "033",
+    demoNote:
+      "Interactive demo · Move your pointer or drag across the hero to reveal the image trail. Try the navigation and the work or contact actions; supply your own content and callbacks for your portfolio.",
+    features: [
+      {
+        title: "A trail of creative work",
+        description:
+          "Blue technology imagery follows a smooth fading pointer trail around the character portrait and laptop.",
+      },
+      {
+        title: "The details from the reference",
+        description:
+          "Cream surfaces, compact frosted pills, monospaced labels, and a lime call to action recreate the supplied portfolio scene.",
+      },
+      {
+        title: "A complete portable scene",
+        description:
+          "The exported component includes its artwork and scoped styles, with typed customization, keyboard actions, and reduced-motion behavior.",
+      },
+    ],
+    usage: `import PortfolioImageTrail from "@/components/ui/portfolio-image-trail";
+
+export default function PortfolioPage() {
+  return <PortfolioImageTrail />;
+}`,
+  },
+  {
+    "slug": "aura-cart",
+    "title": "Aura Cart Animation",
+    "description": "A warm cream storefront turns a product mosaic into a focused shopping view, with color changes and a playful image flight into the bag.",
+    "category": "Commerce",
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Accessible"
+    ],
+    "sourceFile": "aura-cart.tsx",
+    "fileName": "aura-cart.tsx",
+    "number": "032",
+    "demoNote": "Interactive demo · Open a product, choose a color, and add it to the bag. The default shopping flow runs locally until you connect your own callbacks.",
+    "features": [
+      {
+        "title": "From collection to detail",
+        "description": "A six-image product mosaic opens into editorial product details with a cream palette, serif typography, and smooth image transitions."
+      },
+      {
+        "title": "A little shopping delight",
+        "description": "The selected product image follows a curved path into the bag as its item count responds. Color choices crossfade the product photography."
+      },
+      {
+        "title": "Made for your storefront",
+        "description": "Typed product data and callbacks let you connect cart and saved-item behavior, with responsive layouts and reduced-motion support."
+      }
+    ],
+    "usage": "import AuraCart from \"@/components/ui/aura-cart\";\n\nexport default function ShopPage() {\n  return <AuraCart />;\n}"
+  },
+  {
     "slug": "liquid-glass-playground",
     "title": "Liquid Glass Playground",
     "description": "A flowing teal workspace lets you drag refractive glass panels, fuse their surfaces, and adjust the material with live controls.",
@@ -303,7 +613,7 @@ export default function UploadPage() {
     slug: "redbull-card",
     title: "Red Bull Card",
     description:
-      "A softly glowing product mark expands into a vivid Red Bull card, with a tilted can, product details, and a shop action.",
+      "A softly glowing product mark expands into a vivid Red Bull card, with a tilted real can photo, product details, and a shop action.",
     category: "Cards",
     tags: ["Animated", "Interactive"],
     sourceFile: "redbull-card.tsx",
@@ -315,7 +625,7 @@ export default function UploadPage() {
       {
         title: "From mark to product",
         description:
-          "A compact glowing badge opens to reveal a product card and illustrative can.",
+          "A compact glowing badge opens to reveal a product card and a real Red Bull product photo.",
       },
       {
         title: "Ambient motion",

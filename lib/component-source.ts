@@ -46,7 +46,10 @@ function createPortableCreativeLogin(source: string): string {
     componentSource = [
       '"use client";',
       imports.join("\n"),
-      componentSource.replace(clientDirective, "").replace(sceneImport, "").trim(),
+      componentSource
+        .replace(clientDirective, "")
+        .replace(sceneImport, "")
+        .trim(),
       "// 3D renderer included with the component for standalone reuse.",
       sceneBody.trim(),
     ].join("\n\n");
@@ -75,9 +78,56 @@ function createPortableCreativeLogin(source: string): string {
   }
 
   const fontLicense = readFileSync(
-    path.join(process.cwd(), "public/creative-login/OFL.txt"), "utf8",
+    path.join(process.cwd(), "public/creative-login/OFL.txt"),
+    "utf8",
   );
   return `${componentSource}\n\n/*\nCharacter and animations: Visme (visme.co).\nBundled Fira Sans font license:\n${fontLicense.replaceAll("*/", "* /")}\n*/\n`;
+}
+
+const componentStylesImport =
+  /^import\s*\{\s*ComponentStyles\s*\}\s*from\s*["'](?:\.\/|@\/components\/ui\/)component-styles["'];?[ \t]*\r?\n?/m;
+
+/** Inline the shared stylesheet resource helper so exported components stay independent. */
+function includePortableStyles(source: string): string {
+  if (!componentStylesImport.test(source)) return source;
+  const helper = readFileSync(
+    path.join(process.cwd(), "components/ui/component-styles.tsx"),
+    "utf8",
+  );
+  return `${source.replace(componentStylesImport, "").trim()}\n\n${helper.trim()}\n`;
+}
+
+/** Include the actual product photo so copied cards do not need a public folder. */
+function includeRedBullPhoto(source: string): string {
+  const photoPath = "/redbull/energy-drink-can.webp";
+  const photo = readFileSync(path.join(process.cwd(), "public", photoPath));
+  const dataUrl = `data:image/webp;base64,${photo.toString("base64")}`;
+  return `${source.replaceAll(`"${photoPath}"`, JSON.stringify(dataUrl))}\n\n// Product photo: Red Bull official Energy Drink product page.\n// https://www.redbull.com/int-en/energydrink/products/red-bull-energy-drink\n`;
+}
+
+/** Embed both reference images so the cursor trail can be copied into another project. */
+function includePortfolioImages(source: string): string {
+  let portableSource = source;
+  for (const fileName of ["portrait.webp", "tech-texture.webp"]) {
+    const publicUrl = `/portfolio-trail/${fileName}`;
+    const image = readFileSync(
+      path.join(process.cwd(), "public/portfolio-trail", fileName),
+    );
+    const dataUrl = `data:image/webp;base64,${image.toString("base64")}`;
+    for (const quote of ['"', "'", "`"]) {
+      portableSource = portableSource.replaceAll(
+        `${quote}${publicUrl}${quote}`,
+        `${quote}${dataUrl}${quote}`,
+      );
+    }
+    if (!portableSource.includes(dataUrl)) {
+      throw new Error(`Portfolio Image Trail does not reference ${fileName}.`);
+    }
+  }
+  if (portableSource.includes("/portfolio-trail/")) {
+    throw new Error("Portfolio Image Trail contains an asset that was not embedded.");
+  }
+  return `${portableSource}\n\n// Portrait and technology texture extracted from the user-supplied portfolio interaction video.\n// Source frames: 0.08 seconds (portrait), 2.00 seconds (technology texture).\n`;
 }
 
 /** Only registered files can be exposed; portable exports include required assets. */
@@ -93,5 +143,10 @@ export function getComponentSource(slug: string): string {
     "utf8",
   );
 
-  return slug === "creative-login" ? createPortableCreativeLogin(source) : source;
+  const portableSource = includePortableStyles(source);
+  if (slug === "redbull-card") return includeRedBullPhoto(portableSource);
+  if (slug === "portfolio-image-trail") return includePortfolioImages(portableSource);
+  return slug === "creative-login"
+    ? createPortableCreativeLogin(portableSource)
+    : portableSource;
 }

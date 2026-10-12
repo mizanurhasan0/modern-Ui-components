@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 
 export interface ScorpionCursorProps {
@@ -204,7 +206,7 @@ export function ScorpionCursorThumbnail({ className = "", previewStep = 0 }: { c
 }
 
 function ScorpionStyles() {
-  return <style>{`.scorpion-stage{container-type:inline-size;container-name:scorpion}.scorpion-stage .scorpion-canvas{height:480px;touch-action:pan-y}.scorpion-stage .scorpion-canvas:focus-visible{outline:1px solid #a9b6aa;outline-offset:-10px}.scorpion-stage .scorpion-footer{background:linear-gradient(transparent,#000)}.scorpion-stage .scorpion-button{border:1px solid #ffffff24;border-radius:5px;background:#ffffff06;color:#b7beb8;padding:6px 10px;font:10px ui-monospace,monospace}.scorpion-stage .scorpion-button:hover,.scorpion-stage .scorpion-button[aria-pressed=true]{background:#ffffff15;color:#fff}.scorpion-stage.scorpion-thumbnail{height:100%;min-height:0;display:grid;place-items:center}.scorpion-stage.scorpion-thumbnail svg{display:block;width:100%;height:100%;min-height:0}.scorpion-thumbnail path{transition:d 650ms ease}@media(prefers-reduced-motion:reduce){.scorpion-thumbnail path{transition:none}}@container scorpion (max-width:500px){.scorpion-stage .scorpion-canvas{height:390px}}`}</style>;
+  return <ComponentStyles css={`.scorpion-stage{container-type:inline-size;container-name:scorpion}.scorpion-stage .scorpion-canvas{height:480px;touch-action:pan-y}.scorpion-stage .scorpion-canvas:focus-visible{outline:1px solid #a9b6aa;outline-offset:-10px}.scorpion-stage .scorpion-footer{background:linear-gradient(transparent,#000)}.scorpion-stage .scorpion-button{border:1px solid #ffffff24;border-radius:5px;background:#ffffff06;color:#b7beb8;padding:6px 10px;font:10px ui-monospace,monospace}.scorpion-stage .scorpion-button:hover,.scorpion-stage .scorpion-button[aria-pressed=true]{background:#ffffff15;color:#fff}.scorpion-stage.scorpion-thumbnail{height:100%;min-height:0;display:grid;place-items:center}.scorpion-stage.scorpion-thumbnail svg{display:block;width:100%;height:100%;min-height:0}.scorpion-thumbnail path{transition:d 650ms ease}@media(prefers-reduced-motion:reduce){.scorpion-thumbnail path{transition:none}}@container scorpion (max-width:500px){.scorpion-stage .scorpion-canvas{height:390px}}`} />;
 }
 
 export { ScorpionCursor };

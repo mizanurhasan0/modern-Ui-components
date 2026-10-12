@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 
 export type LoveTypographyProps = {
@@ -61,7 +63,7 @@ export default function LoveTypography({ autoPlay = true, duration = 8000, class
 
   return (
     <section ref={root} className={`lt-root relative isolate grid w-full overflow-hidden ${className}`} aria-label="I love you typography animation" data-paused={paused || reducedMotion} data-visible="false" style={{ "--lt-duration": `${Number.isFinite(duration) ? Math.max(3000, duration) : 8000}ms` } as CSSProperties}>
-      <style>{STYLES}</style>
+      <ComponentStyles css={STYLES} />
       <div className="lt-stage"><Lettering key={replay} /></div>
       <span className="sr-only">I love you. The phrase transforms into a heart.</span>
       <div className="lt-controls">
@@ -78,7 +80,7 @@ export default function LoveTypography({ autoPlay = true, duration = 8000, class
 /** The gallery owns playback; each frame is inert and contains no timers. */
 export function LoveTypographyThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   const frame = Number.isFinite(previewStep) ? Math.abs(Math.trunc(previewStep)) % 4 : 0;
-  return <div className={`lt-root lt-thumbnail ${className}`} aria-hidden="true" inert><style>{STYLES}</style><div className="lt-stage"><Lettering frame={frame} /></div></div>;
+  return <div className={`lt-root lt-thumbnail ${className}`} aria-hidden="true" inert><ComponentStyles css={STYLES} /><div className="lt-stage"><Lettering frame={frame} /></div></div>;
 }
 
 const STYLES = `

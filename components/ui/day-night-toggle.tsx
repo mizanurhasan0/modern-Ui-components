@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import { useCallback, useEffect, useId, useState } from "react";
 
 export interface DayNightToggleProps {
@@ -224,7 +226,7 @@ export default function DayNightToggle({
       data-dark={dark}
       aria-label="Day and night toggle"
     >
-      <style>{DAY_NIGHT_STYLES}</style>
+      <ComponentStyles css={DAY_NIGHT_STYLES} />
       <div className="dnt-stage flex flex-col items-center justify-center">
         <div className="dnt-content flex flex-col items-center">
           <button
@@ -284,7 +286,7 @@ export function DayNightToggleThumbnail({
       aria-hidden="true"
       inert
     >
-      <style>{DAY_NIGHT_STYLES}</style>
+      <ComponentStyles css={DAY_NIGHT_STYLES} />
       <div className="dnt-stage">
         <div className="dnt-content">
           <div className="dnt-switch">

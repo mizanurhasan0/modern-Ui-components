@@ -1,6 +1,6 @@
 # Component Lab
 
-**31 interactive UI components for React and Next.js**, built with TypeScript and Tailwind CSS 4. A portfolio of animated cards, carousels, forms, and immersive navigation—with working demos and reusable source code.
+**41 interactive UI components for React and Next.js**, built with TypeScript and Tailwind CSS 4. A portfolio of animated cards, carousels, forms, and immersive navigation—with working demos and reusable source code.
 
 Browse the homepage’s animated thumbnails, open a component, try **Preview**, then switch to **Code** to copy or download it for your own project.
 
@@ -8,9 +8,11 @@ Browse the homepage’s animated thumbnails, open a component, try **Preview**, 
 
 ## Screenshots
 
+![Liquid Cursor and Portfolio Image Trail in the component gallery](docs/screenshots/cursor-components.png)
+
 ![Verification Code component with its live playground and Preview/Code controls](docs/screenshots/verification-code.png)
 
-Selected views captured during development. These show the gallery layout and an individual component’s Preview/Code interface; the catalog below lists all 31 components.
+Selected views captured during development. These show the gallery layout and an individual component’s Preview/Code interface; the catalog below lists all 41 components.
 
 ### Browse the collection
 
@@ -28,6 +30,16 @@ Try the full interaction in **Preview**, check desktop or mobile sizing, then op
 
 | Component | Type | What it does |
 | --- | --- | --- |
+| [Character Deck Slider](docs/component-guide.md#use-character-deck-slider-in-your-project) | Carousel | Anime portraits stack into a vertical deck; the active card blooms into color while grayscale neighbors peek above and below. |
+| [Hologram Login](docs/component-guide.md#use-hologram-login-in-your-project) | Forms | A floating cyan glass login panel is projected by a pulsing light cone from a glowing emitter. |
+| [Neon Ring Auth](docs/component-guide.md#use-neon-ring-auth-in-your-project) | Forms | A cyan-and-magenta ring frames login and sign-up forms, with rotating transitions and async authentication callbacks. |
+| [Orbit Login](docs/component-guide.md#use-orbit-login-in-your-project) | Forms | An orange login card inside rotating radial ticks, with recovery, sign-up, social actions, and async callbacks. |
+| [Spider Reveal](docs/component-guide.md#use-spider-reveal-in-your-project) | Effects | A moving spotlight reveals the portrait beneath a masked hero, with biometric panels, mission actions, and anomaly cards. |
+| [Text Rain](docs/component-guide.md#use-text-rain-in-your-project) | Effects | A glowing cloud rains animated letters, with customizable characters, color, density, speed, and pause controls. |
+| [Luxury Clock](docs/component-guide.md#use-luxury-clock-in-your-project) | Displays | A live black-and-gold analog clock on teal, with configurable brand, fixed date, or time zone. |
+| [Liquid Cursor](docs/component-guide.md#use-liquid-cursor-in-your-project) | Effects | A springy liquid cursor stretches over bold typography and becomes white in the dark project view. |
+| [Portfolio Image Trail](docs/component-guide.md#use-portfolio-image-trail-in-your-project) | Effects | A cream character-led portfolio reveals blue technology imagery along a fading pointer ribbon. |
+| [Aura Cart Animation](docs/component-guide.md#use-aura-cart-animation-in-your-project) | Commerce | A cream product mosaic opens into shopping details, crossfades color choices, and flies the selected photo into the cart. |
 | [Liquid Glass Playground](docs/component-guide.md#use-liquid-glass-playground-in-your-project) | Effects | Draggable glass panels fuse and refract a fluid background, with live layout, motion, and material controls. |
 | [Neumorphic Navbar](docs/component-guide.md#use-neumorphic-navbar-in-your-project) | Navigation | Soft raised navigation with a sliding active pill, real links or callbacks, and a rounded mobile disclosure. |
 | [Verification Code](docs/component-guide.md#use-verification-code-in-your-project) | Forms | Blue OTP tiles merge into a bouncing green check, with paste support, async validation, resend, and retry. |
@@ -37,7 +49,7 @@ Try the full interaction in **Preview**, check desktop or mobile sizing, then op
 | [Portrait Gallery](docs/component-guide.md#use-portrait-gallery-in-your-project) | Galleries | Five staggered anime portraits expand on hover, focus, or touch, with dimmed neighbors and sliding name labels. |
 | [Connect Social Bar](docs/component-guide.md#use-connect-social-bar-in-your-project) | Social | Opens from a glowing CONNECT pill into a seven-link bar with platform-colored hover and focus states. |
 | [Basketball Upload](docs/component-guide.md#use-basketball-upload-in-your-project) | Uploads | Turns file selection and drag-and-drop into a playful basketball shot with progress feedback. |
-| [Red Bull Card](docs/component-guide.md#use-red-bull-card-in-your-project) | Cards | Expands a glowing product mark into a vivid energy drink card with an illustrated can. |
+| [Red Bull Card](docs/component-guide.md#use-red-bull-card-in-your-project) | Cards | Expands a glowing product mark into a vivid energy drink card with a real Red Bull can photo. |
 | [Gallery Flip](docs/component-guide.md#use-gallery-flip-in-your-project) | Galleries | A grid of city photographs flips tile by tile into one scene, then unfolds back into the collection. |
 | [Sneaker Orbit](docs/component-guide.md#use-sneaker-orbit-in-your-project) | Commerce | A rotating wall of sneakers turns a product catalog into a dimensional browsing experience. |
 | [Scorpion Cursor](docs/component-guide.md#use-scorpion-cursor-in-your-project) | Effects | A fine white skeleton follows your pointer across a black canvas, bending its spine, legs, and curling tail. |
@@ -82,6 +94,7 @@ Open [localhost:3000](http://localhost:3000), select a component, and try its pr
 
 ```bash
 npm run lint   # Check source quality
+npm test       # Verify portable exports and stylesheet resources
 npm run build  # Create a production build
 # If Turbopack workers are restricted by your sandbox:
 npm run build -- --webpack

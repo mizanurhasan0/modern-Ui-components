@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 
 export type VersoAuthMode = "login" | "register";
@@ -116,7 +118,7 @@ export default function VersoAuth({ initialMode = "login", brandName = "VERSO", 
   }
 
   return <section className={`verso-auth relative w-full ${className}`} aria-label={`${brandName} sign in and registration`}>
-    <style>{VERSO_STYLES}</style>
+    <ComponentStyles css={VERSO_STYLES} />
     <div className="va-stage"><div className="va-card" data-register={registering} data-moving={moving}>
       <div className="va-form-panel" inert={moving}>
         <h2 className="va-title" ref={heading} tabIndex={-1}>{complete ? "You’re all set" : registering ? "Create account" : mode === "reset" ? "Reset password" : "Sign in"}</h2>
@@ -142,7 +144,7 @@ export default function VersoAuth({ initialMode = "login", brandName = "VERSO", 
 /** Inert stills of the two sides of the diagonal sweep. */
 export function VersoAuthThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   const registering = Math.abs(Math.trunc(previewStep)) % 2 === 1;
-  return <div className={`verso-auth va-thumbnail ${className}`} aria-hidden="true" inert><style>{VERSO_STYLES}</style><div className="va-stage"><div className="va-card" data-register={registering}><div className="va-form-panel"><h2 className="va-title">{registering ? "Create account" : "Sign in"}</h2><div className="va-fake-field">{registering ? "Full name" : "Username or email"}<VersoIcon name="user" /></div>{registering && <div className="va-fake-field">Email address<VersoIcon name="mail" /></div>}<div className="va-fake-field">Password<VersoIcon name="eye" /></div>{registering ? <p className="va-password-hint">Use 8 characters or more.</p> : <div className="va-options"><span>☑ Keep me signed in</span><span className="va-text-button">Forgot password?</span></div>}<span className="va-submit">{registering ? "Create account" : "Sign in"}</span><p className="va-switch-copy">{registering ? "Already have an account? " : "New to VERSO? "}<span className="va-text-button">{registering ? "Sign in" : "Create an account"}</span></p></div><div className="va-band" /><VersoStory registering={registering} brandName="VERSO" /></div></div></div>;
+  return <div className={`verso-auth va-thumbnail ${className}`} aria-hidden="true" inert><ComponentStyles css={VERSO_STYLES} /><div className="va-stage"><div className="va-card" data-register={registering}><div className="va-form-panel"><h2 className="va-title">{registering ? "Create account" : "Sign in"}</h2><div className="va-fake-field">{registering ? "Full name" : "Username or email"}<VersoIcon name="user" /></div>{registering && <div className="va-fake-field">Email address<VersoIcon name="mail" /></div>}<div className="va-fake-field">Password<VersoIcon name="eye" /></div>{registering ? <p className="va-password-hint">Use 8 characters or more.</p> : <div className="va-options"><span>☑ Keep me signed in</span><span className="va-text-button">Forgot password?</span></div>}<span className="va-submit">{registering ? "Create account" : "Sign in"}</span><p className="va-switch-copy">{registering ? "Already have an account? " : "New to VERSO? "}<span className="va-text-button">{registering ? "Sign in" : "Create an account"}</span></p></div><div className="va-band" /><VersoStory registering={registering} brandName="VERSO" /></div></div></div>;
 }
 
 const VERSO_STYLES = `

@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import {
   useEffect,
   useId,
@@ -306,7 +308,7 @@ export function TrailheadCardThumbnail({ className = "", previewStep = 0 }: { cl
 }
 
 function TrailheadStyles() {
-  return <style>{`
+  return <ComponentStyles css={`
     .trailhead-stage { container-type: inline-size; container-name: trailhead; min-height: 500px; padding: 76px 28px; background: radial-gradient(ellipse at 50% 45%, #0a1723 0%, #03111a 57%, #041019 100%); font-family: Arial, Helvetica, sans-serif; }
     .trailhead-stage .trailhead-scene { width: min(340px, 76cqw); aspect-ratio: 1.13; perspective: 900px; touch-action: pan-y; }
     .trailhead-stage .trailhead-card { --tilt-x: 0deg; --tilt-y: 0deg; --lens-lift: 0; --light-x: 30%; --light-y: 15%; transform-style: preserve-3d; transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y)); transition: transform 480ms cubic-bezier(.2,.7,.2,1); border-radius: 14%; color: #244376; }
@@ -363,5 +365,5 @@ function TrailheadStyles() {
       .trailhead-stage .trailhead-card { transform: none; }
       .trailhead-stage .trailhead-lens { transform: none; }
     }
-  `}</style>;
+  `} />;
 }

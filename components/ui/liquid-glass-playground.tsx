@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import {
   useEffect,
   useId,
@@ -788,7 +790,7 @@ export default function LiquidGlassPlayground({
         } as CSSProperties
       }
     >
-      <style>{LIQUID_GLASS_CSS}</style>
+      <ComponentStyles css={LIQUID_GLASS_CSS} />
       <canvas ref={canvasRef} className="lgp-canvas" aria-hidden="true" />
       <div className="lgp-content">
         <nav ref={navRef} className="lgp-nav" aria-label="Glass styles">
@@ -1178,7 +1180,7 @@ export function LiquidGlassPlaygroundThumbnail({
   const offset = [0, 48, 118, 52, -22, 0][frame];
   return (
     <div className={`lgp-thumbnail ${className}`} aria-hidden="true">
-      <style>{LIQUID_GLASS_THUMBNAIL_CSS}</style>
+      <ComponentStyles css={LIQUID_GLASS_THUMBNAIL_CSS} />
       <div
         className="lgp-thumb-flow"
         style={{

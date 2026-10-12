@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
 
 export type PeriodicLayout = "table" | "sphere" | "helix" | "grid";
@@ -312,7 +314,7 @@ export function PeriodicExplorerThumbnail({ className = "", previewStep = 0 }: {
 }
 
 function PeriodicStyles() {
-  return <style>{`
+  return <ComponentStyles css={`
     .pex-stage{container-type:inline-size;container-name:periodic-explorer;background:#22251e;color:#d6dccb;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
     .pex-stage .pex-layout{padding:5px 8px;border:1px solid #ffffff0a;border-radius:2px;background:#ffffff08;color:#a1a694;font-size:10px;line-height:1.4;text-transform:lowercase;transition:background 160ms,color 160ms}
     .pex-stage .pex-layout[aria-pressed=true],.pex-stage .pex-layout[data-active=true]{background:#e2e5dc;color:#32372c;border-color:#e2e5dc}.pex-stage .pex-layout:hover{background:#ffffff26}
@@ -328,7 +330,7 @@ function PeriodicStyles() {
     @container periodic-explorer (max-width:370px){.pex-thumbnail .pex-camera{--pex-thumb-scale:.21}.pex-stage .pex-viewport{height:370px}.pex-stage .pex-footer{justify-content:center}}
     @container periodic-explorer (max-width:280px){.pex-thumbnail .pex-camera{--pex-thumb-scale:.16}}
     @media(prefers-reduced-motion:reduce){.pex-stage *{transition:none!important}}
-  `}</style>;
+  `} />;
 }
 
 export { PeriodicExplorer };

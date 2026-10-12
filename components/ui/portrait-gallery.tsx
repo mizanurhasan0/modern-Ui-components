@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 /* eslint-disable @next/next/no-img-element -- Embedded portraits keep the exported component independent of Next.js image configuration. */
 
 import { useId, useRef, useState, type KeyboardEvent } from "react";
@@ -94,7 +96,7 @@ export function PortraitGallery({
 
   return (
     <section className={`portrait-gallery w-full bg-black text-white ${className}`} aria-label={ariaLabel}>
-      <style>{PORTRAIT_GALLERY_STYLES}</style>
+      <ComponentStyles css={PORTRAIT_GALLERY_STYLES} />
       <p id={instructionsId} className="pg-sr-only">
         Hover or focus a portrait to expand it. Use the left and right arrow keys,
         Home, or End to move between portraits. Click, tap, Enter, or Space to
@@ -153,7 +155,7 @@ export function PortraitGalleryThumbnail({
 
   return (
     <div className={`portrait-gallery portrait-gallery--thumbnail w-full bg-black ${className}`} aria-hidden="true">
-      <style>{PORTRAIT_GALLERY_STYLES}</style>
+      <ComponentStyles css={PORTRAIT_GALLERY_STYLES} />
       <div className="pg-stage">
         <div
           className="pg-grid"

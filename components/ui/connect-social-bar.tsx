@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import { useState } from "react";
 
 export interface ConnectSocialBarProps {
@@ -79,7 +81,7 @@ export default function ConnectSocialBar({ className = "", email = "eng.mizanur.
 
   return (
     <div className={`connect-social-bar csb-stage ${className}`}>
-      <style>{CONNECT_SOCIAL_STYLES}</style>
+      <ComponentStyles css={CONNECT_SOCIAL_STYLES} />
       <nav
         className="csb-track"
         aria-label="Connect on social media"
@@ -126,7 +128,7 @@ export function ConnectSocialBarThumbnail({ className = "", previewStep = 0 }: {
 
   return (
     <div className={`connect-social-bar csb-stage csb-thumbnail ${className}`} aria-hidden="true" inert>
-      <style>{CONNECT_SOCIAL_STYLES}</style>
+      <ComponentStyles css={CONNECT_SOCIAL_STYLES} />
       <div className="csb-track" data-revealed="true">
         <span className="csb-sweep" aria-hidden="true" />
         {SOCIALS.map((social, index) => (

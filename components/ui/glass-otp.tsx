@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import {
   useEffect,
   useId,
@@ -611,7 +613,7 @@ export default function GlassOtp({
 
 function GlassOtpStyles() {
   return (
-    <style>{`
+    <ComponentStyles css={`
       .glass-otp {
         --otp-accent: #e5c43c;
         --otp-spacing: 73px;
@@ -1054,6 +1056,6 @@ function GlassOtpStyles() {
           transition: none !important;
         }
       }
-    `}</style>
+    `} />
   );
 }

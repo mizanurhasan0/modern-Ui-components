@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 /* eslint-disable @next/next/no-img-element -- Embedded artwork keeps this file portable outside Next.js. */
 
 import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
@@ -154,13 +156,13 @@ function ProductCard({ product, onBuy }: { product: HoverProduct; onBuy?: HoverP
 
 /** Hover, focus, or tap to reveal product options. Default purchases are local demos. */
 export default function HoverProductCards({ products = DEFAULT_PRODUCTS, onBuy, className = "" }: HoverProductCardsProps) {
-  return <section className={`hover-product-cards relative w-full ${className}`} aria-label="Interactive shoe collection"><style>{HOVER_PRODUCT_STYLES}</style><div className="hpc-stage">{products.map((product) => <ProductCard key={product.id} product={product} onBuy={onBuy} />)}{!products.length && <p className="hpc-empty">No products to display.</p>}</div></section>;
+  return <section className={`hover-product-cards relative w-full ${className}`} aria-label="Interactive shoe collection"><ComponentStyles css={HOVER_PRODUCT_STYLES} /><div className="hpc-stage">{products.map((product) => <ProductCard key={product.id} product={product} onBuy={onBuy} />)}{!products.length && <p className="hpc-empty">No products to display.</p>}</div></section>;
 }
 
 /** The gallery selects the frame. No timers, hooks, inputs, or buttons are rendered. */
 export function HoverProductCardsThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   const step = Number.isFinite(previewStep) ? Math.abs(Math.trunc(previewStep)) % 4 : 0;
-  return <div className={`hover-product-cards hpc-thumbnail ${className}`} aria-hidden="true" inert><style>{HOVER_PRODUCT_STYLES}</style><div className="hpc-stage">{DEFAULT_PRODUCTS.map((product, index) => {
+  return <div className={`hover-product-cards hpc-thumbnail ${className}`} aria-hidden="true" inert><ComponentStyles css={HOVER_PRODUCT_STYLES} /><div className="hpc-stage">{DEFAULT_PRODUCTS.map((product, index) => {
     const active = step < 2 ? index === 0 : index === 1;
     const colorIndex = index === 0 && step === 1 ? 1 : index === 1 && step === 3 ? 2 : 0;
     const color = product.colors[colorIndex];

@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import { useEffect, useId, useRef, useState, type PointerEvent } from "react";
 
 export type KeyboardFinish = { name: string; color: string };
@@ -84,7 +86,7 @@ export default function KeyboardCards({ keyboards = DEFAULT_KEYBOARDS, onSelect,
     if (!selection && dialog.current?.open) dialog.current.close();
   }, [selection]);
   return <section className={`kc-root relative isolate w-full ${className}`} aria-label="Mechanical keyboard collection">
-    <style>{STYLES}</style>
+    <ComponentStyles css={STYLES} />
     <div className="kc-stage">{keyboards.map((keyboard) => <Product key={keyboard.id} keyboard={keyboard} onSelect={(finish) => { if (onSelect) onSelect(keyboard, finish); else setSelection({ keyboard, finish }); }} />)}{!keyboards.length && <p>No keyboards to display.</p>}</div>
     <dialog ref={dialog} className="kc-dialog" aria-labelledby={titleId} onCancel={() => setSelection(null)} onClose={() => setSelection(null)} onClick={(event) => { if (event.target === event.currentTarget) setSelection(null); }}>
       <div className="kc-detail"><button type="button" className="kc-close" aria-label="Close keyboard details" onClick={() => setSelection(null)}>×</button>
@@ -97,7 +99,7 @@ export default function KeyboardCards({ keyboards = DEFAULT_KEYBOARDS, onSelect,
 
 export function KeyboardCardsThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   const frame = Number.isFinite(previewStep) ? Math.abs(Math.trunc(previewStep)) : 0;
-  return <div className={`kc-root kc-thumbnail ${className}`} aria-hidden="true" inert><style>{STYLES}</style><div className="kc-stage">{DEFAULT_KEYBOARDS.map((keyboard, index) => <div className="kc-card" data-theme={keyboard.theme} data-active={frame % 3 === index} key={keyboard.id}><div className="kc-model"><KeyboardArtwork theme={keyboard.theme} accent={keyboard.finishes[frame % keyboard.finishes.length].color} /></div><div className="kc-copy"><h3>{keyboard.name}</h3><p>{keyboard.description}</p></div><div className="kc-finishes">{keyboard.finishes.map((finish) => <i key={finish.name} style={{ background: finish.color }} />)}</div></div>)}</div></div>;
+  return <div className={`kc-root kc-thumbnail ${className}`} aria-hidden="true" inert><ComponentStyles css={STYLES} /><div className="kc-stage">{DEFAULT_KEYBOARDS.map((keyboard, index) => <div className="kc-card" data-theme={keyboard.theme} data-active={frame % 3 === index} key={keyboard.id}><div className="kc-model"><KeyboardArtwork theme={keyboard.theme} accent={keyboard.finishes[frame % keyboard.finishes.length].color} /></div><div className="kc-copy"><h3>{keyboard.name}</h3><p>{keyboard.description}</p></div><div className="kc-finishes">{keyboard.finishes.map((finish) => <i key={finish.name} style={{ background: finish.color }} />)}</div></div>)}</div></div>;
 }
 
 const STYLES = `

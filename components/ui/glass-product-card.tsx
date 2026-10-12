@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import { useId, useRef, useState } from "react";
 
 export interface GlassProductVariant { id: string; name: string; image: string }
@@ -57,7 +59,7 @@ export default function GlassProductCard({ name = "Nike Air Zoom", variants = VA
     finally { busy.current = false; setPending(false); }
   }
   return <section className={`glass-product-card relative flex w-full items-center justify-center overflow-hidden ${className}`} aria-label={`${name} product selector`}>
-    <style>{STYLES}</style>
+    <ComponentStyles css={STYLES} />
     {variant ? <div className="gpc-layout">
       <div className="gpc-thumbnails" role="group" aria-label="Shoe color">
         {variants.map((item) => <button type="button" key={item.id} aria-label={item.name} aria-pressed={item.id === variant.id} disabled={pending} onClick={() => selectVariant(item.id)} onPointerEnter={(event) => { if (event.pointerType === "mouse") selectVariant(item.id); }}>
@@ -87,7 +89,7 @@ export default function GlassProductCard({ name = "Nike Air Zoom", variants = VA
 export function GlassProductCardThumbnail({ className = "", previewStep = 0 }: { className?: string; previewStep?: number }) {
   const step = Math.abs(Math.trunc(previewStep)) % 4;
   const variant = VARIANTS[step % 3];
-  return <div className={`glass-product-card gpc-thumbnail ${className}`} aria-hidden="true" inert><style>{STYLES}</style>
+  return <div className={`glass-product-card gpc-thumbnail ${className}`} aria-hidden="true" inert><ComponentStyles css={STYLES} />
     <div className="gpc-layout"><div className="gpc-thumbnails">{VARIANTS.map((item) => <span key={item.id}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={item.image} alt="" />

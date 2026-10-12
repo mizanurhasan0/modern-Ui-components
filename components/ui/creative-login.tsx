@@ -1,5 +1,7 @@
 "use client";
 
+import { ComponentStyles } from "./component-styles";
+
 import {
   useEffect,
   useId,
@@ -348,7 +350,7 @@ export function CreativeLoginThumbnail({ className = "", previewStep = 0 }: { cl
 
 function CreativeLoginStyles() {
   return (
-    <style>{`
+    <ComponentStyles css={`
       @font-face { font-family: "Creative Login Fira Sans"; src: url("/creative-login/font-regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
       @font-face { font-family: "Creative Login Fira Sans"; src: url("/creative-login/font-bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
       .creative-login {
@@ -724,7 +726,7 @@ function CreativeLoginStyles() {
         .creative-login[data-intro="waiting"] .cl-form-position { visibility: visible; pointer-events: auto; }
         .creative-login[data-intro="revealing"] .cl-form-position { pointer-events: auto; }
       }
-    `}</style>
+    `} />
   );
 }
 
