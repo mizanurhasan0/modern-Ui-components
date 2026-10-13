@@ -1,6 +1,6 @@
 # Component Lab
 
-**44 interactive UI components for React and Next.js**, built with TypeScript and Tailwind CSS 4. A portfolio of animated cards, carousels, forms, and immersive navigation—with working demos and reusable source code.
+**48 interactive UI components for React and Next.js**, built with TypeScript and Tailwind CSS 4. A portfolio of animated cards, carousels, forms, dashboards, and immersive navigation—with working demos and reusable source code.
 
 Browse the homepage’s animated thumbnails, open a component, try **Preview**, then switch to **Code** to copy or download it for your own project.
 
@@ -8,11 +8,15 @@ Browse the homepage’s animated thumbnails, open a component, try **Preview**, 
 
 ## Screenshots
 
+![Glassy CRM Dashboard with glass panels, purple revenue columns, and a category chart](docs/screenshots/glassy-crm-dashboard.png)
+
+A five-view CRM workspace covering store metrics, order fulfillment, integrations, customer insights, and financial performance.
+
 ![Liquid Cursor and Portfolio Image Trail in the component gallery](docs/screenshots/cursor-components.png)
 
 ![Verification Code component with its live playground and Preview/Code controls](docs/screenshots/verification-code.png)
 
-Selected views captured during development. These show the gallery layout and an individual component’s Preview/Code interface; the catalog below lists all 44 components.
+Selected views captured during development. These show the gallery layout and an individual component’s Preview/Code interface; the catalog below lists all 48 components.
 
 ### Browse the collection
 
@@ -30,6 +34,10 @@ Try the full interaction in **Preview**, check desktop or mobile sizing, then op
 
 | Component | Type | What it does |
 | --- | --- | --- |
+| [Glassy CRM Dashboard](docs/component-guide.md#use-glassy-crm-dashboard-in-your-project) | Dashboards | A dark glass CRM with five views, searchable records, reporting controls, and purple/cyan charts. |
+| [Skill Orbit Hero](docs/component-guide.md#use-skill-orbit-hero-in-your-project) | Portfolio | Skills orbit your portrait on two rings that pause to reveal details on hover or focus. |
+| [Code Profile Hero](docs/component-guide.md#use-code-profile-hero-in-your-project) | Portfolio | An editor types your developer profile while a matching card assembles beside it. |
+| [ID Badge Hero](docs/component-guide.md#use-id-badge-hero-in-your-project) | Portfolio | A conference badge swings on its lanyard; drag it, or flip it to reveal your skills. |
 | [Lamp Login](docs/component-guide.md#use-lamp-login-in-your-project) | Forms | Pull a mushroom lamp's cord to light the room and reveal a frosted sign-in card with a gold button. |
 | [Truck Pay Button](docs/component-guide.md#use-truck-pay-button-in-your-project) | Buttons | A pill folds into a road, a delivery truck drives off, and the button returns with a drawn checkmark. |
 | [Isometric Social Icons](docs/component-guide.md#use-isometric-social-icons-in-your-project) | Social | Dark isometric tiles lift into colorful layered stacks on hover or keyboard focus. |

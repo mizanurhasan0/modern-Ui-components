@@ -9,6 +9,8 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type ElementType,
+  type ReactNode,
 } from "react";
 
 export interface NeumorphicNavItem {
@@ -19,9 +21,19 @@ export interface NeumorphicNavItem {
   href?: string;
 }
 
+/** Surface colors for the raised and pressed shadows; keep `surface` equal to the page behind. */
+export interface NeumorphicPalette {
+  surface: string;
+  shadow: string;
+  light: string;
+}
+
 export interface NeumorphicNavbarProps {
   items?: readonly NeumorphicNavItem[];
-  brand?: string;
+  /** Text or a custom wordmark. */
+  brand?: ReactNode;
+  /** Replaces the default orange dot mark, for example with your logo. */
+  brandMark?: ReactNode;
   brandHref?: string;
   /** Uncontrolled initial selection. Defaults to the first item. */
   defaultActiveId?: string;
@@ -34,6 +46,11 @@ export interface NeumorphicNavbarProps {
   actionHref?: string;
   onAction?: () => void;
   ariaLabel?: string;
+  /** Render only the bar, without the demo stage around it (for use as a site header). */
+  embedded?: boolean;
+  palette?: NeumorphicPalette;
+  /** Link element for hrefs, such as Next.js `Link`, so navigation stays client-side. */
+  linkAs?: ElementType;
   className?: string;
 }
 
@@ -83,7 +100,7 @@ function BrandMark({ compact = false }: { compact?: boolean }) {
   );
 }
 
-function BrandLabel({ children }: { children: string }) {
+function BrandLabel({ children }: { children: ReactNode }) {
   return <span className="min-w-0 truncate">{children}</span>;
 }
 
@@ -108,8 +125,16 @@ export default function NeumorphicNavbar({
   actionHref,
   onAction,
   ariaLabel = "Main navigation",
+  embedded = false,
+  palette,
+  linkAs: Link = "a",
+  brandMark,
   className = "",
 }: NeumorphicNavbarProps) {
+  const mark = brandMark ?? <BrandMark />;
+  const paletteStyle = palette
+    ? ({ "--nn-surface": palette.surface, "--nn-shadow": palette.shadow, "--nn-light": palette.light } as CSSProperties)
+    : undefined;
   const [selectedId, setSelectedId] = useState(defaultActiveId ?? items[0]?.id);
   const [isOpen, setIsOpen] = useState(false);
   const menuId = useId();
@@ -197,28 +222,28 @@ export default function NeumorphicNavbar({
       },
     };
     return item.href ? (
-      <a key={item.id} {...shared} href={item.href}>{item.label}</a>
+      <Link key={item.id} {...shared} href={item.href}>{item.label}</Link>
     ) : (
       <button key={item.id} {...shared} type="button" aria-pressed={active}>{item.label}</button>
     );
   }
 
   return (
-    <div ref={rootRef} className={`nn-root ${ROOT} ${className}`}>
+    <div ref={rootRef} className={`nn-root ${ROOT} ${className}`} style={paletteStyle}>
       <ComponentStyles css={NEUMORPHIC_NAVBAR_STYLES} />
-      <div className="nn-stage min-h-[460px] px-[18px] pt-[22px] pb-10 in-data-[fullscreen=true]:pt-[72px]">
-        <nav ref={navRef} className="nn-navigation mx-auto w-full max-w-[1100px]" aria-label={ariaLabel}>
+      <div className={embedded ? "nn-stage relative" : "nn-stage min-h-[460px] px-[18px] pt-[22px] pb-10 in-data-[fullscreen=true]:pt-[72px]"}>
+        <nav ref={navRef} className="nn-navigation relative mx-auto w-full max-w-[1100px]" aria-label={ariaLabel}>
           <div className={`nn-navbar ${NAVBAR} min-h-[62px] rounded-[999px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-[14px] px-3 py-[10px] shadow-[8px_8px_18px_var(--nn-shadow),-8px_-8px_18px_var(--nn-light)] [@container_neumorphic-navbar_(max-width:680px)]:grid-cols-[minmax(0,1fr)_auto] [@container_neumorphic-navbar_(max-width:680px)]:gap-[10px]`}>
             {brandHref ? (
-              <a className={`nn-brand ${BRAND} ${INTERACTIVE} gap-[10px] text-[16px]`} href={brandHref} onClick={onBrandClick}>
-                <BrandMark /><BrandLabel>{brand}</BrandLabel>
-              </a>
+              <Link className={`nn-brand ${BRAND} ${INTERACTIVE} gap-[10px] text-[16px]`} href={brandHref} onClick={onBrandClick}>
+                {mark}<BrandLabel>{brand}</BrandLabel>
+              </Link>
             ) : onBrandClick ? (
               <button className={`nn-brand ${BRAND} ${INTERACTIVE} gap-[10px] text-[16px]`} type="button" onClick={onBrandClick}>
-                <BrandMark /><BrandLabel>{brand}</BrandLabel>
+                {mark}<BrandLabel>{brand}</BrandLabel>
               </button>
             ) : (
-              <span className={`nn-brand ${BRAND} gap-[10px] text-[16px]`}><BrandMark /><BrandLabel>{brand}</BrandLabel></span>
+              <span className={`nn-brand ${BRAND} gap-[10px] text-[16px]`}>{mark}<BrandLabel>{brand}</BrandLabel></span>
             )}
             <div ref={trackRef} className={`nn-track ${TRACK} flex p-[5px] [@container_neumorphic-navbar_(max-width:680px)]:hidden`}>
               <span ref={highlightRef} className={`nn-highlight ${HIGHLIGHT} top-[5px] bottom-[5px]`} aria-hidden="true" />
@@ -227,7 +252,7 @@ export default function NeumorphicNavbar({
             {actionLabel && (
               <div className="nn-action-wrap flex min-w-0 justify-end [@container_neumorphic-navbar_(max-width:680px)]:hidden">
                 {actionHref ? (
-                  <a className={ACTION_CONTROL} href={actionHref} onClick={onAction}>{actionLabel}</a>
+                  <Link className={ACTION_CONTROL} href={actionHref} onClick={onAction}>{actionLabel}</Link>
                 ) : (
                   <button className={ACTION_CONTROL} type="button" onClick={onAction}>{actionLabel}</button>
                 )}
@@ -245,7 +270,7 @@ export default function NeumorphicNavbar({
               <MenuIcon />
             </button>
           </div>
-          <div id={menuId} className={`nn-mobile-panel ${PANEL} mt-[18px] hidden rounded-[28px] p-[10px] [@container_neumorphic-navbar_(max-width:680px)]:block`} hidden={!isOpen}>
+          <div id={menuId} className={`nn-mobile-panel ${PANEL} ${embedded ? "absolute inset-x-0 top-full z-10 mt-3" : "mt-[18px]"} hidden rounded-[28px] p-[10px] [@container_neumorphic-navbar_(max-width:680px)]:block`} hidden={!isOpen}>
             {items.map((item) => renderItem(item, true))}
           </div>
         </nav>

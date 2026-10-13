@@ -33,6 +33,13 @@ button:not(:disabled),
   outline-offset: 4px;
 }
 
+@keyframes stack-in {
+  from {
+    opacity: 0;
+    translate: 16px 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

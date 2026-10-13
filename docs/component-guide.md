@@ -4,6 +4,122 @@
 
 Detailed setup, props, interaction notes, and artwork credits for every component.
 
+## Use Glassy CRM Dashboard in your project
+
+Copy **Glassy CRM Dashboard → Code** into `components/ui/glassy-crm-dashboard.tsx`. The exported file includes its glass surfaces, SVG charts, icons, embedded avatar photos, interaction logic, and scoped stylesheet helper. Use React, TypeScript, and Tailwind CSS 4; no dashboard, chart, or icon package is required.
+
+```tsx
+import GlassyCrmDashboard from "@/components/ui/glassy-crm-dashboard";
+
+export default function DashboardPage() {
+  return <GlassyCrmDashboard userName="Alex" initialView="overview" />;
+}
+```
+
+The dark workspace follows the supplied recording: a compact icon sidebar, translucent panels, purple revenue columns, cyan data curves, a multicolor category donut, and quarterly capsule bars. Navigate between **Overview**, **Orders & Fulfillment**, **Connected Ecosystem**, **Customer Intelligence**, and **Performance & Audit**. The component uses local sample records by default. Full screen preview fills the available viewport and allows scrolling on narrow or short screens.
+
+Search by order ID, product, or customer; typing from other views opens Orders & Fulfillment. Within Connected Ecosystem, search filters services by name or category. Order filters show all, pending, or shipped records. **Dispatch Active Batch** advances the entire non-shipped queue, including records hidden by search or filters. Connected Ecosystem lets you toggle sample integrations; the customer view includes local message and reward actions. Chart points reveal values on hover, focus, or tap. Settings, notifications, profile, date, and report controls open local dialogs.
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `userName` | `string` | `"User"`; name shown in the overview greeting. |
+| `dateLabel` | `string` | `"Today, Mon 22 Nov"`; replace the fixed reference date in the header. |
+| `initialView` | `CrmDashboardView` | `"overview"`; select one of the five views on mount. |
+| `initialRange` | `CrmDateRange` | `"month"`; initial reporting range. |
+| `orders` | `readonly CrmOrder[]` | Supply order records; defaults to four samples. Incoming updates are reflected in the queue. |
+| `revenue` | `readonly number[]` | Supply up to 12 nonnegative chart values; defaults to eight samples. |
+| `integrations` | `readonly CrmIntegration[]` | Supply connected services and their enabled states; incoming updates are reflected. |
+| `onViewChange` | `(view: CrmDashboardView) => void` | Receive sidebar navigation changes. |
+| `onDateRangeChange` | `(range: CrmDateRange) => void` | Receive changes to the reporting range. |
+| `onOrderDispatch` | `(orders: readonly CrmOrder[], signal: AbortSignal) => void \| Promise<void>` | Dispatch all non-shipped records through your service. Reject to show retry feedback. |
+| `onIntegrationChange` | `(id: string, enabled: boolean) => void` | Receive an integration's updated local enabled state. |
+| `onExport` | `(report: CrmDashboardReport) => void` | Handle report export in your application. |
+| `className` | `string` | Additional classes for the component container. |
+
+`GlassyCrmDashboardProps`, `CrmOrderStatus`, and `CrmDashboardReport` are also exported. `CrmDashboardReport` contains `view`, `range`, `quarter`, `orders`, `revenue`, and `integrations`. `CrmDashboardView` accepts `overview`, `orders`, `ecosystem`, `customers`, or `performance`; `CrmDateRange` accepts `week`, `month`, or `year`. A `CrmOrder` has `id`, `product`, `customer`, and a `status` of `"processing"`, `"verified"`, `"packing"`, `"in-dispatch"`, or `"shipped"`. A `CrmIntegration` has `id`, `name`, `category`, `statusLabel`, `latency`, `enabled`, and `color`.
+
+Only `initialView` and `initialRange` configure the first mount. Name, date label, revenue, orders, and integrations respond to incoming props. Local order-status and enabled-state changes remain until the corresponding source value changes. Revenue is limited to 12 finite, nonnegative samples; an empty array uses the defaults. Week and year selections compare locally scaled revenue samples; the remaining reference charts and customer metrics use illustrative snapshots. Supply your own service and reporting logic when adapting the dashboard to live data.
+
+Pass callbacks from a Client Component when using Next.js. Forward the supplied dispatch signal to your request so canceled or unmounted work can stop. Dispatch waits for your handler; a rejection leaves records unchanged and shows retry feedback. Without `onOrderDispatch`, pending records advance to In Dispatch, and those already in dispatch advance to Shipped within the local demo. Without `onExport`, **Export PDF** opens a quarterly report dialog with **Print / Save PDF**, which invokes the browser print flow; supply `onExport` to replace it with your own export service.
+
+The named `GlassyCrmDashboardThumbnail({ className?, previewStep? })` export cycles through representative dashboard views through the homepage's shared playback controller. Each frame is inert, so selecting the card opens the full component. Reduced motion removes the decorative chart entrance animations.
+
+## Use Skill Orbit Hero in your project
+
+Copy **Skill Orbit Hero → Code** into `components/ui/skill-orbit-hero.tsx`. Styles are Tailwind utilities plus a few keyframes; no package is required.
+
+```tsx
+import SkillOrbitHero from "@/components/ui/skill-orbit-hero";
+
+export default function HomePage() {
+  return <SkillOrbitHero headingLevel={1} photoSrc="/me.jpg" />;
+}
+```
+
+Your portrait sits inside two dashed orbits. Skills ride both rings together, with outer chips placed in the gaps between inner ones, so they never overlap at any angle. Hovering the orbit, focusing a chip, or pinning a detail pauses the rotation; each chip opens a short detail popover that stays inside the stage. Clicking pins it, and Escape or an outside click closes it.
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `name`, `role`, `bio` | `string` | Intro copy; defaults describe a frontend developer. |
+| `photoSrc`, `photoAlt`, `initials` | `string` | Portrait image, or an initials avatar when no photo is given. |
+| `available` | `boolean` | `true`; shows the "Available for work" pill. |
+| `stats` | `{ value: string; label: string }[]` | Short stat row under the intro. |
+| `innerSkills`, `outerSkills` | `OrbitSkill[]` | Each skill has `name`, optional `detail`, and optional `color`. |
+| `primaryAction`, `secondaryAction` | `{ label; href?; onClick? }` | Links when `href` is set, buttons otherwise. |
+| `headingLevel` | `1 \| 2` | `2`; use `1` when the hero is the page heading. |
+| `className` | `string` | Additional container classes. |
+
+Reduced motion keeps the chips static and evenly spaced. The orbit pauses offscreen. `SkillOrbitHeroThumbnail({ className?, previewStep? })` turns the rings and highlights a different skill on each gallery frame.
+
+## Use Code Profile Hero in your project
+
+Copy **Code Profile Hero → Code** into `components/ui/code-profile-hero.tsx`. No package is required.
+
+```tsx
+import CodeProfileHero from "@/components/ui/code-profile-hero";
+
+export default function HomePage() {
+  return <CodeProfileHero />;
+}
+```
+
+A dark editor types a `developer` object built from your `profile`, while a profile card beside it fills in line by line: avatar and name, role, experience, stack chips, focus, and availability. After the `render(<Profile />)` line the footer reports a compile and the card settles. **Replay** restarts the typing; **Skip** jumps to the result.
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `profile` | `CodeProfile` | `name`, `role`, `stack`, plus optional `experience`, `focus`, `available`, `photoSrc`, `photoAlt`, `initials`. Omitted fields drop their code line and card part. |
+| `typingSpeed` | `number` | `38` characters per second (clamped 4–400). |
+| `loop` | `boolean` | `false`; replay automatically after a pause. |
+| `primaryAction`, `secondaryAction` | `CodeProfileAction \| null` | Links or buttons under the card; `null` hides one. |
+| `eyebrow` | `string` | Small line above the actions; an empty string hides it. |
+| `onCompiled` | `() => void` | Called when the profile finishes compiling. |
+| `className` | `string` | Additional container classes. |
+
+Playback pauses offscreen and in hidden tabs. The typing is decorative and hidden from assistive technology; a visually hidden summary always provides the full profile, and a live region announces the compile. Reduced motion starts on the finished profile. `CodeProfileHeroThumbnail({ className?, previewStep? })` shows typing, assembling, compiled, and highlighted frames.
+
+## Use ID Badge Hero in your project
+
+Copy **ID Badge Hero → Code** into `components/ui/id-badge-hero.tsx`. The lanyard, badge, and barcode are drawn with Tailwind and SVG; no package is required.
+
+```tsx
+import IdBadgeHero from "@/components/ui/id-badge-hero";
+
+export default function HomePage() {
+  return <IdBadgeHero />;
+}
+```
+
+A conference badge hangs from a lanyard beside your introduction. A damped spring pendulum keeps it swaying gently; drag it and release to watch it swing with your throw. Click, tap, Enter, or Space flips it in 3D to show skills, availability, location, and email. Arrow keys nudge the swing.
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `profile` | `IdBadgeHeroProfile` | `name`, `role`, `skills`, plus optional `experience`, `bio`, `photoSrc`, `photoAlt`, `initials`, `location`, `email`, `available`. |
+| `primaryAction`, `secondaryAction` | `IdBadgeHeroAction` | `{ label; href?; onClick? }`; the primary action uses `mailto:` when an email is set. |
+| `headingLevel` | `1 \| 2` | `2`; use `1` when the hero is the page heading. |
+| `className` | `string` | Additional container classes. |
+
+The animation loop pauses offscreen and in hidden tabs. Reduced motion removes the sway and swing and flips without the 3D turn. `IdBadgeHeroThumbnail({ className?, previewStep? })` shows swinging and flipped frames.
+
 ## Use Lamp Login in your project
 
 Copy **Lamp Login → Code** into `components/ui/lamp-login.tsx`. The SVG lamp, pull cord, glow, glass form, and scoped styles are all inside the file; no image or package is required.

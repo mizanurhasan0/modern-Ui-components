@@ -15,6 +15,37 @@ export type ComponentEntry = {
 /** The catalog drives the gallery, detail pages, and available source files. */
 export const components: ComponentEntry[] = [
   {
+    "slug": "glassy-crm-dashboard",
+    "title": "Glassy CRM Dashboard",
+    "description": "A dark glass workspace brings store metrics, fulfillment, connected services, customer insights, and financial performance into five coordinated views.",
+    "category": "Dashboards",
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Customizable",
+      "Accessible"
+    ],
+    "sourceFile": "glassy-crm-dashboard.tsx",
+    "fileName": "glassy-crm-dashboard.tsx",
+    "number": "048",
+    "demoNote": "Interactive demo · Explore five CRM views, search records, and adjust the reporting controls. Default records are local demonstration data; connect the typed callbacks to your own application.",
+    "features": [
+      {
+        "title": "One connected workspace",
+        "description": "Overview, Orders & Fulfillment, Connected Ecosystem, Customer Intelligence, and Performance & Audit share a compact glass navigation shell."
+      },
+      {
+        "title": "Color makes the data readable",
+        "description": "Purple revenue columns, cyan curves, a category donut, and quarterly capsule bars reproduce the reference dashboard presentation."
+      },
+      {
+        "title": "Ready for your application",
+        "description": "Copy the complete typed component with its scoped styles, inline chart artwork, configurable data, and interaction callbacks."
+      }
+    ],
+    "usage": "import GlassyCrmDashboard from \"@/components/ui/glassy-crm-dashboard\";\n\nexport default function DashboardPage() {\n  return <GlassyCrmDashboard />;\n}"
+  },
+  {
     "slug": "skill-orbit-hero",
     "title": "Skill Orbit Hero",
     "description": "Your portrait sits at the center of two slow orbits while skills and highlights circle around it, pausing when visitors look closer.",

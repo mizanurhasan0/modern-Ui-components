@@ -1,3 +1,4 @@
+import GlassyCrmDashboard, { GlassyCrmDashboardThumbnail } from "@/components/ui/glassy-crm-dashboard";
 import SkillOrbitHero, { SkillOrbitHeroThumbnail } from "@/components/ui/skill-orbit-hero";
 import CodeProfileHero, { CodeProfileHeroThumbnail } from "@/components/ui/code-profile-hero";
 import IdBadgeHero, { IdBadgeHeroThumbnail } from "@/components/ui/id-badge-hero";
@@ -111,6 +112,7 @@ import RedBullCard, {
 
 /** Interactive demos are separate from serializable catalog metadata. */
 export const componentPreviews: Partial<Record<string, ComponentType>> = {
+  "glassy-crm-dashboard": GlassyCrmDashboard,
   "skill-orbit-hero": SkillOrbitHero,
   "code-profile-hero": CodeProfileHero,
   "id-badge-hero": IdBadgeHero,
@@ -166,6 +168,7 @@ export const componentPreviews: Partial<Record<string, ComponentType>> = {
 export const componentThumbnails: Partial<
   Record<string, ComponentType<{ className?: string; previewStep?: number }>>
 > = {
+  "glassy-crm-dashboard": GlassyCrmDashboardThumbnail,
   "skill-orbit-hero": SkillOrbitHeroThumbnail,
   "code-profile-hero": CodeProfileHeroThumbnail,
   "id-badge-hero": IdBadgeHeroThumbnail,

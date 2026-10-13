@@ -1,15 +1,34 @@
+import Image from "next/image";
 import type { SVGProps } from "react";
+import logoMark from "./logo-mark.png";
+import logoWordmark from "./logo-wordmark.png";
 
 type IconProps = SVGProps<SVGSVGElement>;
 
-export function LabMark(props: IconProps) {
+/** The site's brand mark (also the favicon); decorative, so links using it carry their own label. */
+export function LabMark({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 28 28" fill="none" aria-hidden="true" {...props}>
-      <rect x="2" y="2" width="10" height="10" rx="2.4" fill="currentColor" />
-      <rect x="16" y="2" width="10" height="10" rx="2.4" fill="currentColor" />
-      <rect x="2" y="16" width="10" height="10" rx="2.4" fill="currentColor" />
-      <rect x="16" y="16" width="10" height="10" rx="2.4" fill="#5474ee" />
-    </svg>
+    <Image
+      src={logoMark}
+      alt=""
+      aria-hidden="true"
+      className={`shrink-0 object-contain ${className}`}
+      sizes="40px"
+      loading="eager"
+    />
+  );
+}
+
+/** The "ComponentLab" wordmark; its alt text names the brand for links that use it. */
+export function LabWordmark({ className = "" }: { className?: string }) {
+  return (
+    <Image
+      src={logoWordmark}
+      alt="ComponentLab"
+      className={`h-auto shrink-0 object-contain ${className}`}
+      sizes="180px"
+      loading="eager"
+    />
   );
 }
 

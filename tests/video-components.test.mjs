@@ -14,6 +14,7 @@ const entries = [
   ["text-rain", "TextRainThumbnail"],
   ["orbit-login", "OrbitLoginThumbnail"],
   ["neon-ring-auth", "NeonRingAuthThumbnail"],
+  ["glassy-crm-dashboard", "GlassyCrmDashboardThumbnail"],
 ];
 
 function compile(source, resolver = requireModule) {
@@ -43,7 +44,7 @@ const { getComponentSource } = compile(
 );
 
 // Compile exactly what visitors copy, using virtual files outside components/ui.
-test("the five video components typecheck as portable files with React-only imports", () => {
+test("video components typecheck as portable files with React-only imports", () => {
   const sources = new Map(entries.map(([slug]) => [
     path.join(process.cwd(), ".portable-video-check", `${slug}.tsx`),
     getComponentSource(slug),
