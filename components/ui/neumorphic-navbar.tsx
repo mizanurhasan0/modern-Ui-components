@@ -232,7 +232,7 @@ export default function NeumorphicNavbar({
     <div ref={rootRef} className={`nn-root ${ROOT} ${className}`} style={paletteStyle}>
       <ComponentStyles css={NEUMORPHIC_NAVBAR_STYLES} />
       <div className={embedded ? "nn-stage relative" : "nn-stage min-h-[460px] px-[18px] pt-[22px] pb-10 in-data-[fullscreen=true]:pt-[72px]"}>
-        <nav ref={navRef} className="nn-navigation relative mx-auto w-full max-w-[1100px]" aria-label={ariaLabel}>
+        <nav ref={navRef} className={`nn-navigation relative mx-auto w-full ${embedded ? "" : "max-w-[1100px]"}`} aria-label={ariaLabel}>
           <div className={`nn-navbar ${NAVBAR} min-h-[62px] rounded-[999px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-[14px] px-3 py-[10px] shadow-[8px_8px_18px_var(--nn-shadow),-8px_-8px_18px_var(--nn-light)] [@container_neumorphic-navbar_(max-width:680px)]:grid-cols-[minmax(0,1fr)_auto] [@container_neumorphic-navbar_(max-width:680px)]:gap-[10px]`}>
             {brandHref ? (
               <Link className={`nn-brand ${BRAND} ${INTERACTIVE} gap-[10px] text-[16px]`} href={brandHref} onClick={onBrandClick}>

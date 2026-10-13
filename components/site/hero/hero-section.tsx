@@ -1,12 +1,11 @@
 "use client";
 
-import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight } from "@/components/site/icons";
 import { CountUp } from "./count-up";
 import { TechStack } from "./tech-stack";
 import { TECH_STACK } from "./tech-stack-data";
-import desk from "../assets/hasan-desk.webp";
+import { WaterRevealPortrait } from "./water-reveal-portrait";
 
 const TOUR_STEP_MS = 2600;
 
@@ -29,12 +28,14 @@ function useIntroTour() {
 }
 
 export function HeroSection() {
+  const heroRef = useRef<HTMLElement>(null);
   const tour = useIntroTour();
   const [hovered, setHovered] = useState<string | null>(null);
   const activeId = tour.category?.id ?? hovered;
 
   return (
     <section
+      ref={heroRef}
       aria-labelledby="hero-heading"
       className="relative isolate overflow-hidden bg-[linear-gradient(180deg,#f6f8fb_0%,#eef2f7_70%,#e9edf3_100%)]"
     >
@@ -47,8 +48,8 @@ export function HeroSection() {
         <div className="absolute inset-x-0 bottom-0 h-28 bg-[linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.85))]" />
       </div>
 
-      <div className="relative mx-auto grid max-w-[1440px] grid-cols-[minmax(0,1fr)] gap-10 px-5 pt-10 pb-14 sm:px-8 lg:grid-cols-2 lg:gap-x-6 2xl:min-h-[760px] 2xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] 2xl:gap-0 2xl:px-12 2xl:pt-0 2xl:pb-0">
-        <div className="relative z-20 flex flex-col justify-center 2xl:py-16">
+      <div className="relative mx-auto grid w-full max-w-[1200px] grid-cols-[minmax(0,1fr)] gap-10 px-5 pt-10 pb-14 sm:px-8 lg:grid-cols-2 lg:gap-x-6 2xl:min-h-[760px] 2xl:grid-cols-1 2xl:gap-0 2xl:pt-0 2xl:pb-0">
+        <div className="relative z-20 flex flex-col justify-center 2xl:max-w-[560px] 2xl:py-16">
           <p className="flex items-center gap-4 text-[12px] font-medium tracking-[0.22em] text-[#4b5563] uppercase">
             Full stack developer
             <span aria-hidden="true" className="h-px w-12 bg-[#9ca3af]" />
@@ -120,17 +121,10 @@ export function HeroSection() {
 
         {/* The portrait fades into the scene at its edges; on wide screens it sits behind the stack. */}
         <div className="relative z-10 mx-auto h-[440px] w-full max-w-[560px] sm:h-[520px] lg:h-[600px] lg:max-w-none 2xl:absolute 2xl:bottom-0 2xl:left-[27%] 2xl:h-[90%] 2xl:w-[600px]">
-          <Image
-            src={desk}
-            alt="Hasan at his desk with a sticker-covered laptop"
-            fill
-            preload
-            sizes="(min-width: 1536px) 600px, (min-width: 1024px) 50vw, 100vw"
-            className="object-cover object-[50%_20%] mix-blend-multiply [mask-composite:intersect] [mask-image:linear-gradient(to_right,transparent,#000_26%,#000_80%,transparent),linear-gradient(to_bottom,transparent,#000_14%)]"
-          />
+          <WaterRevealPortrait heroRef={heroRef} />
         </div>
 
-        <div className="relative z-20 w-full lg:col-span-2 lg:mx-auto lg:max-w-[920px] 2xl:absolute 2xl:top-1/2 2xl:right-12 2xl:w-[660px] 2xl:-translate-y-1/2">
+        <div className="relative z-20 w-full lg:col-span-2 lg:mx-auto lg:max-w-[920px] 2xl:absolute 2xl:top-1/2 2xl:right-8 2xl:w-[660px] 2xl:-translate-y-1/2">
           <TechStack activeId={activeId} onActiveChange={(id) => { tour.stop(); setHovered(id); }} />
         </div>
       </div>

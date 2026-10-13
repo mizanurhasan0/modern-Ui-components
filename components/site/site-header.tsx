@@ -33,20 +33,22 @@ export function SiteHeader() {
   const latest = components[0];
 
   return (
-    <header className="sticky top-0 z-30 bg-[#fafbfc]/85 px-4 py-3 backdrop-blur-xl sm:px-6">
-      <NeumorphicNavbar
-        embedded
-        palette={PALETTE}
-        linkAs={Link}
-        items={NAV_ITEMS}
-        activeId={activeItem(pathname)}
-        brand={<LabWordmark className="w-[118px] sm:w-[148px]" />}
-        brandMark={<LabMark className="size-9 sm:size-10" />}
-        brandHref="/"
-        actionLabel={latest ? "Latest experiment" : null}
-        actionHref={latest ? `/components/${latest.slug}` : undefined}
-        ariaLabel="Main navigation"
-      />
+    <header className="sticky top-0 z-30 bg-[#fafbfc]/85 py-3 backdrop-blur-xl">
+      <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-8">
+        <NeumorphicNavbar
+          embedded
+          palette={PALETTE}
+          linkAs={Link}
+          items={NAV_ITEMS}
+          activeId={activeItem(pathname)}
+          brand={<LabWordmark className="w-[118px] sm:w-[148px]" />}
+          brandMark={<LabMark className="size-9 sm:size-10" />}
+          brandHref="/"
+          actionLabel={latest ? "Latest experiment" : null}
+          actionHref={latest ? `/components/${latest.slug}` : undefined}
+          ariaLabel="Main navigation"
+        />
+      </div>
     </header>
   );
 }
