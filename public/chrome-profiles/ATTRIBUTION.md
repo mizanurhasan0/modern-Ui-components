@@ -1,0 +1,1 @@
+Photographic layers were extracted from the user-supplied Chrome profile motion reference video. Original visual content belongs to its respective creators. The panels, headings, carousel controls, animation, and interactions are implemented in React and CSS. These assets preserve the supplied visual reference and can be replaced through the component’s typed slides prop.

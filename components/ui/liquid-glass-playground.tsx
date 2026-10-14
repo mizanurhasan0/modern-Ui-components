@@ -385,6 +385,7 @@ export default function LiquidGlassPlayground({
     })),
   );
   const [dimensions, setDimensions] = useState({ width: 520, height: 430 });
+  const [layoutReady, setLayoutReady] = useState(false);
   const [dragging, setDragging] = useState<string | null>(null);
   const [rendering, setRendering] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -539,6 +540,7 @@ export default function LiquidGlassPlayground({
       initialized.current = true;
       positionsRef.current = next;
       setPositions(next);
+      setLayoutReady(true);
       rendererRef.current?.invalidate();
     };
     measure();
@@ -606,6 +608,7 @@ export default function LiquidGlassPlayground({
     dragging,
     rendering,
     positions,
+    layoutReady,
   ]);
 
   const visibleIds = visiblePanels.map((panel) => panel.id).join("|");
@@ -889,7 +892,7 @@ export default function LiquidGlassPlayground({
                   rendererRef.current?.pulse(event.clientX, event.clientY);
               }}
             >
-              {visiblePanels.map((panel, index) => {
+              {layoutReady && visiblePanels.map((panel, index) => {
                 const position = positions.find(
                   (item) => item.id === panel.id,
                 ) ?? { x: 0, y: 0 };

@@ -118,7 +118,7 @@ export function ComponentGallery() {
         </label>
       </div>
       <div className="mt-6 mb-7 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
-        <div className="flex min-w-0 items-center gap-1" role="group" aria-label="Filter components by category">
+        <div className="flex min-w-0 flex-wrap items-center gap-1" role="group" aria-label="Filter components by category">
           {primaryCategories.map((item, index) => {
             const visibility = index < 2 ? "" : index < 4 ? "hidden sm:inline-flex" : index < 7 ? "hidden lg:inline-flex" : "hidden xl:inline-flex";
             return (

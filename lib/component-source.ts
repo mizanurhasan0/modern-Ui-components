@@ -130,6 +130,52 @@ function includePortfolioImages(source: string): string {
   return `${portableSource}\n\n// Portrait and technology texture extracted from the user-supplied portfolio interaction video.\n// Source frames: 0.08 seconds (portrait), 2.00 seconds (technology texture).\n`;
 }
 
+const referenceAssetFolders: Record<string, string> = {
+  "clothing-color-customizer": "/clothing-customizer/",
+  "chrome-profile-carousel": "/chrome-profiles/",
+  "swift-sneaker-store": "/swift-sneaker-store/",
+  "globe-travel-explorer": "/reference-travel/",
+  "classic-microcars": "/classic-microcars/",
+  "sapiens-character-builder": "/sapiens-characters/",
+};
+
+/** Embed local reference artwork on export without putting it in every preview bundle. */
+function includeReferenceAssets(slug: string, source: string): string {
+  const folder = referenceAssetFolders[slug];
+  if (!folder) return source;
+  const mimeTypes: Record<string, string> = {
+    ".webp": "image/webp", ".png": "image/png", ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg", ".gif": "image/gif", ".svg": "image/svg+xml",
+    ".woff2": "font/woff2", ".woff": "font/woff",
+  };
+  const assetPattern = new RegExp(`(["'\x60])(${folder}[a-zA-Z0-9_./-]+)\\1`, "g");
+  const embedded = new Map<string, string>();
+  const result = source.replace(assetPattern, (_match, _quote: string, publicUrl: string) => {
+    let dataUrl = embedded.get(publicUrl);
+    if (!dataUrl) {
+      const mime = mimeTypes[path.extname(publicUrl).toLowerCase()];
+      if (!mime) throw new Error(`Unsupported reference asset: ${publicUrl}`);
+      const asset = readFileSync(path.join(process.cwd(), "public", publicUrl));
+      dataUrl = `data:${mime};base64,${asset.toString("base64")}`;
+      embedded.set(publicUrl, dataUrl);
+    }
+    return JSON.stringify(dataUrl);
+  });
+  if (result.includes(folder)) {
+    throw new Error(`${slug} contains a reference asset that was not embedded.`);
+  }
+  const attribution = slug === "clothing-color-customizer"
+    ? "T-shirt photograph: Haryo Setyadi, https://unsplash.com/photos/acn5ERAeSb4. Hoodie photograph: Mediamodifier, https://unsplash.com/photos/kJXGTOY1wLQ. Photos used under the Unsplash License: https://unsplash.com/license. Cropped and manually masked for this demo; no AI image generation."
+    : slug === "swift-sneaker-store"
+    ? "Native artwork extracted from the user-supplied recording; HD shoe variants refined with imagegen. Use artwork=\"reference\" for original pixels."
+    : slug === "globe-travel-explorer"
+      ? "Reference artwork extracted from the user-supplied recording; terrain obscured by recorded UI restored with imagegen."
+      : slug === "sapiens-character-builder"
+        ? "Male artwork extracted from the reference recording; female pose artwork generated with imagegen to complement the illustration style."
+      : "Reference artwork extracted from the user-supplied interaction recording.";
+  return `${result}\n\n// ${attribution}\n`;
+}
+
 /** Only registered files can be exposed; portable exports include required assets. */
 export function getComponentSource(slug: string): string {
   const component = getComponent(slug);
@@ -143,7 +189,7 @@ export function getComponentSource(slug: string): string {
     "utf8",
   );
 
-  const portableSource = includePortableStyles(source);
+  const portableSource = includeReferenceAssets(slug, includePortableStyles(source));
   if (slug === "redbull-card") return includeRedBullPhoto(portableSource);
   if (slug === "portfolio-image-trail") return includePortfolioImages(portableSource);
   return slug === "creative-login"

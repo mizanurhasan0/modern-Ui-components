@@ -1,0 +1,17 @@
+{
+  "tool": "Built-in imagegen",
+  "kind": "Dedicated female counterpart illustrations, not present in the supplied male-character recording.",
+  "assets": [
+    "female-running.webp",
+    "female-walking.webp",
+    "female-standing.webp",
+    "female-cycling.webp"
+  ],
+  "format": "Transparent WebP; cwebp quality94 from generated PNG.",
+  "prompts": {
+    "running": "Use case: precise-object-edit. Create a female counterpart of the attached stylized 3D Sapiens running character for a character builder. Keep the same polished clay-like soft 3D illustration style, exact running pose rightward with left leg bent back/right leg forward, body proportions, red long-sleeve sweater, navy loose trousers, light blue sneakers, brown briefcase held in left trailing hand. Change character to adult woman with a warm medium skin tone and naturally modeled feminine face, dark brown ponytail. Fully rendered female anatomy/head, not a hair patch on the male. Square transparent canvas, entire figure uncropped with approximately8%padding, same composition as input including head atx48% y12% and feetnear14%/65% y85%. Clear clean silhouette, subtle soft material shading. No ground, no backdrop, no text, no UI. Genuinely transparent background including holes around limbs. High resolution sharp illustration, no photo realism.",
+    "walking": "Use case: precise-object-edit. Input is the female character for a Sapiens character builder. Change ONLY the pose to an adult woman walking naturally towards right, right leg forward with foot near ground and left leg back with heel lifted, alternating arms and briefcase in trailing left hand. Keep the same woman/ponytail/red sweater/navy trousers/blue shoes and same soft3Dstyle. Body entire heightapproximately82%canvas, squarecanvas centered, transparent background, no ground shadow. Preserve identity, face, hair style, colors and material shading. No text/UI/background. Genuinely transparent including gaps between spokes and bicycle frame.",
+    "standing": "Use case: precise-object-edit. Input is the female character for a Sapiens character builder. Change ONLY the pose to standing naturally facing right, both shoes grounded side by side, one forearm gently extended palm up and other arm relaxed carrying the brown briefcase. Keep same woman/ponytail/red sweater/navy trousers/blue shoes and same soft3Dstyle. Entirebody heightapproximately82%canvas, square centered transparentcanvas,no groundshadow. Preserve identity, face, hair style, colors and material shading. No text/UI/background. Genuinely transparent including gaps between spokes and bicycle frame.",
+    "cycling": "Use case: precise-object-edit. Input is the female character for a Sapiens character builder. Change ONLY pose to cycling rightwards seated on a red vintage bicycle with yellow wheel rims and dark thin tires, legs naturally pedaling, hands on handlebars. Keep same adultwoman/ponytail/red sweater/navy trousers/blue shoes, same soft3Dstyle. Remove the briefcase for safe riding. Entire woman+bicycle uncropped centered on squaretransparentcanvas with8%padding, no groundshadow. Realistic correct bicycle/frame/handlebars/two pedals and two circular wheels. Preserve identity, face, hair style, colors and material shading. No text/UI/background. Genuinely transparent including gaps between spokes and bicycle frame."
+  }
+}

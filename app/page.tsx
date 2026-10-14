@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <main id="main-content" className="w-full">
       <HeroSection />
-      <div className="mx-auto w-full max-w-[1200px] px-5 pt-16 sm:px-8 sm:pt-20">
+      <div className="site-container pt-16 sm:pt-20">
         <ComponentGallery />
         <section
           id="about"

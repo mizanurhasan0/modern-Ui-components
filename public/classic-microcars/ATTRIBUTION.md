@@ -1,0 +1,1 @@
+Car cutouts, the BMW roundel, and gallery photographs are extracted from the user-supplied Classic Microcars GIF reference. Original imagery belongs to its respective creators. Panels, typography, transitions, controls, and details are implemented in React/CSS/SVG. Replace assets with your own through the slides prop.

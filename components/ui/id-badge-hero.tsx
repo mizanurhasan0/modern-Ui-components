@@ -560,6 +560,28 @@ export default function IdBadgeHero({ profile = DEFAULT_PROFILE, primaryAction, 
     let frame = 0;
     let last = 0;
     let carry = 0;
+    let angleLimit = MAX_ANGLE;
+    let tiltLimit = MAX_TILT;
+
+    function measureSwingSpace() {
+      if (!root || !rig || !card) return;
+      const area = rig.parentElement;
+      if (!area || !root.clientWidth) return;
+      const bounds = root.getBoundingClientRect();
+      const areaBounds = area.getBoundingClientRect();
+      const center = areaBounds.left + areaBounds.width / 2;
+      const room = Math.max(0, Math.min(center - bounds.left, bounds.right - center) - card.clientWidth / 2 - 12);
+      // Reserve room for both the strap rotation and the card's lag below it.
+      angleLimit = Math.min(MAX_ANGLE, Math.atan(room / Math.max(1, rig.scrollHeight + card.clientHeight / 2)));
+      tiltLimit = Math.min(MAX_TILT, angleLimit / 2);
+      state.angle = Math.max(-angleLimit, Math.min(angleLimit, state.angle));
+      state.tilt = Math.max(-tiltLimit, Math.min(tiltLimit, state.tilt));
+      if (state.target !== null) state.target = Math.max(-angleLimit, Math.min(angleLimit, state.target));
+    }
+    measureSwingSpace();
+    const resizeObserver = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measureSwingSpace);
+    resizeObserver?.observe(root);
+    window.addEventListener("resize", measureSwingSpace);
 
     const render = () => {
       rig.style.transform = `rotate(${state.angle.toFixed(5)}rad)`;
@@ -576,10 +598,14 @@ export default function IdBadgeHero({ profile = DEFAULT_PROFILE, primaryAction, 
           : DRAG_STIFFNESS * (state.target - state.angle) - DRAG_DAMPING * state.velocity;
       state.velocity = Math.max(-MAX_VELOCITY, Math.min(MAX_VELOCITY, state.velocity + acceleration * dt));
       state.angle += state.velocity * dt;
+      if (Math.abs(state.angle) > angleLimit) {
+        state.angle = Math.max(-angleLimit, Math.min(angleLimit, state.angle));
+        state.velocity *= -0.2;
+      }
       // The card is pushed the opposite way by the strap's acceleration, then springs back under its clip.
       const tiltAcceleration = -TILT_STIFFNESS * state.tilt - TILT_DAMPING * state.tiltVelocity - TILT_COUPLING * acceleration;
       state.tiltVelocity += tiltAcceleration * dt;
-      state.tilt = Math.max(-MAX_TILT, Math.min(MAX_TILT, state.tilt + state.tiltVelocity * dt));
+      state.tilt = Math.max(-tiltLimit, Math.min(tiltLimit, state.tilt + state.tiltVelocity * dt));
     }
 
     function tick(now: number) {
@@ -618,7 +644,7 @@ export default function IdBadgeHero({ profile = DEFAULT_PROFILE, primaryAction, 
     pendulum.current = {
       angle: () => state.angle,
       drag(target) {
-        state.target = Math.max(-MAX_ANGLE, Math.min(MAX_ANGLE, target));
+        state.target = Math.max(-angleLimit, Math.min(angleLimit, target));
         // Reduced motion: follow the pointer directly, no inertia.
         if (reduced) {
           state.angle = state.target;
@@ -647,6 +673,8 @@ export default function IdBadgeHero({ profile = DEFAULT_PROFILE, primaryAction, 
       cancelAnimationFrame(frame);
       frame = 0;
       observer.disconnect();
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", measureSwingSpace);
       document.removeEventListener("visibilitychange", synchronize);
       motionQuery.removeEventListener("change", handleMotionChange);
       pendulum.current = null;

@@ -1,0 +1,22 @@
+{
+  "source": "User-supplied Swift sneaker storefront video (240 \u00d7 240 pixels)",
+  "assets": {
+    "white-angle.webp": 0,
+    "red-angle.webp": 1.4,
+    "sand-angle.webp": 3.0,
+    "navy-angle.webp": 4.2,
+    "red-side.webp": 11.0
+  },
+  "notes": [
+    "Product artwork extracted from the corresponding reference frames, with transparent silhouette masks.",
+    "Only a partial grey product appears in the reference; its full product view uses a desaturated cutout.",
+    "Supply higher-resolution product images through the typed products prop for larger storefronts.",
+    "The default -hd.webp images are reference-guided refinements generated with the built-in imagegen tool. Fine material details are synthetic, not recovered original pixels. Native cutouts remain selectable with artwork=reference."
+  ],
+  "enhancement": {
+    "tool": "Built-in imagegen",
+    "files": ["white-angle-hd.webp", "red-angle-hd.webp", "sand-angle-hd.webp", "navy-angle-hd.webp", "red-side-hd.webp"],
+    "promptSet": "IMAGE_PROMPTS.md",
+    "conversion": "cwebp quality 94, original generated alpha preserved"
+  }
+}

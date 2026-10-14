@@ -4,7 +4,7 @@ import { LabMark } from "./icons";
 export function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-[#e4e7ed]">
-      <div className="mx-auto flex max-w-[1200px] flex-col items-start justify-between gap-4 px-5 py-7 text-[11px] text-[#9096a1] sm:flex-row sm:items-center sm:px-8">
+      <div className="site-container site-footer-container flex flex-col items-start justify-between gap-4 py-7 text-[11px] text-[#9096a1] sm:flex-row sm:items-center">
         <Link href="/" className="flex items-center gap-2.5">
           <LabMark className="size-4 text-[#979eaa]" />
           <span>

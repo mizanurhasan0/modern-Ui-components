@@ -48,7 +48,7 @@ export function HeroSection() {
         <div className="absolute inset-x-0 bottom-0 h-28 bg-[linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.85))]" />
       </div>
 
-      <div className="relative mx-auto grid w-full max-w-[1200px] grid-cols-[minmax(0,1fr)] gap-10 px-5 pt-10 pb-14 sm:px-8 lg:grid-cols-2 lg:gap-x-6 2xl:min-h-[760px] 2xl:grid-cols-1 2xl:gap-0 2xl:pt-0 2xl:pb-0">
+      <div className="site-container relative grid grid-cols-[minmax(0,1fr)] gap-10 pt-10 pb-14 lg:grid-cols-2 lg:gap-x-6 2xl:min-h-[760px] 2xl:grid-cols-1 2xl:gap-0 2xl:pt-0 2xl:pb-0">
         <div className="relative z-20 flex flex-col justify-center 2xl:max-w-[560px] 2xl:py-16">
           <p className="flex items-center gap-4 text-[12px] font-medium tracking-[0.22em] text-[#4b5563] uppercase">
             Full stack developer
@@ -94,19 +94,19 @@ export function HeroSection() {
               </span>
             )}
           </p>
-          <dl className="mt-6 flex max-w-[460px] items-stretch divide-x divide-[#d6dbe3]">
-            <div className="pr-5 sm:pr-7">
-              <dd className="text-[28px] leading-none font-bold text-[#0b0d12]"><CountUp to={3} suffix="+" /></dd>
-              <dt className="mt-2 text-[13px] leading-snug text-[#5b6271]">Years<br />Experience</dt>
+          <dl className="mt-6 grid max-w-[460px] grid-cols-[1fr_1fr_1.25fr] items-stretch divide-x divide-[#d6dbe3] sm:flex">
+            <div className="min-w-0 pr-3 sm:pr-7">
+              <dd className="text-[22px] leading-none font-bold text-[#0b0d12] sm:text-[28px]"><CountUp to={3} suffix="+" /></dd>
+              <dt className="mt-2 text-[11px] leading-snug text-[#5b6271] sm:text-[13px]">Years<br />Experience</dt>
             </div>
-            <div className="px-5 sm:px-7">
-              <dd className="text-[28px] leading-none font-bold text-[#0b0d12]"><CountUp to={50} suffix="+" /></dd>
-              <dt className="mt-2 text-[13px] leading-snug text-[#5b6271]">Projects<br />Completed</dt>
+            <div className="min-w-0 px-3 sm:px-7">
+              <dd className="text-[22px] leading-none font-bold text-[#0b0d12] sm:text-[28px]"><CountUp to={50} suffix="+" /></dd>
+              <dt className="mt-2 text-[11px] leading-snug text-[#5b6271] sm:text-[13px]">Projects<br />Completed</dt>
             </div>
-            <div className="group pl-5 sm:pl-7">
-              <dd className="flex items-center gap-2.5 text-[28px] leading-none font-bold text-[#0b0d12]">
+            <div className="group min-w-0 pl-3 sm:pl-7">
+              <dd className="flex items-center gap-1 text-[22px] leading-none font-bold text-[#0b0d12] sm:gap-2.5 sm:text-[28px]">
                 Happy
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true" className="size-8 transition-transform duration-300 group-hover:rotate-12">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true" className="size-5 shrink-0 transition-transform duration-300 group-hover:rotate-12 sm:size-8">
                   <circle cx="12" cy="12" r="9.5" />
                   <path d="M8.5 14.5c1.9 2 5.1 2 7 0" />
                   <path d="M9 9.5v.5" className="transition-all group-hover:opacity-0" />
@@ -114,7 +114,7 @@ export function HeroSection() {
                   <path d="M7.8 10h2.4" className="opacity-0 transition-all group-hover:opacity-100" />
                 </svg>
               </dd>
-              <dt className="mt-2 text-[13px] text-[#5b6271]">Clients</dt>
+              <dt className="mt-2 text-[11px] text-[#5b6271] sm:text-[13px]">Clients</dt>
             </div>
           </dl>
         </div>

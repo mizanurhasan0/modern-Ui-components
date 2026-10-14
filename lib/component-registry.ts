@@ -15,6 +15,178 @@ export type ComponentEntry = {
 /** The catalog drives the gallery, detail pages, and available source files. */
 export const components: ComponentEntry[] = [
   {
+    slug: "clothing-color-customizer",
+    title: "Clothing Color Customizer",
+    description: "An understated clothing color studio with instant masked recoloring, preserved fabric shading, and a palette you can make your own.",
+    category: "Commerce",
+    tags: ["Interactive", "Customizable", "Accessible"],
+    sourceFile: "clothing-color-customizer.tsx",
+    fileName: "clothing-color-customizer.tsx",
+    number: "054",
+    demoNote: "Interactive demo · Switch between real T-shirt and hoodie photographs, choose a swatch or custom HEX, and reset to the exact original image. Prepared masks protect the neck label, drawstrings, and eyelets while preserving photographic fabric details. Every color change runs locally.",
+    features: [
+      { title: "Your own color studio", description: "Preset swatches, a native picker, validated HEX input, style selection, and exact original-image reset in a responsive product layout." },
+      { title: "Keep the fabric details", description: "Cached linear-light shading preserves folds and texture. White mask regions recolor while black or transparent regions protect backgrounds, labels, prints, and hardware." },
+      { title: "Local and reusable", description: "A typed component and exported canvas hook process every color in your browser. Neutral product images give the best results; colored lights and complex materials cannot be reconstructed from one photo." },
+    ],
+    usage: 'import ClothingColorCustomizer from "@/components/ui/clothing-color-customizer";\n\nexport default function ProductPage() {\n  return (\n    <ClothingColorCustomizer\n      productTitle="Everyday cotton tee"\n      productImage="/products/tee.png"\n      garmentMask="/products/tee-mask.png"\n      initialColor="#D4D2CC"\n    />\n  );\n}\n\n// Image and mask must have identical dimensions.\n// White = recolor; black or transparent = preserve.\n// Omit props to try the bundled photographic demo.',
+  },
+  {
+    "slug": "classic-microcars",
+    "title": "Classic Microcars",
+    "description": "An editorial tour of three classic microcars, with sliding cutouts, condensed typography, and an inset photographic archive.",
+    "category": "Carousels",
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Customizable",
+      "Accessible"
+    ],
+    "sourceFile": "classic-microcars.tsx",
+    "fileName": "classic-microcars.tsx",
+    "number": "053",
+    "demoNote": "Interactive demo · Browse the cars with the timeline, arrow keys, or a swipe. Select Discover more to explore the photographic archive; close it with Escape. Replace the cars and galleries through typed props.",
+    "features": [
+      {
+        "title": "An editorial automotive archive",
+        "description": "BMW Isetta, Fiat Cinquecento, and Messerschmitt cutouts slide over matching taupe, lavender, and sage backdrops, with tall vector typography behind them."
+      },
+      {
+        "title": "Discover the details",
+        "description": "An inset photographic archive opens inside the scene, with three reference photographs, gallery pagination, and accessible closing controls."
+      },
+      {
+        "title": "Made to reuse",
+        "description": "Typed vehicle data, optional autoplay, swipe and keyboard navigation, focus management, and embedded artwork in copied source."
+      }
+    ],
+    "usage": "import ClassicMicrocars from \"@/components/ui/classic-microcars\";\n\nexport default function Page() {\n  return <ClassicMicrocars />;\n}"
+  },
+  {
+    "slug": "globe-travel-explorer",
+    "title": "Globe Travel Explorer",
+    "category": "Navigation",
+    "number": "052",
+    "description": "A luminous rotating Earth opens China’s destinations, then zooms into a scenic travel hero with a live booking form.",
+    "demoNote": "Interactive demo · Select the globe to explore China, then open a destination. Choose dates and travelers to preview a trip request. Connect onBook to your travel service.",
+    "features": [
+      {
+        "title": "Explore from orbit",
+        "description": "The original rotating globe glows over a deep blue starfield before sliding into the country view."
+      },
+      {
+        "title": "Travel into the scene",
+        "description": "Destination cards and a globe zoom transition reveal the mountain landscape and oversized destination typography."
+      },
+      {
+        "title": "A working trip form",
+        "description": "Date validation, traveler selection, async booking callbacks, error feedback, keyboard navigation, and reduced-motion artwork."
+      }
+    ],
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Customizable",
+      "Accessible"
+    ],
+    "sourceFile": "globe-travel-explorer.tsx",
+    "fileName": "globe-travel-explorer.tsx",
+    "usage": "import GlobeTravelExplorer from \"@/components/ui/globe-travel-explorer\";\n\nexport default function Page() {\n  return <GlobeTravelExplorer />;\n}"
+  },
+  {
+    "slug": "sapiens-character-builder",
+    "title": "Sapiens Character Builder",
+    "category": "Playgrounds",
+    "number": "051",
+    "description": "Remix a three-dimensional character with pose, clothing, and illustration-style controls on a coral studio canvas.",
+    "demoNote": "Interactive demo · Select the character to open Remix, change clothing and poses, or export your composition as PNG or SVG. The shown running, standing, and cycling artwork comes from the reference; supply your own artwork to extend the set.",
+    "features": [
+      {
+        "title": "A character to remix",
+        "description": "The original illustrated runner changes clothing, hair, and shoes through a floating parts panel."
+      },
+      {
+        "title": "Try a different pose",
+        "description": "Running, standing, and cycling reference artwork combine with colorful, duotone, and outline presentation controls."
+      },
+      {
+        "title": "Export your composition",
+        "description": "Live PNG and SVG downloads, typed customization callbacks, keyboard controls, and responsive editing tools."
+      }
+    ],
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Customizable",
+      "Accessible"
+    ],
+    "sourceFile": "sapiens-character-builder.tsx",
+    "fileName": "sapiens-character-builder.tsx",
+    "usage": "import SapiensCharacterBuilder from \"@/components/ui/sapiens-character-builder\";\n\nexport default function Page() {\n  return <SapiensCharacterBuilder />;\n}"
+  },
+  {
+    "slug": "swift-sneaker-store",
+    "title": "Swift Sneaker Store",
+    "category": "Commerce",
+    "number": "050",
+    "description": "Four sneaker panels expand into a warm, minimal storefront with product details, color choices, sizes, and a working shopping bag.",
+    "demoNote": "Interactive demo · Hover or focus a sneaker, then select it to explore. Choose a size and add it to the demo bag. Connect onAddToCart to your store; no payment is taken.",
+    "features": [
+      {
+        "title": "From collection to product",
+        "description": "Four colored panels stretch around the selected sneaker and become a focused product and specifications view."
+      },
+      {
+        "title": "A complete shopping interaction",
+        "description": "Color selection, size validation, an async add-to-bag callback, shopping bag count, and readable status messages."
+      },
+      {
+        "title": "Portable product artwork",
+        "description": "Product cutouts from the supplied reference are embedded in copied source. Replace the products with your own catalog through typed props."
+      }
+    ],
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Customizable",
+      "Accessible"
+    ],
+    "sourceFile": "swift-sneaker-store.tsx",
+    "fileName": "swift-sneaker-store.tsx",
+    "usage": "import SwiftSneakerStore from \"@/components/ui/swift-sneaker-store\";\n\nexport default function Page() {\n  return <SwiftSneakerStore />;\n}"
+  },
+  {
+    "slug": "chrome-profile-carousel",
+    "title": "Chrome Profile Carousel",
+    "category": "Carousels",
+    "number": "049",
+    "description": "Four personal browser worlds turn in 3D, with portraits, saved places, products, and bookmarks layered over matching colors.",
+    "demoNote": "Interactive demo · Choose a profile, swipe, or use the arrow keys. Space pauses automatic playback. Replace the profiles and layer artwork through typed props.",
+    "features": [
+      {
+        "title": "Four personal worlds",
+        "description": "Original reference portraits, shopping cards, places, and bookmarks float above blue, coral, yellow, and green panels."
+      },
+      {
+        "title": "A turn with depth",
+        "description": "Perspective rotation, outgoing and incoming layers, and palette transitions follow the supplied motion reference."
+      },
+      {
+        "title": "Ready to make your own",
+        "description": "Custom profile data, autoplay controls, layer callbacks, keyboard navigation, swipe, and reduced-motion support."
+      }
+    ],
+    "tags": [
+      "Interactive",
+      "Animated",
+      "Customizable",
+      "Accessible"
+    ],
+    "sourceFile": "chrome-profile-carousel.tsx",
+    "fileName": "chrome-profile-carousel.tsx",
+    "usage": "import ChromeProfileCarousel from \"@/components/ui/chrome-profile-carousel\";\n\nexport default function Page() {\n  return <ChromeProfileCarousel />;\n}"
+  },
+  {
     "slug": "glassy-crm-dashboard",
     "title": "Glassy CRM Dashboard",
     "description": "A dark glass workspace brings store metrics, fulfillment, connected services, customer insights, and financial performance into five coordinated views.",

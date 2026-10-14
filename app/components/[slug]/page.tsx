@@ -51,12 +51,12 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
   return (
     <main
       id="main-content"
-      className="component-detail-page mx-auto w-full max-w-[1200px] px-5 pb-24 pt-8 sm:px-8 sm:pt-10"
+      className="site-container component-detail-page pb-24 pt-5 sm:pt-6"
     >
       <ComponentBackdrop slug={slug}>
         {Thumbnail && <Thumbnail className="h-full w-full" previewStep={0} />}
       </ComponentBackdrop>
-      <nav aria-label="Breadcrumb" className="detail-breadcrumb mb-6 text-[12px] sm:mb-7">
+      <nav aria-label="Breadcrumb" className="detail-breadcrumb mb-5 text-[12px]">
         <ol className="flex flex-wrap items-center gap-2.5">
           <li>
             <Link href="/" className="transition-colors hover:text-[#111318]">
@@ -83,22 +83,24 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
         </ol>
       </nav>
 
-      <header className="detail-intro mb-7 flex flex-col gap-7 sm:mb-8 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="detail-section-eyebrow mb-4 font-mono text-[10px] font-medium uppercase tracking-[0.18em]">
+      <header className="detail-intro mb-6 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
+        <div className="min-w-0 flex-1">
+          <p className="detail-section-eyebrow mb-2.5 font-mono text-[10px] font-medium uppercase tracking-[0.18em]">
             Component {entry.number}
             <span aria-hidden="true" className="mx-3 text-[#c7cad3]">
               /
             </span>
             {entry.category}
           </p>
-          <h1 className="text-[clamp(2.5rem,5vw,4rem)] leading-[1.05] font-semibold tracking-[-0.065em] text-[#111318]">
+          <h1 className="text-[clamp(2rem,3.8vw,3rem)] leading-[1.1] font-semibold tracking-[-0.055em] text-[#111318]">
             {entry.title}
           </h1>
-          <p className="detail-secondary-copy mt-5 max-w-[670px] text-[15px] leading-[1.8] sm:text-base">
+          <p className="detail-secondary-copy mt-3 max-w-[780px] text-[14px] leading-[1.7] sm:text-[15px]">
             {entry.description}
           </p>
-          <ul aria-label="Built with" className="mt-6 flex flex-wrap gap-2">
+        </div>
+        <div className="flex flex-wrap items-center gap-3 lg:shrink-0 lg:flex-col lg:items-end">
+          <ul aria-label="Built with" className="flex flex-wrap gap-2">
             {["React", "Tailwind CSS", "TypeScript"].map((technology) => (
               <li
                 key={technology}
@@ -108,13 +110,13 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
               </li>
             ))}
           </ul>
+          <a
+            href="#playground"
+            className="hidden h-11 w-fit shrink-0 items-center gap-2 rounded-full bg-[#0b0d12] px-5 text-[12px] font-medium text-white shadow-[0_8px_20px_-10px_rgba(11,13,18,0.7)] transition hover:-translate-y-0.5 hover:bg-[#252b36] lg:inline-flex"
+          >
+            Explore the preview <ArrowUpRight className="size-4" />
+          </a>
         </div>
-        <a
-          href="#playground"
-          className="hidden h-11 w-fit shrink-0 items-center gap-2 rounded-full bg-[#0b0d12] px-5 text-[12px] font-medium text-white shadow-[0_8px_20px_-10px_rgba(11,13,18,0.7)] transition hover:-translate-y-0.5 hover:bg-[#252b36] lg:inline-flex"
-        >
-          Explore the preview <ArrowUpRight className="size-4" />
-        </a>
       </header>
 
       <ComponentPlayground

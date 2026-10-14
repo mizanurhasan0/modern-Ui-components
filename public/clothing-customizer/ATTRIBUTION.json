@@ -1,0 +1,34 @@
+{
+  "license": "Unsplash License",
+  "licenseUrl": "https://unsplash.com/license",
+  "retrieved": "2026-10-14",
+  "preparation": "Original photographic fabric pixels retained. Manually traced silhouettes with a narrow inward edge and soft feather, protected-detail masks, and transparent padding to 640x660. No AI image generation.",
+  "assets": [
+    {
+      "product": "tee",
+      "photographer": "Haryo Setyadi",
+      "sourcePage": "https://unsplash.com/photos/white-crew-neck-t-shirt-acn5ERAeSb4",
+      "downloadUrl": "https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=max&fm=jpg&q=95&w=1400",
+      "sourceDimensions": [1400, 2100],
+      "crop": { "left": 390, "top": 960, "width": 650, "height": 840 },
+      "fit": { "maxWidth": 500, "maxHeight": 540, "canvas": [640, 660], "position": "center" },
+      "files": ["tee.webp", "tee-mask.png", "tee-outline.svg", "tee-protection.svg"],
+      "protectedRegions": ["neck label"],
+      "protectedPixels": [[318, 120]],
+      "garmentPixels": [[320, 250], [275, 400]]
+    },
+    {
+      "product": "hoodie",
+      "photographer": "Mediamodifier",
+      "sourcePage": "https://unsplash.com/photos/white-hoodie-and-distressed-jeans-kJXGTOY1wLQ",
+      "downloadUrl": "https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?auto=format&fit=max&fm=jpg&q=95&w=1600",
+      "sourceDimensions": [1600, 1202],
+      "crop": { "left": 480, "top": 280, "width": 680, "height": 860 },
+      "fit": { "maxWidth": 500, "maxHeight": 540, "canvas": [640, 660], "position": "center" },
+      "files": ["hoodie.webp", "hoodie-mask.png", "hoodie-outline.svg", "hoodie-protection.svg"],
+      "protectedRegions": ["drawstrings", "cord tips", "metal eyelets"],
+      "protectedPixels": [[285, 155], [284, 226], [345, 258], [355, 116]],
+      "garmentPixels": [[320, 300], [270, 440]]
+    }
+  ]
+}

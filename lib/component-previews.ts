@@ -1,3 +1,9 @@
+import ClothingColorCustomizer, { ClothingColorCustomizerThumbnail } from "@/components/ui/clothing-color-customizer";
+import ClassicMicrocars, { ClassicMicrocarsThumbnail } from "@/components/ui/classic-microcars";
+import ChromeProfileCarousel, { ChromeProfileCarouselThumbnail } from "@/components/ui/chrome-profile-carousel";
+import SwiftSneakerStore, { SwiftSneakerStoreThumbnail } from "@/components/ui/swift-sneaker-store";
+import SapiensCharacterBuilder, { SapiensCharacterBuilderThumbnail } from "@/components/ui/sapiens-character-builder";
+import GlobeTravelExplorer, { GlobeTravelExplorerThumbnail } from "@/components/ui/globe-travel-explorer";
 import GlassyCrmDashboard, { GlassyCrmDashboardThumbnail } from "@/components/ui/glassy-crm-dashboard";
 import SkillOrbitHero, { SkillOrbitHeroThumbnail } from "@/components/ui/skill-orbit-hero";
 import CodeProfileHero, { CodeProfileHeroThumbnail } from "@/components/ui/code-profile-hero";
@@ -112,6 +118,12 @@ import RedBullCard, {
 
 /** Interactive demos are separate from serializable catalog metadata. */
 export const componentPreviews: Partial<Record<string, ComponentType>> = {
+  "clothing-color-customizer": ClothingColorCustomizer,
+  "classic-microcars": ClassicMicrocars,
+  "chrome-profile-carousel": ChromeProfileCarousel,
+  "swift-sneaker-store": SwiftSneakerStore,
+  "sapiens-character-builder": SapiensCharacterBuilder,
+  "globe-travel-explorer": GlobeTravelExplorer,
   "glassy-crm-dashboard": GlassyCrmDashboard,
   "skill-orbit-hero": SkillOrbitHero,
   "code-profile-hero": CodeProfileHero,
@@ -168,6 +180,12 @@ export const componentPreviews: Partial<Record<string, ComponentType>> = {
 export const componentThumbnails: Partial<
   Record<string, ComponentType<{ className?: string; previewStep?: number }>>
 > = {
+  "clothing-color-customizer": ClothingColorCustomizerThumbnail,
+  "classic-microcars": ClassicMicrocarsThumbnail,
+  "chrome-profile-carousel": ChromeProfileCarouselThumbnail,
+  "swift-sneaker-store": SwiftSneakerStoreThumbnail,
+  "sapiens-character-builder": SapiensCharacterBuilderThumbnail,
+  "globe-travel-explorer": GlobeTravelExplorerThumbnail,
   "glassy-crm-dashboard": GlassyCrmDashboardThumbnail,
   "skill-orbit-hero": SkillOrbitHeroThumbnail,
   "code-profile-hero": CodeProfileHeroThumbnail,

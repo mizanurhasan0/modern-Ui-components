@@ -1,0 +1,12 @@
+{
+  "source": "User supplied travel interaction video",
+  "creatorVisibleInReference": "Sandhill Studio",
+  "assets": "Globe frames and native destination thumbnails were extracted from the user-supplied video. The 256px globe frames preserve the native recording at 30 fps and are encoded losslessly without upscaling or image enhancement. The looping animation uses the full-sized rotation at 1.3–4.6 seconds, excluding the video's one-time introductory shrinking animation. The still preserves the original full-sized first frame.",
+  "restoredLandscape": {
+    "file": "zhangjiajie-restored-hd.webp",
+    "tool": "OpenAI built-in imagegen",
+    "reference": "The original 720×720 video frame at approximately 15 seconds",
+    "purpose": "Extract the inner 16:9 landscape, remove burned-in navbar/title/booking UI, preserve the visible spires, foliage, camera framing and teal/golden palette, and reconstruct occluded terrain detail.",
+    "limits": "Reconstructed details are synthetic; this is a reference-guided restoration, not recovered original high-resolution photography. The native scene and thumbnails remain available as alternatives through the destinations prop."
+  }
+}

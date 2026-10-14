@@ -116,6 +116,17 @@ test("Basketball and Red Bull exports typecheck as independent component files",
   assertIndependentTypecheck(["basketball-upload", "redbull-card"]);
 });
 
+test("clothing customizer source is standalone and includes both demo images and masks", () => {
+  assertIndependentTypecheck(["clothing-color-customizer"]);
+  const source = getComponentSource("clothing-color-customizer");
+  for (const file of ["tee.webp", "tee-mask.png", "hoodie.webp", "hoodie-mask.png"]) {
+    const bytes = fs.readFileSync(path.join(process.cwd(), "public/clothing-customizer", file));
+    const mime = file.endsWith(".webp") ? "image/webp" : "image/png";
+    assert.ok(source.includes(`data:${mime};base64,${bytes.toString("base64")}`), file);
+  }
+  assert.ok(!source.includes("/clothing-customizer/"));
+});
+
 test("video cursor components typecheck as independent component files", () => {
   assertIndependentTypecheck(["portfolio-image-trail", "liquid-cursor"]);
 });

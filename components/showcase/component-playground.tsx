@@ -178,6 +178,46 @@ function useFullscreen(target: RefObject<HTMLElement | null>) {
   return { active, enter, exit };
 }
 
+/** Scale the actual preview, including components with their own width cap. */
+function useFullscreenFit(active: boolean, viewport: Viewport, replay: number, container: RefObject<HTMLDivElement | null>, canvas: RefObject<HTMLDivElement | null>) {
+  const measuredWidth = useRef(0);
+  const [fit, setFit] = useState({ width: 0, scale: 1 });
+
+  useEffect(() => {
+    if (!active) return;
+    const available = container.current;
+    const content = canvas.current;
+    const component = content?.firstElementChild;
+    if (!available || !content || !(component instanceof HTMLElement)) return;
+    let frame = 0;
+
+    function measure() {
+      if (!available || !(component instanceof HTMLElement)) return;
+      if (measuredWidth.current !== available.clientWidth) {
+        measuredWidth.current = available.clientWidth;
+        setFit({ width: 0, scale: 1 });
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(measure);
+        return;
+      }
+      const width = component.offsetWidth;
+      const height = component.offsetHeight;
+      if (!width || !height) return;
+      const scale = Math.min(available.clientWidth / width, available.clientHeight / height);
+      setFit((previous) => Math.abs(previous.width - width) < 1 && Math.abs(previous.scale - scale) < .001
+        ? previous : { width, scale });
+    }
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(available);
+    observer.observe(component);
+    return () => { observer.disconnect(); cancelAnimationFrame(frame); };
+  }, [active, viewport, replay, container, canvas]);
+
+  return fit;
+}
+
 function ViewportToggle({
   viewport,
   onChange,
@@ -243,6 +283,9 @@ export function ComponentPlayground({
   const enterButtonRef = useRef<HTMLButtonElement>(null);
   const exitButtonRef = useRef<HTMLButtonElement>(null);
   const fullscreen = useFullscreen(stageRef);
+  const fullscreenContainerRef = useRef<HTMLDivElement>(null);
+  const fullscreenCanvasRef = useRef<HTMLDivElement>(null);
+  const fullscreenFit = useFullscreenFit(fullscreen.active, viewport, replay, fullscreenContainerRef, fullscreenCanvasRef);
   const wasFullscreen = useRef(false);
 
   // Keep keyboard focus with the control that changed the view.
@@ -312,7 +355,7 @@ export function ComponentPlayground({
         aria-label={`${title} playground`}
         className="detail-playground overflow-hidden rounded-[22px] border border-[#e2e6ed] bg-white shadow-[0_16px_46px_-32px_rgba(24,35,58,0.3)]"
       >
-        <div className="detail-playground-toolbar flex min-h-[68px] items-center justify-between gap-2 border-b border-[#e7e9ee] px-3 sm:px-5">
+        <div className="detail-playground-toolbar flex min-h-[60px] items-center justify-between gap-2 border-b border-[#e7e9ee] px-3 sm:px-5">
           <div
             role="tablist"
             aria-label="Component view"
@@ -361,9 +404,10 @@ export function ComponentPlayground({
                 onClick={fullscreen.enter}
                 aria-label="Open preview in full screen"
                 title="Full screen"
-                className={`grid size-8 place-items-center rounded-md text-[#6a7588] transition hover:bg-[#f3f4f7] hover:text-[#344054] motion-reduce:transition-none ${focusRing}`}
+                className={`inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-[#e2e6ed] bg-white px-2 text-[#465366] transition hover:bg-[#f3f4f7] hover:text-[#344054] motion-reduce:transition-none ${focusRing}`}
               >
                 <Icon name="expand" />
+                <span className="hidden text-[11px] font-medium sm:inline">Full screen</span>
               </button>
             </div>
           )}
@@ -393,18 +437,30 @@ export function ComponentPlayground({
             data-fullscreen={fullscreen.active}
             className={
               fullscreen.active
-                ? "fixed inset-0 z-[100] flex bg-[#0b0d12]"
-                : "detail-preview-stage grid min-h-[540px] place-items-center p-2 sm:min-h-[570px] sm:p-3"
+                ? "fixed inset-0 z-[100] flex bg-[#0b0d12] pt-14"
+                : "detail-preview-stage flex items-center justify-center p-2 sm:p-4"
             }
           >
             <div
+              ref={fullscreenContainerRef}
               className={
                 fullscreen.active
-                  ? `mx-auto flex h-full w-full flex-col overflow-auto [&>*]:w-full [&>*]:flex-1 ${viewport === "mobile" ? "max-w-[390px]" : ""}`
-                  : `w-full transition-[max-width] duration-300 motion-reduce:transition-none ${viewport === "mobile" ? "max-w-[390px]" : "max-w-[1080px]"}`
+                  ? `mx-auto flex h-full min-h-0 w-full items-center justify-center overflow-hidden ${viewport === "mobile" ? "max-w-[390px]" : ""}`
+                  : `detail-preview-content w-full transition-[max-width] duration-300 motion-reduce:transition-none ${viewport === "mobile" ? "max-w-[390px]" : "max-w-full"}`
               }
             >
-              <Fragment key={replay}>{children}</Fragment>
+              <div
+                ref={fullscreenCanvasRef}
+                className="w-full shrink-0 [&>*]:w-full"
+                style={fullscreen.active ? {
+                  width: fullscreenFit.width || "100%",
+                  maxWidth: "100%",
+                  transform: `scale(${fullscreenFit.scale})`,
+                  transformOrigin: "center",
+                } : undefined}
+              >
+                <Fragment key={replay}>{children}</Fragment>
+              </div>
             </div>
             {fullscreen.active && (
               <div className="absolute top-3 right-3 z-[101] flex items-center gap-1 rounded-xl border border-white/10 bg-[#11141b]/80 p-1 shadow-[0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-md">

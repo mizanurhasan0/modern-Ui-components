@@ -34,7 +34,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-30 bg-[#fafbfc]/85 py-3 backdrop-blur-xl">
-      <div className="mx-auto w-full max-w-[1200px] px-5 sm:px-8">
+      <div className="site-container site-header-container">
         <NeumorphicNavbar
           embedded
           palette={PALETTE}

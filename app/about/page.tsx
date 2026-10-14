@@ -41,7 +41,7 @@ const explorations = [
 
 export default function AboutPage() {
   return (
-    <main id="main-content" className="mx-auto w-full max-w-[1200px] px-5 sm:px-8">
+    <main id="main-content" className="site-container">
       <section className="relative grid gap-12 border-b border-[#e4e7ed] pt-14 pb-16 sm:pt-20 sm:pb-20 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:gap-16">
         <div>
           <div className="mb-7 flex items-center gap-2.5 font-mono text-[11px] font-medium tracking-[0.13em] text-[#646b7a] uppercase">
