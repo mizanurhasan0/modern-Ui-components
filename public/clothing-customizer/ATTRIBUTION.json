@@ -1,12 +1,13 @@
 {
-  "license": "Unsplash License",
-  "licenseUrl": "https://unsplash.com/license",
+  "license": "See each asset's license",
   "retrieved": "2026-10-14",
   "preparation": "Original photographic fabric pixels retained. Manually traced silhouettes with a narrow inward edge and soft feather, protected-detail masks, and transparent padding to 640x660. No AI image generation.",
   "assets": [
     {
       "product": "tee",
       "photographer": "Haryo Setyadi",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license",
       "sourcePage": "https://unsplash.com/photos/white-crew-neck-t-shirt-acn5ERAeSb4",
       "downloadUrl": "https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=max&fm=jpg&q=95&w=1400",
       "sourceDimensions": [1400, 2100],
@@ -18,8 +19,25 @@
       "garmentPixels": [[320, 250], [275, 400]]
     },
     {
+      "product": "tee-back",
+      "photographer": "Monstera Production",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "sourcePage": "https://www.pexels.com/photo/black-man-in-white-t-shirt-6311141/",
+      "downloadUrl": "https://images.pexels.com/photos/6311141/pexels-photo-6311141.jpeg?auto=compress&cs=tinysrgb&w=1400",
+      "sourceDimensions": [1400, 2100],
+      "preparation": "Resized to 1280x1920, hand traced around the real shirt, then cropped to [200,640,970,1170], resized and centered on a transparent canvas. The model's skin, head, and trousers are excluded. This rear reference is a different garment from the front demo photo.",
+      "fit": { "maxWidth": 500, "maxHeight": 500, "canvas": [640, 660], "position": "center" },
+      "files": ["tee-back.webp", "tee-back-mask.png", "tee-back-outline.svg"],
+      "protectedRegions": [],
+      "protectedPixels": [],
+      "garmentPixels": [[320, 250], [300, 400]]
+    },
+    {
       "product": "hoodie",
       "photographer": "Mediamodifier",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license",
       "sourcePage": "https://unsplash.com/photos/white-hoodie-and-distressed-jeans-kJXGTOY1wLQ",
       "downloadUrl": "https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?auto=format&fit=max&fm=jpg&q=95&w=1600",
       "sourceDimensions": [1600, 1202],
@@ -28,6 +46,22 @@
       "files": ["hoodie.webp", "hoodie-mask.png", "hoodie-outline.svg", "hoodie-protection.svg"],
       "protectedRegions": ["drawstrings", "cord tips", "metal eyelets"],
       "protectedPixels": [[285, 155], [284, 226], [345, 258], [355, 116]],
+      "garmentPixels": [[320, 300], [270, 440]]
+    },
+    {
+      "product": "hoodie-back",
+      "photographer": "MART PRODUCTION",
+      "license": "Pexels License",
+      "licenseUrl": "https://www.pexels.com/license/",
+      "sourcePage": "https://www.pexels.com/photo/person-in-white-hoodie-jacket-8217415/",
+      "downloadUrl": "https://images.pexels.com/photos/8217415/pexels-photo-8217415.jpeg?auto=compress&dpr=1&h=1000&w=1500",
+      "sourceDimensions": [667, 1000],
+      "crop": { "left": 130, "top": 208, "width": 440, "height": 735 },
+      "fit": { "width": 390, "height": 540, "canvas": [640, 660], "position": [125, 60] },
+      "preparation": "Hand-traced the rear garment and cleaned the original photo edge around the hood, cuffs, and hem. The worn rear reference is a different white hoodie from the front demo photo.",
+      "files": ["hoodie-back.webp", "hoodie-back-mask.png", "hoodie-back-outline.svg"],
+      "protectedRegions": [],
+      "protectedPixels": [],
       "garmentPixels": [[320, 300], [270, 440]]
     }
   ]

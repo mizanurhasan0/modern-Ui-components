@@ -116,10 +116,10 @@ test("Basketball and Red Bull exports typecheck as independent component files",
   assertIndependentTypecheck(["basketball-upload", "redbull-card"]);
 });
 
-test("clothing customizer source is standalone and includes both demo images and masks", () => {
+test("clothing customizer source is standalone and includes both sides of each demo garment", () => {
   assertIndependentTypecheck(["clothing-color-customizer"]);
   const source = getComponentSource("clothing-color-customizer");
-  for (const file of ["tee.webp", "tee-mask.png", "hoodie.webp", "hoodie-mask.png"]) {
+  for (const file of ["tee.webp", "tee-mask.png", "tee-back.webp", "tee-back-mask.png", "hoodie.webp", "hoodie-mask.png", "hoodie-back.webp", "hoodie-back-mask.png"]) {
     const bytes = fs.readFileSync(path.join(process.cwd(), "public/clothing-customizer", file));
     const mime = file.endsWith(".webp") ? "image/webp" : "image/png";
     assert.ok(source.includes(`data:${mime};base64,${bytes.toString("base64")}`), file);

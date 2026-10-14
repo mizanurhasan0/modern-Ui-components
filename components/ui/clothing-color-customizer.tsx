@@ -1,7 +1,7 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element */
-import { useEffect, useId, useRef, useState, type RefObject } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { ComponentStyles } from "./component-styles";
 
 export type GarmentColor = { name: string; hex: string };
@@ -12,6 +12,10 @@ export type ClothingProduct = {
   productImage: string;
   /** Same dimensions as the image. White recolors; black/transparent protects. */
   garmentMask?: string;
+  /** Optional photograph of the back, shown when the preview is activated. */
+  backImage?: string;
+  /** Same dimensions as backImage; keeps back details protected during recoloring. */
+  backGarmentMask?: string;
   initialColor?: string;
   availableColors?: readonly GarmentColor[];
   /** Explicit opt-in for plain cutouts only; alpha alone cannot protect logos. */
@@ -20,6 +24,8 @@ export type ClothingProduct = {
 export type ClothingColorCustomizerProps = {
   productImage?: string;
   garmentMask?: string;
+  backImage?: string;
+  backGarmentMask?: string;
   productTitle?: string;
   description?: string;
   initialColor?: string;
@@ -42,8 +48,8 @@ export const GARMENT_COLORS: readonly GarmentColor[] = [
 ];
 
 const DEMO_PRODUCTS: readonly ClothingProduct[] = [
-  { id: "tee", title: "The everyday tee", description: "A considered essential. Relaxed proportions, a classic crew neck, and a color that’s entirely yours.", productImage: "/clothing-customizer/tee.webp", garmentMask: "/clothing-customizer/tee-mask.png", initialColor: "#D9DDE0" },
-  { id: "hoodie", title: "The studio hoodie", description: "An easy layer with a generous hood and a kangaroo pocket. Find your everyday shade.", productImage: "/clothing-customizer/hoodie.webp", garmentMask: "/clothing-customizer/hoodie-mask.png", initialColor: "#E4E3E9" },
+  { id: "tee", title: "The everyday tee", description: "A considered essential. Relaxed proportions, a classic crew neck, and a color that’s entirely yours.", productImage: "/clothing-customizer/tee.webp", garmentMask: "/clothing-customizer/tee-mask.png", backImage: "/clothing-customizer/tee-back.webp", backGarmentMask: "/clothing-customizer/tee-back-mask.png", initialColor: "#D9DDE0" },
+  { id: "hoodie", title: "The studio hoodie", description: "An easy layer with a generous hood and a kangaroo pocket. Find your everyday shade.", productImage: "/clothing-customizer/hoodie.webp", garmentMask: "/clothing-customizer/hoodie-mask.png", backImage: "/clothing-customizer/hoodie-back.webp", backGarmentMask: "/clothing-customizer/hoodie-back-mask.png", initialColor: "#E4E3E9" },
 ];
 
 /** Accept #RGB and #RRGGBB, returning a canonical six-digit HEX. */
@@ -174,7 +180,7 @@ async function loadGarmentSource(imageUrl: string, maskUrl: string | undefined, 
   const result = prepareGarmentPixels(pixels, maskPixels, useAlpha);
   sourceCache.set(key, result);
   let totalPixels = [...sourceCache.values()].reduce((sum, item) => sum + item.width * item.height, 0);
-  while (sourceCache.size > 3 || totalPixels > 4_000_000) {
+  while (sourceCache.size > 4 || totalPixels > 4_000_000) {
     const oldest = sourceCache.keys().next().value;
     if (oldest === undefined) break;
     const old = sourceCache.get(oldest)!;
@@ -184,14 +190,18 @@ async function loadGarmentSource(imageUrl: string, maskUrl: string | undefined, 
   return result;
 }
 
-export function useGarmentRecolor({ productImage, garmentMask, recolorAllOpaquePixels = false, color }: { productImage: string; garmentMask?: string; recolorAllOpaquePixels?: boolean; color: string | null }) {
+export function useGarmentRecolor({ productImage, garmentMask, recolorAllOpaquePixels = false, color, enabled = true }: { productImage: string; garmentMask?: string; recolorAllOpaquePixels?: boolean; color: string | null; enabled?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sourceKey = JSON.stringify([productImage, garmentMask, recolorAllOpaquePixels]);
   const [loaded, setLoad] = useState<{ key?: string; source?: GarmentPixelSource; error?: string }>({});
   const load = loaded.key === sourceKey ? loaded : {};
   const [retry, setRetry] = useState(0);
+  const [paintedKey, setPaintedKey] = useState("");
+  const [paintedSourceKey, setPaintedSourceKey] = useState("");
   const output = useRef<ImageData | null>(null);
-  const canRecolor = Boolean(garmentMask || recolorAllOpaquePixels);
+  const canRecolor = enabled && Boolean(garmentMask || recolorAllOpaquePixels);
+  const renderKey = JSON.stringify([sourceKey, color, retry]);
+  const paintedSource = JSON.stringify([sourceKey, retry]);
   useEffect(() => {
     if (!canRecolor) return;
     const controller = new AbortController();
@@ -217,10 +227,12 @@ export function useGarmentRecolor({ productImage, garmentMask, recolorAllOpaqueP
       if (!output.current || output.current.width !== source.width || output.current.height !== source.height) output.current = context.createImageData(source.width, source.height);
       recolorGarmentPixels(source, color, output.current.data);
       context.putImageData(output.current, 0, 0);
+      setPaintedKey(renderKey);
+      setPaintedSourceKey(paintedSource);
     });
     return () => cancelAnimationFrame(frame);
-  }, [load.source, color, sourceKey]);
-  return { canvasRef, ready: Boolean(load.source), error: load.error, canRecolor, retry: () => { setLoad({}); setRetry((value) => value + 1); } };
+  }, [load.source, color, sourceKey, renderKey, paintedSource]);
+  return { canvasRef, ready: Boolean(load.source), rendered: Boolean(load.source) && paintedKey === renderKey, hasPainted: Boolean(load.source) && paintedSourceKey === paintedSource, error: load.error, canRecolor, retry: () => { setLoad({}); setRetry((value) => value + 1); } };
 }
 
 const css = `
@@ -231,17 +243,68 @@ const css = `
 .gcc-controls{padding:36px 32px 28px;min-width:0;display:flex;flex-direction:column;justify-content:center}.gcc-eyebrow{font-size:10px;color:#7d8078;letter-spacing:.13em;text-transform:uppercase;margin:0 0 13px}.gcc-controls h2{font-size:clamp(25px,3.7cqw,40px);line-height:1.12;letter-spacing:-1.6px;font-weight:500;margin:0 0 13px}.gcc-description{font-size:12px;line-height:1.8;color:#85877f;max-width:310px;margin:0 0 27px}.gcc-product-label{font-size:10px;color:#777b73;display:flex;align-items:center;gap:12px;margin-bottom:25px}.gcc-select{min-width:0;border:1px solid #e6e6e0;border-radius:7px;padding:8px 26px 8px 10px;background:white;color:#30322d;font-size:11px!important;min-height:36px;flex:1}.gcc-color-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:14px;font-size:11px;font-weight:600}.gcc-color-heading span:last-child{font-weight:400;color:#777b73}.gcc-swatches{display:flex;flex-wrap:wrap;gap:9px;margin:0 0 25px;padding:0;border:0}.gcc-swatch{height:36px;width:36px;border-radius:50%;border:1px solid #0000000d;position:relative;display:grid;place-items:center;padding:0}.gcc-swatch[aria-pressed=true]::after{content:"";position:absolute;inset:-4px;border:1px solid #353931;border-radius:50%}.gcc-swatch svg{width:12px;height:12px}.gcc-custom{border-top:1px solid #eeeee9;padding-top:22px}.gcc-custom label{font-size:11px;font-weight:600}.gcc-custom-line{display:flex;gap:8px;align-items:center;margin-top:12px}.gcc-native{position:relative;width:44px;height:44px;border-radius:8px;border:1px solid #e6e6df;overflow:hidden;flex-shrink:0}.gcc-native input{position:absolute;inset:-8px;width:60px;height:60px;cursor:pointer;padding:0;border:0;opacity:0}.gcc-native:focus-within{outline:2px solid #282b29;outline-offset:3px}.gcc-hex{height:44px;border:1px solid #e6e6df;border-radius:8px;display:flex;align-items:center;flex:1;min-width:0;padding:0 12px;gap:8px}.gcc-hex span{font-size:10px;color:#85877f;letter-spacing:.05em}.gcc-hex input{border:0;background:none;outline:none;min-width:0;width:100%;font-family:monospace;font-size:12px;color:#383b34}.gcc-hex:focus-within{border-color:#62685d}.gcc-hex:has([aria-invalid=true]){border-color:#a13d38}.gcc-field-error{font-size:11px;color:#a13d38;margin:9px 0 0}.gcc-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 0 21px}.gcc-selected{display:flex;gap:8px;align-items:center;font-size:10px;color:#797d73}.gcc-selected i{width:8px;height:8px;border-radius:50%;border:1px solid #0001}.gcc-selected code{font-size:10px;color:#363c32}.gcc-reset{border:0;background:transparent;padding:6px 0;min-height:32px;font-size:10px!important;color:#5f645b;display:flex;align-items:center;gap:6px}.gcc-reset svg{width:12px;height:12px}.gcc-bottom{border-top:1px solid #eeeee9;padding-top:17px;display:flex;justify-content:space-between;gap:12px;font-size:9px;line-height:1.6;color:#999c92}.gcc-bottom strong{font-weight:400;color:#5e6659}.gcc-alert{font-size:11px;line-height:1.6;color:#92554b;background:#fff5f2;padding:12px;border-radius:7px;margin-bottom:15px}.gcc-alert button{background:none;border:0;text-decoration:underline;padding:4px;color:inherit;display:block}.gcc-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 @container(max-width:680px){.gcc-top{padding:18px 20px}.gcc-top-note{font-size:8px}.gcc-layout{grid-template-columns:1fr}.gcc-preview{margin:12px 12px 0;min-height:0;aspect-ratio:1.12}.gcc-art{width:86%;max-width:390px}.gcc-controls{padding:26px 24px}.gcc-controls h2{font-size:30px}.gcc-description{max-width:100%;margin-bottom:20px}.gcc-product-label{margin-bottom:20px}.gcc-swatch{width:40px;height:40px}.gcc-swatches{gap:11px}.gcc-preview-tag{top:16px;left:16px}.gcc-preview-footer{bottom:14px;left:16px;right:16px;font-size:9px}.gcc-bottom{font-size:10px}.gcc-color-heading,.gcc-custom label{font-size:12px}}
 .gcc-thumbnail{height:100%;min-height:0;border-radius:0;pointer-events:none;display:flex;flex-direction:column}.gcc-thumbnail .gcc-top{padding:5% 6%;border:0}.gcc-thumbnail .gcc-brand{font-size:clamp(8px,2.9cqw,15px)}.gcc-thumbnail .gcc-top-note{font-size:clamp(5px,1.5cqw,9px)}.gcc-thumb-layout{flex:1;display:grid;grid-template-columns:1.1fr 1fr;min-height:0;padding:0 5% 5%;gap:6%}.gcc-thumb-image{position:relative;background:#f5f5f1;border-radius:8px;overflow:hidden;display:grid;place-items:center;min-width:0}.gcc-thumb-photo{position:relative;width:115%;line-height:0}.gcc-thumb-photo img{width:100%;max-width:none}.gcc-thumb-tint{position:absolute;inset:0;mix-blend-mode:multiply}.gcc-thumb-copy{align-self:center;font-size:clamp(5px,1.7cqw,10px);color:#8c8f86}.gcc-thumb-copy h3{font-size:clamp(12px,5cqw,27px);line-height:1.06;letter-spacing:-.05em;color:#292c25;font-weight:500;margin:7% 0 9%}.gcc-thumb-swatches{display:flex;gap:6%;margin:12% 0 16%}.gcc-thumb-swatches i{width:14%;aspect-ratio:1;border-radius:50%;border:1px solid #0001}.gcc-thumb-input{padding:8%;border:1px solid #e8e9e2;border-radius:5px;color:#464d3d;font-family:monospace}
+.gcc-art{display:block}.gcc-flip{display:flex;align-items:center;justify-content:center;align-self:stretch;width:100%;padding:0;border:0;background:transparent;position:relative;color:inherit}.gcc-flip-hint{position:absolute;top:17px;right:17px;z-index:2;display:flex;gap:7px;align-items:center;padding:9px 11px;border:1px solid #e4e7df;border-radius:999px;background:#ffffffed;color:#394037;font-size:10px;line-height:1;letter-spacing:.02em;box-shadow:0 3px 12px #20211f0d}.gcc-flip-hint svg{width:13px;height:13px}.gcc-flip:hover .gcc-flip-hint{background:white;border-color:#9ca69a}.gcc-flip:focus-visible{outline:2px solid #282b29;outline-offset:-5px!important;border-radius:9px}.gcc-preview-tag,.gcc-preview-footer{pointer-events:none}.gcc-preview-loading{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1;white-space:nowrap;padding:9px 13px;border-radius:6px;background:#fffdf5e8;color:#42463e;font-size:11px;line-height:1.3;box-shadow:0 4px 20px #27272712}.gcc-art:has(.gcc-preview-loading) img{opacity:.52!important}.gcc-preview .gcc-image-error{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);z-index:3}.gcc-image-actions{display:flex;justify-content:center;gap:12px;margin-top:8px}.gcc-image-error button{border:0;background:none;padding:5px;color:#596452;text-decoration:underline}.gcc-image-error button:focus-visible{outline-offset:2px}
+@container(max-width:680px){.gcc-flip-hint{top:13px;right:13px;padding:8px 10px;font-size:9px}}
+.gcc-photo-stage{display:grid;place-items:center;width:100%;max-width:560px;line-height:0;transform-origin:center;transition:transform .38s cubic-bezier(.2,.7,.2,1)}.gcc-photo-layer{grid-area:1/1;display:block;width:100%;opacity:0;transform:translateX(18px) scale(.975);pointer-events:none;transition:opacity .42s cubic-bezier(.2,.7,.2,1),transform .54s cubic-bezier(.2,.7,.2,1)}.gcc-photo-stage[data-visible=front] .gcc-photo-layer[data-side=front],.gcc-photo-stage[data-visible=back] .gcc-photo-layer[data-side=back]{opacity:1;transform:translateX(0) scale(1);z-index:1}.gcc-photo-stage[data-visible=back] .gcc-photo-layer[data-side=front]{transform:translateX(-18px) scale(.975)}.gcc-art{width:100%;max-width:none}.gcc-art img{transition:opacity .18s ease}.gcc-flip-hint svg{transition:transform .42s cubic-bezier(.2,.7,.2,1)}.gcc-flip[data-view=back] .gcc-flip-hint svg{transform:rotate(180deg)}
+.gcc-zoom{position:absolute;right:19px;bottom:45px;z-index:4;display:flex;align-items:center;border:1px solid #e3e6dd;border-radius:8px;overflow:hidden;background:#ffffffed;box-shadow:0 3px 12px #20211f0d}.gcc-zoom button{width:32px;height:32px;border:0;background:transparent;color:#40473c;display:grid;place-items:center;font-size:17px;line-height:1}.gcc-zoom button:hover:not(:disabled){background:#f0f3ed}.gcc-zoom .gcc-zoom-reset{width:48px;border-left:1px solid #e7e9e3;border-right:1px solid #e7e9e3;font-size:10px;font-weight:600}.gcc-zoom button:focus-visible{outline-offset:-3px}
+@container(max-width:680px){.gcc-photo-stage{width:86%;max-width:390px}.gcc-zoom{right:15px;bottom:36px}.gcc-zoom button{width:30px;height:30px}.gcc-zoom .gcc-zoom-reset{width:44px}}
+@media(prefers-reduced-motion:reduce){.gcc-photo-stage,.gcc-photo-layer,.gcc-art img,.gcc-flip-hint svg{transition:none}}
 `;
 
-export function ProductImagePreview({ product, canvasRef, ready, color, isDemo }: { product: ClothingProduct; canvasRef: RefObject<HTMLCanvasElement | null>; ready: boolean; color: string | null; isDemo: boolean }) {
-  const [failed, setFailed] = useState(false);
+type GarmentRender = ReturnType<typeof useGarmentRecolor>;
+
+export function ProductImagePreview({ product, front, back, color, isDemo, view = "front", onFlip }: { product: ClothingProduct; front: GarmentRender; back: GarmentRender; color: string | null; isDemo: boolean; view?: "front" | "back"; onFlip?: () => void }) {
+  const [failedView, setFailedView] = useState<"front" | "back" | null>(null);
+  const [imageRetry, setImageRetry] = useState({ front: 0, back: 0 });
+  const [imageLoaded, setImageLoaded] = useState({ front: false, back: false });
+  const [shownView, setShownView] = useState<"front" | "back">("front");
+  const [zoom, setZoom] = useState(1);
+  const nextView = view === "front" ? "back" : "front";
+  const active = view === "back" ? back : front;
+  const failed = failedView === view;
+  useEffect(() => {
+    let cancelled = false;
+    const images: HTMLImageElement[] = [];
+    for (const [side, url] of [["front", product.productImage], ["back", product.backImage]] as const) {
+      if (!url) continue;
+      const image = new Image();
+      const markLoaded = () => { if (!cancelled) setImageLoaded((current) => current[side] ? current : { ...current, [side]: true }); };
+      image.onload = markLoaded;
+      image.onerror = () => { if (!cancelled) setFailedView(side); };
+      image.src = url;
+      if (image.complete && image.naturalWidth > 0) queueMicrotask(markLoaded);
+      images.push(image);
+    }
+    return () => { cancelled = true; for (const image of images) { image.onload = null; image.onerror = null; } };
+  }, [product.productImage, product.backImage, imageRetry.front, imageRetry.back]);
+  useEffect(() => {
+    if (failed || active.error || !imageLoaded[view]) return;
+    if (color !== null && !active.rendered && active.canRecolor) return;
+    const frame = requestAnimationFrame(() => setShownView(view));
+    return () => cancelAnimationFrame(frame);
+  }, [view, color, active.rendered, active.canRecolor, active.error, failed, imageLoaded]);
+  function flip() { onFlip?.(); }
+  function renderPhoto(side: "front" | "back") {
+    const state = side === "front" ? front : back;
+    const imageUrl = side === "front" ? product.productImage : product.backImage;
+    if (!imageUrl) return null;
+    const canvasVisible = color !== null && state.hasPainted;
+    return <span className="gcc-photo-layer" data-side={side} key={side}><span className="gcc-art">
+      <img key={`${imageUrl}-${imageRetry[side]}`} src={imageUrl} alt={onFlip ? "" : `${product.title}, ${side} view — ${color && state.rendered ? color : "original color"}`} style={{ opacity: canvasVisible ? 0 : 1 }} onError={() => { setFailedView(side); setImageLoaded((current) => ({ ...current, [side]: false })); }} draggable={false} />
+      <canvas ref={state.canvasRef} hidden={!canvasVisible} aria-hidden="true" />
+    </span></span>;
+  }
+  const artwork = <span className="gcc-photo-stage" data-visible={shownView} style={{ transform: `scale(${zoom})` }}>{renderPhoto("front")}{onFlip && renderPhoto("back")}</span>;
   return <div className="gcc-preview">
-    <span className="gcc-preview-tag">{isDemo ? "Studio photograph" : "Product preview"} / 01</span>
-    {failed ? <div className="gcc-image-error" role="alert">This product image couldn’t be loaded.<br />Check the image URL and <button type="button" onClick={() => setFailed(false)}>try again</button>.</div> : <div className="gcc-art">
-      <img src={product.productImage} alt={`${product.title} — ${color && ready ? color : "original color"}`} style={{ opacity: ready && color !== null ? 0 : 1 }} onError={() => setFailed(true)} draggable={false} />
-      <canvas ref={canvasRef} hidden={!ready || color === null} aria-hidden="true" />
-    </div>}
-    <div className="gcc-preview-footer"><span>{isDemo ? "Real fabric · prepared garment mask" : "Fabric details preserved"}</span><span><i className="gcc-dot" />{ready ? "Live preview" : "Original image"}</span></div>
+    <span className="gcc-preview-tag">{isDemo ? "Studio photograph" : "Product preview"} / {shownView === "front" ? "01 Front" : "02 Back"}</span>
+    {onFlip ? <button className="gcc-flip" type="button" onClick={flip} aria-label={`View ${nextView} of ${product.title}`} title={`View ${nextView}`} data-view={view} style={{ visibility: failed ? "hidden" : undefined }}>
+      {artwork}
+      <span className="gcc-flip-hint" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M12.9 6.7A5 5 0 0 0 4.5 3.5L3 5M3 2.5V5h2.5M3.1 9.3a5 5 0 0 0 8.4 3.2L13 11m0 2.5V11h-2.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /></svg>View {nextView}</span>
+    </button> : artwork}
+    {color !== null && !active.rendered && active.canRecolor && !active.error && !failed && <span className="gcc-preview-loading" role="status">Applying your color…</span>}
+    {failed && <div className="gcc-image-error" role="alert">This {view} image couldn’t be loaded.<br />Check the image URL.<div className="gcc-image-actions"><button type="button" onClick={() => { setImageRetry((current) => ({ ...current, [view]: current[view] + 1 })); setFailedView(null); }}>Try again</button>{onFlip && <button type="button" onClick={flip}>View {nextView}</button>}</div></div>}
+    <div className="gcc-zoom" role="group" aria-label="Garment image zoom"><button type="button" aria-label="Zoom out" title="Zoom out" disabled={failed || zoom <= 1} onClick={() => setZoom((value) => Math.max(1, value - .25))}>−</button><button type="button" className="gcc-zoom-reset" aria-label={`Reset zoom to 100 percent; currently ${Math.round(zoom * 100)} percent`} title="Reset zoom" disabled={failed || zoom === 1} onClick={() => setZoom(1)}>{Math.round(zoom * 100)}%</button><button type="button" aria-label="Zoom in" title="Zoom in" disabled={failed || zoom >= 2} onClick={() => setZoom((value) => Math.min(2, value + .25))}>+</button></div>
+    <div className="gcc-preview-footer"><span>{isDemo ? "Real fabric · prepared garment mask" : "Fabric details preserved"}</span><span><i className="gcc-dot" />{active.ready ? "Live preview" : "Original image"}</span></div>
   </div>;
 }
 
@@ -271,7 +334,10 @@ function GarmentSession({ product, products, index, onProduct, onColorChange, is
   const original = normalizeGarmentHex(product.initialColor ?? "#D4D2CC") ?? "#D4D2CC";
   const [color, setColor] = useState<string | null>(null);
   const [draft, setDraft] = useState(original);
-  const { canvasRef, ready, error, canRecolor, retry } = useGarmentRecolor({ ...product, color });
+  const [view, setView] = useState<"front" | "back">("front");
+  const front = useGarmentRecolor({ productImage: product.productImage, garmentMask: product.garmentMask, recolorAllOpaquePixels: product.recolorAllOpaquePixels, color });
+  const back = useGarmentRecolor({ productImage: product.backImage ?? product.productImage, garmentMask: product.backGarmentMask, recolorAllOpaquePixels: product.recolorAllOpaquePixels, color, enabled: Boolean(product.backImage) });
+  const { ready, error, canRecolor, retry } = view === "back" ? back : front;
   const colors = product.availableColors ?? GARMENT_COLORS;
   const selectedName = color === null ? "Original" : colors.find((item) => normalizeGarmentHex(item.hex) === color)?.name ?? "Custom";
   const disabled = !ready || Boolean(error);
@@ -287,35 +353,35 @@ function GarmentSession({ product, products, index, onProduct, onColorChange, is
     onColorChange?.(original, { productId: product.id, isOriginal: true });
   }
   return <div className="gcc-layout">
-    <ProductImagePreview product={product} canvasRef={canvasRef} ready={ready} color={color} isDemo={isDemo} />
+    <ProductImagePreview product={product} front={front} back={back} color={color} isDemo={isDemo} view={view} onFlip={product.backImage ? () => setView((current) => current === "front" ? "back" : "front") : undefined} />
     <div className="gcc-controls">
       <p className="gcc-eyebrow">The essentials / Color studio</p>
       <h2>{product.title}</h2>
       <p className="gcc-description">{product.description ?? "Find your shade. Explore the palette or create a color of your own."}</p>
       {products.length > 1 && <label className="gcc-product-label" htmlFor={`${id}-product`}>Style<select className="gcc-select" id={`${id}-product`} value={index} onChange={(event) => onProduct(Number(event.target.value))}>{products.map((item, position) => <option key={`${item.id}-${position}`} value={position}>{item.title}</option>)}</select></label>}
-      {!canRecolor && <p className="gcc-alert" role="status">Add a garment mask to enable color previews. A mask protects the background, labels, and other details.</p>}
+      {!canRecolor && <p className="gcc-alert" role="status">Add a {view === "back" ? "back garment" : "garment"} mask to enable color previews. A mask protects the background, labels, and other details.</p>}
       {error && <div className="gcc-alert" role="alert">{error}<button type="button" onClick={retry}>Retry image processing</button></div>}
       <div className="gcc-color-heading"><span>Choose your color</span><span>{selectedName}</span></div>
       <ColorSwatchSelector colors={colors} selected={color} disabled={disabled} onSelect={select} />
       <CustomColorPicker value={color ?? original} draft={draft} invalid={!normalizeGarmentHex(draft)} disabled={disabled} onSelect={select} onDraft={(value) => { setDraft(value); const hex = normalizeGarmentHex(value); if (hex) { setColor(hex); onColorChange?.(hex, { productId: product.id, isOriginal: false }); } }} />
       <div className="gcc-summary"><span className="gcc-selected"><i style={{ background: color ?? original }} />Selected <code>{color ?? original}</code></span><button className="gcc-reset" type="button" disabled={color === null && draft === original} onClick={reset}><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 6a5 5 0 1 1-.1 4M3 2v4h4" stroke="currentColor" strokeWidth="1.3" /></svg>Reset to original</button></div>
       <div className="gcc-bottom"><span>Made for your everyday.</span><strong>Your shade. Your essential.</strong></div>
-      <span className="gcc-sr" role="status" aria-live="polite">{error ? "Color preview unavailable." : !canRecolor ? "Garment mask required." : !ready ? "Preparing color preview." : `${selectedName} color selected: ${color ?? original}.`}</span>
+      <span className="gcc-sr" role="status" aria-live="polite">Viewing {view} of {product.title}. {error ? "Color preview unavailable." : !canRecolor ? "Garment mask required." : !ready ? "Preparing color preview." : `${selectedName} color selected: ${color ?? original}.`}</span>
     </div>
   </div>;
 }
 
 /** Browser-only color transformations with locally bundled garment photographs. */
-export default function ClothingColorCustomizer({ productImage, garmentMask, productTitle = "Your everyday essential", description, initialColor, availableColors, products, recolorAllOpaquePixels = false, onColorChange, className = "" }: ClothingColorCustomizerProps) {
+export default function ClothingColorCustomizer({ productImage, garmentMask, backImage, backGarmentMask, productTitle = "Your everyday essential", description, initialColor, availableColors, products, recolorAllOpaquePixels = false, onColorChange, className = "" }: ClothingColorCustomizerProps) {
   const [index, setIndex] = useState(0);
   const isDemo = products === undefined && productImage === undefined;
-  const catalog: readonly ClothingProduct[] = products ?? (productImage ? [{ id: "product", title: productTitle, description, productImage, garmentMask, initialColor, availableColors, recolorAllOpaquePixels }] : DEMO_PRODUCTS.map((product) => ({ ...product, availableColors, initialColor: initialColor ?? product.initialColor })));
+  const catalog: readonly ClothingProduct[] = products ?? (productImage ? [{ id: "product", title: productTitle, description, productImage, garmentMask, backImage, backGarmentMask, initialColor, availableColors, recolorAllOpaquePixels }] : DEMO_PRODUCTS.map((product) => ({ ...product, availableColors, initialColor: initialColor ?? product.initialColor })));
   const activeIndex = Math.min(index, Math.max(0, catalog.length - 1));
   const product = catalog[activeIndex];
   return <section className={`gcc-root ${className}`} aria-label="Clothing color customizer">
     <ComponentStyles css={css} />
     <div className="gcc-top"><div className="gcc-brand">form<span>/ essentials</span></div><span className="gcc-top-note">A palette of possibilities</span></div>
-    {product ? <GarmentSession key={JSON.stringify([product.id, product.productImage, product.garmentMask, product.initialColor, product.recolorAllOpaquePixels])} product={product} products={catalog} index={activeIndex} onProduct={(next) => { setIndex(next); const item = catalog[next]; if (item) onColorChange?.(normalizeGarmentHex(item.initialColor ?? "#D4D2CC") ?? "#D4D2CC", { productId: item.id, isOriginal: true }); }} onColorChange={onColorChange} isDemo={isDemo} /> : <p className="gcc-image-error">Add a clothing product to start customizing.</p>}
+    {product ? <GarmentSession key={JSON.stringify([activeIndex, product.id, product.productImage, product.garmentMask, product.backImage, product.backGarmentMask, product.initialColor, product.recolorAllOpaquePixels])} product={product} products={catalog} index={activeIndex} onProduct={(next) => { setIndex(next); const item = catalog[next]; if (item) onColorChange?.(normalizeGarmentHex(item.initialColor ?? "#D4D2CC") ?? "#D4D2CC", { productId: item.id, isOriginal: true }); }} onColorChange={onColorChange} isDemo={isDemo} /> : <p className="gcc-image-error">Add a clothing product to start customizing.</p>}
   </section>;
 }
 

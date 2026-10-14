@@ -165,7 +165,7 @@ function includeReferenceAssets(slug: string, source: string): string {
     throw new Error(`${slug} contains a reference asset that was not embedded.`);
   }
   const attribution = slug === "clothing-color-customizer"
-    ? "T-shirt photograph: Haryo Setyadi, https://unsplash.com/photos/acn5ERAeSb4. Hoodie photograph: Mediamodifier, https://unsplash.com/photos/kJXGTOY1wLQ. Photos used under the Unsplash License: https://unsplash.com/license. Cropped and manually masked for this demo; no AI image generation."
+    ? "Front photos: Haryo Setyadi (T-shirt), https://unsplash.com/photos/acn5ERAeSb4; Mediamodifier (hoodie), https://unsplash.com/photos/kJXGTOY1wLQ, under https://unsplash.com/license. Back photos: Monstera Production (T-shirt), https://www.pexels.com/photo/black-man-in-white-t-shirt-6311141/; MART PRODUCTION (hoodie), https://www.pexels.com/photo/person-in-white-hoodie-jacket-8217415/, under https://www.pexels.com/license/. Rear demo photographs show similar garments, not the exact front items. Cropped and manually masked; no AI image generation."
     : slug === "swift-sneaker-store"
     ? "Native artwork extracted from the user-supplied recording; HD shoe variants refined with imagegen. Use artwork=\"reference\" for original pixels."
     : slug === "globe-travel-explorer"

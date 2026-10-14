@@ -17,19 +17,19 @@ export const components: ComponentEntry[] = [
   {
     slug: "clothing-color-customizer",
     title: "Clothing Color Customizer",
-    description: "An understated clothing color studio with instant masked recoloring, preserved fabric shading, and a palette you can make your own.",
+    description: "A clothing color studio with smooth front and back views, garment zoom, instant masked recoloring, and preserved fabric detail.",
     category: "Commerce",
     tags: ["Interactive", "Customizable", "Accessible"],
     sourceFile: "clothing-color-customizer.tsx",
     fileName: "clothing-color-customizer.tsx",
     number: "054",
-    demoNote: "Interactive demo · Switch between real T-shirt and hoodie photographs, choose a swatch or custom HEX, and reset to the exact original image. Prepared masks protect the neck label, drawstrings, and eyelets while preserving photographic fabric details. Every color change runs locally.",
+    demoNote: "Interactive demo · Click the garment to switch smoothly between front and back photographs, then use the zoom controls to inspect the fabric. Choose a swatch or custom HEX; the color follows both views. Prepared masks preserve fabric details and protect the neck label, drawstrings, and eyelets. Every color change runs locally.",
     features: [
-      { title: "Your own color studio", description: "Preset swatches, a native picker, validated HEX input, style selection, and exact original-image reset in a responsive product layout." },
+      { title: "Your own color studio", description: "Animated front and back views, garment zoom, preset swatches, a native picker, validated HEX input, style selection, and original-image reset." },
       { title: "Keep the fabric details", description: "Cached linear-light shading preserves folds and texture. White mask regions recolor while black or transparent regions protect backgrounds, labels, prints, and hardware." },
       { title: "Local and reusable", description: "A typed component and exported canvas hook process every color in your browser. Neutral product images give the best results; colored lights and complex materials cannot be reconstructed from one photo." },
     ],
-    usage: 'import ClothingColorCustomizer from "@/components/ui/clothing-color-customizer";\n\nexport default function ProductPage() {\n  return (\n    <ClothingColorCustomizer\n      productTitle="Everyday cotton tee"\n      productImage="/products/tee.png"\n      garmentMask="/products/tee-mask.png"\n      initialColor="#D4D2CC"\n    />\n  );\n}\n\n// Image and mask must have identical dimensions.\n// White = recolor; black or transparent = preserve.\n// Omit props to try the bundled photographic demo.',
+    usage: 'import ClothingColorCustomizer from "@/components/ui/clothing-color-customizer";\n\nexport default function ProductPage() {\n  return (\n    <ClothingColorCustomizer\n      productTitle="Everyday cotton tee"\n      productImage="/products/tee-front.png"\n      garmentMask="/products/tee-front-mask.png"\n      backImage="/products/tee-back.png"\n      backGarmentMask="/products/tee-back-mask.png"\n      initialColor="#D4D2CC"\n    />\n  );\n}\n\n// Each image and its mask must have identical dimensions.\n// White = recolor; black or transparent = preserve.\n// Omit props to try the bundled photographic demo.',
   },
   {
     "slug": "classic-microcars",
