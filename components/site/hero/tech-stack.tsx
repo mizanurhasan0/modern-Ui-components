@@ -2,6 +2,7 @@
 
 import { useState, type CSSProperties, type ReactNode } from "react";
 import { CodePlayground } from "./code-playground";
+import { PixelKnight } from "./pixel-knight";
 import { TechLogo } from "./tech-logo";
 import { TECH_STACK, type Category, type CategoryIcon, type Tool } from "./tech-stack-data";
 
@@ -63,23 +64,11 @@ const ROW =
 export function TechStack({ activeId, onActiveChange }: Props) {
   const [selected, setSelected] = useState<{ tool: Tool; category: Category } | null>(null);
   const [playground, setPlayground] = useState(false);
+  const guardianCategory = TECH_STACK.find((category) => category.id === activeId) ?? selected?.category ?? null;
 
   return (
     <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:gap-0">
-      <div className="flex items-center md:self-center">
-        <button
-          type="button"
-          aria-pressed={playground}
-          onClick={() => setPlayground((open) => !open)}
-          className="group flex w-full items-center justify-center gap-3 rounded-2xl bg-[#0f1218] px-4 py-3 text-white shadow-[0_18px_40px_-16px_rgba(10,14,24,.6)] transition hover:bg-[#1a1f2b] md:h-[104px] md:w-[88px] md:flex-col md:gap-1.5 md:px-2"
-        >
-          <span className="font-mono text-[22px] leading-none transition group-hover:scale-110 group-aria-pressed:text-[#7fa2ff]">&lt;/&gt;</span>
-          <span className="text-[13px] leading-tight">
-            {playground ? "Back to stack" : <>My Tech <br className="max-md:hidden" />Stack</>}
-          </span>
-        </button>
-        <span aria-hidden="true" className="hidden h-[1.5px] w-6 bg-[#cfd6e2] md:block" />
-      </div>
+      <PixelKnight category={guardianCategory} playgroundOpen={playground} onTogglePlayground={() => setPlayground((open) => !open)} />
 
       {playground ? (
         <div className="w-full md:ml-6 md:max-w-[440px]">
