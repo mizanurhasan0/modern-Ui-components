@@ -12,13 +12,14 @@ import {
   type RefObject,
 } from "react";
 import { loadComponentSource } from "@/app/components/actions";
-import { CodeBlock } from "./code-block";
+import { CodeBlock, copyText } from "./code-block";
 
 type ComponentPlaygroundProps = {
   slug: string;
   fileName: string;
   title: string;
   usage: string;
+  demoNote: string;
   children: ReactNode;
 };
 
@@ -30,7 +31,7 @@ type IconName =
   | "desktop"
   | "mobile"
   | "replay"
-  | "chevron"
+  | "copy"
   | "expand"
   | "collapse";
 
@@ -82,7 +83,12 @@ function Icon({
           <path d="M3 10a9 9 0 1 1 1.6 7M3 4v6h6" />
         </>
       )}
-      {name === "chevron" && <path d="m9 5 7 7-7 7" />}
+      {name === "copy" && (
+        <>
+          <rect x="8" y="8" width="12" height="12" rx="2" />
+          <path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" />
+        </>
+      )}
       {name === "expand" && (
         <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
       )}
@@ -219,6 +225,7 @@ export function ComponentPlayground({
   fileName,
   title,
   usage,
+  demoNote,
   children,
 }: ComponentPlaygroundProps) {
   const requiresThree = fileName === "creative-login.tsx";
@@ -228,6 +235,8 @@ export function ComponentPlayground({
   const [source, setSource] = useState<string | null>(null);
   const [sourceError, setSourceError] = useState("");
   const [sourceAttempt, setSourceAttempt] = useState(0);
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "error">("idle");
+  const previewHint = demoNote.replace(/^[^·]*·\s*/, "").split(". ")[0].replace(/\.?$/, ".");
   const id = useId();
   const tabRefs = useRef<Partial<Record<Tab, HTMLButtonElement | null>>>({});
   const stageRef = useRef<HTMLDivElement>(null);
@@ -262,6 +271,28 @@ export function ComponentPlayground({
     };
   }, [activeTab, source, slug, sourceAttempt]);
 
+  useEffect(() => {
+    if (copyState === "idle") return;
+    const timeout = window.setTimeout(() => setCopyState("idle"), 3000);
+    return () => window.clearTimeout(timeout);
+  }, [copyState]);
+
+  async function handleCopySource() {
+    try {
+      let text = source;
+      if (!text) {
+        const result = await loadComponentSource(slug);
+        if (!result.success) throw new Error("Source unavailable");
+        text = result.source;
+        setSource(text);
+      }
+      await copyText(text);
+      setCopyState("copied");
+    } catch {
+      setCopyState("error");
+    }
+  }
+
   function handleTabKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
     let nextTab: Tab;
     if (event.key === "Home") nextTab = "preview";
@@ -276,16 +307,16 @@ export function ComponentPlayground({
   }
 
   return (
-    <div className="space-y-7">
+    <div id="playground" className="scroll-mt-28 space-y-8">
       <section
         aria-label={`${title} playground`}
-        className="overflow-hidden rounded-2xl border border-[#e2e5eb] bg-white shadow-[0_3px_12px_-8px_rgba(30,41,59,0.18)]"
+        className="detail-playground overflow-hidden rounded-[22px] border border-[#e2e6ed] bg-white shadow-[0_16px_46px_-32px_rgba(24,35,58,0.3)]"
       >
-        <div className="flex min-h-[65px] items-center justify-between gap-2 border-b border-[#e7e9ee] px-3 sm:px-5">
+        <div className="detail-playground-toolbar flex min-h-[68px] items-center justify-between gap-2 border-b border-[#e7e9ee] px-3 sm:px-5">
           <div
             role="tablist"
             aria-label="Component view"
-            className="flex items-center gap-1 rounded-lg bg-[#f2f3f6] p-1"
+            className="flex items-center gap-1 rounded-xl bg-[#f2f3f6] p-1"
           >
             {(["preview", "code"] as const).map((tab) => (
               <button
@@ -301,7 +332,7 @@ export function ComponentPlayground({
                 tabIndex={activeTab === tab ? 0 : -1}
                 onClick={() => setActiveTab(tab)}
                 onKeyDown={handleTabKeyDown}
-                className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium transition motion-reduce:transition-none sm:px-3.5 ${focusRing} ${activeTab === tab ? "bg-white text-[#252e40] shadow-[0_1px_4px_rgba(24,36,55,0.08)]" : "text-[#687386] hover:text-[#252e40]"}`}
+                className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition motion-reduce:transition-none sm:px-3.5 ${focusRing} ${activeTab === tab ? "bg-[#0b0d12] text-white shadow-[0_3px_8px_rgba(11,13,18,0.18)]" : "text-[#687386] hover:text-[#252e40]"}`}
               >
                 <Icon name={tab} />
                 {tab === "preview" ? "Preview" : "Code"}
@@ -349,6 +380,10 @@ export function ComponentPlayground({
           aria-labelledby={`${id}-preview-tab`}
           hidden={activeTab !== "preview"}
         >
+          <div className="flex items-start gap-2.5 border-b border-[#edf0f4] bg-[#fbfcfd] px-4 py-3 text-[11px] leading-5 text-[#697586] sm:px-5">
+            <span aria-hidden="true" className="mt-0.5 grid size-4 shrink-0 place-items-center rounded-full border border-[#aecfc3] text-[10px] font-semibold text-[#4a9b79]">i</span>
+            <span>{previewHint}</span>
+          </div>
           {/* The same element is expanded in place, so component state survives. */}
           <div
             ref={stageRef}
@@ -359,23 +394,14 @@ export function ComponentPlayground({
             className={
               fullscreen.active
                 ? "fixed inset-0 z-[100] flex bg-[#0b0d12]"
-                : "grid min-h-[590px] place-items-center bg-[#f3f4f6] p-3 sm:min-h-[620px] sm:p-7 lg:p-9"
-            }
-            style={
-              fullscreen.active
-                ? undefined
-                : {
-                    backgroundImage:
-                      "radial-gradient(#dfe2e9 0.7px, transparent 0.7px)",
-                    backgroundSize: "12px 12px",
-                  }
+                : "detail-preview-stage grid min-h-[540px] place-items-center p-2 sm:min-h-[570px] sm:p-3"
             }
           >
             <div
               className={
                 fullscreen.active
                   ? `mx-auto flex h-full w-full flex-col overflow-auto [&>*]:w-full [&>*]:flex-1 ${viewport === "mobile" ? "max-w-[390px]" : ""}`
-                  : `w-full transition-[max-width] duration-300 motion-reduce:transition-none ${viewport === "mobile" ? "max-w-[390px]" : "max-w-[860px]"}`
+                  : `w-full transition-[max-width] duration-300 motion-reduce:transition-none ${viewport === "mobile" ? "max-w-[390px]" : "max-w-[1080px]"}`
               }
             >
               <Fragment key={replay}>{children}</Fragment>
@@ -409,15 +435,24 @@ export function ComponentPlayground({
               </div>
             )}
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#e7e9ee] px-5 py-3.5 text-[11px] text-[#6b7587]">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#e7e9ee] px-4 py-3 text-[11px] text-[#6b7587] sm:px-5">
             <span className="flex items-center gap-2">
               <span
-                className="size-1.5 rounded-full bg-[#48a885]"
+                className="size-2 rounded-full bg-[#48a885]"
                 aria-hidden="true"
               />
-              Live, interactive preview
+              Live interactive preview
             </span>
-            <span>Built with React &amp; Tailwind CSS</span>
+            <span className="hidden text-[#8791a0] md:inline">Explore the interaction, then make it yours.</span>
+            <button
+              type="button"
+              onClick={handleCopySource}
+              className={`inline-flex h-9 items-center gap-2 rounded-lg border border-[#e2e6ed] bg-white px-3 text-[11px] font-medium text-[#3f4b5c] transition hover:border-[#cbd2de] hover:bg-[#f7f8fa] ${focusRing}`}
+            >
+              <Icon name="copy" className="size-3.5" />
+              {copyState === "copied" ? "Copied!" : copyState === "error" ? "Copy failed" : "Copy code"}
+            </button>
+            <span className="sr-only" role="status">{copyState === "copied" ? "Component code copied to clipboard." : copyState === "error" ? "Could not copy component code." : ""}</span>
           </div>
         </div>
 
@@ -426,7 +461,7 @@ export function ComponentPlayground({
           id={`${id}-code-panel`}
           aria-labelledby={`${id}-code-tab`}
           hidden={activeTab !== "code"}
-          className="p-3 sm:p-5"
+          className="bg-[#f7f8fa] p-3 sm:p-5"
         >
           {source ? (
             <>
@@ -465,42 +500,19 @@ export function ComponentPlayground({
         </div>
       </section>
 
-      <details className="group rounded-xl border border-[#e3e6ed] bg-white">
-        <summary
-          className={`flex cursor-pointer list-none items-center justify-between gap-4 rounded-xl px-5 py-4 [&::-webkit-details-marker]:hidden ${focusRing}`}
-        >
-          <span className="flex items-center gap-3">
-            <span className="grid size-8 place-items-center rounded-lg bg-[#f1f3fa] text-[#7080ae]">
-              <Icon name="code" />
-            </span>
-            <span>
-              <span className="block text-xs font-semibold text-[#394355]">
-                Use in your project
-              </span>
-              <span className="mt-0.5 block text-[11px] text-[#6b7587]">
-                A quick start. A clean slate.
-              </span>
-            </span>
-          </span>
-          <Icon
-            name="chevron"
-            className="text-[#929cac] transition-transform group-open:rotate-90 motion-reduce:transition-none"
-          />
-        </summary>
-        <div className="border-t border-[#eceef3] p-4 sm:p-5">
-          <p className="mb-4 text-xs leading-6 text-[#657286]">
-            Save{" "}
-            <code className="rounded bg-[#f2f4f8] px-1.5 py-1 font-mono text-[11px] text-[#536176]">
-              {fileName}
-            </code>{" "}
-            in your components folder, then import it below. Requires React and
-            Tailwind CSS
-            {requiresThree ? ", plus Three.js." : "; no extra packages."}
+      <section aria-labelledby={`${id}-usage-heading`} className="detail-usage rounded-[22px] border border-[#e2e6ed] bg-white p-5 shadow-[0_3px_15px_rgba(20,32,55,0.03)] sm:p-7">
+        <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+          <div>
+            <p className="font-mono text-[10px] tracking-[0.18em] text-[#8b94a3] uppercase">Quick start</p>
+            <h2 id={`${id}-usage-heading`} className="mt-2 text-[24px] font-semibold tracking-[-0.045em] text-[#171b24]">Make it yours.</h2>
+          </div>
+          <p className="max-w-[420px] text-[12px] leading-[1.7] text-[#788291]">
+            Save <code className="rounded bg-[#f2f4f8] px-1.5 py-1 font-mono text-[11px] text-[#536176]">{fileName}</code> in your components folder, then import it below. Requires React and Tailwind CSS{requiresThree ? ", plus Three.js." : "."}
           </p>
-          {requiresThree && <ThreeDependencies />}
-          <CodeBlock source={usage} fileName="app/page.tsx" compact />
         </div>
-      </details>
+        {requiresThree && <ThreeDependencies />}
+        <CodeBlock source={usage} fileName="app/page.tsx" compact />
+      </section>
     </div>
   );
 }

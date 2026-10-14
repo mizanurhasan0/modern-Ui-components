@@ -43,7 +43,7 @@ function tokenize(source: string): Token[] {
   return tokens;
 }
 
-async function copyText(text: string) {
+export async function copyText(text: string) {
   if (navigator.clipboard && window.isSecureContext) {
     try {
       await navigator.clipboard.writeText(text);

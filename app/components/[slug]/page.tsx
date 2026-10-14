@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ComponentPlayground } from "@/components/showcase/component-playground";
-import { componentPreviews } from "@/lib/component-previews";
+import { ComponentBackdrop } from "@/components/showcase/component-backdrop";
+import "@/components/showcase/component-detail.css";
+import { componentPreviews, componentThumbnails } from "@/lib/component-previews";
 import { components, getComponent } from "@/lib/component-registry";
+import { ArrowUpRight } from "@/components/site/icons";
 
 type ComponentPageProps = {
   params: Promise<{ slug: string }>;
@@ -35,20 +38,28 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
   const { slug } = await params;
   const entry = getComponent(slug);
   const Preview = componentPreviews[slug];
+  const Thumbnail = componentThumbnails[slug];
 
   if (!entry || !Preview) {
     notFound();
   }
+  const related = [
+    ...components.filter((component) => component.category === entry.category && component.slug !== slug),
+    ...components.filter((component) => component.category !== entry.category),
+  ].slice(0, 2);
 
   return (
     <main
       id="main-content"
-      className="mx-auto w-full max-w-[1200px] px-5 pb-24 pt-8 sm:px-8 sm:pt-10"
+      className="component-detail-page mx-auto w-full max-w-[1200px] px-5 pb-24 pt-8 sm:px-8 sm:pt-10"
     >
-      <nav aria-label="Breadcrumb" className="mb-12 text-[13px] text-[#8b8d97]">
+      <ComponentBackdrop slug={slug}>
+        {Thumbnail && <Thumbnail className="h-full w-full" previewStep={0} />}
+      </ComponentBackdrop>
+      <nav aria-label="Breadcrumb" className="detail-breadcrumb mb-6 text-[12px] sm:mb-7">
         <ol className="flex flex-wrap items-center gap-2.5">
           <li>
-            <Link href="/" className="transition-colors hover:text-[#4666ee]">
+            <Link href="/" className="transition-colors hover:text-[#111318]">
               Home
             </Link>
           </li>
@@ -58,7 +69,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           <li>
             <Link
               href="/#collection"
-              className="transition-colors hover:text-[#4666ee]"
+              className="transition-colors hover:text-[#111318]"
             >
               Components
             </Link>
@@ -66,36 +77,44 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           <li aria-hidden="true" className="text-[#c9cbd1]">
             /
           </li>
-          <li aria-current="page" className="font-medium text-[#363944]">
+          <li aria-current="page" className="font-medium text-[#252b36]">
             {entry.title}
           </li>
         </ol>
       </nav>
 
-      <header className="mb-10">
-        <p className="mb-4 font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-[#818592]">
-          Component {entry.number}
-          <span aria-hidden="true" className="mx-3 text-[#c7cad3]">
-            /
-          </span>
-          {entry.category}
-        </p>
-        <h1 className="text-[40px] leading-[1.12] font-semibold tracking-[-0.055em] text-[#171922] sm:text-[48px]">
-          {entry.title}
-        </h1>
-        <p className="mt-4 max-w-[550px] text-[15px] leading-7 text-[#737783]">
-          {entry.description}
-        </p>
-        <ul aria-label="Built with" className="mt-6 flex flex-wrap gap-2">
-          {["React", "Tailwind CSS", "TypeScript"].map((technology) => (
-            <li
-              key={technology}
-              className="rounded-md border border-[#e4e6ed] bg-white px-2.5 py-1 text-[11px] font-medium text-[#686c79]"
-            >
-              {technology}
-            </li>
-          ))}
-        </ul>
+      <header className="detail-intro mb-7 flex flex-col gap-7 sm:mb-8 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="detail-section-eyebrow mb-4 font-mono text-[10px] font-medium uppercase tracking-[0.18em]">
+            Component {entry.number}
+            <span aria-hidden="true" className="mx-3 text-[#c7cad3]">
+              /
+            </span>
+            {entry.category}
+          </p>
+          <h1 className="text-[clamp(2.5rem,5vw,4rem)] leading-[1.05] font-semibold tracking-[-0.065em] text-[#111318]">
+            {entry.title}
+          </h1>
+          <p className="detail-secondary-copy mt-5 max-w-[670px] text-[15px] leading-[1.8] sm:text-base">
+            {entry.description}
+          </p>
+          <ul aria-label="Built with" className="mt-6 flex flex-wrap gap-2">
+            {["React", "Tailwind CSS", "TypeScript"].map((technology) => (
+              <li
+                key={technology}
+                className="rounded-lg border border-[#e4e8ee] bg-white px-3 py-1.5 text-[11px] font-medium text-[#667085]"
+              >
+                {technology}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <a
+          href="#playground"
+          className="hidden h-11 w-fit shrink-0 items-center gap-2 rounded-full bg-[#0b0d12] px-5 text-[12px] font-medium text-white shadow-[0_8px_20px_-10px_rgba(11,13,18,0.7)] transition hover:-translate-y-0.5 hover:bg-[#252b36] lg:inline-flex"
+        >
+          Explore the preview <ArrowUpRight className="size-4" />
+        </a>
       </header>
 
       <ComponentPlayground
@@ -103,44 +122,66 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
         fileName={entry.fileName}
         title={entry.title}
         usage={entry.usage}
+        demoNote={entry.demoNote}
       >
         <Preview />
       </ComponentPlayground>
 
-      <p className="mt-4 flex items-start justify-center gap-2 text-center text-[11px] leading-5 text-[#9195a1]">
-        <span
-          aria-hidden="true"
-          className="mt-2 size-1 shrink-0 rounded-full bg-[#4666ee]"
-        />
-        {entry.demoNote}
-      </p>
-
       <section
         aria-labelledby="about-component"
-        className="mt-16 border-t border-[#e5e7ee] pt-9"
+        className="detail-information"
       >
-        <h2
-          id="about-component"
-          className="text-[18px] font-semibold tracking-[-0.03em] text-[#252832]"
-        >
-          About this component
-        </h2>
-        <div className="mt-7 grid gap-8 sm:grid-cols-3 sm:gap-10">
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+          <div>
+            <p className="detail-section-eyebrow font-mono text-[10px] tracking-[0.18em] uppercase">Behind the interaction</p>
+            <h2 id="about-component" className="mt-3 text-[clamp(1.65rem,3vw,2.25rem)] leading-tight font-semibold tracking-[-0.05em] text-[#171b24]">
+              The details that make it work.
+            </h2>
+          </div>
+          <span className="detail-secondary-copy text-[12px]">Designed to explore, ready to adapt.</span>
+        </div>
+        <div className="mt-7 grid gap-4 md:grid-cols-3">
           {entry.features.map((feature, index) => (
-            <article key={feature.title}>
+            <article key={feature.title} className="detail-feature rounded-2xl p-6">
               <span
                 aria-hidden="true"
-                className="mb-4 inline-flex size-8 items-center justify-center rounded-lg border border-[#e0e5f5] bg-[#edf0fc] font-mono text-[10px] text-[#4666ee]"
+                className="mb-8 inline-flex size-9 items-center justify-center rounded-xl bg-[#f2f4f7] font-mono text-[11px] text-[#536072]"
               >
                 {String(index + 1).padStart(2, "0")}
               </span>
-              <h3 className="text-[13px] font-semibold text-[#343742]">
+              <h3 className="text-[15px] font-semibold tracking-[-0.02em] text-[#252b36]">
                 {feature.title}
               </h3>
-              <p className="mt-2 text-[12px] leading-[1.9] text-[#818591]">
+              <p className="detail-secondary-copy mt-3 text-[13px] leading-[1.75]">
                 {feature.description}
               </p>
             </article>
+          ))}
+        </div>
+      </section>
+
+      <section aria-labelledby="related-components" className="detail-information">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="detail-section-eyebrow font-mono text-[10px] tracking-[0.18em] uppercase">Keep exploring</p>
+            <h2 id="related-components" className="mt-3 text-[clamp(1.65rem,3vw,2.25rem)] leading-tight font-semibold tracking-[-0.05em] text-[#171b24]">More from the lab.</h2>
+          </div>
+          <Link href="/#collection" className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[#3d4859] hover:text-[#0b0d12]">
+            View all components <ArrowUpRight className="size-4" />
+          </Link>
+        </div>
+        <div className="mt-7 grid gap-4 sm:grid-cols-2">
+          {related.map((component) => (
+            <Link key={component.slug} href={`/components/${component.slug}`} className="detail-related-card group flex min-h-[170px] flex-col justify-between rounded-2xl p-6 transition hover:border-[#c8d0dc] hover:shadow-[0_12px_34px_rgba(20,32,55,0.07)]">
+              <div className="flex items-center justify-between gap-3">
+                <span className="detail-section-eyebrow font-mono text-[10px] tracking-[0.12em] uppercase">{component.category} / {component.number}</span>
+                <ArrowUpRight className="size-4 text-[#8993a2] transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#111318]" />
+              </div>
+              <div>
+                <h3 className="text-[20px] font-semibold tracking-[-0.04em] text-[#252b36]">{component.title}</h3>
+                <p className="detail-secondary-copy mt-2 line-clamp-2 text-[12px] leading-[1.6]">{component.description}</p>
+              </div>
+            </Link>
           ))}
         </div>
       </section>

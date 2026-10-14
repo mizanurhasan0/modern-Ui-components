@@ -1,0 +1,150 @@
+/* This surface exists only while a component details route is mounted. */
+body:has(.component-detail-page) {
+  isolation: isolate;
+}
+
+.component-detail-page {
+  flex: 1;
+}
+
+.component-detail-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: #f5f5f6;
+}
+
+.component-detail-backdrop-art {
+  position: absolute;
+  inset: -80px;
+  overflow: hidden;
+  filter: blur(64px) saturate(1.18);
+  opacity: .85;
+  animation: component-atmosphere-in 600ms ease both;
+}
+
+.component-detail-backdrop-canvas {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 640px;
+  height: 400px;
+  transform: translate(-50%, -50%) scale(var(--detail-artwork-scale, 3));
+  container-type: inline-size;
+}
+
+/* Decorative thumbnails stay static and cannot receive keyboard or pointer input. */
+.component-detail-backdrop-canvas *,
+.component-detail-backdrop-canvas *::before,
+.component-detail-backdrop-canvas *::after {
+  animation-play-state: paused !important;
+  transition: none !important;
+  caret-color: transparent;
+}
+
+.component-detail-backdrop-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(250 251 252 / .62), rgb(250 251 252 / .72) 55%, rgb(250 251 252 / .8));
+}
+
+.component-detail-page .detail-breadcrumb {
+  width: fit-content;
+  max-width: 100%;
+  padding: 12px 16px;
+  border: 1px solid rgb(255 255 255 / .75);
+  border-radius: 999px;
+  background: rgb(255 255 255 / .76);
+  backdrop-filter: blur(16px);
+  color: #596476;
+}
+
+.component-detail-page .detail-intro,
+.component-detail-page .detail-information,
+.component-detail-page .detail-usage,
+.component-detail-page .detail-feature,
+.component-detail-page .detail-related-card {
+  border: 1px solid rgb(255 255 255 / .85);
+  background: rgb(255 255 255 / .8);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 12px 40px -24px rgb(25 32 45 / .15), inset 0 1px 0 rgb(255 255 255 / .8);
+}
+
+.component-detail-page .detail-intro {
+  border-radius: 28px;
+  padding: clamp(24px, 4vw, 40px);
+}
+
+.component-detail-page .detail-information {
+  margin-top: 48px;
+  border-radius: 28px;
+  padding: clamp(24px, 4vw, 36px);
+}
+
+.component-detail-page .detail-feature {
+  background: rgb(255 255 255 / .6);
+  box-shadow: none;
+}
+
+.component-detail-page .detail-related-card {
+  background: rgb(255 255 255 / .65);
+}
+
+/* No filter on this ancestor: fixed/fullscreen previews must keep their viewport bounds. */
+.component-detail-page .detail-playground {
+  border-color: rgb(255 255 255 / .9);
+  background: rgb(255 255 255 / .88);
+  box-shadow: 0 24px 70px -35px rgb(20 27 42 / .35), 0 1px 0 rgb(255 255 255 / .9) inset;
+}
+
+.component-detail-page .detail-playground-toolbar {
+  background: rgb(255 255 255 / .6);
+}
+
+.component-detail-page .detail-preview-stage:not([data-fullscreen="true"]) {
+  background: rgb(241 243 246 / .5);
+}
+
+.component-detail-page .detail-section-eyebrow {
+  color: #606c7d;
+}
+
+.component-detail-page .detail-secondary-copy {
+  color: #5e6b7e;
+}
+
+body:has(.component-detail-page) > footer {
+  border-color: rgb(255 255 255 / .65);
+  background: rgb(250 251 252 / .76);
+  backdrop-filter: blur(16px);
+}
+
+@keyframes component-atmosphere-in {
+  from { opacity: 0; }
+  to { opacity: .85; }
+}
+
+@media (max-width: 640px) {
+  .component-detail-backdrop-art { inset: -48px; filter: blur(40px) saturate(1.08); }
+  .component-detail-page .detail-intro,
+  .component-detail-page .detail-information { border-radius: 22px; padding: 22px 18px; }
+  .component-detail-page .detail-information { margin-top: 32px; }
+  .component-detail-page .detail-breadcrumb { padding: 10px 14px; border-radius: 18px; }
+  .component-detail-page .detail-preview-stage:not([data-fullscreen="true"]) { min-height: 320px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .component-detail-backdrop-art { animation: none; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .component-detail-backdrop-art { opacity: .15; animation: none; }
+  .component-detail-page .detail-intro,
+  .component-detail-page .detail-information,
+  .component-detail-page .detail-usage,
+  .component-detail-page .detail-feature,
+  .component-detail-page .detail-related-card,
+  .component-detail-page .detail-breadcrumb { background: #fff; backdrop-filter: none; }
+}
