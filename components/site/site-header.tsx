@@ -33,7 +33,7 @@ export function SiteHeader() {
   const latest = components[0];
 
   return (
-    <header className="sticky top-0 z-30 bg-[#fafbfc]/85 py-3 backdrop-blur-xl">
+    <header className="sticky top-0 z-30 bg-transparent py-3">
       <div className="site-container site-header-container">
         <NeumorphicNavbar
           embedded

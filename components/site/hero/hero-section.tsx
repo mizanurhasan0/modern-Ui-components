@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight } from "@/components/site/icons";
+import { HeroActions } from "./hero-actions";
 import { CountUp } from "./count-up";
 import { TechStack } from "./tech-stack";
 import { TECH_STACK } from "./tech-stack-data";
@@ -54,13 +54,15 @@ export function HeroSection() {
             Full stack developer
             <span aria-hidden="true" className="h-px w-12 bg-[#9ca3af]" />
           </p>
+          <p className="mt-6 flex flex-wrap items-center gap-x-1.5 text-[15px] leading-relaxed text-[#5b6271] sm:text-[17px]">
+            Hi, I’m <span className="font-semibold text-[#0b0d12]">Mizanur Hasan</span>
+            <span aria-hidden="true" className="ml-1">👋</span>
+          </p>
           <h1
             id="hero-heading"
-            className="mt-7 text-[clamp(2.8rem,5vw,4.5rem)] leading-[0.98] font-bold tracking-[-0.045em] text-[#0b0d12]"
+            className="mt-4 text-[clamp(2.35rem,4.2vw,3.75rem)] leading-[1.02] font-bold tracking-[-0.045em] text-[#0b0d12]"
           >
-            Turning
-            <br />
-            Ideas Into
+            Turning Ideas Into
             <br />
             <span className="bg-[linear-gradient(90deg,#1d4ed8,#2563eb_45%,#3b82f6)] bg-clip-text text-transparent">
               Real Products.
@@ -69,23 +71,7 @@ export function HeroSection() {
           <p className="mt-7 max-w-[440px] text-[17px] leading-[1.6] text-[#5b6271]">
             I build modern, scalable web applications with clean code and real-world impact.
           </p>
-          <div className="mt-9 flex flex-wrap items-center gap-4">
-            <a
-              href="#collection"
-              className="inline-flex h-[52px] items-center gap-3 rounded-full bg-[#0b0d12] px-7 text-[15px] font-medium text-white shadow-[0_12px_28px_-12px_rgba(11,13,18,.7)] transition hover:-translate-y-0.5 hover:bg-[#1d4ed8]"
-            >
-              View My Work <ArrowUpRight className="size-4" />
-            </a>
-            <button
-              type="button"
-              aria-pressed={tour.playing}
-              onClick={tour.toggle}
-              className="inline-flex h-[52px] items-center gap-3 rounded-full bg-white px-6 text-[15px] font-medium text-[#0b0d12] shadow-[0_10px_26px_-14px_rgba(15,23,42,.45)] ring-1 ring-black/5 transition hover:-translate-y-0.5"
-            >
-              <span aria-hidden="true" className="text-[14px]">{tour.playing ? "■" : "▶"}</span>
-              {tour.playing ? "Stop Intro" : "Watch Intro"}
-            </button>
-          </div>
+          <HeroActions playing={tour.playing} onToggleIntro={tour.toggle} />
           <p aria-live="polite" className="mt-4 min-h-6 text-[13px] text-[#4b5563]">
             {tour.category && (
               <span className="inline-flex items-center gap-2">
