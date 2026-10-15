@@ -5,6 +5,7 @@ import Link from "next/link";
 import { components } from "@/lib/component-registry";
 import { GalleryThumbnail, getReducedMotion, subscribeReducedMotion } from "./gallery-thumbnail";
 import { ArrowUpRight } from "@/components/site/icons";
+import padStyles from "./helicopter-pad.module.css";
 
 const categories = [
   "All components",
@@ -76,7 +77,7 @@ export function ComponentGallery() {
       aria-labelledby="collection-heading"
       className="scroll-mt-28"
     >
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+      <div data-helicopter-clearance className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2
             id="collection-heading"
@@ -91,7 +92,7 @@ export function ComponentGallery() {
             Individually crafted components. Ready to explore.
           </p>
         </div>
-        <label className="relative block w-full shrink-0 sm:w-[340px] lg:w-[380px]">
+        <label data-helicopter-pad="search" className={`${padStyles.pad} relative block w-full shrink-0 sm:w-[340px] lg:w-[380px]`}>
           <span className="sr-only">Search components</span>
           <svg
             viewBox="0 0 24 24"
@@ -117,8 +118,8 @@ export function ComponentGallery() {
           </kbd>
         </label>
       </div>
-      <div className="mt-6 mb-7 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
-        <div className="flex min-w-0 flex-wrap items-center gap-1" role="group" aria-label="Filter components by category">
+      <div className={`${padStyles.controls} mt-6 mb-7 flex flex-wrap items-center justify-between gap-x-4 gap-y-3`}>
+        <div data-helicopter-tabs className="flex min-w-0 flex-wrap items-center gap-1" role="group" aria-label="Filter components by category">
           {primaryCategories.map((item, index) => {
             const visibility = index < 2 ? "" : index < 4 ? "hidden sm:inline-flex" : index < 7 ? "hidden lg:inline-flex" : "hidden xl:inline-flex";
             return (
@@ -127,7 +128,8 @@ export function ComponentGallery() {
                 type="button"
                 onClick={() => selectCategory(item)}
                 aria-pressed={category === item}
-                className={`shrink-0 items-center rounded-xl px-3 py-2.5 text-[12px] leading-none whitespace-nowrap transition-colors ${visibility} ${category === item ? "bg-[#0b0d12] font-medium text-white shadow-[0_4px_10px_rgba(11,13,18,0.16)]" : "text-[#667085] hover:text-[#0b0d12]"}`}
+                data-helicopter-tab={item}
+                className={`${padStyles.pad} shrink-0 items-center rounded-xl px-3 py-2.5 text-[12px] leading-none whitespace-nowrap transition-colors ${visibility} ${category === item ? "bg-[#0b0d12] font-medium text-white shadow-[0_4px_10px_rgba(11,13,18,0.16)]" : "text-[#667085] hover:text-[#0b0d12]"}`}
               >
                 {item}
                 {item === "All components" && <span className="ml-2 opacity-70">{components.length}</span>}
@@ -136,7 +138,9 @@ export function ComponentGallery() {
           })}
           <details ref={moreRef} className="group relative shrink-0">
             <summary
-              className={`flex cursor-pointer list-none items-center gap-1.5 rounded-xl px-3 py-2.5 text-[12px] leading-none transition-colors [&::-webkit-details-marker]:hidden ${moreSelected ? "bg-[#0b0d12] font-medium text-white shadow-[0_4px_10px_rgba(11,13,18,0.16)]" : "text-[#667085] hover:text-[#0b0d12]"}`}
+              data-helicopter-tab="more"
+              data-helicopter-active={moreSelected}
+              className={`${padStyles.pad} flex cursor-pointer list-none items-center gap-1.5 rounded-xl px-3 py-2.5 text-[12px] leading-none transition-colors [&::-webkit-details-marker]:hidden ${moreSelected ? "bg-[#0b0d12] font-medium text-white shadow-[0_4px_10px_rgba(11,13,18,0.16)]" : "text-[#667085] hover:text-[#0b0d12]"}`}
               aria-label={moreSelected ? `More categories, selected: ${category}` : "More categories"}
             >
               More
@@ -185,6 +189,7 @@ export function ComponentGallery() {
           return (
             <Link
               key={item.slug}
+              data-component-guide={item.slug}
               href={`/components/${item.slug}`}
               className="group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-[#e2e6ed] bg-white shadow-[0_3px_12px_#1c294803] transition-[box-shadow,border-color] duration-300 hover:border-[#cbd3e6] hover:shadow-[0_12px_40px_#28344e0b] motion-reduce:transition-none"
             >

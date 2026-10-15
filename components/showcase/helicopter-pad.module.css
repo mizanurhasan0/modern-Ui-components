@@ -1,0 +1,21 @@
+.pad { position: relative; }
+@media (min-width: 768px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .controls { margin-top: 56px; }
+}
+.pad[data-helicopter-perch]::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: -1px;
+  left: var(--helipad-x, 50%);
+  width: min(42px, 65%);
+  height: 2px;
+  border-radius: 99px;
+  background: #59b897;
+  box-shadow: 0 0 8px #59b89765;
+  transform: translateX(-50%);
+  pointer-events: none;
+  opacity: .6;
+  transition: opacity .25s;
+}
+.pad[data-helicopter-perch="landed"]::after { opacity: 1; }

@@ -43,6 +43,7 @@ export function PixelKnight({ category, playgroundOpen, onTogglePlayground }: Pr
       <button
         ref={buttonRef}
         type="button"
+        data-cursor-knight-hide
         aria-pressed={playgroundOpen}
         aria-label={`${playgroundOpen ? "Close" : "Open"} code playground${category ? `. Pixel Knight is guarding ${category.label}` : ""}`}
         className={styles.button}

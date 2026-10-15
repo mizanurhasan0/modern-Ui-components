@@ -2,6 +2,7 @@
 
 import {
   Fragment,
+  useCallback,
   useEffect,
   useId,
   useRef,
@@ -13,6 +14,7 @@ import {
 } from "react";
 import { loadComponentSource } from "@/app/components/actions";
 import { CodeBlock, copyText } from "./code-block";
+import { registerPreviewFullscreen } from "./preview-events";
 
 type ComponentPlaygroundProps = {
   slug: string;
@@ -159,11 +161,11 @@ function useFullscreen(target: RefObject<HTMLElement | null>) {
     };
   }, [active, target]);
 
-  function enter() {
+  const enter = useCallback(() => {
     setRequested(true);
     // The overlay stays in place if the browser declines native fullscreen.
     target.current?.requestFullscreen?.().catch(() => {});
-  }
+  }, [target]);
 
   function exit() {
     setRequested(false);
@@ -282,16 +284,36 @@ export function ComponentPlayground({
   const stageRef = useRef<HTMLDivElement>(null);
   const enterButtonRef = useRef<HTMLButtonElement>(null);
   const exitButtonRef = useRef<HTMLButtonElement>(null);
+  const launchButtonRef = useRef<HTMLElement | null>(null);
   const fullscreen = useFullscreen(stageRef);
+  const enterFullscreen = fullscreen.enter;
   const fullscreenContainerRef = useRef<HTMLDivElement>(null);
   const fullscreenCanvasRef = useRef<HTMLDivElement>(null);
   const fullscreenFit = useFullscreenFit(fullscreen.active, viewport, replay, fullscreenContainerRef, fullscreenCanvasRef);
   const wasFullscreen = useRef(false);
 
+  useEffect(() => {
+    return registerPreviewFullscreen((trigger) => {
+      launchButtonRef.current = trigger;
+      setActiveTab("preview");
+      enterFullscreen();
+    });
+  }, [enterFullscreen]);
+
   // Keep keyboard focus with the control that changed the view.
   useEffect(() => {
     if (fullscreen.active) exitButtonRef.current?.focus();
-    else if (wasFullscreen.current) enterButtonRef.current?.focus();
+    else if (wasFullscreen.current) {
+      const trigger = launchButtonRef.current?.isConnected
+        ? launchButtonRef.current
+        : enterButtonRef.current;
+      // The exit control is removed during this render. Restore focus after the
+      // browser finishes moving focus away from that removed element.
+      const timeout = window.setTimeout(() => trigger?.focus(), 0);
+      launchButtonRef.current = null;
+      wasFullscreen.current = fullscreen.active;
+      return () => window.clearTimeout(timeout);
+    }
     wasFullscreen.current = fullscreen.active;
   }, [fullscreen.active]);
 

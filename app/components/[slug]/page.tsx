@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ComponentPlayground } from "@/components/showcase/component-playground";
+import { ExplorePreviewButton } from "@/components/showcase/explore-preview-button";
 import { ComponentBackdrop } from "@/components/showcase/component-backdrop";
 import "@/components/showcase/component-detail.css";
 import { componentPreviews, componentThumbnails } from "@/lib/component-previews";
@@ -110,12 +111,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
               </li>
             ))}
           </ul>
-          <a
-            href="#playground"
-            className="hidden h-11 w-fit shrink-0 items-center gap-2 rounded-full bg-[#0b0d12] px-5 text-[12px] font-medium text-white shadow-[0_8px_20px_-10px_rgba(11,13,18,0.7)] transition hover:-translate-y-0.5 hover:bg-[#252b36] lg:inline-flex"
-          >
-            Explore the preview <ArrowUpRight className="size-4" />
-          </a>
+          <ExplorePreviewButton />
         </div>
       </header>
 

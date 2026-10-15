@@ -1,5 +1,7 @@
 import { ComponentGallery } from "@/components/showcase/component-gallery";
+import { CursorHelicopter } from "@/components/site/hero/cursor-helicopter";
 import { HeroSection } from "@/components/site/hero/hero-section";
+import { components } from "@/lib/component-registry";
 
 export default function Home() {
   return (
@@ -54,6 +56,7 @@ export default function Home() {
           </div>
         </section>
       </div>
+      <CursorHelicopter componentCount={components.length} />
     </main>
   );
 }

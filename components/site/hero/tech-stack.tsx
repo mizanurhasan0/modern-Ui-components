@@ -84,6 +84,7 @@ export function TechStack({ activeId, onActiveChange }: Props) {
               return (
                 <li
                   key={category.id}
+                  data-knight-accent={category.color}
                   style={{ "--line": active ? category.color : "#cfd6e2", "--c": category.color, animationDelay: `${index * 90}ms` } as CSSProperties}
                   className={`${ROW} motion-safe:animate-[stack-in_.6s_cubic-bezier(.2,.8,.2,1)_both] max-md:flex-col max-md:items-stretch`}
                   onMouseEnter={() => onActiveChange(category.id)}
