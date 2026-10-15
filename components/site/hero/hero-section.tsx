@@ -6,6 +6,7 @@ import { CountUp } from "./count-up";
 import { TechStack } from "./tech-stack";
 import { TECH_STACK } from "./tech-stack-data";
 import { WaterRevealPortrait } from "./water-reveal-portrait";
+import styles from "./hero-section.module.css";
 
 const TOUR_STEP_MS = 2600;
 
@@ -50,27 +51,31 @@ export function HeroSection() {
 
       <div className="site-container relative grid grid-cols-[minmax(0,1fr)] gap-10 pt-10 pb-14 lg:grid-cols-2 lg:gap-x-6 2xl:min-h-[760px] 2xl:grid-cols-1 2xl:gap-0 2xl:pt-0 2xl:pb-0">
         <div className="relative z-20 flex flex-col justify-center 2xl:max-w-[560px] 2xl:py-16">
-          <p className="flex items-center gap-4 text-[12px] font-medium tracking-[0.22em] text-[#4b5563] uppercase">
-            Full stack developer
-            <span aria-hidden="true" className="h-px w-12 bg-[#9ca3af]" />
-          </p>
-          <p className="mt-6 flex flex-wrap items-center gap-x-1.5 text-[15px] leading-relaxed text-[#5b6271] sm:text-[17px]">
+          <p className="flex flex-wrap items-center gap-x-1.5 text-[20px] leading-snug text-[#5b6271] sm:text-[22px]">
             Hi, I’m <span className="font-semibold text-[#0b0d12]">Mizanur Hasan</span>
-            <span aria-hidden="true" className="ml-1">👋</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="ml-1 size-5 shrink-0 text-[#2563eb]">
+              <rect x="4" y="4" width="16" height="13" rx="2" />
+              <path d="M2 20h20m-12-3-.5 3m4.5-3 .5 3M9 8l-2.5 2.5L9 13m6-5 2.5 2.5L15 13" />
+            </svg>
+          </p>
+          <p className="mt-2.5 flex items-center gap-4 text-[11px] font-medium tracking-[0.18em] text-[#697386] uppercase sm:text-[12px]">
+            Full stack developer
+            <span aria-hidden="true" className="h-px w-10 bg-[#a9b1bf]" />
           </p>
           <h1
             id="hero-heading"
-            className="mt-4 text-[clamp(2.35rem,4.2vw,3.75rem)] leading-[1.02] font-bold tracking-[-0.045em] text-[#0b0d12]"
+            className="mt-6 text-[clamp(2.35rem,4.2vw,3.75rem)] leading-[1.02] font-bold tracking-[-0.045em] text-[#0b0d12]"
           >
             Turning Ideas Into
             <br />
-            <span className="bg-[linear-gradient(90deg,#1d4ed8,#2563eb_45%,#3b82f6)] bg-clip-text text-transparent">
-              Real Products.
+            <span className={styles.productTitle}>
+              <span className={styles.productDepth} aria-hidden="true">Real Products.</span>
+              <span className={styles.productFace}>Real Products.</span>
             </span>
           </h1>
-          <p className="mt-7 max-w-[440px] text-[17px] leading-[1.6] text-[#5b6271]">
+          {/* <p className="mt-7 max-w-[440px] text-[17px] leading-[1.6] text-[#5b6271]">
             I build modern, scalable web applications with clean code and real-world impact.
-          </p>
+          </p> */}
           <HeroActions playing={tour.playing} onToggleIntro={tour.toggle} />
           <p aria-live="polite" className="mt-4 min-h-6 text-[13px] text-[#4b5563]">
             {tour.category && (

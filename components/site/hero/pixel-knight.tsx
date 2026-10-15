@@ -45,7 +45,7 @@ export function PixelKnight({ category, playgroundOpen, onTogglePlayground }: Pr
         type="button"
         data-cursor-knight-hide
         aria-pressed={playgroundOpen}
-        aria-label={`${playgroundOpen ? "Close" : "Open"} code playground${category ? `. Pixel Knight is guarding ${category.label}` : ""}`}
+        aria-label={`${playgroundOpen ? "Close playground" : "Explore skills: open code playground"}${category ? `. Pixel Knight is guarding ${category.label}` : ""}`}
         className={styles.button}
         data-engaged={engaged}
         data-playground={playgroundOpen}
@@ -58,8 +58,8 @@ export function PixelKnight({ category, playgroundOpen, onTogglePlayground }: Pr
         <span className={styles.floorRing} aria-hidden="true" />
         <span className={styles.figureWrap} aria-hidden="true">
           <span className={styles.figure}>
-            <Image src="/hero/pixel-knight-idle.png" alt="" width={1086} height={1448} sizes="(max-width: 767px) 100px, 164px" loading="eager" className={`${styles.pose} ${styles.idlePose}`} />
-            <Image src="/hero/pixel-knight-guard.png" alt="" width={1086} height={1448} sizes="(max-width: 767px) 100px, 164px" loading="eager" className={`${styles.pose} ${styles.guardPose}`} />
+            <Image src="/hero/pixel-knight-idle.png" alt="" width={1086} height={1448} sizes="(max-width: 767px) 100px, 154px" loading="eager" className={`${styles.pose} ${styles.idlePose}`} />
+            <Image src="/hero/pixel-knight-guard.png" alt="" width={1086} height={1448} sizes="(max-width: 767px) 100px, 154px" loading="eager" className={`${styles.pose} ${styles.guardPose}`} />
             <span className={styles.shieldMark}>
               {category && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{SHIELD_ICONS[category.icon]}</svg>}
             </span>
@@ -73,8 +73,13 @@ export function PixelKnight({ category, playgroundOpen, onTogglePlayground }: Pr
           <i /><i /><i />
         </span>
         <span className={styles.copy}>
-          <strong>My Tech<br className={styles.desktopBreak} /> Stack</strong>
-          <small>{playgroundOpen ? "Close playground" : category ? `${category.label} ready` : "Open playground"}</small>
+          <strong>My Tech Stack</strong>
+          <small>
+            {playgroundOpen ? "Close playground" : "Explore skills"}
+            <svg className={styles.copyIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              {playgroundOpen ? <path d="m7 7 10 10M17 7 7 17" /> : <path d="m7 8-4 4 4 4m10-8 4 4-4 4m-4-11-2 14" />}
+            </svg>
+          </small>
         </span>
       </button>
       <span aria-hidden="true" className={styles.connector} data-engaged={engaged} />

@@ -105,6 +105,10 @@ export function createHelicopterLanding(options: Options) {
     target,
     refresh,
     pointer(x: number, y: number, element: Element | null) {
+      // Search focus owns the landing pad until blur, even when the pointer
+      // leaves the field or passes over another category.
+      const focusedSearch = document.activeElement?.closest<HTMLElement>("[data-helicopter-pad='search']");
+      if (focusedSearch) return request(focusedSearch, "search");
       if (element?.closest("[data-helicopter-tabs]")) {
         const selected = activeTab();
         if (selected && request(selected, "tabs")) return true;

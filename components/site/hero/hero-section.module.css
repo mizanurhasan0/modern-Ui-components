@@ -1,0 +1,52 @@
+.productTitle {
+  position: relative;
+  isolation: isolate;
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: top;
+  transform: perspective(900px) rotateX(7deg) rotateY(-5deg);
+  transform-origin: left center;
+  transition: transform 350ms cubic-bezier(.2,.7,.2,1);
+}
+
+/* A separate extrusion keeps the gradient face crisp and the heading selectable. */
+.productDepth {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  color: #1744ad;
+  pointer-events: none;
+  user-select: none;
+  text-shadow:
+    .012em .016em 0 #2459ca,
+    .024em .032em 0 #2052bf,
+    .036em .048em 0 #1c4bb4,
+    .048em .064em 0 #1945a9,
+    .06em .08em 0 #163d99,
+    .075em .13em .1em #173b8733,
+    .1em .2em .24em #173b8726;
+}
+
+.productFace {
+  position: relative;
+  color: #2563eb;
+  background: linear-gradient(165deg, #85b7ff 0%, #447ff7 22%, #2059dc 46%, #4285ff 53%, #245ddd 76%, #1745b6 100%);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: .35px #83b2ff80;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .productTitle:hover { transform: perspective(900px) rotateX(2deg) rotateY(-2deg) translateY(-1px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .productTitle { transition: none; }
+  .productTitle:hover { transform: perspective(900px) rotateX(7deg) rotateY(-5deg); }
+}
+
+@media (forced-colors: active) {
+  .productTitle, .productTitle:hover { transform: none; }
+  .productDepth { display: none; }
+  .productFace { color: CanvasText; background: none; -webkit-text-fill-color: currentColor; -webkit-text-stroke: 0; }
+}
