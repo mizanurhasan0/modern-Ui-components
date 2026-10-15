@@ -148,7 +148,9 @@ function includeReferenceAssets(slug: string, source: string): string {
     ".jpeg": "image/jpeg", ".gif": "image/gif", ".svg": "image/svg+xml",
     ".woff2": "font/woff2", ".woff": "font/woff",
   };
-  const assetPattern = new RegExp(`(["'\x60])(${folder}[a-zA-Z0-9_./-]+)\\1`, "g");
+  // Keep the backtick as a regex escape: a literal backtick in this template
+  // breaks the minified server bundle during production page-data collection.
+  const assetPattern = new RegExp(`(["'\\x60])(${folder}[a-zA-Z0-9_./-]+)\\1`, "g");
   const embedded = new Map<string, string>();
   const result = source.replace(assetPattern, (_match, _quote: string, publicUrl: string) => {
     let dataUrl = embedded.get(publicUrl);
