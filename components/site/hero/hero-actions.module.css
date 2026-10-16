@@ -80,6 +80,23 @@
 .work:focus-visible .incoming { transform: translate(0, 0); opacity: 1; }
 .intro:focus-visible { border-color: #2459ed60; }
 
+.tour {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  padding: 0 7px;
+  color: #3152b4;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+.tour:hover { color: #1e3783; }
+.tour:focus-visible { outline: 2px solid #3152b4; outline-offset: 2px; }
+
 @media (hover: hover) and (pointer: fine) {
   .work:hover::before { clip-path: circle(120% at calc(100% - 27px) 50%); }
   .work:hover { box-shadow: 0 12px 26px -12px #2459ed85; }

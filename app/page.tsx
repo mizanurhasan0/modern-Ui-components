@@ -1,12 +1,14 @@
 import { ComponentGallery } from "@/components/showcase/component-gallery";
 import { CursorHelicopter } from "@/components/site/hero/cursor-helicopter";
 import { HeroSection } from "@/components/site/hero/hero-section";
+import { FeaturedWork } from "@/components/site/featured-work";
 import { components } from "@/lib/component-registry";
 
 export default function Home() {
   return (
     <main id="main-content" className="w-full">
-      <HeroSection />
+      <HeroSection componentCount={components.length} />
+      <FeaturedWork />
       <div className="site-container pt-16 sm:pt-20">
         <ComponentGallery />
         <section

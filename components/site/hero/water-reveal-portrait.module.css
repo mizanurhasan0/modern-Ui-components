@@ -1,0 +1,6 @@
+.base { filter: blur(10px); }
+
+@media (max-width: 767px), (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .base { filter: none; }
+  .reveal, .water { display: none; }
+}

@@ -1,26 +1,36 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
 
-const geistSans = Geist({
+const geistSans = localFont({
+  src: "./fonts/geist-latin.woff2",
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  weight: "100 900",
 });
 
-const geistMono = Geist_Mono({
+const geistMono = localFont({
+  src: "./fonts/geist-mono-latin.woff2",
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: "100 900",
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "Component Lab — Small components. A little more character.",
+    default: "Mizanur Hasan — Component Lab",
     template: "%s — Component Lab",
   },
   description:
-    "A personal collection of thoughtfully crafted React and Tailwind CSS components. Explore live interactions, inspect the source, and make them yours.",
+    "Interactive interface work by Mizanur Hasan. Explore React and Next.js component studies, test the live interactions, and inspect reusable source code.",
+  authors: [{ name: "Mizanur Hasan" }],
+  creator: "Mizanur Hasan",
+  openGraph: {
+    title: "Mizanur Hasan — Component Lab",
+    description: "Interactive interface work, live component studies, and reusable source code.",
+    type: "website",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

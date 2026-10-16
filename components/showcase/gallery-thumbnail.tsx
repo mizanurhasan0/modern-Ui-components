@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { componentThumbnails } from "@/lib/component-previews";
 import { startThumbnailPlayback } from "@/lib/thumbnail-playback";
 import { CodeIcon } from "@/components/site/icons";
@@ -22,7 +22,24 @@ export function getReducedMotion() {
 export function GalleryThumbnail({ slug, paused }: { slug: string; paused: boolean }) {
   const element = useRef<HTMLDivElement>(null);
   const [step, setStep] = useState(0);
+  const [shouldLoad, setShouldLoad] = useState(false);
   const Thumbnail = componentThumbnails[slug];
+
+  useEffect(() => {
+    if (!element.current || !Thumbnail || shouldLoad) return;
+    if (typeof IntersectionObserver === "undefined") {
+      const frame = requestAnimationFrame(() => setShouldLoad(true));
+      return () => cancelAnimationFrame(frame);
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      setShouldLoad(true);
+      observer.disconnect();
+    }, { rootMargin: "300px" });
+    observer.observe(element.current);
+    return () => observer.disconnect();
+  }, [Thumbnail, shouldLoad]);
 
   useEffect(() => {
     if (!element.current || !Thumbnail) return;
@@ -31,9 +48,21 @@ export function GalleryThumbnail({ slug, paused }: { slug: string; paused: boole
 
   return (
     <div ref={element} className="gallery-thumbnail h-full w-full" data-running="false" aria-hidden="true" inert>
-      {Thumbnail ? <Thumbnail className="h-full w-full" previewStep={step} /> : (
-        <div className="flex h-full items-center justify-center text-white"><CodeIcon className="size-12" /></div>
+      {Thumbnail && shouldLoad ? (
+        <Suspense fallback={<ThumbnailFallback />}>
+          <Thumbnail className="h-full w-full" previewStep={step} />
+        </Suspense>
+      ) : (
+        <ThumbnailFallback />
       )}
+    </div>
+  );
+}
+
+function ThumbnailFallback() {
+  return (
+    <div className="flex h-full items-center justify-center text-white">
+      <CodeIcon className="size-12" />
     </div>
   );
 }

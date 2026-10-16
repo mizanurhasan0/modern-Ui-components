@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { HeroActions } from "./hero-actions";
-import { CountUp } from "./count-up";
 import { TechStack } from "./tech-stack";
 import { TECH_STACK } from "./tech-stack-data";
 import { WaterRevealPortrait } from "./water-reveal-portrait";
@@ -28,11 +27,17 @@ function useIntroTour() {
   };
 }
 
-export function HeroSection() {
+export function HeroSection({ componentCount }: { componentCount: number }) {
   const heroRef = useRef<HTMLElement>(null);
   const tour = useIntroTour();
   const [hovered, setHovered] = useState<string | null>(null);
+  const [stackOpen, setStackOpen] = useState(false);
   const activeId = tour.category?.id ?? hovered;
+
+  function toggleIntro() {
+    if (!tour.playing) setStackOpen(true);
+    tour.toggle();
+  }
 
   return (
     <section
@@ -49,8 +54,8 @@ export function HeroSection() {
         <div className="absolute inset-x-0 bottom-0 h-28 bg-[linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.85))]" />
       </div>
 
-      <div className="site-container relative grid grid-cols-[minmax(0,1fr)] gap-10 pt-10 pb-14 lg:grid-cols-2 lg:gap-x-6 2xl:min-h-[760px] 2xl:grid-cols-1 2xl:gap-0 2xl:pt-0 2xl:pb-0">
-        <div className="relative z-20 flex flex-col justify-center 2xl:max-w-[560px] 2xl:py-16">
+      <div className="site-container relative grid grid-cols-[minmax(0,1fr)] gap-5 pt-8 pb-9 sm:gap-10 sm:pt-10 sm:pb-14 lg:grid-cols-2 lg:gap-x-6 xl:min-h-[700px] xl:grid-cols-1 xl:gap-0 xl:pt-0 xl:pb-0">
+        <div className="relative z-20 flex flex-col justify-center xl:max-w-[520px] xl:py-16 2xl:max-w-[560px]">
           <p className="flex flex-wrap items-center gap-x-1.5 text-[20px] leading-snug text-[#5b6271] sm:text-[22px]">
             Hi, I’m <span className="font-semibold text-[#0b0d12]">Mizanur Hasan</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="ml-1 size-5 shrink-0 text-[#2563eb]">
@@ -58,9 +63,9 @@ export function HeroSection() {
               <path d="M2 20h20m-12-3-.5 3m4.5-3 .5 3M9 8l-2.5 2.5L9 13m6-5 2.5 2.5L15 13" />
             </svg>
           </p>
-          <p className="mt-2.5 flex items-center gap-4 text-[11px] font-medium tracking-[0.18em] text-[#697386] uppercase sm:text-[12px]">
-            Full stack developer
-            <span aria-hidden="true" className="h-px w-10 bg-[#a9b1bf]" />
+          <p className="mt-2.5 flex items-center gap-4 text-[11px] font-medium tracking-[0.12em] text-[#4b5563] uppercase sm:text-[12px] sm:tracking-[0.18em]">
+            Full-stack developer · Frontend focused
+            <span aria-hidden="true" className="hidden h-px w-10 bg-[#a9b1bf] sm:block" />
           </p>
           <h1
             id="hero-heading"
@@ -73,11 +78,11 @@ export function HeroSection() {
               <span className={styles.productFace}>Real Products.</span>
             </span>
           </h1>
-          {/* <p className="mt-7 max-w-[440px] text-[17px] leading-[1.6] text-[#5b6271]">
-            I build modern, scalable web applications with clean code and real-world impact.
-          </p> */}
-          <HeroActions playing={tour.playing} onToggleIntro={tour.toggle} />
-          <p aria-live="polite" className="mt-4 min-h-6 text-[13px] text-[#4b5563]">
+          <p className="mt-4 max-w-[470px] text-[15px] leading-6 text-[#4b5563] sm:text-[16px]">
+            I lead frontend engineering for a SaaS CRM and build marketplace features across the UI and API.
+          </p>
+          <HeroActions playing={tour.playing} onToggleIntro={toggleIntro} />
+          <p aria-live="polite" className={`${tour.category ? "mt-4 min-h-6" : ""} text-[13px] text-[#4b5563]`}>
             {tour.category && (
               <span className="inline-flex items-center gap-2">
                 <span className="size-2 rounded-full" style={{ backgroundColor: tour.category.color }} />
@@ -85,38 +90,41 @@ export function HeroSection() {
               </span>
             )}
           </p>
-          <dl className="mt-6 grid max-w-[460px] grid-cols-[1fr_1fr_1.25fr] items-stretch divide-x divide-[#d6dbe3] sm:flex">
-            <div className="min-w-0 pr-3 sm:pr-7">
-              <dd className="text-[22px] leading-none font-bold text-[#0b0d12] sm:text-[28px]"><CountUp to={3} suffix="+" /></dd>
-              <dt className="mt-2 text-[11px] leading-snug text-[#5b6271] sm:text-[13px]">Years<br />Experience</dt>
+          <dl className="mt-5 grid max-w-[460px] grid-cols-3 items-stretch divide-x divide-[#d6dbe3] sm:mt-6 sm:flex">
+            <div className="flex min-w-0 flex-col pr-3 sm:pr-7">
+              <dt className="order-2 mt-2 text-[11px] leading-snug text-[#4b5563] sm:text-[13px]">Live<br />components</dt>
+              <dd className="order-1 text-[22px] leading-none font-bold text-[#0b0d12] sm:text-[28px]">{componentCount}</dd>
             </div>
-            <div className="min-w-0 px-3 sm:px-7">
-              <dd className="text-[22px] leading-none font-bold text-[#0b0d12] sm:text-[28px]"><CountUp to={50} suffix="+" /></dd>
-              <dt className="mt-2 text-[11px] leading-snug text-[#5b6271] sm:text-[13px]">Projects<br />Completed</dt>
+            <div className="flex min-w-0 flex-col px-3 sm:px-7">
+              <dt className="order-2 mt-2 text-[11px] leading-snug text-[#4b5563] sm:text-[13px]">Interactive<br />previews</dt>
+              <dd className="order-1 text-[22px] leading-none font-bold text-[#0b0d12] sm:text-[28px]">Live</dd>
             </div>
-            <div className="group min-w-0 pl-3 sm:pl-7">
-              <dd className="flex items-center gap-1 text-[22px] leading-none font-bold text-[#0b0d12] sm:gap-2.5 sm:text-[28px]">
-                Happy
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true" className="size-5 shrink-0 transition-transform duration-300 group-hover:rotate-12 sm:size-8">
-                  <circle cx="12" cy="12" r="9.5" />
-                  <path d="M8.5 14.5c1.9 2 5.1 2 7 0" />
-                  <path d="M9 9.5v.5" className="transition-all group-hover:opacity-0" />
-                  <path d="M15 9.5v.5" />
-                  <path d="M7.8 10h2.4" className="opacity-0 transition-all group-hover:opacity-100" />
-                </svg>
-              </dd>
-              <dt className="mt-2 text-[11px] text-[#5b6271] sm:text-[13px]">Clients</dt>
+            <div className="flex min-w-0 flex-col pl-3 sm:pl-7">
+              <dt className="order-2 mt-2 text-[11px] leading-snug text-[#4b5563] sm:text-[13px]">Source<br />included</dt>
+              <dd className="order-1 text-[22px] leading-none font-bold text-[#0b0d12] sm:text-[28px]">Code</dd>
             </div>
           </dl>
         </div>
 
         {/* The portrait fades into the scene at its edges; on wide screens it sits behind the stack. */}
-        <div className="relative z-10 mx-auto h-[440px] w-full max-w-[560px] sm:h-[520px] lg:h-[600px] lg:max-w-none 2xl:absolute 2xl:bottom-0 2xl:left-[27%] 2xl:h-[90%] 2xl:w-[600px]">
+        <div className="relative z-10 mx-auto h-[220px] w-full max-w-[560px] sm:h-[520px] lg:h-[600px] lg:max-w-none xl:absolute xl:bottom-0 xl:left-[27%] xl:h-[90%] xl:w-[600px]">
           <WaterRevealPortrait heroRef={heroRef} />
         </div>
 
-        <div className="relative z-20 w-full lg:col-span-2 lg:mx-auto lg:max-w-[920px] 2xl:absolute 2xl:top-1/2 2xl:right-8 2xl:w-[660px] 2xl:-translate-y-1/2">
-          <TechStack activeId={activeId} onActiveChange={(id) => { tour.stop(); setHovered(id); }} />
+        <div className="relative z-20 w-full lg:col-span-2 lg:mx-auto lg:max-w-[920px] xl:absolute xl:top-1/2 xl:right-8 xl:w-[660px] xl:-translate-y-1/2">
+          <button
+            type="button"
+            className={styles.stackToggle}
+            aria-controls="hero-tech-stack"
+            aria-expanded={stackOpen}
+            onClick={() => setStackOpen((open) => !open)}
+          >
+            Explore my tech stack
+            <span aria-hidden="true">{stackOpen ? "−" : "+"}</span>
+          </button>
+          <div id="hero-tech-stack" className={styles.stackPanel} data-open={stackOpen}>
+            <TechStack activeId={activeId} onActiveChange={(id) => { tour.stop(); setHovered(id); }} />
+          </div>
         </div>
       </div>
     </section>

@@ -36,6 +36,36 @@
   -webkit-text-stroke: .35px #83b2ff80;
 }
 
+.stackToggle {
+  display: flex;
+  width: 100%;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 0 16px;
+  background: #fff;
+  color: #172033;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.stackToggle span { color: #1d4ed8; font-size: 22px; font-weight: 400; }
+.stackToggle:focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+.stackPanel { display: none; }
+.stackPanel[data-open="true"] { display: block; margin-top: 16px; }
+
+@media (min-width: 768px) and (max-width: 1279px) {
+  .stackToggle { width: min(100%, 320px); margin-inline: auto; }
+}
+
+@media (min-width: 1280px) {
+  .stackToggle { display: none; }
+  .stackPanel, .stackPanel[data-open="true"] { display: block; margin-top: 0; }
+}
+
 @media (hover: hover) and (pointer: fine) {
   .productTitle:hover { transform: perspective(900px) rotateX(2deg) rotateY(-2deg) translateY(-1px); }
 }

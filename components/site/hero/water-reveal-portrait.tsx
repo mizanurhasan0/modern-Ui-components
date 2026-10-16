@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, type RefObject } from "react";
 import desk from "../assets/hasan-desk.webp";
+import styles from "./water-reveal-portrait.module.css";
 
 const IMAGE_SIZES = "(min-width: 1536px) 600px, (min-width: 1024px) 50vw, 100vw";
 const WAVE_DURATION = 1600;
@@ -23,6 +24,8 @@ export function WaterRevealPortrait({ heroRef }: { heroRef: RefObject<HTMLElemen
     if (!hero || !portrait || !reveal || !water) return;
 
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const touch = window.matchMedia("(hover: none), (pointer: coarse)");
+    const compact = window.matchMedia("(max-width: 767px)");
     let bounds = portrait.getBoundingClientRect();
     let radius = Math.min(140, Math.max(100, bounds.width * 0.24));
     let frame = 0;
@@ -124,8 +127,8 @@ export function WaterRevealPortrait({ heroRef }: { heroRef: RefObject<HTMLElemen
     }
 
     function move(event: PointerEvent) {
-      // Touch scrolling stays native; mouse and hovering pens reveal the photo.
-      if (event.pointerType === "touch") return;
+      // Touch and reduced-motion visitors see the sharp portrait without an effect.
+      if (event.pointerType === "touch" || motion.matches || touch.matches || compact.matches) return;
       const nextX = event.clientX - bounds.left;
       const nextY = event.clientY - bounds.top;
       const nearPortrait = nextX > -radius && nextX < bounds.width + radius &&
@@ -148,11 +151,6 @@ export function WaterRevealPortrait({ heroRef }: { heroRef: RefObject<HTMLElemen
       targetY = nextY;
       active = true;
 
-      if (motion.matches) {
-        mask(`radial-gradient(circle ${radius}px at ${nextX}px ${nextY}px, #000 60%, transparent 100%)`);
-        reveal!.style.opacity = "1";
-        return;
-      }
       if (!frame) {
         previousTime = performance.now();
         frame = requestAnimationFrame(animate);
@@ -181,6 +179,8 @@ export function WaterRevealPortrait({ heroRef }: { heroRef: RefObject<HTMLElemen
     window.addEventListener("blur", reset);
     document.addEventListener("visibilitychange", reset);
     motion.addEventListener("change", reset);
+    touch.addEventListener("change", reset);
+    compact.addEventListener("change", reset);
 
     return () => {
       reset();
@@ -194,6 +194,8 @@ export function WaterRevealPortrait({ heroRef }: { heroRef: RefObject<HTMLElemen
       window.removeEventListener("blur", reset);
       document.removeEventListener("visibilitychange", reset);
       motion.removeEventListener("change", reset);
+      touch.removeEventListener("change", reset);
+      compact.removeEventListener("change", reset);
     };
   }, [heroRef]);
 
@@ -208,12 +210,12 @@ export function WaterRevealPortrait({ heroRef }: { heroRef: RefObject<HTMLElemen
         fill
         preload
         sizes={IMAGE_SIZES}
-        className="object-cover object-[50%_20%] blur-[10px]"
+        className={`${styles.base} object-cover object-[50%_20%]`}
       />
-      <div ref={revealRef} aria-hidden="true" className="absolute inset-0 opacity-0 [mask-image:linear-gradient(transparent,transparent)]">
+      <div ref={revealRef} aria-hidden="true" className={`${styles.reveal} absolute inset-0 opacity-0 [mask-image:linear-gradient(transparent,transparent)]`}>
         <Image src={desk} alt="" fill loading="eager" sizes={IMAGE_SIZES} className="object-cover object-[50%_20%]" />
       </div>
-      <div ref={waterRef} aria-hidden="true" className="absolute inset-0 opacity-0" />
+      <div ref={waterRef} aria-hidden="true" className={`${styles.water} absolute inset-0 opacity-0`} />
     </div>
   );
 }

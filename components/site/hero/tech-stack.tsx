@@ -80,7 +80,6 @@ export function TechStack({ activeId, onActiveChange }: Props) {
           <ul className="m-0 flex list-none flex-col gap-3 p-0" onMouseLeave={() => onActiveChange(null)}>
             {TECH_STACK.map((category, index) => {
               const active = activeId === category.id;
-              const dimmed = activeId !== null && !active;
               return (
                 <li
                   key={category.id}
@@ -91,7 +90,7 @@ export function TechStack({ activeId, onActiveChange }: Props) {
                   onFocus={() => onActiveChange(category.id)}
                 >
                   <div
-                    className={`flex w-full shrink-0 items-center gap-2.5 rounded-xl bg-white/90 p-2 pr-3 shadow-[0_8px_24px_-14px_rgba(15,23,42,.35)] ring-1 ring-black/5 backdrop-blur transition duration-300 md:w-[128px] ${active ? "-translate-y-0.5 ring-2 ring-(--c)" : ""} ${dimmed ? "opacity-55" : ""}`}
+                    className={`flex w-full shrink-0 items-center gap-2.5 rounded-xl bg-white/90 p-2 pr-3 shadow-[0_8px_24px_-14px_rgba(15,23,42,.35)] ring-1 ring-black/5 backdrop-blur transition duration-300 md:w-[128px] ${active ? "-translate-y-0.5 ring-2 ring-(--c)" : ""}`}
                   >
                     <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-(--c) text-white shadow-[inset_0_1px_0_rgba(255,255,255,.35)]">
                       <CategoryGlyph icon={category.icon} />
@@ -100,7 +99,7 @@ export function TechStack({ activeId, onActiveChange }: Props) {
                   </div>
                   <span aria-hidden="true" className="hidden h-9 w-2 shrink-0 rounded-l-md border-y-[1.5px] border-l-[1.5px] border-(--line) transition-colors md:block" />
                   <div
-                    className={`grid flex-1 grid-cols-2 gap-x-1.5 gap-y-2 rounded-2xl bg-white/90 p-2.5 shadow-[0_10px_30px_-16px_rgba(15,23,42,.35)] ring-1 ring-black/5 backdrop-blur transition duration-300 sm:grid-cols-3 ${active ? "ring-2 ring-(--c)/40" : ""} ${dimmed ? "opacity-55" : ""}`}
+                    className={`grid flex-1 grid-cols-2 gap-x-1.5 gap-y-2 rounded-2xl bg-white/90 p-2.5 shadow-[0_10px_30px_-16px_rgba(15,23,42,.35)] ring-1 ring-black/5 backdrop-blur transition duration-300 sm:grid-cols-3 ${active ? "ring-2 ring-(--c)/40" : ""}`}
                   >
                     {category.tools.map((tool) => {
                       const isSelected = selected?.tool.name === tool.name;

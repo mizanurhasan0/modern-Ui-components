@@ -1,238 +1,122 @@
-import ClothingColorCustomizer, { ClothingColorCustomizerThumbnail } from "@/components/ui/clothing-color-customizer";
-import ClassicMicrocars, { ClassicMicrocarsThumbnail } from "@/components/ui/classic-microcars";
-import ChromeProfileCarousel, { ChromeProfileCarouselThumbnail } from "@/components/ui/chrome-profile-carousel";
-import SwiftSneakerStore, { SwiftSneakerStoreThumbnail } from "@/components/ui/swift-sneaker-store";
-import SapiensCharacterBuilder, { SapiensCharacterBuilderThumbnail } from "@/components/ui/sapiens-character-builder";
-import GlobeTravelExplorer, { GlobeTravelExplorerThumbnail } from "@/components/ui/globe-travel-explorer";
-import GlassyCrmDashboard, { GlassyCrmDashboardThumbnail } from "@/components/ui/glassy-crm-dashboard";
-import SkillOrbitHero, { SkillOrbitHeroThumbnail } from "@/components/ui/skill-orbit-hero";
-import CodeProfileHero, { CodeProfileHeroThumbnail } from "@/components/ui/code-profile-hero";
-import IdBadgeHero, { IdBadgeHeroThumbnail } from "@/components/ui/id-badge-hero";
-import LampLogin, { LampLoginThumbnail } from "@/components/ui/lamp-login";
-import TruckPayButton, { TruckPayButtonThumbnail } from "@/components/ui/truck-pay-button";
-import IsometricSocialIcons, { IsometricSocialIconsThumbnail } from "@/components/ui/isometric-social-icons";
-import CharacterDeckSlider, { CharacterDeckSliderThumbnail } from "@/components/ui/character-deck-slider";
-import HologramLogin, { HologramLoginThumbnail } from "@/components/ui/hologram-login";
-import NeonRingAuth, { NeonRingAuthThumbnail } from "@/components/ui/neon-ring-auth";
-import OrbitLogin, { OrbitLoginThumbnail } from "@/components/ui/orbit-login";
-import SpiderReveal, { SpiderRevealThumbnail } from "@/components/ui/spider-reveal";
-import TextRain, { TextRainThumbnail } from "@/components/ui/text-rain";
-import LuxuryClock, { LuxuryClockThumbnail } from "@/components/ui/luxury-clock";
-import AuraCart, { AuraCartThumbnail } from "@/components/ui/aura-cart";
-import PortfolioImageTrail, {
-  PortfolioImageTrailThumbnail,
-} from "@/components/ui/portfolio-image-trail";
-import LiquidCursor, {
-  LiquidCursorThumbnail,
-} from "@/components/ui/liquid-cursor";
-import LiquidGlassPlayground, {
-  LiquidGlassPlaygroundThumbnail,
-} from "@/components/ui/liquid-glass-playground";
-import NeumorphicNavbar, {
-  NeumorphicNavbarThumbnail,
-} from "@/components/ui/neumorphic-navbar";
-import HungryDelete, {
-  HungryDeleteThumbnail,
-} from "@/components/ui/hungry-delete";
-import DayNightToggle, {
-  DayNightToggleThumbnail,
-} from "@/components/ui/day-night-toggle";
-import GooeyCheckbox, {
-  GooeyCheckboxThumbnail,
-} from "@/components/ui/gooey-checkbox";
-import VerificationCode, {
-  VerificationCodeThumbnail,
-} from "@/components/ui/verification-code";
-import PortraitGallery, {
-  PortraitGalleryThumbnail,
-} from "@/components/ui/portrait-gallery";
-import GalleryFlip, {
-  GalleryFlipThumbnail,
-} from "@/components/ui/gallery-flip";
-import SneakerOrbit, {
-  SneakerOrbitThumbnail,
-} from "@/components/ui/sneaker-orbit";
-import ScorpionCursor, {
-  ScorpionCursorThumbnail,
-} from "@/components/ui/scorpion-cursor";
-import LoveTypography, {
-  LoveTypographyThumbnail,
-} from "@/components/ui/love-typography";
-import SlidingAuth, {
-  SlidingAuthThumbnail,
-} from "@/components/ui/sliding-auth";
-import DeliveryButton, {
-  DeliveryButtonThumbnail,
-} from "@/components/ui/delivery-button";
-import GlassProductCard, {
-  GlassProductCardThumbnail,
-} from "@/components/ui/glass-product-card";
-import VersoAuth, { VersoAuthThumbnail } from "@/components/ui/verso-auth";
-import HoverProductCards, {
-  HoverProductCardsThumbnail,
-} from "@/components/ui/hover-product-cards";
-import PeriodicExplorer, {
-  PeriodicExplorerThumbnail,
-} from "@/components/ui/periodic-explorer";
-import KeyboardCards, {
-  KeyboardCardsThumbnail,
-} from "@/components/ui/keyboard-cards";
-import GlowingLogin, {
-  GlowingLoginThumbnail,
-} from "@/components/ui/glowing-login";
-import CharacterRevealCards, {
-  CharacterRevealCardsThumbnail,
-} from "@/components/ui/character-reveal-cards";
-import TrailheadCard, {
-  TrailheadCardThumbnail,
-} from "@/components/ui/trailhead-card";
-import FanImageSlider, {
-  FanImageSliderThumbnail,
-} from "@/components/ui/fan-image-slider";
-import type { ComponentType } from "react";
-import SolarExplorer, {
-  SolarExplorerThumbnail,
-} from "@/components/ui/solar-explorer";
-import AnimatedBorderCard, {
-  AnimatedBorderCardThumbnail,
-} from "@/components/ui/animated-border-card";
-import DestinationCarousel, {
-  DestinationCarouselThumbnail,
-} from "@/components/ui/destination-carousel";
-import ToonCarousel, {
-  ToonCarouselThumbnail,
-} from "@/components/ui/toon-carousel";
-import GlassOtp, { GlassOtpThumbnail } from "@/components/ui/glass-otp";
-import CreativeLogin, {
-  CreativeLoginThumbnail,
-} from "@/components/ui/creative-login";
-import ConnectSocialBar, {
-  ConnectSocialBarThumbnail,
-} from "@/components/ui/connect-social-bar";
-import BasketballUpload, {
-  BasketballUploadThumbnail,
-} from "@/components/ui/basketball-upload";
-import RedBullCard, {
-  RedBullCardThumbnail,
-} from "@/components/ui/redbull-card";
+"use client";
 
-/** Interactive demos are separate from serializable catalog metadata. */
-export const componentPreviews: Partial<Record<string, ComponentType>> = {
-  "clothing-color-customizer": ClothingColorCustomizer,
-  "classic-microcars": ClassicMicrocars,
-  "chrome-profile-carousel": ChromeProfileCarousel,
-  "swift-sneaker-store": SwiftSneakerStore,
-  "sapiens-character-builder": SapiensCharacterBuilder,
-  "globe-travel-explorer": GlobeTravelExplorer,
-  "glassy-crm-dashboard": GlassyCrmDashboard,
-  "skill-orbit-hero": SkillOrbitHero,
-  "code-profile-hero": CodeProfileHero,
-  "id-badge-hero": IdBadgeHero,
-  "lamp-login": LampLogin,
-  "truck-pay-button": TruckPayButton,
-  "isometric-social-icons": IsometricSocialIcons,
-  "character-deck-slider": CharacterDeckSlider,
-  "hologram-login": HologramLogin,
-  "neon-ring-auth": NeonRingAuth,
-  "orbit-login": OrbitLogin,
-  "spider-reveal": SpiderReveal,
-  "text-rain": TextRain,
-  "luxury-clock": LuxuryClock,
-  "liquid-cursor": LiquidCursor,
-  "portfolio-image-trail": PortfolioImageTrail,
-  "aura-cart": AuraCart,
-  "liquid-glass-playground": LiquidGlassPlayground,
-  "neumorphic-navbar": NeumorphicNavbar,
-  "hungry-delete": HungryDelete,
-  "day-night-toggle": DayNightToggle,
-  "gooey-checkbox": GooeyCheckbox,
-  "verification-code": VerificationCode,
+import { lazy, type ComponentType, type LazyExoticComponent } from "react";
 
-  "portrait-gallery": PortraitGallery,
-  "connect-social-bar": ConnectSocialBar,
-  "basketball-upload": BasketballUpload,
-  "redbull-card": RedBullCard,
-  "gallery-flip": GalleryFlip,
-  "sneaker-orbit": SneakerOrbit,
-  "scorpion-cursor": ScorpionCursor,
-  "love-typography": LoveTypography,
-  "sliding-auth": SlidingAuth,
-  "delivery-button": DeliveryButton,
-  "glass-product-card": GlassProductCard,
-  "verso-auth": VersoAuth,
-  "hover-product-cards": HoverProductCards,
-  "periodic-explorer": PeriodicExplorer,
-  "keyboard-cards": KeyboardCards,
-
-  "glowing-login": GlowingLogin,
-  "character-reveal-cards": CharacterRevealCards,
-  "trailhead-card": TrailheadCard,
-  "fan-image-slider": FanImageSlider,
-  "solar-explorer": SolarExplorer,
-  "animated-border-card": AnimatedBorderCard,
-  "destination-carousel": DestinationCarousel,
-  "toon-carousel": ToonCarousel,
-  "creative-login": CreativeLogin,
-  "glass-otp": GlassOtp,
+/** Each entry is a separate chunk; only the selected demo or visible thumbnail loads. */
+export const componentPreviews: Partial<
+  Record<string, LazyExoticComponent<ComponentType>>
+> = {
+  "clothing-color-customizer": lazy(() => import("@/components/ui/clothing-color-customizer")),
+  "classic-microcars": lazy(() => import("@/components/ui/classic-microcars")),
+  "chrome-profile-carousel": lazy(() => import("@/components/ui/chrome-profile-carousel")),
+  "swift-sneaker-store": lazy(() => import("@/components/ui/swift-sneaker-store")),
+  "sapiens-character-builder": lazy(() => import("@/components/ui/sapiens-character-builder")),
+  "globe-travel-explorer": lazy(() => import("@/components/ui/globe-travel-explorer")),
+  "glassy-crm-dashboard": lazy(() => import("@/components/ui/glassy-crm-dashboard")),
+  "skill-orbit-hero": lazy(() => import("@/components/ui/skill-orbit-hero")),
+  "code-profile-hero": lazy(() => import("@/components/ui/code-profile-hero")),
+  "id-badge-hero": lazy(() => import("@/components/ui/id-badge-hero")),
+  "lamp-login": lazy(() => import("@/components/ui/lamp-login")),
+  "truck-pay-button": lazy(() => import("@/components/ui/truck-pay-button")),
+  "isometric-social-icons": lazy(() => import("@/components/ui/isometric-social-icons")),
+  "character-deck-slider": lazy(() => import("@/components/ui/character-deck-slider")),
+  "hologram-login": lazy(() => import("@/components/ui/hologram-login")),
+  "neon-ring-auth": lazy(() => import("@/components/ui/neon-ring-auth")),
+  "orbit-login": lazy(() => import("@/components/ui/orbit-login")),
+  "spider-reveal": lazy(() => import("@/components/ui/spider-reveal")),
+  "text-rain": lazy(() => import("@/components/ui/text-rain")),
+  "luxury-clock": lazy(() => import("@/components/ui/luxury-clock")),
+  "liquid-cursor": lazy(() => import("@/components/ui/liquid-cursor")),
+  "portfolio-image-trail": lazy(() => import("@/components/ui/portfolio-image-trail")),
+  "aura-cart": lazy(() => import("@/components/ui/aura-cart")),
+  "liquid-glass-playground": lazy(() => import("@/components/ui/liquid-glass-playground")),
+  "neumorphic-navbar": lazy(() => import("@/components/ui/neumorphic-navbar")),
+  "hungry-delete": lazy(() => import("@/components/ui/hungry-delete")),
+  "day-night-toggle": lazy(() => import("@/components/ui/day-night-toggle")),
+  "gooey-checkbox": lazy(() => import("@/components/ui/gooey-checkbox")),
+  "verification-code": lazy(() => import("@/components/ui/verification-code")),
+  "portrait-gallery": lazy(() => import("@/components/ui/portrait-gallery")),
+  "connect-social-bar": lazy(() => import("@/components/ui/connect-social-bar")),
+  "basketball-upload": lazy(() => import("@/components/ui/basketball-upload")),
+  "redbull-card": lazy(() => import("@/components/ui/redbull-card")),
+  "gallery-flip": lazy(() => import("@/components/ui/gallery-flip")),
+  "sneaker-orbit": lazy(() => import("@/components/ui/sneaker-orbit")),
+  "scorpion-cursor": lazy(() => import("@/components/ui/scorpion-cursor")),
+  "love-typography": lazy(() => import("@/components/ui/love-typography")),
+  "sliding-auth": lazy(() => import("@/components/ui/sliding-auth")),
+  "delivery-button": lazy(() => import("@/components/ui/delivery-button")),
+  "glass-product-card": lazy(() => import("@/components/ui/glass-product-card")),
+  "verso-auth": lazy(() => import("@/components/ui/verso-auth")),
+  "hover-product-cards": lazy(() => import("@/components/ui/hover-product-cards")),
+  "periodic-explorer": lazy(() => import("@/components/ui/periodic-explorer")),
+  "keyboard-cards": lazy(() => import("@/components/ui/keyboard-cards")),
+  "glowing-login": lazy(() => import("@/components/ui/glowing-login")),
+  "character-reveal-cards": lazy(() => import("@/components/ui/character-reveal-cards")),
+  "trailhead-card": lazy(() => import("@/components/ui/trailhead-card")),
+  "fan-image-slider": lazy(() => import("@/components/ui/fan-image-slider")),
+  "solar-explorer": lazy(() => import("@/components/ui/solar-explorer")),
+  "animated-border-card": lazy(() => import("@/components/ui/animated-border-card")),
+  "destination-carousel": lazy(() => import("@/components/ui/destination-carousel")),
+  "toon-carousel": lazy(() => import("@/components/ui/toon-carousel")),
+  "creative-login": lazy(() => import("@/components/ui/creative-login")),
+  "glass-otp": lazy(() => import("@/components/ui/glass-otp")),
 };
 
-/** Thumbnails are optional; the gallery can fall back to a generic illustration. */
 export const componentThumbnails: Partial<
-  Record<string, ComponentType<{ className?: string; previewStep?: number }>>
+  Record<string, LazyExoticComponent<ComponentType<{ className?: string; previewStep?: number }>>>
 > = {
-  "clothing-color-customizer": ClothingColorCustomizerThumbnail,
-  "classic-microcars": ClassicMicrocarsThumbnail,
-  "chrome-profile-carousel": ChromeProfileCarouselThumbnail,
-  "swift-sneaker-store": SwiftSneakerStoreThumbnail,
-  "sapiens-character-builder": SapiensCharacterBuilderThumbnail,
-  "globe-travel-explorer": GlobeTravelExplorerThumbnail,
-  "glassy-crm-dashboard": GlassyCrmDashboardThumbnail,
-  "skill-orbit-hero": SkillOrbitHeroThumbnail,
-  "code-profile-hero": CodeProfileHeroThumbnail,
-  "id-badge-hero": IdBadgeHeroThumbnail,
-  "lamp-login": LampLoginThumbnail,
-  "truck-pay-button": TruckPayButtonThumbnail,
-  "isometric-social-icons": IsometricSocialIconsThumbnail,
-  "character-deck-slider": CharacterDeckSliderThumbnail,
-  "hologram-login": HologramLoginThumbnail,
-  "neon-ring-auth": NeonRingAuthThumbnail,
-  "orbit-login": OrbitLoginThumbnail,
-  "spider-reveal": SpiderRevealThumbnail,
-  "text-rain": TextRainThumbnail,
-  "luxury-clock": LuxuryClockThumbnail,
-  "aura-cart": AuraCartThumbnail,
-  "liquid-cursor": LiquidCursorThumbnail,
-  "portfolio-image-trail": PortfolioImageTrailThumbnail,
-  "liquid-glass-playground": LiquidGlassPlaygroundThumbnail,
-  "neumorphic-navbar": NeumorphicNavbarThumbnail,
-  "hungry-delete": HungryDeleteThumbnail,
-  "day-night-toggle": DayNightToggleThumbnail,
-  "gooey-checkbox": GooeyCheckboxThumbnail,
-  "verification-code": VerificationCodeThumbnail,
-  "portrait-gallery": PortraitGalleryThumbnail,
-  "connect-social-bar": ConnectSocialBarThumbnail,
-  "basketball-upload": BasketballUploadThumbnail,
-  "redbull-card": RedBullCardThumbnail,
-  "gallery-flip": GalleryFlipThumbnail,
-  "sneaker-orbit": SneakerOrbitThumbnail,
-  "scorpion-cursor": ScorpionCursorThumbnail,
-  "love-typography": LoveTypographyThumbnail,
-  "sliding-auth": SlidingAuthThumbnail,
-  "delivery-button": DeliveryButtonThumbnail,
-  "glass-product-card": GlassProductCardThumbnail,
-  "verso-auth": VersoAuthThumbnail,
-  "hover-product-cards": HoverProductCardsThumbnail,
-  "periodic-explorer": PeriodicExplorerThumbnail,
-  "keyboard-cards": KeyboardCardsThumbnail,
-
-  "glowing-login": GlowingLoginThumbnail,
-  "character-reveal-cards": CharacterRevealCardsThumbnail,
-  "trailhead-card": TrailheadCardThumbnail,
-  "fan-image-slider": FanImageSliderThumbnail,
-  "solar-explorer": SolarExplorerThumbnail,
-  "animated-border-card": AnimatedBorderCardThumbnail,
-  "destination-carousel": DestinationCarouselThumbnail,
-  "toon-carousel": ToonCarouselThumbnail,
-  "creative-login": CreativeLoginThumbnail,
-  "glass-otp": GlassOtpThumbnail,
+  "clothing-color-customizer": lazy(() => import("@/components/ui/clothing-color-customizer").then((module) => ({ default: module.ClothingColorCustomizerThumbnail }))),
+  "classic-microcars": lazy(() => import("@/components/ui/classic-microcars").then((module) => ({ default: module.ClassicMicrocarsThumbnail }))),
+  "chrome-profile-carousel": lazy(() => import("@/components/ui/chrome-profile-carousel").then((module) => ({ default: module.ChromeProfileCarouselThumbnail }))),
+  "swift-sneaker-store": lazy(() => import("@/components/ui/swift-sneaker-store").then((module) => ({ default: module.SwiftSneakerStoreThumbnail }))),
+  "sapiens-character-builder": lazy(() => import("@/components/ui/sapiens-character-builder").then((module) => ({ default: module.SapiensCharacterBuilderThumbnail }))),
+  "globe-travel-explorer": lazy(() => import("@/components/ui/globe-travel-explorer").then((module) => ({ default: module.GlobeTravelExplorerThumbnail }))),
+  "glassy-crm-dashboard": lazy(() => import("@/components/ui/glassy-crm-dashboard").then((module) => ({ default: module.GlassyCrmDashboardThumbnail }))),
+  "skill-orbit-hero": lazy(() => import("@/components/ui/skill-orbit-hero").then((module) => ({ default: module.SkillOrbitHeroThumbnail }))),
+  "code-profile-hero": lazy(() => import("@/components/ui/code-profile-hero").then((module) => ({ default: module.CodeProfileHeroThumbnail }))),
+  "id-badge-hero": lazy(() => import("@/components/ui/id-badge-hero").then((module) => ({ default: module.IdBadgeHeroThumbnail }))),
+  "lamp-login": lazy(() => import("@/components/ui/lamp-login").then((module) => ({ default: module.LampLoginThumbnail }))),
+  "truck-pay-button": lazy(() => import("@/components/ui/truck-pay-button").then((module) => ({ default: module.TruckPayButtonThumbnail }))),
+  "isometric-social-icons": lazy(() => import("@/components/ui/isometric-social-icons").then((module) => ({ default: module.IsometricSocialIconsThumbnail }))),
+  "character-deck-slider": lazy(() => import("@/components/ui/character-deck-slider").then((module) => ({ default: module.CharacterDeckSliderThumbnail }))),
+  "hologram-login": lazy(() => import("@/components/ui/hologram-login").then((module) => ({ default: module.HologramLoginThumbnail }))),
+  "neon-ring-auth": lazy(() => import("@/components/ui/neon-ring-auth").then((module) => ({ default: module.NeonRingAuthThumbnail }))),
+  "orbit-login": lazy(() => import("@/components/ui/orbit-login").then((module) => ({ default: module.OrbitLoginThumbnail }))),
+  "spider-reveal": lazy(() => import("@/components/ui/spider-reveal").then((module) => ({ default: module.SpiderRevealThumbnail }))),
+  "text-rain": lazy(() => import("@/components/ui/text-rain").then((module) => ({ default: module.TextRainThumbnail }))),
+  "luxury-clock": lazy(() => import("@/components/ui/luxury-clock").then((module) => ({ default: module.LuxuryClockThumbnail }))),
+  "aura-cart": lazy(() => import("@/components/ui/aura-cart").then((module) => ({ default: module.AuraCartThumbnail }))),
+  "liquid-cursor": lazy(() => import("@/components/ui/liquid-cursor").then((module) => ({ default: module.LiquidCursorThumbnail }))),
+  "portfolio-image-trail": lazy(() => import("@/components/ui/portfolio-image-trail").then((module) => ({ default: module.PortfolioImageTrailThumbnail }))),
+  "liquid-glass-playground": lazy(() => import("@/components/ui/liquid-glass-playground").then((module) => ({ default: module.LiquidGlassPlaygroundThumbnail }))),
+  "neumorphic-navbar": lazy(() => import("@/components/ui/neumorphic-navbar").then((module) => ({ default: module.NeumorphicNavbarThumbnail }))),
+  "hungry-delete": lazy(() => import("@/components/ui/hungry-delete").then((module) => ({ default: module.HungryDeleteThumbnail }))),
+  "day-night-toggle": lazy(() => import("@/components/ui/day-night-toggle").then((module) => ({ default: module.DayNightToggleThumbnail }))),
+  "gooey-checkbox": lazy(() => import("@/components/ui/gooey-checkbox").then((module) => ({ default: module.GooeyCheckboxThumbnail }))),
+  "verification-code": lazy(() => import("@/components/ui/verification-code").then((module) => ({ default: module.VerificationCodeThumbnail }))),
+  "portrait-gallery": lazy(() => import("@/components/ui/portrait-gallery").then((module) => ({ default: module.PortraitGalleryThumbnail }))),
+  "connect-social-bar": lazy(() => import("@/components/ui/connect-social-bar").then((module) => ({ default: module.ConnectSocialBarThumbnail }))),
+  "basketball-upload": lazy(() => import("@/components/ui/basketball-upload").then((module) => ({ default: module.BasketballUploadThumbnail }))),
+  "redbull-card": lazy(() => import("@/components/ui/redbull-card").then((module) => ({ default: module.RedBullCardThumbnail }))),
+  "gallery-flip": lazy(() => import("@/components/ui/gallery-flip").then((module) => ({ default: module.GalleryFlipThumbnail }))),
+  "sneaker-orbit": lazy(() => import("@/components/ui/sneaker-orbit").then((module) => ({ default: module.SneakerOrbitThumbnail }))),
+  "scorpion-cursor": lazy(() => import("@/components/ui/scorpion-cursor").then((module) => ({ default: module.ScorpionCursorThumbnail }))),
+  "love-typography": lazy(() => import("@/components/ui/love-typography").then((module) => ({ default: module.LoveTypographyThumbnail }))),
+  "sliding-auth": lazy(() => import("@/components/ui/sliding-auth").then((module) => ({ default: module.SlidingAuthThumbnail }))),
+  "delivery-button": lazy(() => import("@/components/ui/delivery-button").then((module) => ({ default: module.DeliveryButtonThumbnail }))),
+  "glass-product-card": lazy(() => import("@/components/ui/glass-product-card").then((module) => ({ default: module.GlassProductCardThumbnail }))),
+  "verso-auth": lazy(() => import("@/components/ui/verso-auth").then((module) => ({ default: module.VersoAuthThumbnail }))),
+  "hover-product-cards": lazy(() => import("@/components/ui/hover-product-cards").then((module) => ({ default: module.HoverProductCardsThumbnail }))),
+  "periodic-explorer": lazy(() => import("@/components/ui/periodic-explorer").then((module) => ({ default: module.PeriodicExplorerThumbnail }))),
+  "keyboard-cards": lazy(() => import("@/components/ui/keyboard-cards").then((module) => ({ default: module.KeyboardCardsThumbnail }))),
+  "glowing-login": lazy(() => import("@/components/ui/glowing-login").then((module) => ({ default: module.GlowingLoginThumbnail }))),
+  "character-reveal-cards": lazy(() => import("@/components/ui/character-reveal-cards").then((module) => ({ default: module.CharacterRevealCardsThumbnail }))),
+  "trailhead-card": lazy(() => import("@/components/ui/trailhead-card").then((module) => ({ default: module.TrailheadCardThumbnail }))),
+  "fan-image-slider": lazy(() => import("@/components/ui/fan-image-slider").then((module) => ({ default: module.FanImageSliderThumbnail }))),
+  "solar-explorer": lazy(() => import("@/components/ui/solar-explorer").then((module) => ({ default: module.SolarExplorerThumbnail }))),
+  "animated-border-card": lazy(() => import("@/components/ui/animated-border-card").then((module) => ({ default: module.AnimatedBorderCardThumbnail }))),
+  "destination-carousel": lazy(() => import("@/components/ui/destination-carousel").then((module) => ({ default: module.DestinationCarouselThumbnail }))),
+  "toon-carousel": lazy(() => import("@/components/ui/toon-carousel").then((module) => ({ default: module.ToonCarouselThumbnail }))),
+  "creative-login": lazy(() => import("@/components/ui/creative-login").then((module) => ({ default: module.CreativeLoginThumbnail }))),
+  "glass-otp": lazy(() => import("@/components/ui/glass-otp").then((module) => ({ default: module.GlassOtpThumbnail }))),
 };

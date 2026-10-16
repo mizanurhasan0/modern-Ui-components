@@ -2,6 +2,7 @@
 
 import type { PointerEvent } from "react";
 import { ArrowUpRight } from "@/components/site/icons";
+import { contactHref, portfolioProfile } from "@/lib/portfolio-profile";
 import styles from "./hero-actions.module.css";
 
 function followPointer(event: PointerEvent<HTMLElement>) {
@@ -20,20 +21,24 @@ function resetPointer(event: PointerEvent<HTMLElement>) {
 export function HeroActions({ playing, onToggleIntro }: { playing: boolean; onToggleIntro: () => void }) {
   return (
     <div className={styles.actions}>
-      <a href="#collection" className={`${styles.button} ${styles.work}`} onPointerMove={followPointer} onPointerLeave={resetPointer} onPointerCancel={resetPointer}>
-        <span className={styles.label}>View My Work</span>
+      <a href="#selected-work" className={`${styles.button} ${styles.work}`} onPointerMove={followPointer} onPointerLeave={resetPointer} onPointerCancel={resetPointer}>
+        <span className={styles.label}>View selected work</span>
         <span className={styles.arrow} aria-hidden="true">
           <ArrowUpRight className={styles.outgoing} />
           <ArrowUpRight className={styles.incoming} />
         </span>
       </a>
-      <button type="button" aria-pressed={playing} onClick={onToggleIntro} className={`${styles.button} ${styles.intro}`}>
+      <a href={contactHref} className={`${styles.button} ${styles.intro}`}>
         <span className={styles.play} aria-hidden="true">
-          <svg viewBox="0 0 20 20" fill="currentColor">
-            {playing ? <rect x="6" y="6" width="8" height="8" rx="1.5" /> : <path d="M7 4.8a.8.8 0 0 1 1.2-.7l8 5.2a.8.8 0 0 1 0 1.4l-8 5.2a.8.8 0 0 1-1.2-.7Z" />}
-          </svg>
+          <svg viewBox="0 0 20 20" fill="none"><rect x="2.5" y="4.5" width="15" height="11" rx="2" stroke="currentColor" strokeWidth="1.6" /><path d="m3.5 6 6.5 5 6.5-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </span>
-        <span className={styles.label}>{playing ? "Stop Intro" : "Watch Intro"}</span>
+        <span className={styles.label}>Email me</span>
+      </a>
+      <a href={portfolioProfile.resume} target="_blank" rel="noopener noreferrer" className={styles.tour}>
+        View résumé ↗
+      </a>
+      <button type="button" aria-pressed={playing} onClick={onToggleIntro} className={styles.tour}>
+        {playing ? "Stop tech stack tour" : "Play tech stack tour"}
       </button>
     </div>
   );

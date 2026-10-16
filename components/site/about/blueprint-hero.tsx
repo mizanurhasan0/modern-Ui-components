@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { contactHref } from "@/lib/portfolio-profile";
 import styles from "./blueprint-hero.module.css";
 
 export function BlueprintHero() {
@@ -12,22 +13,21 @@ export function BlueprintHero() {
       </h1>
 
       <p className={styles.intro}>
-        Hi, I’m Mizanur Hasan — a frontend developer with 3+ years of
-        experience, focused on React, Next.js, and the art of building
-        thoughtful user interfaces. Component Lab is my space to explore,
-        experiment, and share interactive components that make the web a little
-        more delightful.
+        Hi, I’m Mizanur Hasan — a full-stack developer with a frontend focus.
+        I build SaaS admin and marketplace interfaces, from realtime CRM workflows
+        to storefronts and the services behind them. Component Lab is where I share
+        smaller interaction studies and reusable React and Next.js code.
       </p>
 
       <div className={styles.actions}>
-        <Link href="/#collection" className={styles.primaryAction}>
-          <span>Explore Components</span>
+        <a href={contactHref} className={styles.primaryAction}>
+          <span>Email me</span>
           <span className={styles.actionIcon} aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none"><path d="M4.5 12h14m-5.5-5.5L18.5 12 13 17.5" /></svg>
           </span>
-        </Link>
-        <Link href="#blueprint-experiments" className={styles.secondaryAction}>
-          <span>View My Work</span>
+        </a>
+        <Link href="#professional-work" className={styles.secondaryAction}>
+          <span>View Product Work</span>
           <span className={styles.actionIcon} aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none"><path d="M5.5 18.5 18 6m-10.5 0H18v10.5" /></svg>
           </span>

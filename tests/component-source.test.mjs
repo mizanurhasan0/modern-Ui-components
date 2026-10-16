@@ -183,15 +183,9 @@ test("portfolio copied source embeds the exact portrait and texture bytes", () =
 function readPreviewMappings() {
   const source = ts.createSourceFile("component-previews.ts", fs.readFileSync(path.join(process.cwd(), "lib/component-previews.ts"), "utf8"), ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
   const mappings = new Map();
-  const imports = new Map();
   for (const statement of source.statements) {
     if (ts.isImportDeclaration(statement) && statement.importClause && ts.isStringLiteral(statement.moduleSpecifier)) {
-      const moduleName = statement.moduleSpecifier.text;
-      if (statement.importClause.name) imports.set(statement.importClause.name.text, moduleName);
-      const bindings = statement.importClause.namedBindings;
-      if (bindings && ts.isNamedImports(bindings)) {
-        for (const element of bindings.elements) imports.set(element.name.text, moduleName);
-      }
+      assert.ok(!statement.moduleSpecifier.text.startsWith("@/components/ui/"), "demo modules must not be eagerly imported");
     }
     if (!ts.isVariableStatement(statement)) continue;
     for (const declaration of statement.declarationList.declarations) {
@@ -202,13 +196,15 @@ function readPreviewMappings() {
         assert.ok(ts.isPropertyAssignment(property) && (ts.isStringLiteral(property.name) || ts.isIdentifier(property.name)), "preview mappings must have explicit, readable keys");
         const slug = property.name.text;
         assert.ok(!entries.has(slug), `duplicate ${declaration.name.text} key: ${slug}`);
-        assert.ok(ts.isIdentifier(property.initializer), `${slug} must map to an imported component`);
-        entries.set(slug, property.initializer.text);
+        const expression = property.initializer.getText(source);
+        const match = expression.match(/^lazy\(\(\) => import\("(@\/components\/ui\/[^"]+)"\)/);
+        assert.ok(match, `${slug} must map to a lazy dynamic import`);
+        entries.set(slug, match[1]);
       }
       mappings.set(declaration.name.text, entries);
     }
   }
-  return { mappings, imports };
+  return { mappings };
 }
 
 test("catalog entries have unique identities and matching preview/thumbnail mappings", () => {
@@ -216,17 +212,19 @@ test("catalog entries have unique identities and matching preview/thumbnail mapp
     const values = catalog.components.map((entry) => entry[field]);
     assert.equal(new Set(values).size, values.length, `catalog ${field} values must be unique`);
   }
-  const { mappings, imports } = readPreviewMappings();
+  const { mappings } = readPreviewMappings();
   for (const mappingName of ["componentPreviews", "componentThumbnails"]) {
     const mapping = mappings.get(mappingName);
     assert.ok(mapping, `${mappingName} must exist`);
     assert.equal(mapping.size, catalog.components.length, `${mappingName} must contain exactly the registered catalog`);
     for (const entry of catalog.components) {
-      const componentName = mapping.get(entry.slug);
-      assert.ok(componentName, `${entry.slug} needs a ${mappingName} mapping`);
-      assert.equal(imports.get(componentName), `@/components/ui/${entry.sourceFile.replace(/\.tsx$/, "")}`, `${entry.slug} must use its own component file`);
+      const modulePath = mapping.get(entry.slug);
+      assert.ok(modulePath, `${entry.slug} needs a ${mappingName} mapping`);
+      assert.equal(modulePath, `@/components/ui/${entry.sourceFile.replace(/\.tsx$/, "")}`, `${entry.slug} must use its own component file`);
     }
   }
+  const gallery = fs.readFileSync(path.join(process.cwd(), "components/showcase/gallery-thumbnail.tsx"), "utf8");
+  assert.ok(gallery.includes("IntersectionObserver"), "gallery imports thumbnails only near the viewport");
 });
 
 test("video cursor thumbnails are inert, effect-free artwork across gallery frames", () => {

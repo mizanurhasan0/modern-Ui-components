@@ -12,6 +12,7 @@ const categories = [
   ...new Set(components.map((item) => item.category)),
 ];
 const primaryCategories = categories.slice(0, 11);
+const initialComponentCount = 12;
 
 function subscribeViewport(callback: () => void) {
   window.addEventListener("resize", callback);
@@ -29,6 +30,7 @@ export function ComponentGallery() {
   const [category, setCategory] = useState("All components");
   const [query, setQuery] = useState("");
   const [previewsPaused, setPreviewsPaused] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(initialComponentCount);
   const searchRef = useRef<HTMLInputElement>(null);
   const moreRef = useRef<HTMLDetailsElement>(null);
   const visibleCategoryCount = useSyncExternalStore(subscribeViewport, getVisibleCategoryCount, () => 11);
@@ -70,6 +72,8 @@ export function ComponentGallery() {
       searchable.toLowerCase().includes(query.trim().toLowerCase())
     );
   });
+  const hasActiveFilter = category !== "All components" || query.trim().length > 0;
+  const visibleComponents = hasActiveFilter ? filtered : filtered.slice(0, visibleCount);
 
   return (
     <section
@@ -88,7 +92,7 @@ export function ComponentGallery() {
               {String(components.length).padStart(2, "0")}
             </span>
           </h2>
-          <p className="mt-1 text-[13px] text-[#8b94a3]">
+          <p className="mt-1 text-[13px] text-[#596273]">
             Individually crafted components. Ready to explore.
           </p>
         </div>
@@ -99,7 +103,7 @@ export function ComponentGallery() {
             fill="none"
             stroke="currentColor"
             strokeWidth="1.5"
-            className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-[#a0aabd]"
+            className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-[#647084]"
             aria-hidden="true"
           >
             <circle cx="10.5" cy="10.5" r="6.5" />
@@ -111,9 +115,9 @@ export function ComponentGallery() {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Find a component..."
-            className="h-11 w-full rounded-xl border border-[#e4e8ee] bg-white pr-14 pl-11 text-[13px] text-[#434b5c] shadow-[0_2px_8px_rgba(20,32,55,0.04)] outline-none placeholder:text-[#a0a9b8] focus:border-[#8997af] focus:ring-2 focus:ring-[#e9ecf2]"
+            className="h-11 w-full rounded-xl border border-[#e4e8ee] bg-white pr-14 pl-11 text-[13px] text-[#434b5c] shadow-[0_2px_8px_rgba(20,32,55,0.04)] outline-none placeholder:text-[#626e80] focus:border-[#8997af] focus:ring-2 focus:ring-[#e9ecf2]"
           />
-          <kbd aria-hidden="true" className="pointer-events-none absolute top-1/2 right-3 hidden -translate-y-1/2 rounded-md border border-[#e8ebf0] px-1.5 py-0.5 font-sans text-[10px] text-[#a0a9b8] sm:block">
+          <kbd aria-hidden="true" className="pointer-events-none absolute top-1/2 right-3 hidden -translate-y-1/2 rounded-md border border-[#e8ebf0] px-1.5 py-0.5 font-sans text-[10px] text-[#626e80] sm:block">
             ⌘ K
           </kbd>
         </label>
@@ -168,7 +172,7 @@ export function ComponentGallery() {
             </div>
           </details>
         </div>
-        {reducedMotion ? <span className="text-[11px] text-[#858c99]">Reduced motion · previews paused</span> : (
+        {reducedMotion ? <span className="text-[11px] text-[#596273]">Reduced motion · previews paused</span> : (
           <button
             type="button"
             aria-pressed={previewsPaused}
@@ -182,10 +186,10 @@ export function ComponentGallery() {
         )}
       </div>
       <p aria-live="polite" className="sr-only">
-        {filtered.length} component{filtered.length === 1 ? "" : "s"} found.
+        {filtered.length} component{filtered.length === 1 ? "" : "s"} found. Showing {visibleComponents.length}.
       </p>
-      <div className="grid items-stretch gap-6 md:grid-cols-2">
-        {filtered.map((item) => {
+      <div id="component-grid" className="grid items-stretch gap-6 md:grid-cols-2">
+        {visibleComponents.map((item) => {
           return (
             <Link
               key={item.slug}
@@ -205,7 +209,7 @@ export function ComponentGallery() {
               </div>
               <div className="flex flex-1 flex-col p-6 sm:p-7">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[10px] tracking-[0.14em] text-[#9299a5] uppercase">
+                  <span className="font-mono text-[10px] tracking-[0.14em] text-[#5b6574] uppercase">
                     {item.category}{" "}
                     <span className="mx-1.5 text-[#d3d8e2]">/</span>{" "}
                     {item.number}
@@ -221,14 +225,14 @@ export function ComponentGallery() {
                   {item.title}
                   <span className="text-[#bec7dd]">.</span>
                 </h3>
-                <p className="mt-2 text-[13px] leading-[1.85] text-[#828995]">
+                <p className="mt-2 text-[13px] leading-[1.85] text-[#586170]">
                   {item.description}
                 </p>
                 <div className="mt-4 mb-6 flex flex-wrap gap-2">
                   {item.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="rounded border border-[#e9ecf1] bg-[#fbfcfe] px-2 py-1 text-[10px] text-[#8b93a2]"
+                      className="rounded border border-[#e9ecf1] bg-[#fbfcfe] px-2 py-1 text-[10px] text-[#5e6878]"
                     >
                       {tag}
                     </span>
@@ -247,10 +251,22 @@ export function ComponentGallery() {
           );
         })}
       </div>
+      {!hasActiveFilter && visibleComponents.length < filtered.length && (
+        <div className="mt-8 flex justify-center">
+          <button
+            type="button"
+            aria-controls="component-grid"
+            onClick={() => setVisibleCount((count) => Math.min(count + initialComponentCount, filtered.length))}
+            className="rounded-xl border border-[#d9deea] bg-white px-6 py-3 text-sm font-medium text-[#303b51] shadow-[0_3px_12px_#1c29480a] transition-colors hover:border-[#9daace] hover:bg-[#f8faff] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4866d9]"
+          >
+            Show more components
+          </button>
+        </div>
+      )}
       {filtered.length === 0 && (
         <div className="rounded-xl border border-dashed border-[#dce1eb] py-20 text-center">
           <h3 className="text-base font-medium">No components found</h3>
-          <p className="mt-2 text-sm text-[#838b9a]">
+          <p className="mt-2 text-sm text-[#596273]">
             Try a different name or category.
           </p>
           <button
@@ -265,9 +281,9 @@ export function ComponentGallery() {
           </button>
         </div>
       )}
-      <div className="mt-5 flex items-center justify-between gap-4 text-[10px] text-[#989faa]">
+      <div className="mt-5 flex items-center justify-between gap-4 text-[10px] text-[#606b7c]">
         <span>
-          {String(filtered.length).padStart(2, "0")} /{" "}
+          {String(visibleComponents.length).padStart(2, "0")} /{" "}
           {String(components.length).padStart(2, "0")} components
         </span>
         <span className="flex items-center gap-2">

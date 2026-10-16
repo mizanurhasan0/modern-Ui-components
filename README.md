@@ -1,8 +1,12 @@
 # Component Lab
 
-**48 interactive UI components for React and Next.js**, built with TypeScript and Tailwind CSS 4. A portfolio of animated cards, carousels, forms, dashboards, and immersive navigation—with working demos and reusable source code.
+**54 interactive UI components for React and Next.js**, built with TypeScript and Tailwind CSS 4. A portfolio of animated cards, carousels, forms, dashboards, and immersive navigation—with working demos and reusable source code.
+
+Built by **Mizanur Hasan**, a full-stack developer with a frontend focus. [Email](mailto:eng.mizanur.hasan@gmail.com) · [GitHub](https://github.com/mizanurhasan0) · [LinkedIn](https://www.linkedin.com/in/mizanur-hasan/) · [Full portfolio](https://mizanurhasan404.vercel.app/) · [Résumé](https://mizanurhasan404.vercel.app/resume.pdf)
 
 Browse the homepage’s animated thumbnails, open a component, try **Preview**, then switch to **Code** to copy or download it for your own project.
+
+Product case studies are available here too. LeadPylot CRM and MyPick each have a dedicated page in the running site at `/work/leadpylot-crm` and `/work/mypick`.
 
 [Component catalog](#component-catalog) · [Screenshots](#screenshots) · [Run locally](#run-locally) · [Usage & props](docs/component-guide.md)
 
@@ -16,7 +20,7 @@ A five-view CRM workspace covering store metrics, order fulfillment, integration
 
 ![Verification Code component with its live playground and Preview/Code controls](docs/screenshots/verification-code.png)
 
-Selected views captured during development. These show the gallery layout and an individual component’s Preview/Code interface; the catalog below lists all 48 components.
+Selected views captured during development. These show the gallery layout and an individual component’s Preview/Code interface; the catalog below highlights 48 of the 54 components.
 
 ### Browse the collection
 
@@ -107,8 +111,6 @@ Open [localhost:3000](http://localhost:3000), select a component, and try its pr
 npm run lint   # Check source quality
 npm test       # Verify portable exports and stylesheet resources
 npm run build  # Create a production build
-# If Turbopack workers are restricted by your sandbox:
-npm run build -- --webpack
 npm start      # Serve the production build
 ```
 

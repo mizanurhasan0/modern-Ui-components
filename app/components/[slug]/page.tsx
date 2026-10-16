@@ -5,7 +5,7 @@ import { ComponentPlayground } from "@/components/showcase/component-playground"
 import { ExplorePreviewButton } from "@/components/showcase/explore-preview-button";
 import { ComponentBackdrop } from "@/components/showcase/component-backdrop";
 import "@/components/showcase/component-detail.css";
-import { componentPreviews, componentThumbnails } from "@/lib/component-previews";
+import { ComponentPreviewBySlug, ComponentThumbnailBySlug } from "@/components/showcase/component-preview-by-slug";
 import { components, getComponent } from "@/lib/component-registry";
 import { ArrowUpRight } from "@/components/site/icons";
 
@@ -38,10 +38,8 @@ export async function generateMetadata({
 export default async function ComponentPage({ params }: ComponentPageProps) {
   const { slug } = await params;
   const entry = getComponent(slug);
-  const Preview = componentPreviews[slug];
-  const Thumbnail = componentThumbnails[slug];
 
-  if (!entry || !Preview) {
+  if (!entry) {
     notFound();
   }
   const related = [
@@ -55,7 +53,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       className="site-container component-detail-page pb-24 pt-5 sm:pt-6"
     >
       <ComponentBackdrop slug={slug}>
-        {Thumbnail && <Thumbnail className="h-full w-full" previewStep={0} />}
+        <ComponentThumbnailBySlug slug={slug} />
       </ComponentBackdrop>
       <nav aria-label="Breadcrumb" className="detail-breadcrumb mb-5 text-[12px]">
         <ol className="flex flex-wrap items-center gap-2.5">
@@ -122,7 +120,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
         usage={entry.usage}
         demoNote={entry.demoNote}
       >
-        <Preview />
+        <ComponentPreviewBySlug slug={slug} />
       </ComponentPlayground>
 
       <section

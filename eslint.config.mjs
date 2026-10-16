@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Static assets include vendored Three.js code that is not application source.
+    "public/**",
   ]),
 ]);
 
