@@ -2,14 +2,14 @@
   container-type: inline-size;
   display: flex;
   min-width: 0;
-  min-height: 430px;
+  min-height: 425px;
   flex-direction: column;
   align-items: flex-start;
-  padding: clamp(20px, 2.8vw, 40px) 0 clamp(18px, 2vw, 28px);
+  padding: 14px 0 12px;
 }
 
 .eyebrow {
-  margin: 0 0 clamp(18px, 2.2vw, 31px);
+  margin: 0 0 27px;
   color: #174bb8;
   font: 600 0.64rem/1.4 var(--font-geist-mono), ui-monospace, monospace;
   letter-spacing: 0.16em;
@@ -25,7 +25,7 @@
   margin: 0;
   color: #101b34;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(2.2rem, 9.8cqi, 4.2rem);
+  font-size: clamp(2.2rem, 11.5cqi, 3.62rem);
   font-weight: 700;
   letter-spacing: -0.065em;
   line-height: 1.04;
@@ -42,60 +42,98 @@
 }
 
 .intro {
-  max-width: 57ch;
-  margin: clamp(15px, 1.7vw, 24px) 0 0;
+  max-width: 58ch;
+  margin: 22px 0 0;
   color: #3e5581;
-  font: 400 clamp(0.76rem, 1vw, 0.91rem)/1.6 var(--font-geist-mono), ui-monospace, monospace;
+  font: 400 clamp(0.82rem, 1vw, 0.94rem)/1.5 var(--font-geist-mono), ui-monospace, monospace;
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
-  margin-top: clamp(20px, 2vw, 29px);
+  gap: 0.7rem;
+  margin-top: 28px;
 }
 
 .primaryAction,
 .secondaryAction {
   display: inline-flex;
-  min-height: 46px;
+  min-height: 50px;
   align-items: center;
-  justify-content: center;
-  gap: 0.85rem;
-  border: 1px solid #2865eb;
+  justify-content: space-between;
+  gap: 1.35rem;
+  border: 1px solid transparent;
   border-radius: 999px;
-  padding: 0.75rem 1.15rem;
-  font: 500 0.72rem/1.2 var(--font-geist-mono), ui-monospace, monospace;
+  padding: 0.38rem 0.43rem 0.38rem 1.2rem;
+  font: 600 0.78rem/1.2 var(--font-geist-sans), Arial, sans-serif;
+  letter-spacing: -0.012em;
   text-decoration: none;
-  transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
+  white-space: nowrap;
+  transition: background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
 }
 
 .primaryAction {
-  background: #2464e9;
+  border-color: #1f5cda;
+  background: linear-gradient(135deg, #296cf2, #1d55d3);
   color: #fff;
+  box-shadow: 0 8px 20px -11px #174fc7a8, inset 0 1px #ffffff40;
 }
 
 .primaryAction:hover {
-  background: #144bc9;
+  background: linear-gradient(135deg, #2768e9, #1648bf);
+  box-shadow: 0 11px 23px -10px #174fc79c, inset 0 1px #ffffff40;
   transform: translateY(-2px);
 }
 
 .secondaryAction {
-  background: rgba(255, 255, 255, 0.76);
-  color: #16419b;
+  border-color: #b5cbef;
+  background: #ffffffee;
+  color: #19499b;
+  box-shadow: 0 5px 17px -13px #194b9f73, inset 0 1px #fff;
 }
 
 .secondaryAction:hover {
-  background: #edf3ff;
+  border-color: #4e87e6;
+  background: #f5f9ff;
+  box-shadow: 0 9px 20px -13px #194b9f80;
   transform: translateY(-2px);
 }
 
-.primaryAction span,
-.secondaryAction span {
-  font-family: Arial, sans-serif;
-  font-size: 1.1rem;
-  line-height: 0.7;
+.actionIcon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  place-items: center;
+  border-radius: 50%;
+  transition: background-color 200ms ease, transform 200ms ease;
+}
+
+.primaryAction .actionIcon { background: #ffffff24; }
+.secondaryAction .actionIcon { background: #ecf3ff; }
+
+.actionIcon svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.primaryAction:hover .actionIcon,
+.secondaryAction:hover .actionIcon {
+  transform: translate(2px, -1px);
+}
+
+.primaryAction:active,
+.secondaryAction:active { transform: translateY(0); }
+
+.primaryAction:focus-visible,
+.secondaryAction:focus-visible {
+  outline: 2px solid #134dbd;
+  outline-offset: 4px;
 }
 
 .footnote {
@@ -143,20 +181,22 @@
 
   .primaryAction,
   .secondaryAction {
-    min-height: 42px;
-    padding-inline: 0.9rem;
-    font-size: 0.66rem;
+    min-height: 46px;
+    gap: 0.8rem;
+    padding-left: 0.95rem;
+    font-size: 0.74rem;
   }
+
+  .actionIcon { width: 30px; height: 30px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .primaryAction,
-  .secondaryAction {
+  .primaryAction, .secondaryAction, .actionIcon {
     transition: none;
   }
 
-  .primaryAction:hover,
-  .secondaryAction:hover {
+  .primaryAction:hover, .secondaryAction:hover,
+  .primaryAction:hover .actionIcon, .secondaryAction:hover .actionIcon {
     transform: none;
   }
 }

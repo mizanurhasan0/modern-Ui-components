@@ -51,10 +51,10 @@
   grid-template-columns: minmax(0, 0.83fr) minmax(0, 1fr);
   gap: clamp(18px, 2.1vw, 34px);
   min-width: 0;
-  min-height: 205px;
+  min-height: 202px;
   border: 1px solid var(--blue-line);
   background: rgb(255 255 255 / 72%);
-  padding: 13px;
+  padding: 12px;
   transition: border-color 180ms ease, box-shadow 180ms ease;
 }
 
@@ -70,10 +70,7 @@
   min-height: 176px;
   overflow: hidden;
   border-radius: 2px;
-  background-color: #d9e8fa;
-  background-image: linear-gradient(rgb(255 255 255 / 55%) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 55%) 1px, transparent 1px);
-  background-size: 22px 22px;
+  background: linear-gradient(145deg, #b7d4f3 0%, #d8eaff 55%, #eaf5ff 100%);
 }
 
 .artwork::before,
@@ -96,9 +93,25 @@
 }
 
 .teeArtwork {
-  background-color: #bdd8f6;
-  background-image: radial-gradient(circle at 50% 55%, #f8fcff 0, #b8d5f3 80%),
-    linear-gradient(rgb(255 255 255 / 50%) 1px, transparent 1px);
+  background: linear-gradient(140deg, #a9caed, #d7eaff 67%, #e9f4ff);
+}
+
+.teeArtwork::before,
+.teeArtwork::after {
+  border-color: rgb(255 255 255 / 65%);
+  border-radius: 7px;
+  background: rgb(255 255 255 / 12%);
+}
+
+.teeArtwork::before {
+  inset: 18px 27px;
+  transform: rotate(-11deg);
+}
+
+.teeArtwork::after {
+  inset: 23px 15px;
+  border-style: solid;
+  transform: rotate(9deg);
 }
 
 .teeImage {
@@ -109,9 +122,7 @@
 }
 
 .globeArtwork {
-  background-color: #eaf3ff;
-  background-image: radial-gradient(circle at 50% 47%, #ffffff 0, #d4e6fb 78%),
-    linear-gradient(rgb(255 255 255 / 50%) 1px, transparent 1px);
+  background: radial-gradient(circle at 50% 47%, #fff 0, #e4f0ff 65%, #d3e5fc 100%);
 }
 
 .globeArtwork::before {
@@ -159,29 +170,33 @@
 }
 
 .projectContent {
+  position: relative;
   align-self: center;
   min-width: 0;
-  padding: 4px 2px;
+  padding: 18px 2px 1px;
 }
 
 .number {
+  position: absolute;
+  top: 0;
+  left: 2px;
   display: inline-flex;
-  min-width: 28px;
-  min-height: 25px;
+  min-width: 25px;
+  min-height: 20px;
   align-items: center;
   justify-content: center;
   border: 1px solid #c9dcff;
   font-family: var(--font-geist-mono), monospace;
-  font-size: 11px;
+  font-size: 10px;
   color: var(--blue);
 }
 
 .projectContent h3 {
-  margin: 2px 0 8px;
+  margin: 0 0 6px;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(21px, 1.75vw, 28px);
+  font-size: clamp(21px, 1.55vw, 24px);
   font-weight: 500;
-  line-height: 1.12;
+  line-height: 1.08;
   letter-spacing: -0.045em;
   color: #111b34;
 }
@@ -190,8 +205,8 @@
   max-width: 310px;
   margin: 0;
   font-family: var(--font-geist-mono), monospace;
-  font-size: 11px;
-  line-height: 1.6;
+  font-size: 10.5px;
+  line-height: 1.5;
   color: #47639b;
 }
 
@@ -199,7 +214,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  margin: 11px 0 9px;
+  margin: 8px 0 6px;
   padding: 0;
   list-style: none;
 }
@@ -217,7 +232,7 @@
 
 .projectLink {
   display: inline-flex;
-  min-height: 26px;
+  min-height: 22px;
   align-items: center;
   gap: 8px;
   font-family: var(--font-geist-mono), monospace;
@@ -269,7 +284,7 @@
   }
 
   .projectContent {
-    padding: 0 3px 6px;
+    padding: 20px 3px 6px;
   }
 }
 

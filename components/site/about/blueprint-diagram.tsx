@@ -17,6 +17,7 @@ export function BlueprintDiagram() {
             <strong>Idea</strong>
             <span>A simple concept</span>
           </div>
+          <span className={styles.measure} aria-hidden="true">16 px</span>
           <div className={`${styles.panel} ${styles.ideaPanel}`} aria-hidden="true">
             <span className={styles.ideaCircle} />
             <span className={`${styles.ideaLine} ${styles.ideaLineLong}`} />
@@ -35,6 +36,7 @@ export function BlueprintDiagram() {
             <strong>Wireframe</strong>
             <span>Structure &amp; layout</span>
           </div>
+          <span className={styles.measure} aria-hidden="true">16 px</span>
           <div className={`${styles.panel} ${styles.wirePanel}`} aria-hidden="true">
             <div className={styles.browserBar}><i /><i /><i /></div>
             <div className={styles.wirePhoto}>
@@ -57,6 +59,7 @@ export function BlueprintDiagram() {
             <strong>Component</strong>
             <span>Interactive &amp; polished</span>
           </div>
+          <span className={styles.measure} aria-hidden="true">16 px</span>
           <div className={`${styles.panel} ${styles.finishPanel}`}>
             <div className={styles.portraitWrap}>
               <Image
@@ -71,9 +74,14 @@ export function BlueprintDiagram() {
             </div>
             <strong className={styles.finishTitle}>Meet the builder</strong>
             <p>A personal portfolio, built with care and curiosity.</p>
-            <Link href="/#collection" className={styles.finishLink}>
-              Explore the lab <span aria-hidden="true">→</span>
-            </Link>
+            <div className={styles.finishActions}>
+              <Link href="/#collection" className={styles.finishLink} aria-label="Explore the component collection">
+                Explore <span aria-hidden="true">→</span>
+              </Link>
+              <span className={styles.favorite} aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M20.2 8.5c0 4.1-8.2 9.5-8.2 9.5s-8.2-5.4-8.2-9.5a4.4 4.4 0 0 1 8.2-2.1 4.4 4.4 0 0 1 8.2 2.1Z" /></svg>
+              </span>
+            </div>
           </div>
           <div className={styles.stageFooter}>
             <strong>3. Refine</strong>

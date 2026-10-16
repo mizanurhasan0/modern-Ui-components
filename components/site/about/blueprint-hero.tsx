@@ -21,10 +21,16 @@ export function BlueprintHero() {
 
       <div className={styles.actions}>
         <Link href="/#collection" className={styles.primaryAction}>
-          Explore Components <span aria-hidden="true">⟶</span>
+          <span>Explore Components</span>
+          <span className={styles.actionIcon} aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4.5 12h14m-5.5-5.5L18.5 12 13 17.5" /></svg>
+          </span>
         </Link>
         <Link href="#blueprint-experiments" className={styles.secondaryAction}>
-          View My Work <span aria-hidden="true">↗</span>
+          <span>View My Work</span>
+          <span className={styles.actionIcon} aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M5.5 18.5 18 6m-10.5 0H18v10.5" /></svg>
+          </span>
         </Link>
       </div>
 
