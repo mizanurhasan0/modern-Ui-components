@@ -33,7 +33,7 @@ export function GuideSpeech({ title, text, category, talking }: Props) {
       <span className={styles.eyebrow}>
         <span className={styles.wave}><i /><i /><i /><i /></span>
         {category ?? "Your co-pilot"}
-        <span className={styles.status}>{thinking ? "A little thought…" : !complete ? "Typing…" : talking ? "Explaining" : "Ready to explore"}</span>
+        <span className={styles.status}>{thinking ? "A little thought…" : !complete ? "Typing…" : talking ? "Speaking" : "Ready to explore"}</span>
       </span>
       {title && <strong className={styles.title}>{title}</strong>}
       <span className={`${styles.description} ${styles.typedText}`}>

@@ -34,6 +34,21 @@ const supportsVoice = () => "speechSynthesis" in window && "SpeechSynthesisUtter
 const noVoiceOnServer = () => false;
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), Math.max(min, max));
 
+function createPilotSpeech(text: string) {
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "en-US";
+  utterance.rate = 0.88;
+  utterance.pitch = 1.5;
+  utterance.volume = 0.9;
+  const voices = window.speechSynthesis.getVoices().filter((voice) => voice.lang.toLowerCase().startsWith("en"));
+  const preferred = ["sandy", "flo", "junior", "samantha", "google us english"];
+  utterance.voice = preferred.map((name) => voices.find((voice) => voice.name.toLowerCase().includes(name))).find(Boolean)
+    ?? voices.find((voice) => voice.lang.toLowerCase() === "en-us" && voice.localService)
+    ?? voices[0]
+    ?? null;
+  return utterance;
+}
+
 export function CursorHelicopter({ componentCount }: { componentCount: number }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const bubbleRef = useRef<HTMLDivElement>(null);
@@ -54,7 +69,12 @@ export function CursorHelicopter({ componentCount }: { componentCount: number })
   const message = messages[messageIndex];
   const announcementKey = phase === "flying" ? guide?.slug ?? (idle ? `intro-${messageIndex}` : "") : "";
   const announcement = guide ? `${guide.title}. ${guide.description}` : idle ? message : "";
-  const talking = Boolean(announcementKey && speakingKey === announcementKey);
+  const talking = Boolean((announcementKey && speakingKey === announcementKey) || (voiceEnabled && speakingKey === "voice-preview"));
+
+  useEffect(() => () => {
+    window.speechSynthesis.cancel();
+    utteranceRef.current = null;
+  }, []);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -317,34 +337,42 @@ export function CursorHelicopter({ componentCount }: { componentCount: number })
 
   useEffect(() => {
     if (!announcementKey || !announcement) return;
-    let disposed = false;
     let finishTimer = 0;
     let utterance: SpeechSynthesisUtterance | null = null;
     const startTimer = window.setTimeout(() => {
+      if (voiceEnabled && !guide) return;
+      if (voiceEnabled && guide && voiceSupported) {
+        window.speechSynthesis.cancel();
+        utterance = createPilotSpeech(announcement);
+        utteranceRef.current = utterance;
+        utterance.onstart = () => setSpeakingKey(announcementKey);
+        utterance.onend = () => {
+          if (utteranceRef.current !== utterance) return;
+          utteranceRef.current = null;
+          setSpeakingKey("");
+        };
+        utterance.onerror = (event) => {
+          if (utteranceRef.current !== utterance || event.error === "canceled" || event.error === "interrupted") return;
+          utteranceRef.current = null;
+          setSpeakingKey("");
+          setVoiceEnabled(false);
+          setVoiceNotice("Voice is unavailable in this browser. The guide continues with text.");
+        };
+        finishTimer = window.setTimeout(() => {
+          if (utteranceRef.current === utterance) {
+            window.speechSynthesis.cancel();
+            utteranceRef.current = null;
+            setSpeakingKey("");
+          }
+        }, 30000);
+        window.speechSynthesis.speak(utterance);
+        return;
+      }
       setSpeakingKey(announcementKey);
       const duration = clamp(announcement.split(/\s+/).length * 300, 2400, 10000);
       finishTimer = window.setTimeout(() => setSpeakingKey(""), duration);
-      if (!voiceEnabled || !guide || !supportsVoice()) return;
-      window.clearTimeout(finishTimer);
-      utterance = new SpeechSynthesisUtterance(announcement);
-      utteranceRef.current = utterance;
-      utterance.lang = "en-US";
-      utterance.rate = 1.02;
-      utterance.pitch = 1.08;
-      const voices = window.speechSynthesis.getVoices();
-      utterance.voice = voices.find((voice) => voice.localService && voice.lang.startsWith("en")) ?? voices.find((voice) => voice.lang.startsWith("en")) ?? null;
-      utterance.onend = () => { if (!disposed) setSpeakingKey(""); };
-      utterance.onerror = (event) => {
-        if (disposed || event.error === "interrupted" || event.error === "canceled") return;
-        setSpeakingKey("");
-        setVoiceEnabled(false);
-        setVoiceNotice("Voice is unavailable in this browser. The guide continues with text.");
-      };
-      finishTimer = window.setTimeout(() => setSpeakingKey(""), 30000);
-      window.speechSynthesis.speak(utterance);
     }, 0);
     return () => {
-      disposed = true;
       window.clearTimeout(startTimer);
       window.clearTimeout(finishTimer);
       if (utterance && utteranceRef.current === utterance) {
@@ -352,11 +380,36 @@ export function CursorHelicopter({ componentCount }: { componentCount: number })
         window.speechSynthesis.cancel();
       }
     };
-  }, [announcementKey, announcement, guide, voiceEnabled]);
+  }, [announcementKey, announcement, guide, voiceEnabled, voiceSupported]);
 
   function toggleVoice() {
     setVoiceNotice("");
-    setVoiceEnabled((enabled) => !enabled);
+    if (voiceEnabled) {
+      window.speechSynthesis.cancel();
+      utteranceRef.current = null;
+      setSpeakingKey("");
+      setVoiceEnabled(false);
+      return;
+    }
+    setVoiceEnabled(true);
+    window.speechSynthesis.cancel();
+    const preview = createPilotSpeech("Hi! I'm your little co-pilot. Let's explore the projects together!");
+    utteranceRef.current = preview;
+    preview.onstart = () => setSpeakingKey("voice-preview");
+    preview.onend = () => {
+      if (utteranceRef.current === preview) {
+        utteranceRef.current = null;
+        setSpeakingKey("");
+      }
+    };
+    preview.onerror = (event) => {
+      if (utteranceRef.current !== preview || event.error === "canceled" || event.error === "interrupted") return;
+      utteranceRef.current = null;
+      setSpeakingKey("");
+      setVoiceEnabled(false);
+      setVoiceNotice("Voice is unavailable in this browser. The guide continues with text.");
+    };
+    window.speechSynthesis.speak(preview);
   }
 
   return (
@@ -373,7 +426,7 @@ export function CursorHelicopter({ componentCount }: { componentCount: number })
         </div>
       </div>
       {voiceSupported && followSupported && (
-        <button type="button" className={styles.voiceControl} onClick={toggleVoice} aria-pressed={voiceEnabled} aria-label={`${voiceEnabled ? "Turn off" : "Turn on"} pilot guide voice`} data-cursor-knight-hide title="Optional voice narration when you hover a component">
+        <button type="button" className={styles.voiceControl} onClick={toggleVoice} aria-pressed={voiceEnabled} aria-label={`${voiceEnabled ? "Turn off" : "Turn on"} pilot baby-style voice`} data-cursor-knight-hide title="A childlike voice reads each project title and description when you hover its card">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z" />{voiceEnabled ? <path d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14" /> : <path d="m16 9 5 6m0-6-5 6" />}</svg>
           Pilot voice <span>{voiceEnabled ? "On" : "Off"}</span>
         </button>
