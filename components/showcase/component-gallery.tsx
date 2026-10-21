@@ -33,6 +33,7 @@ export function ComponentGallery() {
   const [visibleCount, setVisibleCount] = useState(initialComponentCount);
   const searchRef = useRef<HTMLInputElement>(null);
   const moreRef = useRef<HTMLDetailsElement>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
   const visibleCategoryCount = useSyncExternalStore(subscribeViewport, getVisibleCategoryCount, () => 11);
   const reducedMotion = useSyncExternalStore(subscribeReducedMotion, getReducedMotion, () => true);
   const moreSelected = categories.indexOf(category) >= visibleCategoryCount;
@@ -74,6 +75,25 @@ export function ComponentGallery() {
   });
   const hasActiveFilter = category !== "All components" || query.trim().length > 0;
   const visibleComponents = hasActiveFilter ? filtered : filtered.slice(0, visibleCount);
+  const canLoadMore = !hasActiveFilter && visibleComponents.length < filtered.length;
+
+  // Scrolling the "Show more components" button into view loads the next batch, so the button
+  // only needs a click for keyboard users or when IntersectionObserver is unavailable. The
+  // observer is recreated per batch: it reports straight away if the button is still in view.
+  useEffect(() => {
+    const node = loadMoreRef.current;
+    if (!canLoadMore || !node || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setVisibleCount((count) => Math.min(count + initialComponentCount, components.length));
+        }
+      },
+      { rootMargin: "0px 0px 120px 0px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [canLoadMore, visibleCount]);
 
   return (
     <section
@@ -251,8 +271,8 @@ export function ComponentGallery() {
           );
         })}
       </div>
-      {!hasActiveFilter && visibleComponents.length < filtered.length && (
-        <div className="mt-8 flex justify-center">
+      {canLoadMore && (
+        <div ref={loadMoreRef} className="mt-8 flex justify-center">
           <button
             type="button"
             aria-controls="component-grid"
