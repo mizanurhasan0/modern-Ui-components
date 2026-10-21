@@ -125,7 +125,7 @@ const DeskArt = memo(function DeskArt() {
           <stop offset=".6" stopColor="#e3e9f1" stopOpacity=".7" />
           <stop offset="1" stopColor="#e3e9f1" stopOpacity="0" />
         </radialGradient>
-        {/* Only the light changes colour: --lamp-h is cycled by the stylesheet and frozen while the desk is hovered. The lamp itself stays yellow. */}
+        {/* Only the light changes colour: --lamp-h is cycled by the stylesheet and frozen while the desk is hovered. The lamp shade stays blue. */}
         <linearGradient id={beamId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" style={{ stopColor: "hsl(var(--lamp-h) 100% 84%)" }} stopOpacity=".85" />
           <stop offset="1" style={{ stopColor: "hsl(var(--lamp-h) 100% 88%)" }} stopOpacity=".06" />
@@ -148,16 +148,16 @@ const DeskArt = memo(function DeskArt() {
       <path d="M29 238 51 230 112 306H22z" fill={`url(#${beamId})`} />
 
       {/* legs */}
-      <rect x="44" y="336" width="12" height="38" fill="#8a6a4a" />
-      <rect x="624" y="336" width="12" height="38" fill="#8a6a4a" />
-      <rect x="42" y="372" width="16" height="3" rx="1.5" fill="#765a3e" />
-      <rect x="622" y="372" width="16" height="3" rx="1.5" fill="#765a3e" />
+      <rect x="44" y="336" width="12" height="38" fill="#8ea2c8" />
+      <rect x="624" y="336" width="12" height="38" fill="#8ea2c8" />
+      <rect x="42" y="372" width="16" height="3" rx="1.5" fill="#5f6f86" />
+      <rect x="622" y="372" width="16" height="3" rx="1.5" fill="#5f6f86" />
 
       {/* desk top + front */}
-      <rect x="20" y="320" width="640" height="16" fill="#b48a60" />
-      <rect x="20" y="320" width="640" height="3" fill="#8a6a4a" opacity=".28" />
-      <rect x="20" y="306" width="640" height="14" rx="3" fill="#c8a47c" />
-      <rect x="23" y="306" width="634" height="1.2" rx=".6" fill="#e0c29f" opacity=".85" />
+      <rect x="20" y="320" width="640" height="16" fill="#b4c4e4" />
+      <rect x="20" y="320" width="640" height="3" fill="#5f6f86" opacity=".28" />
+      <rect x="20" y="306" width="640" height="14" rx="3" fill="#cfdaf0" />
+      <rect x="23" y="306" width="634" height="1.2" rx=".6" fill="#e4ecff" opacity=".85" />
       <ellipse cx="72" cy="313" rx="48" ry="4" fill={`url(#${poolId})`} />
 
       {/* monitor necks and bases (screens are the HTML buttons); each stand slides with its monitor and fades while the game merges them */}
@@ -183,36 +183,36 @@ const DeskArt = memo(function DeskArt() {
 
       {/* keyboard (shortened to leave room for the game console at x 396..446), cable, mouse */}
       <path d="M232 314c-14 1-24-4-32-8" fill="none" stroke="#26334d" strokeWidth="1.2" strokeLinecap="round" opacity=".7" />
-      <rect x="236" y="310" width="118" height="8" rx="3" fill="#dfe6ee" stroke="#9aa9bd" strokeWidth=".6" />
-      <path d="M241 314h108" fill="none" stroke="#9aa9bd" strokeWidth=".6" strokeDasharray="3 2" strokeLinecap="round" />
-      <ellipse cx="376" cy="314" rx="9" ry="4.5" fill="#dfe6ee" stroke="#9aa9bd" strokeWidth=".6" />
-      <path d="M376 309.8v3.4" stroke="#9aa9bd" strokeWidth=".6" strokeLinecap="round" />
+      <rect x="236" y="310" width="118" height="8" rx="3" fill="#e4e8ee" stroke="#8798b8" strokeWidth=".6" />
+      <path d="M241 314h108" fill="none" stroke="#8798b8" strokeWidth=".6" strokeDasharray="3 2" strokeLinecap="round" />
+      <ellipse cx="376" cy="314" rx="9" ry="4.5" fill="#e4e8ee" stroke="#8798b8" strokeWidth=".6" />
+      <path d="M376 309.8v3.4" stroke="#8798b8" strokeWidth=".6" strokeLinecap="round" />
 
       {/* mug + steam */}
       <ellipse cx="570" cy="307" rx="12" ry="1.8" fill="#101c33" opacity=".14" />
-      <rect x="560" y="288" width="20" height="18" rx="4" fill="#fff" stroke="#9aa9bd" strokeWidth=".8" />
-      <path d="M580 292c6 0 6 8 0 8" fill="none" stroke="#9aa9bd" strokeWidth="1.5" />
-      <rect x="560.4" y="296" width="19.2" height="3" fill="#3a86ff" opacity=".22" />
-      <path className={styles.steam} d="M566 282c-3-4 3-6 0-10" fill="none" stroke="#9aa9bd" strokeLinecap="round" />
-      <path className={`${styles.steam} ${styles.steamLate}`} d="M574 282c-3-4 3-6 0-10" fill="none" stroke="#9aa9bd" strokeLinecap="round" />
+      <rect x="560" y="288" width="20" height="18" rx="4" fill="#fff" stroke="#8798b8" strokeWidth=".8" />
+      <path d="M580 292c6 0 6 8 0 8" fill="none" stroke="#8798b8" strokeWidth="1.5" />
+      <rect x="560.4" y="296" width="19.2" height="3" fill="#2459ed" opacity=".22" />
+      <path className={styles.steam} d="M566 282c-3-4 3-6 0-10" fill="none" stroke="#8798b8" strokeLinecap="round" />
+      <path className={`${styles.steam} ${styles.steamLate}`} d="M574 282c-3-4 3-6 0-10" fill="none" stroke="#8798b8" strokeLinecap="round" />
 
       {/* plant */}
       <ellipse cx="647" cy="307" rx="14" ry="1.8" fill="#101c33" opacity=".14" />
-      <ellipse cx="640" cy="272" rx="5" ry="13" fill="#4f9d77" transform="rotate(-24 640 280)" />
-      <ellipse cx="652" cy="270" rx="5" ry="13" fill="#3f8b66" transform="rotate(22 652 280)" />
-      <ellipse cx="647" cy="266" rx="4.5" ry="14" fill="#5db088" />
-      <rect x="636" y="284" width="22" height="22" rx="3" fill="#c97b5a" />
-      <rect x="634" y="284" width="26" height="5" rx="2" fill="#b8694a" />
+      <ellipse cx="640" cy="272" rx="5" ry="13" fill="#4d73e0" transform="rotate(-24 640 280)" />
+      <ellipse cx="652" cy="270" rx="5" ry="13" fill="#6f8fe8" transform="rotate(22 652 280)" />
+      <ellipse cx="647" cy="266" rx="4.5" ry="14" fill="#8fa9f0" />
+      <rect x="636" y="284" width="22" height="22" rx="3" fill="#5f6f86" />
+      <rect x="634" y="284" width="26" height="5" rx="2" fill="#3a4a6b" />
 
       {/* desk lamp (kept left of the left monitor so it never hides the bezel) */}
       <ellipse cx="30" cy="307" rx="14" ry="3.6" fill="#101c33" opacity=".14" />
       <ellipse cx="30" cy="305.5" rx="14" ry="3.6" fill="#26334d" />
       <path d="M30 304V247l9-16" fill="none" stroke="#26334d" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="30" cy="247" r="2.6" fill="#3d4d6b" />
+      <circle cx="30" cy="247" r="2.6" fill="#3a4a6b" />
       <circle cx="40" cy="232" r="30" fill={`url(#${glowId})`} />
-      <path d="M24 224 46 216l5 14-22 8z" fill="#f2b93c" />
-      <path d="M29 238 51 230" stroke="#fff4cf" strokeWidth="2" strokeLinecap="round" opacity=".9" />
-      <circle cx="39" cy="231" r="2.4" fill="#3d4d6b" />
+      <path d="M24 224 46 216l5 14-22 8z" fill="#2459ed" />
+      <path d="M29 238 51 230" stroke="#b9c9f7" strokeWidth="2" strokeLinecap="round" opacity=".9" />
+      <circle cx="39" cy="231" r="2.4" fill="#3a4a6b" />
     </svg>
   );
 });
@@ -344,18 +344,18 @@ export function DeskScene({
             <ellipse cx="421" cy="307.5" rx="30" ry="1.8" fill="#101c33" opacity=".16" />
             {/* body: dark slate slab with a d-pad notch and two tiny buttons */}
             <rect x="396" y="295" width="50" height="12" rx="3.5" fill="#3a4a6b" />
-            <rect x="398" y="295.8" width="46" height="1.2" rx=".6" fill="#6a7ea6" opacity=".55" />
-            <rect x="396" y="304.2" width="50" height="2.8" rx="1.4" fill="#2e3b57" />
+            <rect x="398" y="295.8" width="46" height="1.2" rx=".6" fill="#8798b8" opacity=".55" />
+            <rect x="396" y="304.2" width="50" height="2.8" rx="1.4" fill="#26334d" />
             <path
               d="M401.1 297.9h2.2v2.3h2.3v2.2h-2.3v2.3h-2.2v-2.3h-2.3v-2.2h2.3z"
-              fill="#1d2840"
+              fill="#1a2742"
             />
-            <circle cx="437.5" cy="300.4" r="1.9" fill="#f2b93c" />
-            <circle cx="442.2" cy="302.6" r="1.9" fill="#f0705a" />
-            {/* START: soft glow, hover ring, two pulsing rings, collar, mint button with a triangle (a stop square while the game runs) */}
-            <circle className={styles.glow} cx="421" cy="289" r="19" fill="#9be8cf" />
-            <circle className={`${styles.ring} ${styles.ringA}`} cx="421" cy="289" r="11" fill="none" stroke="#9be8cf" strokeWidth="1.6" />
-            <circle className={`${styles.ring} ${styles.ringB}`} cx="421" cy="289" r="11" fill="none" stroke="#9be8cf" strokeWidth="1.6" />
+            <circle cx="437.5" cy="300.4" r="1.9" fill="#8fa9f0" />
+            <circle cx="442.2" cy="302.6" r="1.9" fill="#b9c9f7" />
+            {/* START: soft glow, hover ring, two pulsing rings, collar, blue button with a white triangle (a white stop square on deep blue while the game runs) */}
+            <circle className={styles.glow} cx="421" cy="289" r="19" fill="#4866e9" />
+            <circle className={`${styles.ring} ${styles.ringA}`} cx="421" cy="289" r="11" fill="none" stroke="#4866e9" strokeWidth="1.6" />
+            <circle className={`${styles.ring} ${styles.ringB}`} cx="421" cy="289" r="11" fill="none" stroke="#8fa9f0" strokeWidth="1.6" />
             <g className={styles.start}>
               <circle cx="421" cy="289" r="13" fill="#26334d" />
               <circle className={styles.startFace} cx="421" cy="289" r="11" />
@@ -373,7 +373,7 @@ export function DeskScene({
                 />
               )}
             </g>
-            <circle className={styles.hoverRing} cx="421" cy="289" r="15.6" fill="none" stroke="#9be8cf" strokeWidth="1.6" />
+            <circle className={styles.hoverRing} cx="421" cy="289" r="15.6" fill="none" stroke="#8fa9f0" strokeWidth="1.6" />
             <circle className={styles.focusRing} cx="421" cy="289" r="17.4" fill="none" strokeWidth="2.2" />
           </svg>
 

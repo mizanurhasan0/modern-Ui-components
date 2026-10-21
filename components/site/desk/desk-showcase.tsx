@@ -685,14 +685,14 @@ export function DeskShowcase() {
   const inlineGame = useMemo(() => <RaceScreen autoFocus onExit={closeGame} />, [closeGame]);
 
   return (
-    <div className={styles.showcase} data-cursor-knight-hide>
+    <div className={styles.showcase}>
       <header className={styles.heading}>
         <h2 id="selected-work-heading" className={styles.title}>
           Latest two projects
         </h2>
         <p className={styles.subtitle}>Open a monitor to try each project.</p>
       </header>
-      <div ref={stageRef} className={styles.stage}>
+      <div ref={stageRef} className={styles.stage} data-helicopter-pad="stage" data-cursor-knight-hide>
         <DeskScene
           crm={<CrmScreen mode="preview" />}
           marketplace={<MarketplaceScreen mode="preview" />}

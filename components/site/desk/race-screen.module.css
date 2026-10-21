@@ -7,10 +7,9 @@
 .root {
   --navy: #101c33;
   --ink: #1a2742;
-  --mint: #9be8cf;
-  --blue: #3a86ff;
-  --amber: #f2b93c;
-  --coral: #e8543e;
+  --sky: #8fa9f0;
+  --blue: #2459ed;
+  --bright: #4866e9;
 
   position: relative;
   width: 100%;
@@ -54,8 +53,8 @@
   border-radius: inherit;
   pointer-events: none;
   box-shadow:
-    inset 0 0 0 2px var(--mint),
-    inset 0 0 0 4px rgba(16, 28, 51, 0.5);
+    inset 0 0 0 2px #fff,
+    inset 0 0 0 4px var(--bright);
 }
 
 .canvas {
@@ -143,7 +142,7 @@
   line-height: 1;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(155, 232, 207, 0.95);
+  color: var(--sky);
 }
 
 .value {
@@ -187,7 +186,7 @@
   width: 0;
   height: 100%;
   border-radius: 3px;
-  background: linear-gradient(90deg, var(--mint), var(--amber) 72%, var(--coral));
+  background: linear-gradient(90deg, #6f8fe8, #b9c9f7 72%, #fff);
   background-size: 84px 100%;
 }
 
@@ -198,8 +197,8 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #ffe08a 0 22%, var(--amber) 23% 62%, #c98a14 63%);
-  box-shadow: 0 0 8px rgba(242, 185, 60, 0.55);
+  background: radial-gradient(circle at 35% 30%, #fff 0 22%, #dbe6fb 23% 60%, var(--blue) 62%);
+  box-shadow: 0 0 8px rgba(143, 169, 240, 0.6);
 }
 
 @container (max-width: 430px) {
@@ -309,7 +308,7 @@
   font-weight: 600;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: var(--mint);
+  color: var(--sky);
 }
 
 .title {
@@ -327,7 +326,7 @@
 
 .title em {
   font-style: normal;
-  color: var(--mint);
+  color: var(--sky);
 }
 
 .flag {
@@ -336,9 +335,9 @@
   height: clamp(7px, 2.2cqmin, 12px);
   border-radius: 3px;
   background:
-    repeating-conic-gradient(#f4f7f2 0% 25%, var(--navy) 0% 50%) 0 0 / clamp(7px, 2.2cqmin, 12px)
+    repeating-conic-gradient(#f4f7ff 0% 25%, var(--navy) 0% 50%) 0 0 / clamp(7px, 2.2cqmin, 12px)
     clamp(7px, 2.2cqmin, 12px);
-  box-shadow: 0 0 0 1.5px rgba(244, 247, 242, 0.5);
+  box-shadow: 0 0 0 1.5px rgba(244, 247, 255, 0.5);
   transform: skewX(-7deg);
 }
 
@@ -391,12 +390,12 @@
   margin: 2px 0 0;
   padding: clamp(7px, 2cqmin, 10px) clamp(14px, 4cqmin, 22px);
   border-radius: 999px;
-  background: var(--mint);
-  box-shadow: 0 10px 24px -10px rgba(155, 232, 207, 0.7);
+  background: var(--blue);
+  box-shadow: 0 10px 24px -10px rgba(36, 89, 237, 0.8);
   font-size: clamp(13px, 3.6cqmin, 16px);
   font-weight: 700;
   letter-spacing: -0.005em;
-  color: var(--navy);
+  color: #fff;
   animation: nudge 1.8s ease-in-out infinite;
 }
 
@@ -436,7 +435,7 @@
   color: #fff;
   text-shadow:
     0 5px 0 rgba(16, 28, 51, 0.5),
-    0 0 46px rgba(58, 134, 255, 0.7);
+    0 0 46px rgba(36, 89, 237, 0.85);
   animation: pop 1s cubic-bezier(0.2, 0.8, 0.25, 1) both;
 }
 
@@ -468,10 +467,10 @@
   font-weight: 900;
   line-height: 1;
   letter-spacing: -0.04em;
-  color: var(--mint);
+  color: #b9c9f7;
   text-shadow:
     0 5px 0 rgba(16, 28, 51, 0.5),
-    0 0 46px rgba(155, 232, 207, 0.65);
+    0 0 46px rgba(143, 169, 240, 0.7);
   animation: go 0.8s cubic-bezier(0.2, 0.9, 0.25, 1) both;
 }
 
@@ -539,7 +538,7 @@
   width: clamp(24px, 7cqmin, 34px);
   height: clamp(24px, 7cqmin, 34px);
   border-radius: 50%;
-  background: rgba(155, 232, 207, 0.18);
+  background: rgba(143, 169, 240, 0.2);
 }
 
 .pauseIcon::before,
@@ -550,7 +549,7 @@
   bottom: 27%;
   width: 11%;
   border-radius: 2px;
-  background: var(--mint);
+  background: var(--sky);
 }
 
 .pauseIcon::before {
@@ -590,7 +589,7 @@
   font-weight: 700;
   letter-spacing: 0.26em;
   text-transform: uppercase;
-  color: #ff8a77;
+  color: #fff;
 }
 
 .bigScore {
@@ -612,7 +611,7 @@
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--mint);
+  color: var(--sky);
 }
 
 .bestRow {
@@ -631,11 +630,11 @@
 .badge {
   padding: 3px 9px;
   border-radius: 999px;
-  background: var(--amber);
+  background: var(--blue);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.01em;
-  color: var(--navy);
+  color: #fff;
   animation: badge 0.9s ease-in-out 1.3s 2 both;
 }
 
@@ -660,10 +659,10 @@
   margin: clamp(2px, 1cqmin, 6px) 0 0;
   padding: clamp(6px, 1.8cqmin, 9px) clamp(14px, 4cqmin, 20px);
   border-radius: 999px;
-  background: var(--mint);
+  background: var(--blue);
   font-size: clamp(13px, 3.5cqmin, 15px);
   font-weight: 700;
-  color: var(--navy);
+  color: #fff;
 }
 
 /* short monitors: drop the least important lines so the cards never reach the HUD */

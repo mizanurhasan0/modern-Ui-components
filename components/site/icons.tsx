@@ -66,6 +66,24 @@ export function CodeIcon(props: IconProps) {
   );
 }
 
+export function MailIcon(props: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      <rect x="3" y="5" width="18" height="14" rx="3" />
+      <path d="m4 8 8 5.5L20 8" />
+    </svg>
+  );
+}
+
 export function SparkIcon(props: IconProps) {
   return (
     <svg

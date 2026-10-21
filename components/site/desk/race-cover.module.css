@@ -15,7 +15,7 @@
 
 .dashes,
 .player,
-.orange,
+.pale,
 .truck,
 .coins,
 .lines {
@@ -38,7 +38,7 @@
   animation-duration: 1.4s;
 }
 
-.orange {
+.pale {
   animation-name: coverOrange;
   animation-duration: 2.1s;
 }
@@ -123,7 +123,7 @@
 @media (prefers-reduced-motion: reduce) {
   .dashes,
   .player,
-  .orange,
+  .pale,
   .truck,
   .coins,
   .lines {

@@ -17,7 +17,7 @@
 
 .scene {
   --u: calc(100cqw / 680);
-  --ring: #3a86ff;
+  --ring: #4866e9;
 
   position: relative;
   container-type: inline-size;
@@ -38,7 +38,7 @@
   margin-inline: auto;
   padding: 12px 12px 16px;
   background: #fff;
-  border: 1px solid #cdd9d1;
+  border: 1px solid #d5dcec;
   border-radius: 16px;
   box-shadow:
     0 1px 2px rgba(16, 28, 51, 0.05),
@@ -59,16 +59,16 @@
 @property --lamp-h {
   syntax: "<number>";
   inherits: true;
-  initial-value: 40;
+  initial-value: 205;
 }
 
 @keyframes lampHue {
   from {
-    --lamp-h: 40;
+    --lamp-h: 205;
   }
 
   to {
-    --lamp-h: 400;
+    --lamp-h: 250;
   }
 }
 
@@ -76,8 +76,8 @@
 
 /*
  * Phones: one full-width horizontal card above the first monitor card: cover on the left, text, then a
- * round mint START chip. Desk: the same button becomes a cover card standing on the desk next to a small
- * retro console with a big mint START button (see the desktop block).
+ * round blue START chip. Desk: the same button becomes a cover card standing on the desk next to a small
+ * retro console with a big blue START button (see the desktop block).
  */
 .trigger {
   --cover-play: paused;
@@ -92,7 +92,7 @@
   min-height: 56px;
   margin: 0 auto;
   padding: 8px 12px 8px 8px;
-  border: 1px solid #cdd9d1;
+  border: 1px solid #d5dcec;
   border-radius: 16px;
   background: #fff;
   box-shadow:
@@ -167,7 +167,7 @@
     500 13px/1.25 var(--font-geist-sans),
     system-ui,
     sans-serif;
-  color: #4e6890;
+  color: #596273;
 }
 
 .meta {
@@ -176,7 +176,7 @@
     ui-monospace,
     monospace;
   letter-spacing: 0.01em;
-  color: #6b7f9e;
+  color: #667085;
 }
 
 .deskOnly {
@@ -202,7 +202,7 @@
   }
 }
 
-/* round mint START chip (phones) */
+/* round blue START chip (phones) */
 .chip {
   position: relative;
   display: grid;
@@ -211,17 +211,17 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #9be8cf;
+  background: #2459ed;
   box-shadow:
     0 0 0 3px #26334d,
     0 6px 12px -6px rgba(16, 28, 51, 0.6);
-  color: #1d6b57;
+  color: #fff;
   margin-right: 3px;
 }
 
 .trigger[aria-pressed="true"] .chip {
-  background: #ffb0a0;
-  color: #6b1f12;
+  background: #1e3783;
+  color: #fff;
 }
 
 .chip::before,
@@ -229,7 +229,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  border: 2px solid #9be8cf;
+  border: 2px solid #4866e9;
   border-radius: 50%;
   opacity: 0;
   pointer-events: none;
@@ -240,6 +240,7 @@
 }
 
 .pulse .chip::after {
+  border-color: #8fa9f0;
   animation: chipRing 2s cubic-bezier(0.2, 0.6, 0.3, 1) 0.9s 4 both;
 }
 
@@ -256,11 +257,11 @@
 }
 
 .glyph {
-  color: #1d6b57;
+  color: #fff;
 }
 
 .trigger[aria-pressed="true"] .glyph {
-  color: #6b1f12;
+  color: #fff;
 }
 
 /* desktop-only pieces */
@@ -301,7 +302,7 @@
 .monitor:focus-visible {
   outline-color: var(--ring);
   transform: translateY(-2px);
-  box-shadow: 0 16px 28px -12px rgba(58, 134, 255, 0.5);
+  box-shadow: 0 16px 28px -12px rgba(72, 102, 233, 0.5);
 }
 
 .monitor:active {
@@ -312,7 +313,7 @@
   .monitor:hover {
     outline-color: var(--ring);
     transform: translateY(-2px);
-    box-shadow: 0 16px 28px -12px rgba(58, 134, 255, 0.5);
+    box-shadow: 0 16px 28px -12px rgba(72, 102, 233, 0.5);
   }
 }
 
@@ -324,7 +325,7 @@
   aspect-ratio: 16 / 10;
   overflow: hidden;
   border-radius: 4px;
-  background: #f6f9fd;
+  background: #f4f7ff;
   isolation: isolate;
   forced-color-adjust: none;
 }
@@ -393,7 +394,7 @@
     forced-color-adjust: none;
     user-select: none;
     pointer-events: none;
-    animation: lampHue 18s linear infinite;
+    animation: lampHue 9s ease-in-out infinite alternate;
   }
 
   /* Hovering anywhere on the desk (or tabbing into it) holds the lamp on its current colour. */
@@ -531,8 +532,8 @@
     overflow: hidden;
     border-radius: calc(4 * var(--u));
     background:
-      radial-gradient(120% 90% at 50% 0%, #16284a 0%, rgba(22, 40, 74, 0) 60%),
-      #0b1426;
+      radial-gradient(120% 90% at 50% 0%, #1f2c4a 0%, rgba(31, 44, 74, 0) 60%),
+      #16213a;
     isolation: isolate;
     forced-color-adjust: none;
   }
@@ -713,7 +714,7 @@
     font-size: max(9.5px, calc(6.8 * var(--u)));
     font-weight: 500;
     line-height: 1.25;
-    color: #4e6890;
+    color: #596273;
   }
 
   .scene[data-merged="true"] .card {
@@ -889,7 +890,7 @@
   .trigger:hover .card {
     transform: translateY(-1px);
     box-shadow:
-      0 calc(9 * var(--u)) calc(18 * var(--u)) calc(-8 * var(--u)) rgba(40, 82, 166, 0.45),
+      0 calc(9 * var(--u)) calc(18 * var(--u)) calc(-8 * var(--u)) rgba(36, 89, 237, 0.35),
       0 1px 2px rgba(16, 28, 51, 0.1);
   }
 
@@ -971,17 +972,17 @@
 }
 
 .startFace {
-  fill: #9be8cf;
+  fill: #2459ed;
   transition: fill 0.3s ease;
 }
 
-/* while the game runs START turns into a small coral "stop / exit" square */
+/* while the game runs START turns into a small white "stop / exit" square on deep blue */
 .trigger[aria-pressed="true"] .start {
   transform: scale(0.78);
 }
 
 .trigger[aria-pressed="true"] .startFace {
-  fill: #ffb0a0;
+  fill: #1e3783;
 }
 
 /* ---------- mug steam ---------- */

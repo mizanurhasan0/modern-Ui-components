@@ -2,7 +2,7 @@ import type { RefObject } from "react";
 import type { HelicopterMotion } from "./helicopter-scene";
 
 export type HelicopterFlightPhase = "flying" | "landing" | "landed" | "taking-off";
-type PadKind = "search" | "tabs";
+type PadKind = "search" | "tabs" | "stage";
 type Position = { x: number; y: number; scale: number };
 type Options = {
   motion: RefObject<HelicopterMotion>;
@@ -14,6 +14,13 @@ type Options = {
 };
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), Math.max(min, max));
 const visible = (element: HTMLElement) => element.getClientRects().length > 0;
+/** Where along a pad's top edge the helicopter sets down (px from the pad's left edge). */
+function perchX(kind: PadKind, bounds: DOMRect) {
+  if (kind === "search") return Math.max(45, bounds.width - 66);
+  // A large container: perch near its right-hand end so the section heading on the left stays clear.
+  if (kind === "stage") return Math.max(bounds.width * .5, bounds.width - 150);
+  return bounds.width / 2;
+}
 
 /** Owns docking targets; pointer following remains in the cursor controller. */
 export function createHelicopterLanding(options: Options) {
@@ -57,10 +64,10 @@ export function createHelicopterLanding(options: Options) {
     unmark();
     pad = nextPad; kind = nextKind; rect = bounds; descent = false;
     pad.dataset.helicopterPerch = "landing";
-    pad.style.setProperty("--helipad-x", nextKind === "search" ? `${Math.max(45, bounds.width - 66)}px` : "50%");
+    pad.style.setProperty("--helipad-x", nextKind === "tabs" ? "50%" : `${perchX(nextKind, bounds)}px`);
     resize.observe(pad);
     const position = options.position();
-    const center = bounds.left + (nextKind === "search" ? Math.max(45, bounds.width - 66) : bounds.width / 2);
+    const center = bounds.left + perchX(nextKind, bounds);
     options.motion.current.facing = center < position.x + 80 ? -1 : 1;
     options.motion.current.velocityX = 0;
     options.motion.current.velocityY = 0;
@@ -77,7 +84,7 @@ export function createHelicopterLanding(options: Options) {
     const bounds = pad.getBoundingClientRect();
     if (bounds.top < options.safeTop() + 18 || bounds.top > innerHeight - 8) { takeOff(); return false; }
     rect = bounds;
-    pad.style.setProperty("--helipad-x", kind === "search" ? `${Math.max(45, bounds.width - 66)}px` : "50%");
+    pad.style.setProperty("--helipad-x", kind === "tabs" ? "50%" : `${perchX(kind, bounds)}px`);
     options.wake();
     return true;
   }
@@ -92,7 +99,7 @@ export function createHelicopterLanding(options: Options) {
     const ceiling = Math.max(options.safeTop(), heading ? heading.bottom + 8 : 0);
     const space = Math.max(12, rect.top - ceiling - 5);
     const scale = clamp(space / Math.max(footprint.y - footprint.top, 1), .2, kind === "tabs" ? .72 : 1);
-    const center = rect.left + (kind === "search" ? Math.max(45, rect.width - 66) : rect.width / 2);
+    const center = rect.left + perchX(kind, rect);
     return {
       x: clamp(center - footprint.x * scale, 6, innerWidth - 160 * scale - 6),
       y: rect.top - 1 - footprint.y * scale - (phase === "landing" && !descent ? 12 * scale : 0),
@@ -113,6 +120,9 @@ export function createHelicopterLanding(options: Options) {
         const selected = activeTab();
         if (selected && request(selected, "tabs")) return true;
       }
+      // Any large container marked as a "stage" gives the helicopter somewhere to perch instead of hovering over it.
+      const stage = element?.closest<HTMLElement>("[data-helicopter-pad='stage']");
+      if (stage && request(stage, "stage")) return true;
       if (!pad || !rect) return false;
       const bounds = kind === "tabs" ? tabs?.getBoundingClientRect() : rect;
       const margin = kind === "search" ? 48 : 24;

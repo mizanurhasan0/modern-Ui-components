@@ -67,17 +67,19 @@ const IDLE_SPEED = 16;
 const SPAWN_SPACING = 8.5;
 const SIGN_SPACING = 58;
 
-const PAINTS = ["#e8543e", "#f2b93c", "#57aa98", "#edf1ee", "#7b6ff0", "#5f6f86"];
-const TRAILERS = ["#e9eeea", "#c9d8e8", "#efdcb2", "#b9cdc2", "#dde3ee", "#f1e6e1"];
-const PLAYER_BLUE = "#3a86ff";
-const MINT = "#9be8cf";
-const AMBER = "#f2b93c";
+// One palette: the player is the only saturated car (#2459ed); traffic differs by lightness inside the blue/slate family.
+const PAINTS = ["#f4f7ff", "#b9c9f7", "#8fa9f0", "#5f6f86", "#8798b8", "#3a4a6b"];
+const CABS = ["#5f6f86", "#3a4a6b", "#8798b8", "#5f6f86", "#3a4a6b", "#8798b8"];
+const TRAILERS = ["#f4f7ff", "#e4ecff", "#d5dcec", "#cfd8e6", "#eef3ff", "#b9c9f7"];
+const PLAYER_BLUE = "#2459ed";
+const SKY = "#8fa9f0";
+const WHITE = "#f4f7ff";
 
 const BIOME_STEPS = 16;
-const GRASS_A = "#6f9c7f";
-const GRASS_B = "#79a78a";
-const SAND_A = "#dcc79a";
-const SAND_B = "#e3d0a6";
+const GRASS_A = "#dbe4f5";
+const GRASS_B = "#d0dbf1";
+const SAND_A = "#e4e8ee";
+const SAND_B = "#d9dfe9";
 
 const NP = 260;
 const K_SPARK = 1;
@@ -222,6 +224,14 @@ function paintCar(c: CanvasRenderingContext2D, w: number, h: number, base: strin
   g.addColorStop(1, lo);
   rr4(c, 0, 0, w, h, w * 0.4, w * 0.4, w * 0.27, w * 0.27);
   c.fillStyle = g;
+  if (player) {
+    // a faint sky-blue rim light keeps the player readable on the dark asphalt
+    c.save();
+    c.shadowColor = "rgba(143,169,240,0.75)";
+    c.shadowBlur = 8;
+    c.fill();
+    c.restore();
+  }
   c.fill();
   c.lineWidth = 1;
   c.strokeStyle = "rgba(8,16,34,0.28)";
@@ -240,10 +250,10 @@ function paintCar(c: CanvasRenderingContext2D, w: number, h: number, base: strin
 
   // stripes
   if (player) {
-    c.fillStyle = MINT;
+    c.fillStyle = "#ffffff";
     c.fillRect(w * 0.43, 0, w * 0.14, h);
-    c.fillStyle = "rgba(255,255,255,0.45)";
-    c.fillRect(w * 0.43, 0, w * 0.04, h);
+    c.fillStyle = "rgba(36,89,237,0.18)";
+    c.fillRect(w * 0.53, 0, w * 0.04, h);
   } else if (shape === 2) {
     c.fillStyle = "rgba(255,255,255,0.5)";
     c.fillRect(w * 0.35, 0, w * 0.09, h);
@@ -267,7 +277,7 @@ function paintCar(c: CanvasRenderingContext2D, w: number, h: number, base: strin
   rr(c, w * 0.2, roofTop + 2, w * 0.2, roofBot - roofTop - 4, w * 0.08);
   c.fill();
   if (player) {
-    c.fillStyle = MINT;
+    c.fillStyle = "#ffffff";
     c.fillRect(w * 0.45, roofTop, w * 0.1, roofBot - roofTop);
   }
 
@@ -285,7 +295,7 @@ function paintCar(c: CanvasRenderingContext2D, w: number, h: number, base: strin
   c.stroke();
   if (shape === 2 || player) {
     rr(c, w * 0.08, h * 0.865, w * 0.84, h * 0.055, 1.5);
-    c.fillStyle = player ? "#1c3b78" : lo;
+    c.fillStyle = player ? "#1e3783" : lo;
     c.fill();
   }
   c.restore();
@@ -300,22 +310,27 @@ function paintCar(c: CanvasRenderingContext2D, w: number, h: number, base: strin
   // lights with a small glow
   c.save();
   c.shadowBlur = 5;
-  c.shadowColor = "rgba(255,238,170,0.95)";
-  c.fillStyle = "#fff7d6";
+  c.shadowColor = "rgba(255,255,255,0.95)";
+  c.fillStyle = "#ffffff";
   rr(c, w * 0.09, h * 0.018, w * 0.25, h * 0.055, 1.8);
   c.fill();
   rr(c, w * 0.66, h * 0.018, w * 0.25, h * 0.055, 1.8);
   c.fill();
-  c.shadowColor = "rgba(255,70,55,0.9)";
-  c.fillStyle = "#ff5b48";
+  c.shadowColor = "rgba(143,169,240,0.95)";
+  c.fillStyle = "#dbe6fb";
+  c.strokeStyle = "rgba(16,28,51,0.5)";
+  c.lineWidth = 0.8;
   if (shape === 2) {
     rr(c, w * 0.1, h * 0.93, w * 0.8, h * 0.04, 1.4);
     c.fill();
+    c.stroke();
   } else {
     rr(c, w * 0.08, h * 0.925, w * 0.26, h * 0.05, 1.6);
     c.fill();
+    c.stroke();
     rr(c, w * 0.66, h * 0.925, w * 0.26, h * 0.05, 1.6);
     c.fill();
+    c.stroke();
   }
   c.restore();
 }
@@ -395,18 +410,22 @@ function paintTruck(c: CanvasRenderingContext2D, w: number, h: number, cab: stri
   // lights
   c.save();
   c.shadowBlur = 5;
-  c.shadowColor = "rgba(255,238,170,0.95)";
-  c.fillStyle = "#fff7d6";
+  c.shadowColor = "rgba(255,255,255,0.95)";
+  c.fillStyle = "#ffffff";
   rr(c, w * 0.08, h * 0.012, w * 0.22, h * 0.03, 1.5);
   c.fill();
   rr(c, w * 0.7, h * 0.012, w * 0.22, h * 0.03, 1.5);
   c.fill();
-  c.shadowColor = "rgba(255,70,55,0.9)";
-  c.fillStyle = "#ff5b48";
+  c.shadowColor = "rgba(143,169,240,0.95)";
+  c.fillStyle = "#dbe6fb";
+  c.strokeStyle = "rgba(16,28,51,0.5)";
+  c.lineWidth = 0.8;
   rr(c, w * 0.08, h * 0.955, w * 0.22, h * 0.022, 1.2);
   c.fill();
+  c.stroke();
   rr(c, w * 0.7, h * 0.955, w * 0.22, h * 0.022, 1.2);
   c.fill();
+  c.stroke();
   c.restore();
 }
 
@@ -435,9 +454,9 @@ function makeShadow(w: number, h: number, dpr: number): Sprite {
 function makeCone(w: number, h: number, narrow: number, dpr: number): Sprite {
   return makeSprite(w, h, 0, dpr, (c) => {
     const g = c.createLinearGradient(0, h, 0, 0);
-    g.addColorStop(0, "rgba(255,246,205,0.26)");
-    g.addColorStop(0.5, "rgba(255,246,205,0.07)");
-    g.addColorStop(1, "rgba(255,246,205,0)");
+    g.addColorStop(0, "rgba(255,255,255,0.28)");
+    g.addColorStop(0.5, "rgba(255,255,255,0.08)");
+    g.addColorStop(1, "rgba(255,255,255,0)");
     c.fillStyle = g;
     c.beginPath();
     c.moveTo(w / 2 - narrow / 2, h);
@@ -599,9 +618,9 @@ export function createRenderer(canvas: HTMLCanvasElement, fontFamily: string): R
       g.translate(outer, 0);
       // asphalt
       const base = g.createLinearGradient(l.kerb, 0, l.kerb + roadW, 0);
-      base.addColorStop(0, "#2b3852");
-      base.addColorStop(0.5, "#38476a");
-      base.addColorStop(1, "#2b3852");
+      base.addColorStop(0, "#16213a");
+      base.addColorStop(0.5, "#1f2c4a");
+      base.addColorStop(1, "#16213a");
       g.fillStyle = base;
       g.fillRect(l.kerb, 0, roadW, th);
 
@@ -650,7 +669,7 @@ export function createRenderer(canvas: HTMLCanvasElement, fontFamily: string): R
       const kerbX = [0, l.kerb + roadW];
       for (const kx of kerbX) {
         for (let k = 0; k * stripe < th + 1; k++) {
-          g.fillStyle = k % 2 === 0 ? "#e8543e" : "#f3f6f1";
+          g.fillStyle = k % 2 === 0 ? "#2459ed" : WHITE;
           g.fillRect(kx, k * stripe, l.kerb, stripe + 0.5);
         }
         g.fillStyle = "rgba(8,16,34,0.18)";
@@ -679,11 +698,11 @@ export function createRenderer(canvas: HTMLCanvasElement, fontFamily: string): R
       g.fillRect(l.kerb + roadW - 6, 0, 6, th);
 
       // edge lines and dashed lane dividers
-      g.fillStyle = "rgba(244,247,242,0.62)";
+      g.fillStyle = "rgba(244,247,255,0.62)";
       g.fillRect(l.kerb + 2.5, 0, 1.6, th);
       g.fillRect(l.kerb + roadW - 4.1, 0, 1.6, th);
       const dashW = Math.max(2, l.laneW * 0.05);
-      g.fillStyle = "rgba(244,247,242,0.8)";
+      g.fillStyle = "rgba(244,247,255,0.8)";
       for (let i = 1; i < LANES; i++) {
         const x = l.kerb + i * l.laneW - dashW / 2;
         for (let k = 0; k < TILE_UNITS / DASH_PERIOD; k++) {
@@ -708,17 +727,17 @@ export function createRenderer(canvas: HTMLCanvasElement, fontFamily: string): R
     }
     truckSprites = [];
     for (let v = 0; v < PAINTS.length; v++) {
-      truckSprites.push(makeSprite(cw, truckLen, 3, l.dpr, (g) => paintTruck(g, cw, truckLen, PAINTS[v], TRAILERS[v])));
+      truckSprites.push(makeSprite(cw, truckLen, 3, l.dpr, (g) => paintTruck(g, cw, truckLen, CABS[v], TRAILERS[v])));
     }
-    playerSprite = makeSprite(cw, ch, 3, l.dpr, (g) => paintCar(g, cw, ch, PLAYER_BLUE, 2, true));
+    playerSprite = makeSprite(cw, ch, 10, l.dpr, (g) => paintCar(g, cw, ch, PLAYER_BLUE, 2, true));
     shadowCar = makeShadow(cw, ch, l.dpr);
     shadowTruck = makeShadow(cw, truckLen, l.dpr);
     cone = makeCone(l.laneW * 1.3, ch * 3.4, cw * 0.78, l.dpr);
     const gr = Math.max(8, l.laneW * 0.34);
     glow = makeSprite(gr * 2, gr * 2, 0, l.dpr, (g) => {
       const rg = g.createRadialGradient(gr, gr, 0, gr, gr, gr);
-      rg.addColorStop(0, "rgba(255,214,102,0.55)");
-      rg.addColorStop(1, "rgba(255,214,102,0)");
+      rg.addColorStop(0, "rgba(143,169,240,0.55)");
+      rg.addColorStop(1, "rgba(143,169,240,0)");
       g.fillStyle = rg;
       g.fillRect(0, 0, gr * 2, gr * 2);
     });
@@ -928,7 +947,7 @@ export function createRenderer(canvas: HTMLCanvasElement, fontFamily: string): R
   }
 
   function treeShadow(x: number, y: number, r: number): void {
-    c.fillStyle = "rgba(10,28,28,0.2)";
+    c.fillStyle = "rgba(26,39,66,0.2)";
     c.beginPath();
     c.arc(x + sdx * (r / 9) * 1.4, y + sdy * (r / 9) * 1.4, r * 1.02, 0, Math.PI * 2);
     c.fill();
@@ -937,42 +956,42 @@ export function createRenderer(canvas: HTMLCanvasElement, fontFamily: string): R
   function canopy(x: number, y: number, r: number, kind: number, tone: number): void {
     if (kind === 0) {
       // round tree
-      c.fillStyle = tone < 0.5 ? "#4a8468" : "#52906f";
+      c.fillStyle = tone < 0.5 ? "#4d73e0" : "#4866e9";
       c.beginPath();
       c.arc(x, y, r, 0, Math.PI * 2);
       c.fill();
-      c.fillStyle = tone < 0.5 ? "#5c9a7b" : "#66a584";
+      c.fillStyle = tone < 0.5 ? "#6f8fe8" : "#8fa9f0";
       c.beginPath();
       c.arc(x - r * 0.12, y - r * 0.14, r * 0.74, 0, Math.PI * 2);
       c.fill();
-      c.fillStyle = "rgba(255,255,255,0.16)";
+      c.fillStyle = "rgba(255,255,255,0.22)";
       c.beginPath();
       c.arc(x - r * 0.3, y - r * 0.34, r * 0.34, 0, Math.PI * 2);
       c.fill();
     } else if (kind === 1) {
       // pine: stacked rings
-      c.fillStyle = "#3b7660";
+      c.fillStyle = "#3152b4";
       c.beginPath();
       c.arc(x, y, r * 0.92, 0, Math.PI * 2);
       c.fill();
-      c.fillStyle = "#468569";
+      c.fillStyle = "#4866e9";
       c.beginPath();
       c.arc(x, y, r * 0.66, 0, Math.PI * 2);
       c.fill();
-      c.fillStyle = "#58987a";
+      c.fillStyle = "#6f8fe8";
       c.beginPath();
       c.arc(x - r * 0.06, y - r * 0.08, r * 0.36, 0, Math.PI * 2);
       c.fill();
     } else {
       // palm: a handful of leaves
-      c.fillStyle = "#6a9a5a";
+      c.fillStyle = "#6f8fe8";
       for (let i = 0; i < 6; i++) {
         const a = (i / 6) * Math.PI * 2 + tone;
         c.beginPath();
         c.ellipse(x + Math.cos(a) * r * 0.5, y + Math.sin(a) * r * 0.5, r * 0.55, r * 0.2, a, 0, Math.PI * 2);
         c.fill();
       }
-      c.fillStyle = "#4d7f43";
+      c.fillStyle = "#3152b4";
       c.beginPath();
       c.arc(x, y, r * 0.2, 0, Math.PI * 2);
       c.fill();
@@ -980,16 +999,16 @@ export function createRenderer(canvas: HTMLCanvasElement, fontFamily: string): R
   }
 
   function bush(x: number, y: number, r: number, sand: boolean): void {
-    c.fillStyle = "rgba(10,28,28,0.18)";
+    c.fillStyle = "rgba(26,39,66,0.18)";
     c.beginPath();
     c.arc(x + sdx * 0.6, y + sdy * 0.6, r * 1.1, 0, Math.PI * 2);
     c.fill();
-    c.fillStyle = sand ? "#a99363" : "#5a9376";
+    c.fillStyle = sand ? "#8798b8" : "#6f8fe8";
     c.beginPath();
     c.arc(x - r * 0.45, y + r * 0.1, r * 0.7, 0, Math.PI * 2);
     c.arc(x + r * 0.5, y - r * 0.05, r * 0.62, 0, Math.PI * 2);
     c.fill();
-    c.fillStyle = sand ? "#bda676" : "#6aa788";
+    c.fillStyle = sand ? "#b9c9f7" : "#8fa9f0";
     c.beginPath();
     c.arc(x, y - r * 0.15, r * 0.78, 0, Math.PI * 2);
     c.fill();
@@ -1000,11 +1019,11 @@ export function createRenderer(canvas: HTMLCanvasElement, fontFamily: string): R
   }
 
   function rock(x: number, y: number, r: number, seedV: number, sand: boolean): void {
-    c.fillStyle = "rgba(10,28,28,0.2)";
+    c.fillStyle = "rgba(26,39,66,0.2)";
     c.beginPath();
     c.ellipse(x + sdx * 0.7, y + sdy * 0.7, r * 1.05, r * 0.85, 0, 0, Math.PI * 2);
     c.fill();
-    c.fillStyle = sand ? "#b9ab93" : "#8d9c97";
+    c.fillStyle = sand ? "#5f6f86" : "#8798b8";
     c.beginPath();
     for (let i = 0; i < 7; i++) {
       const a = (i / 7) * Math.PI * 2 + seedV * 2;
@@ -1023,11 +1042,11 @@ export function createRenderer(canvas: HTMLCanvasElement, fontFamily: string): R
   }
 
   function cactus(x: number, y: number, r: number): void {
-    c.fillStyle = "rgba(60,40,10,0.2)";
+    c.fillStyle = "rgba(26,39,66,0.2)";
     c.beginPath();
     c.ellipse(x + sdx * 0.6, y + sdy * 0.6, r * 0.8, r * 0.8, 0, 0, Math.PI * 2);
     c.fill();
-    c.fillStyle = "#5d9a72";
+    c.fillStyle = "#6f8fe8";
     rr(c, x - r * 0.28, y - r * 0.8, r * 0.56, r * 1.6, r * 0.28);
     c.fill();
     rr(c, x - r * 0.85, y - r * 0.25, r * 0.7, r * 0.34, r * 0.17);
@@ -1041,14 +1060,14 @@ export function createRenderer(canvas: HTMLCanvasElement, fontFamily: string): R
 
   function tuft(x: number, y: number, r: number, tone: number, sand: boolean): void {
     if (sand) {
-      c.fillStyle = "rgba(150,120,70,0.35)";
+      c.fillStyle = "rgba(95,111,134,0.35)";
       c.beginPath();
       c.arc(x, y, r * 0.35, 0, Math.PI * 2);
       c.arc(x + r * 0.7, y + r * 0.2, r * 0.22, 0, Math.PI * 2);
       c.fill();
       return;
     }
-    c.fillStyle = tone < 0.34 ? AMBER : tone < 0.67 ? "#f4f6f1" : "#ee7e6d";
+    c.fillStyle = tone < 0.34 ? "#6f8fe8" : tone < 0.67 ? WHITE : "#b9c9f7";
     c.beginPath();
     c.arc(x, y, r * 0.28, 0, Math.PI * 2);
     c.arc(x + r * 0.7, y + r * 0.25, r * 0.22, 0, Math.PI * 2);
@@ -1120,14 +1139,14 @@ export function createRenderer(canvas: HTMLCanvasElement, fontFamily: string): R
   }
 
   function sign(x: number, y: number, s: number, kind: number): void {
-    c.fillStyle = "rgba(10,28,28,0.22)";
+    c.fillStyle = "rgba(26,39,66,0.22)";
     rr(c, x - s + sdx * 0.9, y - s + sdy * 0.9, s * 2, s * 2, s * 0.45);
     c.fill();
     c.fillStyle = "#26334d";
     rr(c, x - s * 1.08, y - s * 1.08, s * 2.16, s * 2.16, s * 0.5);
     c.fill();
     if (kind === 0) {
-      c.fillStyle = "#2f9d77";
+      c.fillStyle = "#2459ed";
       rr(c, x - s * 0.92, y - s * 0.92, s * 1.84, s * 1.84, s * 0.4);
       c.fill();
       c.strokeStyle = "#fff";
@@ -1140,10 +1159,10 @@ export function createRenderer(canvas: HTMLCanvasElement, fontFamily: string): R
       c.lineTo(x + s * 0.5, y + s * 0.2);
       c.stroke();
     } else if (kind === 1) {
-      c.fillStyle = "#f4f6f1";
+      c.fillStyle = WHITE;
       rr(c, x - s * 0.92, y - s * 0.92, s * 1.84, s * 1.84, s * 0.9);
       c.fill();
-      c.strokeStyle = "#e8543e";
+      c.strokeStyle = "#2459ed";
       c.lineWidth = Math.max(1.4, s * 0.3);
       c.beginPath();
       c.arc(x, y, s * 0.68, 0, Math.PI * 2);
@@ -1151,7 +1170,7 @@ export function createRenderer(canvas: HTMLCanvasElement, fontFamily: string): R
       c.fillStyle = "#26334d";
       c.fillRect(x - s * 0.36, y - s * 0.12, s * 0.72, s * 0.24);
     } else {
-      c.fillStyle = AMBER;
+      c.fillStyle = SKY;
       rr(c, x - s * 0.92, y - s * 0.92, s * 1.84, s * 1.84, s * 0.4);
       c.fill();
       c.strokeStyle = "#26334d";
@@ -1191,22 +1210,22 @@ export function createRenderer(canvas: HTMLCanvasElement, fontFamily: string): R
     c.translate(x, y);
     if (L.orientation === "vertical") c.scale(spin, 1);
     else c.scale(1, spin);
-    c.fillStyle = "#c98a14";
+    c.fillStyle = "#2459ed";
     c.beginPath();
     c.arc(0, 0, r, 0, Math.PI * 2);
     c.fill();
-    c.fillStyle = AMBER;
+    c.fillStyle = "#dbe6fb";
     c.beginPath();
     c.arc(0, 0, r * 0.82, 0, Math.PI * 2);
     c.fill();
-    c.strokeStyle = "rgba(190,125,16,0.6)";
+    c.strokeStyle = "rgba(36,89,237,0.55)";
     c.lineWidth = r * 0.13;
     c.beginPath();
     c.arc(0, 0, r * 0.52, 0, Math.PI * 2);
     c.stroke();
     // highlight sweeping across the face
     const sweep = Math.sin(phase * 0.5) * r * 0.32;
-    c.fillStyle = "rgba(255,255,255,0.62)";
+    c.fillStyle = "rgba(255,255,255,0.95)";
     c.beginPath();
     c.ellipse(-r * 0.18 + sweep, -r * 0.3, r * 0.17, r * 0.4, 0.5, 0, Math.PI * 2);
     c.fill();
@@ -1293,7 +1312,7 @@ export function createRenderer(canvas: HTMLCanvasElement, fontFamily: string): R
       if (plife[i] <= 0 || pkind[i] !== K_SPARK) continue;
       const f = plife[i] / pmax[i];
       c.globalAlpha = Math.min(1, f * 1.6);
-      c.strokeStyle = pseed[i] < 0.5 ? "#ffd45e" : "#fff6dc";
+      c.strokeStyle = pseed[i] < 0.5 ? SKY : "#ffffff";
       c.lineWidth = psize[i];
       c.beginPath();
       c.moveTo(px[i], py[i]);
@@ -1308,7 +1327,7 @@ export function createRenderer(canvas: HTMLCanvasElement, fontFamily: string): R
       const x = px[i];
       const y = py[i];
       c.globalAlpha = Math.min(1, f * 1.8);
-      c.fillStyle = pseed[i] < 0.5 ? "#fff3c4" : "#ffcf55";
+      c.fillStyle = pseed[i] < 0.5 ? "#ffffff" : SKY;
       c.beginPath();
       c.moveTo(x, y - s);
       c.lineTo(x + s * 0.28, y - s * 0.28);
@@ -1322,7 +1341,7 @@ export function createRenderer(canvas: HTMLCanvasElement, fontFamily: string): R
       c.fill();
     }
     // rings
-    c.strokeStyle = "#ffd45e";
+    c.strokeStyle = SKY;
     c.lineWidth = 2;
     for (let i = 0; i < NP; i++) {
       if (plife[i] <= 0 || pkind[i] !== K_RING) continue;
@@ -1376,7 +1395,7 @@ export function createRenderer(canvas: HTMLCanvasElement, fontFamily: string): R
       const yy = sy - age * 26 - 8;
       c.strokeStyle = "rgba(16,28,51,0.8)";
       c.strokeText("Close call!", sx, yy);
-      c.fillStyle = MINT;
+      c.fillStyle = "#ffffff";
       c.fillText("Close call!", sx, yy);
     }
     c.globalAlpha = 1;

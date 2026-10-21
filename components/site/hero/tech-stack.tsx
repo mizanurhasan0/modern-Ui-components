@@ -67,8 +67,11 @@ export function TechStack({ activeId, onActiveChange }: Props) {
   const guardianCategory = TECH_STACK.find((category) => category.id === activeId) ?? selected?.category ?? null;
 
   return (
-    <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:gap-0">
-      <PixelKnight category={guardianCategory} playgroundOpen={playground} onTogglePlayground={() => setPlayground((open) => !open)} />
+    <div className="@container relative flex flex-col gap-4 md:flex-row md:items-center md:gap-0">
+      {/* The knight only appears when the stack has room for him (about 600px wide); otherwise the tree fills the space. */}
+      <div className="w-full shrink-0 @max-[599px]:hidden md:w-auto">
+        <PixelKnight category={guardianCategory} playgroundOpen={playground} onTogglePlayground={() => setPlayground((open) => !open)} />
+      </div>
 
       {playground ? (
         <div className="w-full md:ml-6 md:max-w-[440px]">
@@ -85,12 +88,12 @@ export function TechStack({ activeId, onActiveChange }: Props) {
                   key={category.id}
                   data-knight-accent={category.color}
                   style={{ "--line": active ? category.color : "#cfd6e2", "--c": category.color, animationDelay: `${index * 90}ms` } as CSSProperties}
-                  className={`${ROW} motion-safe:animate-[stack-in_.6s_cubic-bezier(.2,.8,.2,1)_both] max-md:flex-col max-md:items-stretch`}
+                  className={`${ROW} motion-safe:animate-[stack-in_.6s_cubic-bezier(.2,.8,.2,1)_both] max-md:flex-col max-md:items-stretch max-md:gap-0 max-md:rounded-2xl max-md:bg-white/90 max-md:shadow-[0_10px_30px_-16px_rgba(15,23,42,.35)] max-md:ring-1 max-md:ring-black/5 max-md:backdrop-blur ${active ? "max-md:ring-2 max-md:ring-(--c)" : ""}`}
                   onMouseEnter={() => onActiveChange(category.id)}
                   onFocus={() => onActiveChange(category.id)}
                 >
                   <div
-                    className={`flex w-full shrink-0 items-center gap-2.5 rounded-xl bg-white/90 p-2 pr-3 shadow-[0_8px_24px_-14px_rgba(15,23,42,.35)] ring-1 ring-black/5 backdrop-blur transition duration-300 md:w-[128px] ${active ? "-translate-y-0.5 ring-2 ring-(--c)" : ""}`}
+                    className={`flex w-full shrink-0 items-center gap-2.5 rounded-xl bg-white/90 p-2 pr-3 shadow-[0_8px_24px_-14px_rgba(15,23,42,.35)] ring-1 ring-black/5 backdrop-blur transition duration-300 max-md:rounded-b-none max-md:bg-transparent max-md:pb-1 max-md:shadow-none max-md:ring-0 max-md:backdrop-blur-none md:w-[128px] ${active ? "-translate-y-0.5 ring-2 ring-(--c) max-md:translate-y-0 max-md:ring-0" : ""}`}
                   >
                     <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-(--c) text-white shadow-[inset_0_1px_0_rgba(255,255,255,.35)]">
                       <CategoryGlyph icon={category.icon} />
@@ -99,7 +102,7 @@ export function TechStack({ activeId, onActiveChange }: Props) {
                   </div>
                   <span aria-hidden="true" className="hidden h-9 w-2 shrink-0 rounded-l-md border-y-[1.5px] border-l-[1.5px] border-(--line) transition-colors md:block" />
                   <div
-                    className={`grid flex-1 grid-cols-2 gap-x-1.5 gap-y-2 rounded-2xl bg-white/90 p-2.5 shadow-[0_10px_30px_-16px_rgba(15,23,42,.35)] ring-1 ring-black/5 backdrop-blur transition duration-300 sm:grid-cols-3 ${active ? "ring-2 ring-(--c)/40" : ""}`}
+                    className={`grid flex-1 grid-cols-2 gap-x-1.5 gap-y-2 rounded-2xl bg-white/90 p-2.5 shadow-[0_10px_30px_-16px_rgba(15,23,42,.35)] ring-1 ring-black/5 backdrop-blur transition duration-300 max-md:grid-cols-3 max-md:rounded-t-none max-md:bg-transparent max-md:pt-1 max-md:shadow-none max-md:ring-0 max-md:backdrop-blur-none sm:grid-cols-3 md:@max-[559px]:grid-cols-2 ${active ? "ring-2 ring-(--c)/40 max-md:ring-0" : ""}`}
                   >
                     {category.tools.map((tool) => {
                       const isSelected = selected?.tool.name === tool.name;

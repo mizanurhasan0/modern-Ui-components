@@ -1,43 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { HeroActions } from "./hero-actions";
 import { TechStack } from "./tech-stack";
-import { TECH_STACK } from "./tech-stack-data";
 import { WaterRevealPortrait } from "./water-reveal-portrait";
 import styles from "./hero-section.module.css";
 
-const TOUR_STEP_MS = 2600;
-
-/** "Watch intro" walks through each stack category with a short caption. */
-function useIntroTour() {
-  const [step, setStep] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (step === null) return;
-    const timer = setTimeout(() => setStep(step + 1 < TECH_STACK.length ? step + 1 : null), TOUR_STEP_MS);
-    return () => clearTimeout(timer);
-  }, [step]);
-
-  return {
-    category: step === null ? null : TECH_STACK[step],
-    playing: step !== null,
-    toggle: () => setStep((current) => (current === null ? 0 : null)),
-    stop: () => setStep(null),
-  };
-}
-
 export function HeroSection({ componentCount }: { componentCount: number }) {
   const heroRef = useRef<HTMLElement>(null);
-  const tour = useIntroTour();
-  const [hovered, setHovered] = useState<string | null>(null);
-  const [stackOpen, setStackOpen] = useState(false);
-  const activeId = tour.category?.id ?? hovered;
-
-  function toggleIntro() {
-    if (!tour.playing) setStackOpen(true);
-    tour.toggle();
-  }
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   return (
     <section
@@ -54,8 +25,8 @@ export function HeroSection({ componentCount }: { componentCount: number }) {
         <div className="absolute inset-x-0 bottom-0 h-28 bg-[linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.85))]" />
       </div>
 
-      <div className="site-container relative grid grid-cols-[minmax(0,1fr)] gap-5 pt-8 pb-9 sm:gap-10 sm:pt-10 sm:pb-14 lg:grid-cols-2 lg:gap-x-6 xl:min-h-[700px] xl:grid-cols-1 xl:gap-0 xl:pt-0 xl:pb-0">
-        <div className="relative z-20 flex flex-col justify-center xl:max-w-[520px] xl:py-16 2xl:max-w-[560px]">
+      <div className="site-container relative grid grid-cols-[minmax(0,1fr)] gap-5 pt-8 pb-9 sm:gap-10 sm:pt-10 sm:pb-14 lg:min-h-[790px] lg:gap-0 lg:pt-0 lg:pb-0 min-[1100px]:min-h-[750px] xl:min-h-[700px]">
+        <div className="relative z-20 flex flex-col justify-center lg:max-w-[480px] lg:pb-14 xl:max-w-[520px] xl:py-16 2xl:max-w-[560px]">
           <p className="flex flex-wrap items-center gap-x-1.5 text-[20px] leading-snug text-[#5b6271] sm:text-[22px]">
             Hi, I’m <span className="font-semibold text-[#0b0d12]">Mizanur Hasan</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="ml-1 size-5 shrink-0 text-[#2563eb]">
@@ -78,18 +49,10 @@ export function HeroSection({ componentCount }: { componentCount: number }) {
               <span className={styles.productFace}>Real Products.</span>
             </span>
           </h1>
-          <p className="mt-4 max-w-[470px] text-[15px] leading-6 text-[#4b5563] sm:text-[16px]">
+          <p className="mt-4 max-w-[470px] text-[15px] leading-6 text-[#4b5563] sm:text-[16px] lg:max-w-[340px] min-[1120px]:max-w-[400px] xl:max-w-[470px]">
             I lead frontend engineering for a SaaS CRM and build marketplace features across the UI and API.
           </p>
-          <HeroActions playing={tour.playing} onToggleIntro={toggleIntro} />
-          <p aria-live="polite" className={`${tour.category ? "mt-4 min-h-6" : ""} text-[13px] text-[#4b5563]`}>
-            {tour.category && (
-              <span className="inline-flex items-center gap-2">
-                <span className="size-2 rounded-full" style={{ backgroundColor: tour.category.color }} />
-                <b className="font-semibold text-[#0b0d12]">{tour.category.label}:</b> {tour.category.tagline}
-              </span>
-            )}
-          </p>
+          <HeroActions />
           <dl className="mt-5 grid max-w-[460px] grid-cols-3 items-stretch divide-x divide-[#d6dbe3] sm:mt-6 sm:flex">
             <div className="flex min-w-0 flex-col pr-3 sm:pr-7">
               <dt className="order-2 mt-2 text-[11px] leading-snug text-[#4b5563] sm:text-[13px]">Live<br />components</dt>
@@ -106,25 +69,14 @@ export function HeroSection({ componentCount }: { componentCount: number }) {
           </dl>
         </div>
 
-        {/* The portrait fades into the scene at its edges; on wide screens it sits behind the stack. */}
-        <div className="relative z-10 mx-auto h-[220px] w-full max-w-[560px] sm:h-[520px] lg:h-[600px] lg:max-w-none xl:absolute xl:bottom-0 xl:left-[27%] xl:h-[90%] xl:w-[600px]">
+        {/* The portrait fades into the scene at its edges; from 1024px it sits between the text and the stack. */}
+        <div className="relative z-10 mx-auto -mt-5 h-[330px] w-full max-w-[560px] sm:-mt-[110px] sm:h-[400px] lg:absolute lg:bottom-0 lg:left-[calc(51%_-_240px)] lg:mx-0 lg:mt-0 lg:h-[90%] lg:w-[520px] lg:max-w-none xl:left-[27%] xl:w-[600px]">
           <WaterRevealPortrait heroRef={heroRef} />
         </div>
 
-        <div className="relative z-20 w-full lg:col-span-2 lg:mx-auto lg:max-w-[920px] xl:absolute xl:top-1/2 xl:right-8 xl:w-[660px] xl:-translate-y-1/2">
-          <button
-            type="button"
-            className={styles.stackToggle}
-            aria-controls="hero-tech-stack"
-            aria-expanded={stackOpen}
-            onClick={() => setStackOpen((open) => !open)}
-          >
-            Explore my tech stack
-            <span aria-hidden="true">{stackOpen ? "−" : "+"}</span>
-          </button>
-          <div id="hero-tech-stack" className={styles.stackPanel} data-open={stackOpen}>
-            <TechStack activeId={activeId} onActiveChange={(id) => { tour.stop(); setHovered(id); }} />
-          </div>
+        {/* The stack is always visible. Below 1024px it rises over the lower part of the portrait; above, it stands beside it. */}
+        <div className="relative z-20 -mt-[110px] w-full sm:-mt-[225px] lg:absolute lg:top-1/2 lg:right-8 lg:mt-0 lg:w-[clamp(400px,40%,500px)] lg:-translate-y-1/2 xl:w-[660px]">
+          <TechStack activeId={activeId} onActiveChange={setActiveId} />
         </div>
       </div>
     </section>

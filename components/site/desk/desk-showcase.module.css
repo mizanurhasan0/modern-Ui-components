@@ -2,7 +2,7 @@
 /* Section heading, white stage, closing button                        */
 /* ------------------------------------------------------------------ */
 .showcase {
-  color: #101c33;
+  color: #111318;
 }
 
 .heading {
@@ -28,14 +28,36 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border: 1.5px solid #cdd6e4;
+  border: 1.5px solid #cfd8e6;
   border-radius: 28px;
   padding: clamp(20px, 3.4vw, 44px) clamp(16px, 3.4vw, 44px) clamp(24px, 4vw, 48px);
   background: #fff;
   box-shadow:
     0 1px 0 #fff inset,
-    0 24px 48px -32px #18396633;
-  color: #101c33;
+    0 24px 48px -32px rgba(26, 39, 66, 0.22);
+  color: #111318;
+}
+
+/* The helicopter's landing mark: a small blue bar on the stage's top edge while it is perched there. */
+.stage[data-helicopter-perch]::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: -1px;
+  left: var(--helipad-x, 50%);
+  width: 56px;
+  height: 3px;
+  border-radius: 99px;
+  background: #4866e9;
+  box-shadow: 0 0 8px #4866e965;
+  opacity: 0.6;
+  transform: translateX(-50%);
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+
+.stage[data-helicopter-perch="landed"]::after {
+  opacity: 1;
 }
 
 .footer {
@@ -57,8 +79,8 @@
   isolation: isolate;
   border-radius: 999px;
   padding: 2px;
-  background: #cdd6e4;
-  box-shadow: 0 14px 30px -14px #0b182b66;
+  background: #cfd8e6;
+  box-shadow: 0 14px 30px -14px #0b0d1270;
   color: #fff;
   text-decoration: none;
   transition:
@@ -73,7 +95,7 @@
   inset: 0;
   z-index: -1;
   border-radius: inherit;
-  background: conic-gradient(from var(--history-angle), transparent 0 55%, #6aa8ff 72%, #58d6b6 88%, transparent 100%);
+  background: conic-gradient(from var(--history-angle), transparent 0 55%, #6f8fe8 72%, #2459ed 88%, transparent 100%);
   opacity: 0;
   transition: opacity 0.35s ease;
 }
@@ -87,11 +109,21 @@
   overflow: hidden;
   border-radius: 999px;
   padding: 0 8px 0 28px;
-  background: #101c33;
+  background: #0b0d12;
   font-size: 15px;
   font-weight: 650;
   letter-spacing: -0.01em;
   white-space: nowrap;
+}
+
+/* The blue that floods the pill on hover or focus, starting from behind the arrow chip (like the hero button). */
+.historyFace::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #2459ed;
+  clip-path: circle(19px at calc(100% - 28px) 50%);
+  transition: clip-path 0.55s cubic-bezier(0.2, 0.85, 0.25, 1);
 }
 
 /* A soft sheen that sweeps across on hover. */
@@ -120,7 +152,7 @@
 .historyTextClone {
   position: absolute;
   inset: 100% 0 auto;
-  color: #9be8cf;
+  color: #fff;
 }
 
 .historyChip {
@@ -133,9 +165,9 @@
   overflow: hidden;
   border-radius: 50%;
   background: #fff;
-  color: #101c33;
+  color: #0b0d12;
   transition:
-    background-color 0.3s ease,
+    color 0.3s ease,
     transform 0.45s cubic-bezier(0.2, 0.85, 0.25, 1);
 }
 
@@ -153,7 +185,11 @@
 @media (hover: hover) {
   .historyButton:hover {
     transform: translateY(-3px);
-    box-shadow: 0 22px 38px -14px #0b182b80;
+    box-shadow: 0 18px 34px -14px #2459ed85;
+  }
+
+  .historyButton:hover .historyFace::before {
+    clip-path: circle(150% at calc(100% - 28px) 50%);
   }
 
   .historyButton:hover .historyText {
@@ -161,7 +197,7 @@
   }
 
   .historyButton:hover .historyChip {
-    background: #9be8cf;
+    color: #2459ed;
     transform: rotate(-8deg) scale(1.06);
   }
 
@@ -184,13 +220,21 @@
   animation: historyOrbit 2.6s linear infinite;
 }
 
+.historyButton:focus-visible .historyFace::before {
+  clip-path: circle(150% at calc(100% - 28px) 50%);
+}
+
+.historyButton:focus-visible .historyChip {
+  color: #2459ed;
+}
+
 .historyButton:active {
   transform: translateY(0) scale(0.97);
   transition-duration: 0.12s;
 }
 
 .historyButton:focus-visible {
-  outline: 2px solid #2852a6;
+  outline: 2px solid #4866e9;
   outline-offset: 4px;
 }
 
@@ -214,7 +258,7 @@
 }
 
 .captionMeta {
-  color: #4e6890;
+  color: #667085;
   font: 600 11px/1.4 var(--font-geist-mono), monospace;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -222,7 +266,7 @@
 
 .captionTitle {
   margin-top: 8px;
-  color: #101c33;
+  color: #111318;
   font-size: clamp(20px, 2vw, 25px);
   font-weight: 650;
   letter-spacing: -0.035em;
@@ -232,7 +276,7 @@
 .captionSummary {
   max-width: 44ch;
   margin-top: 6px;
-  color: #3f567a;
+  color: #596273;
   font-size: 14px;
   line-height: 1.55;
 }
@@ -244,20 +288,20 @@
 
 .case {
   --case-bg: #fff;
-  --case-fg: #101c33;
-  --case-muted: #6b7f9d;
-  --case-line: #dde4ef;
+  --case-fg: #111318;
+  --case-muted: #667085;
+  --case-line: #e4e8ee;
   --case-border: #cfd8e6;
-  --case-fill: #101c33;
+  --case-fill: #2459ed;
   --case-fg-hover: #fff;
-  --case-muted-hover: #9fb0c8;
-  --case-line-hover: #ffffff2e;
-  --case-chip: #101c33;
+  --case-muted-hover: #e4ecff;
+  --case-line-hover: #ffffff40;
+  --case-chip: #0b0d12;
   --case-chip-fg: #fff;
-  --case-chip-hover: #9be8cf;
-  --case-chip-fg-hover: #101c33;
-  --case-ring: #3a86ff;
-  --case-shadow: 0 10px 22px -14px #0b182b66;
+  --case-chip-hover: #fff;
+  --case-chip-fg-hover: #2459ed;
+  --case-ring: #8fa9f0;
+  --case-shadow: 0 10px 22px -14px #0b0d1266;
 
   position: relative;
   display: inline-flex;
@@ -281,21 +325,21 @@
 }
 
 .caseSolid {
-  --case-bg: #101c33;
+  --case-bg: #0b0d12;
   --case-fg: #fff;
-  --case-muted: #9fb0c8;
+  --case-muted: #b9c9f7;
   --case-line: #ffffff2e;
   --case-border: #ffffff59;
-  --case-fill: #9be8cf;
-  --case-fg-hover: #101c33;
-  --case-muted-hover: #38685a;
-  --case-line-hover: #101c3326;
+  --case-fill: #2459ed;
+  --case-fg-hover: #fff;
+  --case-muted-hover: #e4ecff;
+  --case-line-hover: #ffffff40;
   --case-chip: #fff;
-  --case-chip-fg: #101c33;
-  --case-chip-hover: #101c33;
-  --case-chip-fg-hover: #9be8cf;
-  --case-ring: #9be8cf;
-  --case-shadow: 0 12px 26px -12px #0b182b80;
+  --case-chip-fg: #0b0d12;
+  --case-chip-hover: #0b0d12;
+  --case-chip-fg-hover: #8fa9f0;
+  --case-ring: #8fa9f0;
+  --case-shadow: 0 12px 26px -12px #0b0d1280;
 }
 
 /* The colour that floods the pill, starting from behind the arrow chip. */
@@ -404,7 +448,7 @@
     color: var(--case-fg-hover);
     border-color: transparent;
     transform: translateY(-2px);
-    box-shadow: 0 16px 28px -14px #0b182b80;
+    box-shadow: 0 16px 28px -14px #2459ed85;
   }
 
   .case:hover .caseFill {
@@ -437,13 +481,13 @@
 }
 
 .case:focus-visible {
-  outline: 2px solid #2852a6;
+  outline: 2px solid #4866e9;
   outline-offset: 4px;
 }
 
 .caseSolid:focus-visible {
   outline-color: #fff;
-  box-shadow: 0 0 0 5px #3a86ff;
+  box-shadow: 0 0 0 5px #4866e9;
 }
 
 .srOnly {
@@ -515,7 +559,7 @@
 
 .escChip {
   flex: none;
-  border: 1px solid #c6d3e4;
+  border: 1px solid #cfd8e6;
   border-radius: 999px;
   padding: 7px 13px;
   background: #fff;
@@ -532,7 +576,7 @@
   justify-content: center;
   border: 1px solid #ffffff80;
   border-radius: 50%;
-  background: #101c33;
+  background: #0b0d12;
   color: #fff;
   transition:
     background-color 0.2s ease,
@@ -559,15 +603,15 @@
   aspect-ratio: 16 / 10;
   overflow: hidden;
   border-radius: clamp(4px, 0.8vw, 8px);
-  background: #f6f9fd;
+  background: #f4f7ff;
 }
 
 .crmFrame {
-  background: #f6f9fd;
+  background: #f4f7ff;
 }
 
 .marketFrame {
-  background: #eef9f6;
+  background: #eef3ff;
 }
 
 .screenInner {
@@ -583,7 +627,7 @@
 
 .hint {
   display: none;
-  color: #3f567a;
+  color: #596273;
   font-size: 14px;
   line-height: 1.45;
   text-align: center;
@@ -621,13 +665,13 @@
 }
 
 .ghost {
-  border-color: #c4d2c8;
+  border-color: #cfd8e6;
   background: #fff;
   color: #26334d;
 }
 
 .ghost:hover {
-  background: #eef4ef;
+  background: #e4ecff;
 }
 
 /* Double ring stays visible on the dim backdrop and on the light sheet. */
@@ -635,7 +679,7 @@
 .closeButton:focus-visible {
   outline: 3px solid #fff;
   outline-offset: 2px;
-  box-shadow: 0 0 0 5px #3a86ff;
+  box-shadow: 0 0 0 5px #4866e9;
 }
 
 /* Esc hint only helps people with a hardware keyboard. */
@@ -667,8 +711,8 @@
     max(10px, env(safe-area-inset-right))
     max(12px, env(safe-area-inset-bottom))
     max(10px, env(safe-area-inset-left));
-  background: #e6efe9;
-  color: #101c33;
+  background: #eef2fa;
+  color: #111318;
   outline: none;
   /* Nothing in the sheet scrolls: keep pulls and swipes from reaching the page behind. */
   touch-action: none;
@@ -686,7 +730,7 @@
 .raceTitle {
   flex: 1;
   min-width: 0;
-  color: #101c33;
+  color: #111318;
   font-size: 17px;
   font-weight: 650;
   letter-spacing: -0.02em;
@@ -729,8 +773,8 @@
   /* Full-bleed sheet. */
   .dialog {
     padding: 0;
-    background: #e6efe9;
-    color: #101c33;
+    background: #eef2fa;
+    color: #111318;
   }
 
   .panel {
@@ -748,7 +792,7 @@
   }
 
   .dialogTitle {
-    color: #101c33;
+    color: #111318;
   }
 
   .backdrop {
@@ -797,7 +841,7 @@
 
   .pill:focus-visible,
   .closeButton:focus-visible {
-    outline-color: #2852a6;
+    outline-color: #4866e9;
     box-shadow: 0 0 0 5px #fff;
   }
 }
@@ -834,6 +878,7 @@
 /* ------------------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
   .historyButton,
+  .historyFace::before,
   .historyText,
   .historyChip,
   .historyArrow,
@@ -922,6 +967,10 @@
 
   .historyFace {
     background: ButtonFace;
+  }
+
+  .historyFace::before {
+    display: none;
   }
 
   .historyChip {

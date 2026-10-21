@@ -43,6 +43,8 @@ export interface NeumorphicNavbarProps {
   onBrandClick?: () => void;
   /** Set to null to hide the desktop action. */
   actionLabel?: string | null;
+  /** Decorative icon shown before the action label. */
+  actionIcon?: ReactNode;
   actionHref?: string;
   onAction?: () => void;
   ariaLabel?: string;
@@ -81,7 +83,7 @@ const BRAND = "inline-flex w-fit min-w-0 max-w-full items-center border-0 bg-tra
 const TRACK = `relative isolate min-w-0 items-center rounded-[999px] bg-(--nn-surface) ${PRESSED_SHADOW}`;
 const HIGHLIGHT = `pointer-events-none absolute left-0 z-0 w-0 rounded-[999px] bg-(--nn-surface) opacity-0 ${RAISED_SHADOW} [transition:transform_.32s_cubic-bezier(.2,.8,.2,1),width_.32s_cubic-bezier(.2,.8,.2,1),opacity_.12s_ease] motion-reduce:[transition:none]`;
 const ITEM = "relative z-[1] block flex-[0_0_auto] rounded-[999px] border-0 bg-transparent leading-none whitespace-nowrap text-[#626262] no-underline [transition:color_.2s_ease] hover:text-[#202020] data-[active=true]:text-[#202020] motion-reduce:[transition:none]";
-const ACTION = `block max-w-full rounded-[999px] border-0 bg-(--nn-surface) font-bold leading-none whitespace-nowrap text-[#202020] no-underline ${RAISED_SHADOW} [transition:box-shadow_.18s_ease] motion-reduce:[transition:none]`;
+const ACTION = `flex max-w-full items-center gap-2 rounded-[999px] border-0 bg-(--nn-surface) font-bold leading-none whitespace-nowrap text-[#202020] no-underline ${RAISED_SHADOW} [transition:box-shadow_.18s_ease] motion-reduce:[transition:none]`;
 const TOGGLE = `flex-[0_0_36px] place-items-center rounded-[50%] [justify-self:end] border-0 bg-(--nn-surface) p-0 text-[#333] ${RAISED_SHADOW}`;
 const PANEL = "bg-(--nn-surface) shadow-[8px_8px_18px_var(--nn-shadow),-8px_-8px_18px_var(--nn-light)] animate-[nn-menu-enter_.2s_ease_both] motion-reduce:animate-none";
 const MOBILE_ITEM = `block w-full rounded-[999px] border-0 bg-transparent text-left leading-none text-[#626262] no-underline [transition:color_.18s_ease,box-shadow_.18s_ease] hover:text-[#202020] data-[active=true]:text-[#202020] data-[active=true]:shadow-[inset_4px_4px_8px_var(--nn-shadow),inset_-4px_-4px_8px_var(--nn-light)] motion-reduce:[transition:none]`;
@@ -122,6 +124,7 @@ export default function NeumorphicNavbar({
   onNavigate,
   onBrandClick,
   actionLabel = "Get started",
+  actionIcon,
   actionHref,
   onAction,
   ariaLabel = "Main navigation",
@@ -252,9 +255,9 @@ export default function NeumorphicNavbar({
             {actionLabel && (
               <div className="nn-action-wrap flex min-w-0 justify-end [@container_neumorphic-navbar_(max-width:680px)]:hidden">
                 {actionHref ? (
-                  <Link className={ACTION_CONTROL} href={actionHref} onClick={onAction}>{actionLabel}</Link>
+                  <Link className={ACTION_CONTROL} href={actionHref} onClick={onAction}>{actionIcon}{actionLabel}</Link>
                 ) : (
-                  <button className={ACTION_CONTROL} type="button" onClick={onAction}>{actionLabel}</button>
+                  <button className={ACTION_CONTROL} type="button" onClick={onAction}>{actionIcon}{actionLabel}</button>
                 )}
               </div>
             )}

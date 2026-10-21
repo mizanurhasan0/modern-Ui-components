@@ -1,8 +1,8 @@
 "use client";
 
-import type { PointerEvent } from "react";
+import type { CSSProperties, PointerEvent } from "react";
 import { ArrowUpRight } from "@/components/site/icons";
-import { contactHref, portfolioProfile } from "@/lib/portfolio-profile";
+import { portfolioProfile } from "@/lib/portfolio-profile";
 import styles from "./hero-actions.module.css";
 
 function followPointer(event: PointerEvent<HTMLElement>) {
@@ -18,7 +18,7 @@ function resetPointer(event: PointerEvent<HTMLElement>) {
   event.currentTarget.style.removeProperty("--magnet-y");
 }
 
-export function HeroActions({ playing, onToggleIntro }: { playing: boolean; onToggleIntro: () => void }) {
+export function HeroActions() {
   return (
     <div className={styles.actions}>
       <a href="#selected-work" className={`${styles.button} ${styles.work}`} onPointerMove={followPointer} onPointerLeave={resetPointer} onPointerCancel={resetPointer}>
@@ -28,18 +28,24 @@ export function HeroActions({ playing, onToggleIntro }: { playing: boolean; onTo
           <ArrowUpRight className={styles.incoming} />
         </span>
       </a>
-      <a href={contactHref} className={`${styles.button} ${styles.intro}`}>
-        <span className={styles.play} aria-hidden="true">
-          <svg viewBox="0 0 20 20" fill="none"><rect x="2.5" y="4.5" width="15" height="11" rx="2" stroke="currentColor" strokeWidth="1.6" /><path d="m3.5 6 6.5 5 6.5-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      <a href={portfolioProfile.resume} target="_blank" rel="noopener noreferrer" className={`${styles.button} ${styles.resume}`}>
+        <span className={styles.doc} aria-hidden="true">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5.5 2.5h6L15 6v10a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 4 16V4a1.5 1.5 0 0 1 1.5-1.5Z" />
+            <path d="M11.5 2.5V6H15" />
+            <path className={styles.docLine} style={{ "--i": 0 } as CSSProperties} pathLength={1} d="M7 9.5h2.5" />
+            <path className={styles.docLine} style={{ "--i": 1 } as CSSProperties} pathLength={1} d="M7 12h6" />
+            <path className={styles.docLine} style={{ "--i": 2 } as CSSProperties} pathLength={1} d="M7 14.5h6" />
+          </svg>
         </span>
-        <span className={styles.label}>Email me</span>
+        <span className={styles.label}>
+          View Resume<span className={styles.srOnly}> (PDF, opens in a new tab)</span>
+        </span>
+        <span className={styles.tag} aria-hidden="true">
+          PDF
+          <ArrowUpRight className={styles.tagArrow} />
+        </span>
       </a>
-      <a href={portfolioProfile.resume} target="_blank" rel="noopener noreferrer" className={styles.tour}>
-        View résumé ↗
-      </a>
-      <button type="button" aria-pressed={playing} onClick={onToggleIntro} className={styles.tour}>
-        {playing ? "Stop tech stack tour" : "Play tech stack tour"}
-      </button>
     </div>
   );
 }

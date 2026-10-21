@@ -7,7 +7,7 @@ import NeumorphicNavbar, {
   type NeumorphicPalette,
 } from "@/components/ui/neumorphic-navbar";
 import { contactHref } from "@/lib/portfolio-profile";
-import { LabMark, LabWordmark } from "./icons";
+import { LabMark, LabWordmark, MailIcon } from "./icons";
 
 const NAV_ITEMS: readonly NeumorphicNavItem[] = [
   { id: "home", label: "Home", href: "/" },
@@ -46,6 +46,7 @@ export function SiteHeader() {
           brandMark={<LabMark className="size-9 sm:size-10" />}
           brandHref="/"
           actionLabel="Email me"
+          actionIcon={<MailIcon className="size-4 shrink-0 text-[#2459ed]" />}
           actionHref={contactHref}
           ariaLabel="Main navigation"
         />

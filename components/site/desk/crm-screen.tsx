@@ -352,7 +352,7 @@ export function CrmScreen({ mode }: { mode: ScreenMode }) {
 
       const lifted = previous.ghost || Math.abs(dx) > width * 0.06;
       const tilt = previous.ghost ? 3 : dx > 0 ? -4 : 4;
-      const shadow = `drop-shadow(0 ${unit * 1.1}px ${unit * 1.6}px rgb(16 28 51 / 0.28))`;
+      const shadow = `drop-shadow(0 ${unit * 1.1}px ${unit * 1.6}px rgb(26 39 66 / 0.28))`;
       const animation = card.animate(
         lifted
           ? [
@@ -360,7 +360,7 @@ export function CrmScreen({ mode }: { mode: ScreenMode }) {
                 transform: `translate(${dx}px, ${dy}px) rotate(${tilt}deg) scale(1.04)`,
                 filter: shadow,
               },
-              { transform: "translate(0, 0) rotate(0deg) scale(1)", filter: "drop-shadow(0 0 0 rgb(16 28 51 / 0))" },
+              { transform: "translate(0, 0) rotate(0deg) scale(1)", filter: "drop-shadow(0 0 0 rgb(26 39 66 / 0))" },
             ]
           : [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "translate(0, 0)" }],
         {
