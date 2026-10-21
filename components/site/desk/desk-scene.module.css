@@ -19,6 +19,7 @@
   --u: calc(100cqw / 680);
   --ring: #3a86ff;
 
+  position: relative;
   container-type: inline-size;
   display: grid;
   gap: 20px;
@@ -71,231 +72,201 @@
   }
 }
 
-/* ---------- play button ---------- */
+/* ---------- game trigger (one real <button>) ---------- */
 
-/* mobile: centred above the first card, with a little extra room for the hint bubble underneath */
-.playRow {
+/*
+ * Phones: one full-width horizontal card above the first monitor card: cover on the left, text, then a
+ * round mint START chip. Desk: the same button becomes a cover card standing on the desk next to a small
+ * retro console with a big mint START button (see the desktop block).
+ */
+.trigger {
+  --cover-play: paused;
+
   position: relative;
-  z-index: 3;
   display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 520px;
+  min-height: 56px;
+  margin: 0 auto;
+  padding: 8px 12px 8px 8px;
+  border: 1px solid #cdd9d1;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow:
+    0 1px 2px rgba(16, 28, 51, 0.05),
+    0 16px 30px -18px rgba(16, 28, 51, 0.3);
+  color: #101c33;
+  font: inherit;
+  text-align: left;
+  appearance: none;
+  cursor: pointer;
+  outline: none;
+  transition:
+    transform 0.2s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
-.playWrap {
+.trigger:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 3px;
+}
+
+.trigger:active {
+  transform: translateY(1px);
+}
+
+/* the cover art drifts while the trigger is hovered / focused / pressed */
+.trigger:focus-visible,
+.trigger:active {
+  --cover-play: running;
+}
+
+@media (hover: hover) {
+  .trigger:hover {
+    --cover-play: running;
+  }
+}
+
+/* on phones the card wrapper dissolves so cover + copy sit directly in the button's row */
+.card {
+  display: contents;
+}
+
+.cover {
+  flex: none;
+  width: 80px;
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px rgba(16, 28, 51, 0.12);
+}
+
+.copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.title {
+  font:
+    700 15px/1.2 var(--font-geist-sans),
+    system-ui,
+    sans-serif;
+  letter-spacing: -0.005em;
+  color: #101c33;
+}
+
+.sub {
+  font:
+    500 13px/1.25 var(--font-geist-sans),
+    system-ui,
+    sans-serif;
+  color: #4e6890;
+}
+
+.meta {
+  font:
+    500 11.5px/1.25 var(--font-geist-mono),
+    ui-monospace,
+    monospace;
+  letter-spacing: 0.01em;
+  color: #6b7f9e;
+}
+
+.deskOnly {
+  display: none;
+}
+
+.phoneOnly {
+  display: inline;
+}
+
+/* very narrow phones: smaller cover, no third line, so the title never wraps */
+@media (max-width: 360px) {
+  .cover {
+    width: 64px;
+  }
+
+  .meta {
+    display: none;
+  }
+
+  .title {
+    white-space: nowrap;
+  }
+}
+
+/* round mint START chip (phones) */
+.chip {
   position: relative;
-  display: inline-flex;
-  border-radius: 999px;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #9be8cf;
+  box-shadow:
+    0 0 0 3px #26334d,
+    0 6px 12px -6px rgba(16, 28, 51, 0.6);
+  color: #1d6b57;
+  margin-right: 3px;
 }
 
-/* soft pulsing ring: finite (4 x 2 s = 8 s), only starts after the button first scrolls into view */
-.playWrap::before {
+.trigger[aria-pressed="true"] .chip {
+  background: #ffb0a0;
+  color: #6b1f12;
+}
+
+.chip::before,
+.chip::after {
   content: "";
   position: absolute;
-  inset: -1px;
-  z-index: -1;
-  border: 2px solid var(--ring);
-  border-radius: 999px;
+  inset: 0;
+  border: 2px solid #9be8cf;
+  border-radius: 50%;
   opacity: 0;
   pointer-events: none;
 }
 
-.playWrapPulse::before {
-  animation: playRing 2s cubic-bezier(0.2, 0.6, 0.3, 1) 4 both;
+.pulse .chip::before {
+  animation: chipRing 2s cubic-bezier(0.2, 0.6, 0.3, 1) 4 both;
 }
 
-@keyframes playRing {
+.pulse .chip::after {
+  animation: chipRing 2s cubic-bezier(0.2, 0.6, 0.3, 1) 0.9s 4 both;
+}
+
+@keyframes chipRing {
   from {
-    opacity: 0.7;
+    opacity: 0.8;
     transform: scale(1);
   }
 
   to {
     opacity: 0;
-    transform: scale(1.16, 1.5);
+    transform: scale(1.7);
   }
 }
 
-.play {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  box-sizing: border-box;
-  min-height: 44px;
-  margin: 0;
-  padding: 0 16px 0 8px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 999px;
-  background: linear-gradient(180deg, #182a4f, #101c33);
-  color: #fff;
-  font:
-    600 14px/1 var(--font-geist-sans),
-    system-ui,
-    sans-serif;
-  letter-spacing: 0.005em;
-  white-space: nowrap;
-  appearance: none;
-  cursor: pointer;
-  outline: 3px solid transparent;
-  outline-offset: 3px;
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.14) inset,
-    0 2px 4px rgba(16, 28, 51, 0.2),
-    0 14px 22px -12px rgba(16, 28, 51, 0.75);
-  transition:
-    transform 0.2s cubic-bezier(0.2, 0.7, 0.2, 1),
-    box-shadow 0.2s ease,
-    outline-color 0.18s ease;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
+.glyph {
+  color: #1d6b57;
 }
 
-.play:focus-visible {
-  outline-color: var(--ring);
-  transform: translateY(-1px);
+.trigger[aria-pressed="true"] .glyph {
+  color: #6b1f12;
 }
 
-.play:active {
-  transform: translateY(0) scale(0.98);
-}
-
-@media (hover: hover) {
-  .play:hover {
-    transform: translateY(-1px);
-    box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.18) inset,
-      0 2px 4px rgba(16, 28, 51, 0.2),
-      0 18px 26px -12px rgba(40, 82, 166, 0.7);
-  }
-
-  .play:hover .playChip {
-    transform: rotate(-8deg) scale(1.06);
-  }
-}
-
-.playChip {
-  display: inline-grid;
-  place-items: center;
-  flex: none;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: linear-gradient(150deg, #5a9dff, #2a5fc4);
-  color: #fff;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18) inset;
-  transition:
-    transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1),
-    background 0.25s ease;
-}
-
-/* while the game runs the chip turns amber ("on") */
-.play[aria-pressed="true"] .playChip {
-  background: linear-gradient(150deg, #f8cd62, #e0a32a);
-  color: #101c33;
-}
-
-.playLabel {
-  display: block;
-}
-
-.keycap {
-  display: inline-block;
-  padding: 4px 6px 3px;
-  border: 1px solid rgba(255, 255, 255, 0.34);
-  border-radius: 5px;
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 1.5px 0 rgba(255, 255, 255, 0.22);
-  color: #dbe8ff;
-  font:
-    500 11px/1 var(--font-geist-mono),
-    ui-monospace,
-    monospace;
-}
-
-/* mint "live" dot */
-.live {
-  flex: none;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #6ee7b7;
-  box-shadow:
-    0 0 0 3px rgba(110, 231, 183, 0.22),
-    0 0 10px rgba(110, 231, 183, 0.75);
-  animation: liveDot 2.6s ease-in-out infinite;
-}
-
-@keyframes liveDot {
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.55;
-  }
-}
-
-/* one-time hint bubble: under the button on mobile, to its left on the desk */
-.hint {
-  position: absolute;
-  top: calc(100% + 9px);
-  left: 50%;
-  z-index: 1;
-  box-sizing: border-box;
-  width: max-content;
-  max-width: min(260px, calc(100cqw - 8px));
-  padding: 6px 12px;
-  border: 1px solid #ecd08a;
-  border-radius: 12px;
-  background: #fff6d6;
-  color: #3b2f0c;
-  font:
-    500 12.5px/1.3 var(--font-geist-sans),
-    system-ui,
-    sans-serif;
-  text-align: center;
-  translate: -50% 0;
-  pointer-events: none;
-  box-shadow: 0 10px 18px -12px rgba(120, 88, 12, 0.55);
-  transition:
-    opacity 0.4s ease,
-    visibility 0s linear 0s;
-  animation: hintIn 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-
-.hint::after {
-  content: "";
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  width: 12px;
-  height: 6px;
-  margin-left: -6px;
-  background: #ecd08a;
-  clip-path: polygon(0 100%, 50% 0, 100% 100%);
-}
-
-.hint[data-gone="true"] {
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 0.4s ease,
-    visibility 0s linear 0.4s;
-  animation: none;
-}
-
-@keyframes hintIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px) scale(0.96);
-  }
-
-  to {
-    opacity: 1;
-    transform: none;
-  }
+/* desktop-only pieces */
+.exitTag,
+.console {
+  display: none;
 }
 
 /* ---------- monitor button ---------- */
@@ -404,8 +375,8 @@
     grid-template-columns:
       minmax(0, 40fr) minmax(0, 15fr) minmax(0, 270fr) minmax(0, 15fr)
       minmax(0, 15fr) minmax(0, 270fr) minmax(0, 15fr) minmax(0, 40fr);
-    /* play row | desk art (+ monitors) | captions */
-    grid-template-rows: auto auto auto;
+    /* desk art (+ monitors) | captions */
+    grid-template-rows: auto auto;
   }
 
   /* the card wrapper disappears; its children sit directly on the scene grid */
@@ -413,39 +384,9 @@
     display: contents;
   }
 
-  /* Play button row: right-aligned at the right monitor's outer corner (drawing x 625) */
-  .playRow {
-    grid-area: 1 / 1 / 2 / 9;
-    justify-content: flex-end;
-    margin-bottom: 0;
-    /* right edge at the right monitor's outer corner (drawing x 625); a little air above the monitor tooltip */
-    padding: 0 calc(55 * var(--u)) 6px 0;
-  }
-
-  /* the bubble sits to the left of the button, pointing right; it lives in this row, above the monitor tooltip */
-  .hint {
-    top: 50%;
-    right: calc(100% + 14px);
-    left: auto;
-    max-width: none;
-    white-space: nowrap;
-    translate: 0 -50%;
-  }
-
-  .hint::after {
-    top: 50%;
-    right: -6px;
-    bottom: auto;
-    left: auto;
-    width: 6px;
-    height: 12px;
-    margin: -6px 0 0;
-    clip-path: polygon(0 0, 100% 50%, 0 100%);
-  }
-
   .art {
     display: block;
-    grid-area: 2 / 1 / 3 / 9;
+    grid-area: 1 / 1 / 2 / 9;
     width: 100%;
     height: auto;
     aspect-ratio: 680 / 382;
@@ -484,11 +425,11 @@
   }
 
   .left .monitor {
-    grid-area: 2 / 3 / 3 / 4;
+    grid-area: 1 / 3 / 2 / 4;
   }
 
   .right .monitor {
-    grid-area: 2 / 6 / 3 / 7;
+    grid-area: 1 / 6 / 2 / 7;
   }
 
   /* each caption is centred under its monitor (drawing x 190 and 490) */
@@ -500,11 +441,11 @@
   }
 
   .left .caption {
-    grid-area: 3 / 2 / 4 / 5;
+    grid-area: 2 / 2 / 3 / 5;
   }
 
   .right .caption {
-    grid-area: 3 / 5 / 4 / 8;
+    grid-area: 2 / 5 / 3 / 8;
   }
 
   .tap {
@@ -557,7 +498,7 @@
     display: block;
     position: relative;
     z-index: 1;
-    grid-area: 2 / 3 / 3 / 7;
+    grid-area: 1 / 3 / 2 / 7;
     align-self: start;
     box-sizing: border-box;
     /* drawing y 24 minus the viewBox origin y 10 */
@@ -602,6 +543,251 @@
     overflow: hidden;
     border-radius: inherit;
     animation: gameIn 0.35s ease-out both;
+  }
+
+  /* ----- the console + cover card on the desk (one button; drawing x 204..452, y 240..308) ----- */
+
+  .trigger {
+    position: absolute;
+    z-index: 2;
+    /* drawing y 240 minus the viewBox origin y 10 */
+    top: calc(230 * var(--u));
+    left: calc(204 * var(--u));
+    display: block;
+    width: calc(248 * var(--u));
+    max-width: none;
+    height: calc(68 * var(--u));
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    transition: none;
+  }
+
+  .trigger:active {
+    transform: none;
+  }
+
+  /* the focus ring is drawn on the card, the exit tag and around START instead of around this big box */
+  .trigger:focus-visible {
+    outline: none;
+  }
+
+  .deskOnly {
+    display: inline;
+  }
+
+  .phoneOnly,
+  .chip {
+    display: none;
+  }
+
+  /* cover card: stands between the monitor stands, pointer aims at START (drawing x 220..392, y 244..296) */
+  .card {
+    position: absolute;
+    bottom: calc(12 * var(--u));
+    left: calc(-4 * var(--u));
+    display: flex;
+    align-items: center;
+    gap: calc(8 * var(--u));
+    box-sizing: border-box;
+    width: calc(192 * var(--u));
+    padding: calc(6 * var(--u));
+    border: 1px solid #cfd8e6;
+    border-radius: calc(10 * var(--u));
+    background: #fff;
+    box-shadow:
+      0 calc(6 * var(--u)) calc(14 * var(--u)) calc(-7 * var(--u)) rgba(16, 28, 51, 0.38),
+      0 1px 2px rgba(16, 28, 51, 0.1);
+    opacity: 1;
+    transition:
+      opacity 0.3s ease 0.2s,
+      transform 0.2s cubic-bezier(0.2, 0.7, 0.2, 1),
+      box-shadow 0.2s ease;
+  }
+
+  .card::before,
+  .card::after,
+  .exitTag::before,
+  .exitTag::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+  }
+
+  /* triangular pointer on the right edge: a border-coloured triangle under a white one */
+  .card::before {
+    right: calc(-7 * var(--u) - 1.4px);
+    bottom: calc(7 * var(--u) - 1.5px);
+    width: calc(7 * var(--u) + 2.8px);
+    height: calc(12 * var(--u) + 3px);
+    background: #cfd8e6;
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+  }
+
+  .card::after {
+    right: calc(-7 * var(--u));
+    bottom: calc(7 * var(--u));
+    width: calc(7 * var(--u) + 1px);
+    height: calc(12 * var(--u));
+    background: #fff;
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+  }
+
+  .cover {
+    width: calc(80 * var(--u));
+    border-radius: calc(6 * var(--u));
+  }
+
+  .copy {
+    gap: 0;
+  }
+
+  .title {
+    font-size: max(12px, calc(10.5 * var(--u)));
+  }
+
+  .sub {
+    margin-top: calc(1.5 * var(--u));
+    font-size: max(9.8px, calc(7.4 * var(--u)));
+    white-space: nowrap;
+  }
+
+  .meta {
+    margin-top: calc(1.5 * var(--u));
+    font-size: max(9.5px, calc(6.5 * var(--u)));
+    white-space: nowrap;
+  }
+
+  /* shown instead of the card while the game runs: a small white tag above the (now exit) button, pointer down */
+  .exitTag {
+    position: absolute;
+    right: calc(6 * var(--u));
+    bottom: calc(35 * var(--u));
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: max-content;
+    padding: calc(4.5 * var(--u)) calc(9 * var(--u));
+    border: 1px solid #cfd8e6;
+    border-radius: calc(7 * var(--u));
+    background: #fff;
+    color: #101c33;
+    box-shadow:
+      0 calc(5 * var(--u)) calc(10 * var(--u)) calc(-5 * var(--u)) rgba(16, 28, 51, 0.5),
+      0 1px 2px rgba(16, 28, 51, 0.1);
+    opacity: 0;
+    transition: opacity 0.2s ease 0s;
+  }
+
+  .exitTag::before {
+    top: 100%;
+    right: calc(20 * var(--u) - 1.4px);
+    width: calc(10 * var(--u) + 2.8px);
+    height: calc(5 * var(--u) + 2px);
+    background: #cfd8e6;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+
+  .exitTag::after {
+    top: 100%;
+    right: calc(20 * var(--u));
+    width: calc(10 * var(--u));
+    height: calc(5 * var(--u));
+    background: #fff;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+
+  .exitTitle {
+    font-family: var(--font-geist-sans), system-ui, sans-serif;
+    font-size: max(11px, calc(9 * var(--u)));
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .exitSub {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-size: max(9.5px, calc(6.8 * var(--u)));
+    font-weight: 500;
+    line-height: 1.25;
+    color: #4e6890;
+  }
+
+  .scene[data-merged="true"] .card {
+    opacity: 0;
+    transition: opacity 0.25s ease 0s;
+  }
+
+  .scene[data-merged="true"] .exitTag {
+    opacity: 1;
+    transition: opacity 0.3s ease 0.3s;
+  }
+
+  /* hover / focus: the card lifts a hair, the console lifts, START glows and its ring strengthens */
+  .trigger:focus-visible .card {
+    outline: 3px solid var(--ring);
+    outline-offset: 3px;
+  }
+
+  .trigger:focus-visible .exitTag {
+    outline: 3px solid var(--ring);
+    outline-offset: 3px;
+  }
+
+  /* the console: an SVG in drawing units (viewBox 390 270 62 40) */
+  .console {
+    position: absolute;
+    top: calc(30 * var(--u));
+    left: calc(186 * var(--u));
+    display: block;
+    width: calc(62 * var(--u));
+    height: calc(40 * var(--u));
+    overflow: visible;
+    forced-color-adjust: none;
+    transition: transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .trigger:focus-visible .console {
+    transform: translateY(-1.5px);
+  }
+
+  .trigger:focus-visible .card {
+    transform: translateY(-1px);
+  }
+
+  .trigger:focus-visible .glow {
+    opacity: 0.3;
+  }
+
+  .trigger:focus-visible .hoverRing {
+    opacity: 0.9;
+  }
+
+  .trigger:focus-visible .focusRing {
+    opacity: 1;
+  }
+
+  /* a narrower desk: the card gets a touch wider and the cover smaller so the text keeps its size */
+  @container (max-width: 820px) {
+    .card {
+      left: calc(4 * var(--u));
+      width: calc(184 * var(--u));
+    }
+
+    .cover {
+      width: calc(54 * var(--u));
+    }
+  }
+
+  /* and below that the third line (and the exit tag's second line) go away */
+  @container (max-width: 740px) {
+    .meta,
+    .exitSub {
+      display: none;
+    }
   }
 
   /* ----- merging / on ----- */
@@ -700,6 +886,25 @@
 }
 
 @media (min-width: 721px) and (hover: hover) {
+  .trigger:hover .card {
+    transform: translateY(-1px);
+    box-shadow:
+      0 calc(9 * var(--u)) calc(18 * var(--u)) calc(-8 * var(--u)) rgba(40, 82, 166, 0.45),
+      0 1px 2px rgba(16, 28, 51, 0.1);
+  }
+
+  .trigger:hover .console {
+    transform: translateY(-1.5px);
+  }
+
+  .trigger:hover .glow {
+    opacity: 0.3;
+  }
+
+  .trigger:hover .hoverRing {
+    opacity: 0.9;
+  }
+
   .monitor:hover .tip {
     opacity: 1;
     transform: translate(-50%, 0);
@@ -718,6 +923,65 @@
   to {
     opacity: 1;
   }
+}
+
+/* ---------- START button pieces (inside the console SVG) ---------- */
+
+.glow,
+.hoverRing,
+.focusRing {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.focusRing {
+  stroke: var(--ring);
+}
+
+.ring {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.pulse .ringA {
+  animation: startRing 2s cubic-bezier(0.2, 0.6, 0.3, 1) 4 both;
+}
+
+.pulse .ringB {
+  animation: startRing 2s cubic-bezier(0.2, 0.6, 0.3, 1) 0.9s 4 both;
+}
+
+@keyframes startRing {
+  from {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(2.1);
+  }
+}
+
+.start {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.startFace {
+  fill: #9be8cf;
+  transition: fill 0.3s ease;
+}
+
+/* while the game runs START turns into a small coral "stop / exit" square */
+.trigger[aria-pressed="true"] .start {
+  transform: scale(0.78);
+}
+
+.trigger[aria-pressed="true"] .startFace {
+  fill: #ffb0a0;
 }
 
 /* ---------- mug steam ---------- */
@@ -752,8 +1016,13 @@
 @media (prefers-reduced-motion: reduce) {
   .monitor,
   .tip,
-  .play,
-  .playChip {
+  .trigger,
+  .console,
+  .start,
+  .startFace,
+  .glow,
+  .hoverRing,
+  .focusRing {
     transition: none;
   }
 
@@ -766,25 +1035,12 @@
     animation: none;
   }
 
-  .playWrapPulse::before,
-  .live,
-  .gameHost {
+  .gameHost,
+  .pulse .ringA,
+  .pulse .ringB,
+  .pulse .chip::before,
+  .pulse .chip::after {
     animation: none;
-  }
-
-  .hint {
-    animation: none;
-    transition: opacity 0.2s linear;
-  }
-
-  .hint[data-gone="true"] {
-    transition:
-      opacity 0.2s linear,
-      visibility 0s linear 0.2s;
-  }
-
-  .play:hover .playChip {
-    transform: none;
   }
 }
 
@@ -838,6 +1094,24 @@
   .caption {
     transition: opacity 0.15s linear 0s;
   }
+
+  /* the card and the exit tag simply cross-fade; no lift on hover */
+  .card,
+  .scene[data-merged="true"] .card {
+    transition: opacity 0.15s linear 0s;
+  }
+
+  .exitTag,
+  .scene[data-merged="true"] .exitTag {
+    transition: opacity 0.15s linear 0s;
+  }
+
+  .trigger:hover .card,
+  .trigger:focus-visible .card,
+  .trigger:hover .console,
+  .trigger:focus-visible .console {
+    transform: none;
+  }
 }
 
 @media (forced-colors: active) {
@@ -863,56 +1137,68 @@
     background: CanvasText;
   }
 
-  .play {
+  .trigger:focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 3px;
+  }
+
+  .chip {
     border: 2px solid ButtonText;
     background: ButtonFace;
     color: ButtonText;
     box-shadow: none;
   }
 
-  .play:focus-visible {
-    outline: 3px solid Highlight;
-    outline-offset: 3px;
-  }
-
-  .playChip {
-    border: 1px solid ButtonText;
-    background: ButtonFace;
-    color: ButtonText;
-    box-shadow: none;
-  }
-
-  .play[aria-pressed="true"] .playChip {
+  .trigger[aria-pressed="true"] .chip {
     background: ButtonFace;
     color: ButtonText;
   }
 
-  .keycap {
-    border-color: ButtonText;
-    background: ButtonFace;
+  .glyph,
+  .trigger[aria-pressed="true"] .glyph {
     color: ButtonText;
+  }
+
+  .card {
+    border-color: CanvasText;
+    background: Canvas;
     box-shadow: none;
   }
 
-  .live {
-    background: Highlight;
-    box-shadow: none;
-    forced-color-adjust: none;
+  .card::before {
+    background: CanvasText;
   }
 
-  .playWrap::before {
-    border-color: Highlight;
+  .card::after {
+    background: Canvas;
   }
 
-  .hint {
+  .exitTag {
     border: 1px solid CanvasText;
     background: Canvas;
     color: CanvasText;
     box-shadow: none;
   }
 
-  .hint::after {
+  .exitTag::before {
     background: CanvasText;
+  }
+
+  .exitTag::after {
+    background: Canvas;
+  }
+
+  .exitSub {
+    color: CanvasText;
+  }
+
+  .trigger:focus-visible .card,
+  .trigger:focus-visible .exitTag {
+    outline-color: Highlight;
+  }
+
+  .focusRing {
+    stroke: Highlight;
   }
 
   .merged {

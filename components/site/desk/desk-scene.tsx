@@ -1,7 +1,8 @@
 "use client";
 
-import { memo, useEffect, useId, useRef, useState } from "react";
+import { memo, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import type { ReactNode } from "react";
+import { RaceCover } from "./race-cover";
 import styles from "./desk-scene.module.css";
 
 export type DeskProjectId = "crm" | "marketplace";
@@ -20,7 +21,7 @@ export type DeskSceneProps = {
   captions: { crm: ReactNode; marketplace: ReactNode };
   /** Controlled by the shell: true merges the two monitors into one wide screen that hosts `game`. Default false. */
   gameActive?: boolean;
-  /** Play / Exit button pressed. When omitted no game button is rendered. */
+  /** The game console on the desk (one button) was pressed. When omitted no game trigger is rendered. */
   onGameToggle?: (trigger: HTMLElement) => void;
   /** The game element. Rendered only while the merged monitor is fully merged (phase "on"). */
   game?: ReactNode;
@@ -32,10 +33,30 @@ export type DeskSceneProps = {
 const MERGE_MS = 750;
 const SPLIT_MS = 600;
 const REDUCED_MS = 150;
-/** The hint bubble fades by itself after this long; the pulse ring lasts 4 x 2 s in CSS. */
-const HINT_MS = 6000;
+/** The START rings pulse 4 x 2 s in CSS after the console first scrolls into view; this clears the class afterwards. */
 const PULSE_MS = 8200;
-const HINT_TEXT = "Psst… there's a game on this desk";
+const BEST_KEY = "desk-racer-best";
+
+/** Best score saved by the game, formatted ("1,240"), or null when there is none / storage is unavailable. */
+function readBest(): string | null {
+  try {
+    const raw = window.localStorage.getItem(BEST_KEY);
+    if (raw === null) return null;
+    const value = Math.floor(Number(raw));
+    return Number.isFinite(value) && value > 0 ? value.toLocaleString("en-US") : null;
+  } catch {
+    return null;
+  }
+}
+
+function subscribeBest(onChange: () => void) {
+  window.addEventListener("storage", onChange);
+  return () => window.removeEventListener("storage", onChange);
+}
+
+function serverBest(): string | null {
+  return null;
+}
 
 type MonitorProps = {
   id: DeskProjectId;
@@ -72,19 +93,6 @@ function Monitor({ id, label, screen, onOpen, inert }: MonitorProps) {
         Tap to try
       </span>
     </button>
-  );
-}
-
-/** Hand-drawn gamepad glyph; the d-pad and the two buttons are cut out so the chip colour shows through. */
-function GamepadIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path
-        fill="currentColor"
-        fillRule="evenodd"
-        d="M7 5.8h10a4.6 4.6 0 0 1 4.5 3.7l.9 4.9a3.1 3.1 0 0 1-5.4 2.5l-1.2-1.4a1.9 1.9 0 0 0-1.4-.6H9.6a1.9 1.9 0 0 0-1.4.6L7 16.9a3.1 3.1 0 0 1-5.4-2.5l.9-4.9A4.6 4.6 0 0 1 7 5.8zM6.4 8.7v1.5H4.9v1.4h1.5v1.5h1.4v-1.5h1.5v-1.4H7.8V8.7zM16.2 9.2a1.1 1.1 0 1 0 0 2.2 1.1 1.1 0 0 0 0-2.2zM18.7 11.7a1.1 1.1 0 1 0 0 2.2 1.1 1.1 0 0 0 0-2.2z"
-      />
-    </svg>
   );
 }
 
@@ -167,18 +175,18 @@ const DeskArt = memo(function DeskArt() {
       </g>
       {/* the single centred stand of the merged ultrawide monitor */}
       <g className={styles.standMerged}>
-        <ellipse cx="340" cy="307.5" rx="66" ry="1.8" fill="#101c33" opacity=".14" />
+        <ellipse cx="340" cy="307.5" rx="52" ry="1.8" fill="#101c33" opacity=".14" />
         <rect x="329" y="236" width="22" height="64" fill="#26334d" />
-        <rect x="288" y="298" width="104" height="8" rx="4" fill="#26334d" />
+        <rect x="296" y="298" width="88" height="8" rx="4" fill="#26334d" />
         <rect x="329" y="298" width="22" height="1.6" fill="#101c33" opacity=".35" />
       </g>
 
-      {/* keyboard, cable, mouse */}
+      {/* keyboard (shortened to leave room for the game console at x 396..446), cable, mouse */}
       <path d="M232 314c-14 1-24-4-32-8" fill="none" stroke="#26334d" strokeWidth="1.2" strokeLinecap="round" opacity=".7" />
-      <rect x="236" y="310" width="206" height="8" rx="3" fill="#dfe6ee" stroke="#9aa9bd" strokeWidth=".6" />
-      <path d="M241 314h196" fill="none" stroke="#9aa9bd" strokeWidth=".6" strokeDasharray="3 2" strokeLinecap="round" />
-      <ellipse cx="470" cy="314" rx="9" ry="4.5" fill="#dfe6ee" stroke="#9aa9bd" strokeWidth=".6" />
-      <path d="M470 309.8v3.4" stroke="#9aa9bd" strokeWidth=".6" strokeLinecap="round" />
+      <rect x="236" y="310" width="118" height="8" rx="3" fill="#dfe6ee" stroke="#9aa9bd" strokeWidth=".6" />
+      <path d="M241 314h108" fill="none" stroke="#9aa9bd" strokeWidth=".6" strokeDasharray="3 2" strokeLinecap="round" />
+      <ellipse cx="376" cy="314" rx="9" ry="4.5" fill="#dfe6ee" stroke="#9aa9bd" strokeWidth=".6" />
+      <path d="M376 309.8v3.4" stroke="#9aa9bd" strokeWidth=".6" strokeLinecap="round" />
 
       {/* mug + steam */}
       <ellipse cx="570" cy="307" rx="12" ry="1.8" fill="#101c33" opacity=".14" />
@@ -221,9 +229,8 @@ export function DeskScene({
 }: DeskSceneProps) {
   const [phase, setPhase] = useState<DeskGamePhase>(gameActive ? "on" : "off");
   const [seen, setSeen] = useState(false);
-  const [hintGone, setHintGone] = useState(false);
   const [pulseOver, setPulseOver] = useState(false);
-  const playRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const mergedRef = useRef<HTMLDivElement>(null);
   const phaseCallback = useRef(onGamePhase);
   const reportedPhase = useRef(phase);
@@ -235,7 +242,8 @@ export function DeskScene({
 
   const merged = phase === "merging" || phase === "on";
   const busy = phase !== "off";
-  const hasPlay = Boolean(onGameToggle);
+  const hasTrigger = Boolean(onGameToggle);
+  const best = useSyncExternalStore(subscribeBest, readBest, serverBest);
 
   // Settle merging -> on and splitting -> off.
   useEffect(() => {
@@ -256,18 +264,18 @@ export function DeskScene({
     phaseCallback.current?.(phase);
   }, [phase]);
 
-  // After the split starts the game has unmounted: hand focus back to the Play button.
+  // After the split starts the game has unmounted: hand focus back to the console trigger.
   useEffect(() => {
     if (phase !== "splitting") return;
     const active = document.activeElement;
     if (!active || active === document.body || mergedRef.current?.contains(active)) {
-      playRef.current?.focus({ preventScroll: true });
+      triggerRef.current?.focus({ preventScroll: true });
     }
   }, [phase]);
 
-  // The pulse ring and the hint bubble start once the Play button first scrolls into view.
+  // The START rings pulse (finite, ~8 s) once the console first scrolls into view.
   useEffect(() => {
-    const button = playRef.current;
+    const button = triggerRef.current;
     if (!button || seen || typeof IntersectionObserver === "undefined") return;
     const observer = new IntersectionObserver(
       (entries) => {
@@ -276,67 +284,110 @@ export function DeskScene({
           observer.disconnect();
         }
       },
-      { threshold: 0.9 },
+      { threshold: 0.6 },
     );
     observer.observe(button);
     return () => observer.disconnect();
-  }, [seen, hasPlay]);
+  }, [seen, hasTrigger]);
 
   useEffect(() => {
     if (!seen) return;
-    const hintTimer = window.setTimeout(() => setHintGone(true), HINT_MS);
-    const pulseTimer = window.setTimeout(() => setPulseOver(true), PULSE_MS);
-    return () => {
-      window.clearTimeout(hintTimer);
-      window.clearTimeout(pulseTimer);
-    };
+    const timer = window.setTimeout(() => setPulseOver(true), PULSE_MS);
+    return () => window.clearTimeout(timer);
   }, [seen]);
 
-  function handlePlay(trigger: HTMLElement) {
-    setHintGone(true);
+  function handleTrigger(trigger: HTMLElement) {
     setPulseOver(true);
     // Repeated presses while the monitors are moving are ignored.
     if (phase === "off" || phase === "on") onGameToggle?.(trigger);
   }
 
   const pulsing = seen && !pulseOver && !busy;
-  const hintHidden = hintGone || busy;
 
   return (
     <div className={styles.scene} data-game={phase} data-merged={merged ? "true" : "false"}>
       {onGameToggle ? (
-        <div className={styles.playRow}>
-          <div className={`${styles.playWrap} ${pulsing ? styles.playWrapPulse : ""}`}>
-            {seen ? (
-              <span className={styles.hint} data-gone={hintHidden ? "true" : "false"} aria-hidden="true">
-                {HINT_TEXT}
+        <button
+          ref={triggerRef}
+          type="button"
+          className={`${styles.trigger} ${pulsing ? styles.pulse : ""}`.trim()}
+          aria-pressed={gameActive}
+          aria-label={gameActive ? "Exit game, Desk Racer" : "Play a game, Desk Racer"}
+          onClick={(event) => handleTrigger(event.currentTarget)}
+        >
+          {/* Everything inside is decorative: the aria-label is the name. Desktop: a cover card standing on the desk, plus the console below; phones: one horizontal card. */}
+          <span className={styles.card} aria-hidden="true">
+            <RaceCover className={styles.cover} />
+            <span className={styles.copy}>
+              <span className={styles.title}>Desk Racer</span>
+              <span className={styles.sub}>
+                <span className={styles.deskOnly}>Press start to play</span>
+                <span className={styles.phoneOnly}>Tap to play</span>
               </span>
-            ) : null}
-            <button
-              ref={playRef}
-              type="button"
-              className={styles.play}
-              aria-pressed={gameActive}
-              aria-label={gameActive ? "Exit game, Desk Racer" : "Play a game, Desk Racer"}
-              onClick={(event) => handlePlay(event.currentTarget)}
-              onPointerEnter={() => setHintGone(true)}
-              onFocus={() => setHintGone(true)}
-            >
-              <span className={styles.playChip} aria-hidden="true">
-                <GamepadIcon />
-              </span>
-              <span className={styles.playLabel} aria-hidden="true">
-                {gameActive ? "Exit game" : "Play a game"}
-              </span>
+              {best ? (
+                <span className={styles.meta}>Best {best}</span>
+              ) : (
+                <span className={styles.meta}>
+                  <span className={styles.deskOnly}>↑ ↓ to steer</span>
+                  <span className={styles.phoneOnly}>Drag to steer</span>
+                </span>
+              )}
+            </span>
+          </span>
+
+          <span className={styles.exitTag} aria-hidden="true">
+            <span className={styles.exitTitle}>Exit game</span>
+            <span className={styles.exitSub}>Esc to leave</span>
+          </span>
+
+          <svg className={styles.console} viewBox="390 270 62 40" aria-hidden="true" focusable="false">
+            <ellipse cx="421" cy="307.5" rx="30" ry="1.8" fill="#101c33" opacity=".16" />
+            {/* body: dark slate slab with a d-pad notch and two tiny buttons */}
+            <rect x="396" y="295" width="50" height="12" rx="3.5" fill="#3a4a6b" />
+            <rect x="398" y="295.8" width="46" height="1.2" rx=".6" fill="#6a7ea6" opacity=".55" />
+            <rect x="396" y="304.2" width="50" height="2.8" rx="1.4" fill="#2e3b57" />
+            <path
+              d="M401.1 297.9h2.2v2.3h2.3v2.2h-2.3v2.3h-2.2v-2.3h-2.3v-2.2h2.3z"
+              fill="#1d2840"
+            />
+            <circle cx="437.5" cy="300.4" r="1.9" fill="#f2b93c" />
+            <circle cx="442.2" cy="302.6" r="1.9" fill="#f0705a" />
+            {/* START: soft glow, hover ring, two pulsing rings, collar, mint button with a triangle (a stop square while the game runs) */}
+            <circle className={styles.glow} cx="421" cy="289" r="19" fill="#9be8cf" />
+            <circle className={`${styles.ring} ${styles.ringA}`} cx="421" cy="289" r="11" fill="none" stroke="#9be8cf" strokeWidth="1.6" />
+            <circle className={`${styles.ring} ${styles.ringB}`} cx="421" cy="289" r="11" fill="none" stroke="#9be8cf" strokeWidth="1.6" />
+            <g className={styles.start}>
+              <circle cx="421" cy="289" r="13" fill="#26334d" />
+              <circle className={styles.startFace} cx="421" cy="289" r="11" />
+              <path d="M413.2 285.2a9.6 9.6 0 0 1 11-3.6" fill="none" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" opacity=".55" />
               {gameActive ? (
-                <kbd className={styles.keycap} aria-hidden="true">
-                  Esc
-                </kbd>
-              ) : null}
-              <span className={styles.live} aria-hidden="true" />
-            </button>
-          </div>
-        </div>
+                <rect className={styles.glyph} x="416.6" y="284.6" width="8.8" height="8.8" rx="1.8" fill="currentColor" />
+              ) : (
+                <path
+                  className={styles.glyph}
+                  d="M417.8 284.2 426.2 289l-8.4 4.8z"
+                  fill="currentColor"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinejoin="round"
+                />
+              )}
+            </g>
+            <circle className={styles.hoverRing} cx="421" cy="289" r="15.6" fill="none" stroke="#9be8cf" strokeWidth="1.6" />
+            <circle className={styles.focusRing} cx="421" cy="289" r="17.4" fill="none" strokeWidth="2.2" />
+          </svg>
+
+          {/* phones: the round START chip at the right end of the card */}
+          <span className={styles.chip} aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 18 18" focusable="false">
+              {gameActive ? (
+                <rect className={styles.glyph} x="4.5" y="4.5" width="9" height="9" rx="2" fill="currentColor" />
+              ) : (
+                <path className={styles.glyph} d="M5.6 3.4 14.4 9l-8.8 5.6z" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+              )}
+            </svg>
+          </span>
+        </button>
       ) : null}
 
       <DeskArt />

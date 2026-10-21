@@ -1,0 +1,132 @@
+/*
+ * Desk Racer cover art. Everything is paused until the parent (the game trigger) sets
+ * `--cover-play: running` on hover / focus; the custom property inherits into the SVG.
+ */
+
+.cover {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 8 / 5;
+  overflow: hidden;
+  forced-color-adjust: none;
+  user-select: none;
+}
+
+.dashes,
+.player,
+.orange,
+.truck,
+.coins,
+.lines {
+  animation-play-state: var(--cover-play, paused);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+/* One dash period is 8 + 6 = 14 units, so the loop is seamless. */
+.dashes {
+  animation-name: coverDash;
+  animation-duration: 0.6s;
+  animation-timing-function: linear;
+  animation-direction: normal;
+}
+
+.player {
+  animation-name: coverPlayer;
+  animation-duration: 1.4s;
+}
+
+.orange {
+  animation-name: coverOrange;
+  animation-duration: 2.1s;
+}
+
+.truck {
+  animation-name: coverTruck;
+  animation-duration: 2.7s;
+}
+
+.coins {
+  animation-name: coverCoins;
+  animation-duration: 0.9s;
+}
+
+.lines {
+  animation-name: coverLines;
+  animation-duration: 0.45s;
+}
+
+@keyframes coverDash {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-14px);
+  }
+}
+
+@keyframes coverPlayer {
+  from {
+    transform: translate(0, 0);
+  }
+
+  to {
+    transform: translate(4px, -1.5px);
+  }
+}
+
+@keyframes coverOrange {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-9px);
+  }
+}
+
+@keyframes coverTruck {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-5px);
+  }
+}
+
+@keyframes coverCoins {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-3px);
+  }
+}
+
+@keyframes coverLines {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(-6px);
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashes,
+  .player,
+  .orange,
+  .truck,
+  .coins,
+  .lines {
+    animation: none;
+  }
+}
