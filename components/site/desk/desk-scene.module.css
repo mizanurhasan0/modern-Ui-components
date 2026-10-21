@@ -8,6 +8,11 @@
  * 680-unit drawing, so everything scales with the container width.
  *
  * `--u` is "one drawing unit" in container-width terms (680 units across).
+ *
+ * Game mode (desktop): `data-game` on the scene root is the phase
+ * (off | merging | on | splitting) and `data-merged` is "true" while merging/on.
+ * Everything that moves is driven from those two attributes with transform-like
+ * properties (translate / scale / opacity) only, so React never re-renders the art.
  */
 
 .scene {
@@ -43,6 +48,11 @@
   display: none;
 }
 
+/* the merged ultrawide bezel only exists on the desk (desktop) layout */
+.merged {
+  display: none;
+}
+
 /* ---------- lamp light: only the beam's colour cycles, and it holds while the pointer or focus is on the desk ---------- */
 
 @property --lamp-h {
@@ -58,6 +68,233 @@
 
   to {
     --lamp-h: 400;
+  }
+}
+
+/* ---------- play button ---------- */
+
+/* mobile: centred above the first card, with a little extra room for the hint bubble underneath */
+.playRow {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.playWrap {
+  position: relative;
+  display: inline-flex;
+  border-radius: 999px;
+}
+
+/* soft pulsing ring: finite (4 x 2 s = 8 s), only starts after the button first scrolls into view */
+.playWrap::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border: 2px solid var(--ring);
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.playWrapPulse::before {
+  animation: playRing 2s cubic-bezier(0.2, 0.6, 0.3, 1) 4 both;
+}
+
+@keyframes playRing {
+  from {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.16, 1.5);
+  }
+}
+
+.play {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  box-sizing: border-box;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 16px 0 8px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #182a4f, #101c33);
+  color: #fff;
+  font:
+    600 14px/1 var(--font-geist-sans),
+    system-ui,
+    sans-serif;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+  appearance: none;
+  cursor: pointer;
+  outline: 3px solid transparent;
+  outline-offset: 3px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.14) inset,
+    0 2px 4px rgba(16, 28, 51, 0.2),
+    0 14px 22px -12px rgba(16, 28, 51, 0.75);
+  transition:
+    transform 0.2s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.2s ease,
+    outline-color 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.play:focus-visible {
+  outline-color: var(--ring);
+  transform: translateY(-1px);
+}
+
+.play:active {
+  transform: translateY(0) scale(0.98);
+}
+
+@media (hover: hover) {
+  .play:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.18) inset,
+      0 2px 4px rgba(16, 28, 51, 0.2),
+      0 18px 26px -12px rgba(40, 82, 166, 0.7);
+  }
+
+  .play:hover .playChip {
+    transform: rotate(-8deg) scale(1.06);
+  }
+}
+
+.playChip {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(150deg, #5a9dff, #2a5fc4);
+  color: #fff;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18) inset;
+  transition:
+    transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1),
+    background 0.25s ease;
+}
+
+/* while the game runs the chip turns amber ("on") */
+.play[aria-pressed="true"] .playChip {
+  background: linear-gradient(150deg, #f8cd62, #e0a32a);
+  color: #101c33;
+}
+
+.playLabel {
+  display: block;
+}
+
+.keycap {
+  display: inline-block;
+  padding: 4px 6px 3px;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1.5px 0 rgba(255, 255, 255, 0.22);
+  color: #dbe8ff;
+  font:
+    500 11px/1 var(--font-geist-mono),
+    ui-monospace,
+    monospace;
+}
+
+/* mint "live" dot */
+.live {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6ee7b7;
+  box-shadow:
+    0 0 0 3px rgba(110, 231, 183, 0.22),
+    0 0 10px rgba(110, 231, 183, 0.75);
+  animation: liveDot 2.6s ease-in-out infinite;
+}
+
+@keyframes liveDot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* one-time hint bubble: under the button on mobile, to its left on the desk */
+.hint {
+  position: absolute;
+  top: calc(100% + 9px);
+  left: 50%;
+  z-index: 1;
+  box-sizing: border-box;
+  width: max-content;
+  max-width: min(260px, calc(100cqw - 8px));
+  padding: 6px 12px;
+  border: 1px solid #ecd08a;
+  border-radius: 12px;
+  background: #fff6d6;
+  color: #3b2f0c;
+  font:
+    500 12.5px/1.3 var(--font-geist-sans),
+    system-ui,
+    sans-serif;
+  text-align: center;
+  translate: -50% 0;
+  pointer-events: none;
+  box-shadow: 0 10px 18px -12px rgba(120, 88, 12, 0.55);
+  transition:
+    opacity 0.4s ease,
+    visibility 0s linear 0s;
+  animation: hintIn 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.hint::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  width: 12px;
+  height: 6px;
+  margin-left: -6px;
+  background: #ecd08a;
+  clip-path: polygon(0 100%, 50% 0, 100% 100%);
+}
+
+.hint[data-gone="true"] {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.4s ease,
+    visibility 0s linear 0.4s;
+  animation: none;
+}
+
+@keyframes hintIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 
@@ -167,7 +404,8 @@
     grid-template-columns:
       minmax(0, 40fr) minmax(0, 15fr) minmax(0, 270fr) minmax(0, 15fr)
       minmax(0, 15fr) minmax(0, 270fr) minmax(0, 15fr) minmax(0, 40fr);
-    grid-template-rows: auto auto;
+    /* play row | desk art (+ monitors) | captions */
+    grid-template-rows: auto auto auto;
   }
 
   /* the card wrapper disappears; its children sit directly on the scene grid */
@@ -175,9 +413,39 @@
     display: contents;
   }
 
+  /* Play button row: right-aligned at the right monitor's outer corner (drawing x 625) */
+  .playRow {
+    grid-area: 1 / 1 / 2 / 9;
+    justify-content: flex-end;
+    margin-bottom: 0;
+    /* right edge at the right monitor's outer corner (drawing x 625); a little air above the monitor tooltip */
+    padding: 0 calc(55 * var(--u)) 6px 0;
+  }
+
+  /* the bubble sits to the left of the button, pointing right; it lives in this row, above the monitor tooltip */
+  .hint {
+    top: 50%;
+    right: calc(100% + 14px);
+    left: auto;
+    max-width: none;
+    white-space: nowrap;
+    translate: 0 -50%;
+  }
+
+  .hint::after {
+    top: 50%;
+    right: -6px;
+    bottom: auto;
+    left: auto;
+    width: 6px;
+    height: 12px;
+    margin: -6px 0 0;
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+  }
+
   .art {
     display: block;
-    grid-area: 1 / 1 / 2 / 9;
+    grid-area: 2 / 1 / 3 / 9;
     width: 100%;
     height: auto;
     aspect-ratio: 680 / 382;
@@ -201,6 +469,14 @@
     border-radius: calc(8 * var(--u));
     outline-offset: max(3px, calc(4 * var(--u)));
     box-shadow: 0 calc(8 * var(--u)) calc(14 * var(--u)) calc(-8 * var(--u)) rgba(16, 28, 51, 0.4);
+    /* split: slide back out and fade in (the merged state below overrides the timing) */
+    transition:
+      transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1),
+      box-shadow 0.22s ease,
+      outline-color 0.18s ease,
+      translate 0.6s cubic-bezier(0.2, 0.85, 0.25, 1),
+      opacity 0.32s ease 0.1s,
+      visibility 0s linear 0s;
   }
 
   .slot {
@@ -208,11 +484,11 @@
   }
 
   .left .monitor {
-    grid-area: 1 / 3 / 2 / 4;
+    grid-area: 2 / 3 / 3 / 4;
   }
 
   .right .monitor {
-    grid-area: 1 / 6 / 2 / 7;
+    grid-area: 2 / 6 / 3 / 7;
   }
 
   /* each caption is centred under its monitor (drawing x 190 and 490) */
@@ -220,14 +496,15 @@
     align-self: start;
     padding: calc(4 * var(--u)) calc(10 * var(--u)) 0;
     text-align: center;
+    transition: opacity 0.45s ease;
   }
 
   .left .caption {
-    grid-area: 2 / 2 / 3 / 5;
+    grid-area: 3 / 2 / 4 / 5;
   }
 
   .right .caption {
-    grid-area: 2 / 5 / 3 / 8;
+    grid-area: 3 / 5 / 4 / 8;
   }
 
   .tap {
@@ -273,12 +550,173 @@
     opacity: 1;
     transform: translate(-50%, 0);
   }
+
+  /* ----- the merged ultrawide monitor: drawing x 55..625, y 24..244 (the two monitors' outer extent, taller) ----- */
+
+  .merged {
+    display: block;
+    position: relative;
+    z-index: 1;
+    grid-area: 2 / 3 / 3 / 7;
+    align-self: start;
+    box-sizing: border-box;
+    /* drawing y 24 minus the viewBox origin y 10 */
+    margin-top: calc(14 * var(--u));
+    height: calc(220 * var(--u));
+    padding: calc(8 * var(--u));
+    border-radius: calc(9 * var(--u));
+    background: #1a2742;
+    box-shadow:
+      0 calc(10 * var(--u)) calc(18 * var(--u)) calc(-8 * var(--u)) rgba(16, 28, 51, 0.5),
+      0 1px 2px rgba(16, 28, 51, 0.2);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    scale: 0.5 0.78;
+    translate: 0 calc(12 * var(--u));
+    /* split: dissolve quickly while the monitors slide back out */
+    transition:
+      opacity 0.26s ease 0s,
+      scale 0.6s cubic-bezier(0.5, 0, 0.75, 0),
+      translate 0.6s cubic-bezier(0.5, 0, 0.75, 0),
+      visibility 0s linear 0.6s;
+  }
+
+  /* the slot gives the game a definite size: absolutely filled, clipped, with its own inner radius */
+  .mergedSlot {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: calc(4 * var(--u));
+    background:
+      radial-gradient(120% 90% at 50% 0%, #16284a 0%, rgba(22, 40, 74, 0) 60%),
+      #0b1426;
+    isolation: isolate;
+    forced-color-adjust: none;
+  }
+
+  .gameHost {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: inherit;
+    animation: gameIn 0.35s ease-out both;
+  }
+
+  /* ----- merging / on ----- */
+
+  .scene[data-merged="true"] .monitor {
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1),
+      box-shadow 0.22s ease,
+      outline-color 0.18s ease,
+      translate 0.75s cubic-bezier(0.65, 0, 0.35, 1),
+      opacity 0.3s ease-in 0.38s,
+      visibility 0s linear 0.75s;
+  }
+
+  .scene[data-merged="true"] .left .monitor {
+    translate: calc(150 * var(--u)) 0;
+  }
+
+  .scene[data-merged="true"] .right .monitor {
+    translate: calc(-150 * var(--u)) 0;
+  }
+
+  .scene[data-merged="true"] .merged {
+    opacity: 1;
+    visibility: visible;
+    scale: 1;
+    translate: 0 0;
+    transition:
+      opacity 0.4s ease-out 0.3s,
+      scale 0.75s cubic-bezier(0.2, 0.85, 0.25, 1),
+      translate 0.75s cubic-bezier(0.2, 0.85, 0.25, 1),
+      visibility 0s linear 0s;
+  }
+
+  /* captions stay but step back; the stylesheet-only dimming keeps them readable */
+  .scene:not([data-game="off"]) .caption {
+    opacity: 0.55;
+  }
+
+  /* no hover ring, tooltip or lift while the monitors are merged or moving */
+  .scene:not([data-game="off"]) .monitor,
+  .scene:not([data-game="off"]) .monitor:hover,
+  .scene:not([data-game="off"]) .monitor:focus-visible {
+    pointer-events: none;
+    outline-color: transparent;
+    transform: none;
+    box-shadow: 0 calc(8 * var(--u)) calc(14 * var(--u)) calc(-8 * var(--u)) rgba(16, 28, 51, 0.4);
+  }
+
+  .scene:not([data-game="off"]) .tip {
+    opacity: 0;
+  }
+
+  .scene[data-game="merging"] .monitor,
+  .scene[data-game="splitting"] .monitor,
+  .scene[data-game="merging"] .merged,
+  .scene[data-game="splitting"] .merged {
+    will-change: translate, scale, opacity;
+  }
+
+  /* ----- stands (inside the SVG): user units, so translate(150px) = 150 drawing units ----- */
+
+  .stand {
+    opacity: 1;
+    transition:
+      opacity 0.4s ease 0.15s,
+      transform 0.6s cubic-bezier(0.2, 0.85, 0.25, 1);
+  }
+
+  .standMerged {
+    opacity: 0;
+    transition: opacity 0.25s ease 0s;
+  }
+
+  .scene[data-merged="true"] .stand {
+    opacity: 0;
+    transition:
+      opacity 0.35s ease-in 0.35s,
+      transform 0.75s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  .scene[data-merged="true"] .standLeft {
+    transform: translateX(150px);
+  }
+
+  .scene[data-merged="true"] .standRight {
+    transform: translateX(-150px);
+  }
+
+  .scene[data-merged="true"] .standMerged {
+    opacity: 1;
+    transition: opacity 0.4s ease-out 0.35s;
+  }
 }
 
 @media (min-width: 721px) and (hover: hover) {
   .monitor:hover .tip {
     opacity: 1;
     transform: translate(-50%, 0);
+  }
+
+  .scene:not([data-game="off"]) .monitor:hover .tip {
+    opacity: 0;
+  }
+}
+
+@keyframes gameIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }
 
@@ -313,7 +751,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .monitor,
-  .tip {
+  .tip,
+  .play,
+  .playChip {
     transition: none;
   }
 
@@ -324,6 +764,79 @@
 
   .art {
     animation: none;
+  }
+
+  .playWrapPulse::before,
+  .live,
+  .gameHost {
+    animation: none;
+  }
+
+  .hint {
+    animation: none;
+    transition: opacity 0.2s linear;
+  }
+
+  .hint[data-gone="true"] {
+    transition:
+      opacity 0.2s linear,
+      visibility 0s linear 0.2s;
+  }
+
+  .play:hover .playChip {
+    transform: none;
+  }
+}
+
+/* Merge / split become a 150 ms cross-fade: nothing slides or scales. */
+@media (min-width: 721px) and (prefers-reduced-motion: reduce) {
+  .monitor,
+  .scene[data-merged="true"] .monitor {
+    transition:
+      opacity 0.15s linear 0s,
+      visibility 0s linear 0s;
+  }
+
+  .scene[data-merged="true"] .monitor {
+    transition:
+      opacity 0.15s linear 0s,
+      visibility 0s linear 0.15s;
+  }
+
+  .scene[data-merged="true"] .left .monitor,
+  .scene[data-merged="true"] .right .monitor {
+    translate: none;
+  }
+
+  .merged,
+  .scene[data-merged="true"] .merged {
+    scale: none;
+    translate: none;
+    transition:
+      opacity 0.15s linear 0s,
+      visibility 0s linear 0.15s;
+  }
+
+  .scene[data-merged="true"] .merged {
+    transition:
+      opacity 0.15s linear 0s,
+      visibility 0s linear 0s;
+  }
+
+  .stand,
+  .standMerged,
+  .scene[data-merged="true"] .stand,
+  .scene[data-merged="true"] .standMerged {
+    transition: opacity 0.15s linear 0s;
+  }
+
+  .scene[data-merged="true"] .standLeft,
+  .scene[data-merged="true"] .standRight {
+    transform: none;
+  }
+
+  .caption {
+    transition: opacity 0.15s linear 0s;
   }
 }
 
@@ -349,11 +862,74 @@
   .tip::after {
     background: CanvasText;
   }
+
+  .play {
+    border: 2px solid ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+    box-shadow: none;
+  }
+
+  .play:focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 3px;
+  }
+
+  .playChip {
+    border: 1px solid ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+    box-shadow: none;
+  }
+
+  .play[aria-pressed="true"] .playChip {
+    background: ButtonFace;
+    color: ButtonText;
+  }
+
+  .keycap {
+    border-color: ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+    box-shadow: none;
+  }
+
+  .live {
+    background: Highlight;
+    box-shadow: none;
+    forced-color-adjust: none;
+  }
+
+  .playWrap::before {
+    border-color: Highlight;
+  }
+
+  .hint {
+    border: 1px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+    box-shadow: none;
+  }
+
+  .hint::after {
+    background: CanvasText;
+  }
+
+  .merged {
+    border: 2px solid CanvasText;
+    background: Canvas;
+    box-shadow: none;
+  }
 }
 
 @media (forced-colors: active) and (hover: hover) {
   .monitor:hover {
     outline: 3px solid Highlight;
     outline-offset: 3px;
+  }
+
+  .scene:not([data-game="off"]) .monitor:hover {
+    outline: 2px solid ButtonText;
+    outline-offset: 0;
   }
 }

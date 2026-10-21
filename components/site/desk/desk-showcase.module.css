@@ -646,6 +646,83 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* Desk Racer sheet (phones; portal to <body>)                         */
+/* ------------------------------------------------------------------ */
+.raceSheet {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-sizing: border-box;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+  padding:
+    max(10px, env(safe-area-inset-top))
+    max(10px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom))
+    max(10px, env(safe-area-inset-left));
+  background: #e6efe9;
+  color: #101c33;
+  outline: none;
+  /* Nothing in the sheet scrolls: keep pulls and swipes from reaching the page behind. */
+  touch-action: none;
+}
+
+.raceTop {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding-inline: 6px 0;
+}
+
+.raceTitle {
+  flex: 1;
+  min-width: 0;
+  color: #101c33;
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+/* Navy bezel like the desk monitors; the game fills the rest of the screen height. */
+.raceFrame {
+  position: relative;
+  flex: 1 1 0;
+  width: 100%;
+  min-height: 0;
+  border-radius: 14px;
+  background: #1a2742;
+  box-shadow:
+    0 24px 60px -24px rgba(8, 16, 32, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+  transform-origin: 50% 50%;
+}
+
+.raceScreen {
+  position: absolute;
+  inset: 6px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #26334d;
+}
+
+@media (orientation: portrait) {
+  .raceFrame {
+    max-width: 560px;
+    margin-inline: auto;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Responsive                                                          */
 /* ------------------------------------------------------------------ */
 @media (max-width: 720px) {
@@ -803,7 +880,9 @@
 @media (forced-colors: active) {
   .stage,
   .bezel,
-  .screenFrame {
+  .screenFrame,
+  .raceFrame,
+  .raceScreen {
     border: 1px solid CanvasText;
   }
 
@@ -850,12 +929,14 @@
     color: ButtonFace;
   }
 
-  .dialog {
+  .dialog,
+  .raceSheet {
     background: Canvas;
     color: CanvasText;
   }
 
-  .dialogTitle {
+  .dialogTitle,
+  .raceTitle {
     color: CanvasText;
   }
 }

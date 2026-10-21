@@ -6,14 +6,18 @@ import {
   useEffect,
   useId,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
+  type RefObject,
 } from "react";
 import { createPortal } from "react-dom";
 import { caseStudies } from "@/lib/case-studies";
 import { CrmScreen } from "./crm-screen";
 import { DeskScene, type DeskProjectId } from "./desk-scene";
 import { MarketplaceScreen } from "./marketplace-screen";
+import { RaceScreen } from "./race-screen";
 import styles from "./desk-showcase.module.css";
 
 type Project = {
@@ -87,6 +91,79 @@ function originTransform(trigger: HTMLElement | null, target: HTMLElement): stri
 }
 
 const FALLBACK_TRANSFORM = "translateY(16px) scale(0.97)";
+
+/** Exact complement of the stylesheet's `max-width: 720px` phone layout (no gap at fractional widths). */
+const DESKTOP_QUERY = "not all and (max-width: 720px)";
+
+function subscribeDesktop(onChange: () => void) {
+  const query = window.matchMedia(DESKTOP_QUERY);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+
+function getDesktopSnapshot() {
+  return window.matchMedia(DESKTOP_QUERY).matches;
+}
+
+/** The server (and the hydration pass) renders the phone layout; the real answer arrives right after. */
+function getDesktopServerSnapshot() {
+  return false;
+}
+
+/** Lock page scroll without letting the layout jump when the scrollbar disappears. */
+function useBodyScrollLock() {
+  useLayoutEffect(() => {
+    const { body, documentElement } = document;
+    const previousOverflow = body.style.overflow;
+    const previousPaddingRight = body.style.paddingRight;
+    const scrollbarWidth = window.innerWidth - documentElement.clientWidth;
+    const currentPadding = Number.parseFloat(getComputedStyle(body).paddingRight) || 0;
+    body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) body.style.paddingRight = `${currentPadding + scrollbarWidth}px`;
+    return () => {
+      body.style.overflow = previousOverflow;
+      body.style.paddingRight = previousPaddingRight;
+    };
+  }, []);
+}
+
+/** Escape closes (unless something inside already handled it); Tab/Shift+Tab cycle inside `rootRef`. */
+function useModalKeys(rootRef: RefObject<HTMLElement | null>, onEscape: () => void) {
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      const root = rootRef.current;
+      if (!root) return;
+      if (event.key === "Escape") {
+        if (event.defaultPrevented) return;
+        event.preventDefault();
+        onEscape();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const items = focusableWithin(root);
+      if (items.length === 0) {
+        event.preventDefault();
+        root.focus({ preventScroll: true });
+        return;
+      }
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+      if (!(active instanceof Node) || !root.contains(active)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus({ preventScroll: true });
+      } else if (event.shiftKey && (active === first || !items.includes(active as HTMLElement))) {
+        event.preventDefault();
+        last.focus({ preventScroll: true });
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus({ preventScroll: true });
+      }
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [rootRef, onEscape]);
+}
 
 function CloseIcon() {
   return (
@@ -190,20 +267,7 @@ function FocusDialog({ initialId, getTrigger, onClosed }: FocusDialogProps) {
   const project = PROJECTS[shown];
   const next = PROJECTS[otherProject(shown)];
 
-  // Lock page scroll without letting the layout jump when the scrollbar disappears.
-  useLayoutEffect(() => {
-    const { body, documentElement } = document;
-    const previousOverflow = body.style.overflow;
-    const previousPaddingRight = body.style.paddingRight;
-    const scrollbarWidth = window.innerWidth - documentElement.clientWidth;
-    const currentPadding = Number.parseFloat(getComputedStyle(body).paddingRight) || 0;
-    body.style.overflow = "hidden";
-    if (scrollbarWidth > 0) body.style.paddingRight = `${currentPadding + scrollbarWidth}px`;
-    return () => {
-      body.style.overflow = previousOverflow;
-      body.style.paddingRight = previousPaddingRight;
-    };
-  }, []);
+  useBodyScrollLock();
 
   // Open: FLIP zoom from the monitor on the desk (plain fade when motion is reduced).
   useLayoutEffect(() => {
@@ -304,41 +368,7 @@ function FocusDialog({ initialId, getTrigger, onClosed }: FocusDialogProps) {
     }
   }, [getTrigger, onClosed]);
 
-  // Escape closes (unless the screen handled it); Tab/Shift+Tab cycle inside the dialog.
-  useEffect(() => {
-    function onKeyDown(event: KeyboardEvent) {
-      const root = rootRef.current;
-      if (!root) return;
-      if (event.key === "Escape") {
-        if (event.defaultPrevented) return;
-        event.preventDefault();
-        requestClose();
-        return;
-      }
-      if (event.key !== "Tab") return;
-      const items = focusableWithin(root);
-      if (items.length === 0) {
-        event.preventDefault();
-        root.focus({ preventScroll: true });
-        return;
-      }
-      const first = items[0];
-      const last = items[items.length - 1];
-      const active = document.activeElement;
-      if (!(active instanceof Node) || !root.contains(active)) {
-        event.preventDefault();
-        (event.shiftKey ? last : first).focus({ preventScroll: true });
-      } else if (event.shiftKey && (active === first || !items.includes(active as HTMLElement))) {
-        event.preventDefault();
-        last.focus({ preventScroll: true });
-      } else if (!event.shiftKey && active === last) {
-        event.preventDefault();
-        first.focus({ preventScroll: true });
-      }
-    }
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [requestClose]);
+  useModalKeys(rootRef, requestClose);
 
   // Short cross-fade when switching projects in place.
   const handleNext = () => {
@@ -427,14 +457,156 @@ function FocusDialog({ initialId, getTrigger, onClosed }: FocusDialogProps) {
   );
 }
 
+type RaceSheetProps = {
+  getTrigger: () => HTMLElement | null;
+  onClosed: () => void;
+};
+
+/**
+ * Phone version of the game: a full-bleed portal sheet (same modal behaviour and FLIP feel as the project dialog)
+ * with the portrait road filling everything below the title bar.
+ */
+function RaceSheet({ getTrigger, onClosed }: RaceSheetProps) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const topRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const closingRef = useRef(false);
+  const closeTimerRef = useRef<number | null>(null);
+
+  useBodyScrollLock();
+
+  // Open: the game frame grows out of the Play button (plain fade when motion is reduced).
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    const top = topRef.current;
+    const frame = frameRef.current;
+    if (!root || !top || !frame) return;
+    const animations: Animation[] = [];
+    if (prefersReducedMotion()) {
+      animations.push(root.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 160, easing: "ease-out" }));
+    } else {
+      const from = originTransform(getTrigger(), frame) ?? FALLBACK_TRANSFORM;
+      animations.push(
+        root.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 240, easing: "ease-out" }),
+        frame.animate(
+          [
+            { transform: from, opacity: 0.55 },
+            { transform: "none", opacity: 1 },
+          ],
+          { duration: OPEN_MS, easing: EASE_OUT },
+        ),
+        top.animate([{ opacity: 0 }, { opacity: 1 }], {
+          duration: 220,
+          delay: 160,
+          easing: "ease-out",
+          fill: "backwards",
+        }),
+      );
+    }
+    return () => {
+      for (const animation of animations) animation.cancel();
+    };
+  }, [getTrigger]);
+
+  useEffect(
+    () => () => {
+      if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current);
+    },
+    [],
+  );
+
+  const requestClose = useCallback(() => {
+    if (closingRef.current) return;
+    closingRef.current = true;
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      onClosed();
+    };
+    const root = rootRef.current;
+    const top = topRef.current;
+    const frame = frameRef.current;
+    if (!root || !top || !frame) {
+      finish();
+      return;
+    }
+    closeTimerRef.current = window.setTimeout(finish, CLOSE_MS + 400);
+    for (const element of [root, top, frame]) {
+      for (const animation of element.getAnimations()) animation.cancel();
+    }
+    if (prefersReducedMotion()) {
+      const fade = root.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: "ease-in", fill: "forwards" });
+      fade.onfinish = finish;
+      return;
+    }
+    const to = originTransform(getTrigger(), frame) ?? FALLBACK_TRANSFORM;
+    const zoom = frame.animate(
+      [
+        { transform: "none", opacity: 1 },
+        { transform: to, opacity: 0.4 },
+      ],
+      { duration: CLOSE_MS, easing: EASE_IN, fill: "forwards" },
+    );
+    zoom.onfinish = finish;
+    root.animate([{ opacity: 1 }, { opacity: 0 }], { duration: CLOSE_MS, easing: "ease-in", fill: "forwards" });
+    top.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 140, easing: "ease-in", fill: "forwards" });
+  }, [getTrigger, onClosed]);
+
+  useModalKeys(rootRef, requestClose);
+
+  // Focus goes straight to the game (autoFocus); the root only has to be a valid fallback target.
+  return (
+    <div
+      ref={rootRef}
+      className={styles.raceSheet}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Desk Racer"
+      data-cursor-knight-hide
+      tabIndex={-1}
+    >
+      <div ref={topRef} className={styles.raceTop}>
+        <p className={styles.raceTitle} aria-hidden="true">
+          Desk Racer
+        </p>
+        <span className={styles.escChip}>Esc to exit</span>
+        <button type="button" className={styles.closeButton} onClick={requestClose} aria-label="Close Desk Racer">
+          <CloseIcon />
+        </button>
+      </div>
+      <div ref={frameRef} className={styles.raceFrame}>
+        <div className={styles.raceScreen}>
+          <RaceScreen autoFocus onExit={requestClose} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+type GameMode = "inline" | "sheet";
+type GamePhase = "off" | "merging" | "on" | "splitting";
+
+/** The scene's Play / Exit toggle: the only button in the stage that is both pressable and named after the game. */
+const PLAY_BUTTON_SELECTOR = 'button[aria-pressed][aria-label*="Desk Racer"]';
+
 export function DeskShowcase() {
   const [active, setActive] = useState<DeskProjectId | null>(null);
+  const [gameMode, setGameMode] = useState<GameMode | null>(null);
+  const isDesktop = useSyncExternalStore(subscribeDesktop, getDesktopSnapshot, getDesktopServerSnapshot);
   const stageRef = useRef<HTMLDivElement>(null);
   const openerRef = useRef<{ id: DeskProjectId; element: HTMLElement } | null>(null);
+  const gameTriggerRef = useRef<HTMLElement | null>(null);
+  const gamePhaseRef = useRef<GamePhase>("off");
+  const previousGameModeRef = useRef<GameMode | null>(null);
+
+  // Crossing the phone/desktop breakpoint while playing: drop the game in the layout it no longer fits.
+  if (gameMode !== null && (gameMode === "inline") !== isDesktop) setGameMode(null);
 
   const getTrigger = useCallback((id: DeskProjectId) => {
+    // Monitors only: the Play button is a toggle (aria-pressed), never a project trigger.
     const buttons = Array.from(
-      stageRef.current?.querySelectorAll<HTMLElement>('button[aria-haspopup="dialog"]') ?? [],
+      stageRef.current?.querySelectorAll<HTMLElement>('button[aria-haspopup="dialog"]:not([aria-pressed])') ?? [],
     ).filter((button) => button.getClientRects().length > 0);
     const title = PROJECTS[id].title.toLowerCase();
     const byLabel = buttons.find((button) => (button.getAttribute("aria-label") ?? "").toLowerCase().includes(title));
@@ -444,10 +616,22 @@ export function DeskShowcase() {
     return buttons[PROJECT_ORDER.indexOf(id)] ?? null;
   }, []);
 
-  const handleOpen = useCallback((id: DeskProjectId, trigger: HTMLElement) => {
-    openerRef.current = { id, element: trigger };
-    setActive(id);
+  const getPlayButton = useCallback(() => {
+    const stored = gameTriggerRef.current;
+    if (stored?.isConnected && stored.getClientRects().length > 0) return stored;
+    return stageRef.current?.querySelector<HTMLElement>(PLAY_BUTTON_SELECTOR) ?? null;
   }, []);
+
+  const gameBusy = gameMode !== null;
+
+  const handleOpen = useCallback(
+    (id: DeskProjectId, trigger: HTMLElement) => {
+      if (gameBusy) return;
+      openerRef.current = { id, element: trigger };
+      setActive(id);
+    },
+    [gameBusy],
+  );
 
   const handleClosed = useCallback(
     (id: DeskProjectId) => {
@@ -457,6 +641,48 @@ export function DeskShowcase() {
     },
     [getTrigger],
   );
+
+  // Play / Exit. Desktop merges the monitors in place; phones open the sheet (which closes itself).
+  const handleGameToggle = useCallback(
+    (trigger: HTMLElement) => {
+      if (active) return;
+      gameTriggerRef.current = trigger;
+      setGameMode((current) => {
+        if (current === "sheet") return current;
+        if (current === "inline") return null;
+        return isDesktop ? "inline" : "sheet";
+      });
+    },
+    [active, isDesktop],
+  );
+
+  const closeGame = useCallback(() => setGameMode(null), []);
+
+  const handleGamePhase = useCallback((phase: GamePhase) => {
+    gamePhaseRef.current = phase;
+  }, []);
+
+  // The desk shows an "Esc" keycap while merged, so Escape leaves the game even when focus is elsewhere
+  // (focus inside the game is handled by the game itself, which calls preventDefault first).
+  useEffect(() => {
+    if (gameMode !== "inline") return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key !== "Escape" || event.defaultPrevented) return;
+      if (gamePhaseRef.current === "merging" || gamePhaseRef.current === "splitting") return;
+      setGameMode(null);
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [gameMode]);
+
+  // Whenever a game ends, hand focus back to the Play button.
+  useEffect(() => {
+    const previous = previousGameModeRef.current;
+    previousGameModeRef.current = gameMode;
+    if (previous !== null && gameMode === null) getPlayButton()?.focus({ preventScroll: true });
+  }, [gameMode, getPlayButton]);
+
+  const inlineGame = useMemo(() => <RaceScreen autoFocus onExit={closeGame} />, [closeGame]);
 
   return (
     <div className={styles.showcase} data-cursor-knight-hide>
@@ -475,6 +701,10 @@ export function DeskShowcase() {
             marketplace: <Caption project={PROJECTS.marketplace} />,
           }}
           onOpen={handleOpen}
+          gameActive={gameMode === "inline"}
+          onGameToggle={handleGameToggle}
+          game={gameMode === "inline" ? inlineGame : null}
+          onGamePhase={handleGamePhase}
         />
       </div>
       <div className={styles.footer}>
@@ -485,6 +715,9 @@ export function DeskShowcase() {
             <FocusDialog initialId={active} getTrigger={getTrigger} onClosed={handleClosed} />,
             document.body,
           )
+        : null}
+      {gameMode === "sheet"
+        ? createPortal(<RaceSheet getTrigger={getPlayButton} onClosed={closeGame} />, document.body)
         : null}
     </div>
   );
