@@ -20,7 +20,7 @@ A five-view CRM workspace covering store metrics, order fulfillment, integration
 
 ![Verification Code component with its live playground and Preview/Code controls](docs/screenshots/verification-code.png)
 
-Selected views captured during development. These show the gallery layout and an individual component’s Preview/Code interface; the catalog below highlights 48 of the 54 components.
+Selected views captured during development. These show the gallery layout and an individual component’s Preview/Code interface; the catalog below highlights 49 of the 56 components.
 
 ### Browse the collection
 
@@ -86,6 +86,7 @@ Try the full interaction in **Preview**, check desktop or mobile sizing, then op
 | [Toon Carousel](docs/component-guide.md#use-toon-carousel-in-your-project) | Carousel | Slides colorful character illustrations across oversized typography, with swipe, keyboard controls, and character details. |
 | [Creative Login](docs/component-guide.md#use-creative-login-in-your-project) | Form · 3D | Pairs an animated Three.js character with a multi-step name-and-email form, review, and submission feedback. |
 | [Glass OTP](docs/component-guide.md#use-glass-otp-in-your-project) | Verification form | Presents four-digit code entry in frosted glass, with animated states and a resend cooldown. |
+| [Glassy Login Form v3](docs/component-guide.md#use-glassy-login-form-v3-in-your-project) | Sign-in and sign-up form | Frosted glass with chamfered corners; switching forms slides two glowing corner tabs together, ripples outward, and reveals the next form. |
 
 ## What’s included
 

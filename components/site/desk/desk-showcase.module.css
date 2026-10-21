@@ -1,0 +1,861 @@
+/* ------------------------------------------------------------------ */
+/* Section heading, white stage, closing button                        */
+/* ------------------------------------------------------------------ */
+.showcase {
+  color: #101c33;
+}
+
+.heading {
+  margin-bottom: clamp(16px, 2.2vw, 24px);
+}
+
+/* Same scale as the "The collection" heading further down the page. */
+.title {
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.045em;
+  color: #111318;
+}
+
+.subtitle {
+  margin-top: 4px;
+  color: #596273;
+  font-size: 13px;
+}
+
+.stage {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1.5px solid #cdd6e4;
+  border-radius: 28px;
+  padding: clamp(20px, 3.4vw, 44px) clamp(16px, 3.4vw, 44px) clamp(24px, 4vw, 48px);
+  background: #fff;
+  box-shadow:
+    0 1px 0 #fff inset,
+    0 24px 48px -32px #18396633;
+  color: #101c33;
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(24px, 3.4vw, 36px);
+}
+
+/* Full work history ------------------------------------------------- */
+@property --history-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.historyButton {
+  position: relative;
+  display: inline-flex;
+  isolation: isolate;
+  border-radius: 999px;
+  padding: 2px;
+  background: #cdd6e4;
+  box-shadow: 0 14px 30px -14px #0b182b66;
+  color: #fff;
+  text-decoration: none;
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.85, 0.25, 1),
+    box-shadow 0.35s ease;
+}
+
+/* The ring of light that circles the button while it is hovered or focused. */
+.historyButton::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: conic-gradient(from var(--history-angle), transparent 0 55%, #6aa8ff 72%, #58d6b6 88%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.historyFace {
+  position: relative;
+  display: inline-flex;
+  min-height: 56px;
+  align-items: center;
+  gap: 18px;
+  overflow: hidden;
+  border-radius: 999px;
+  padding: 0 8px 0 28px;
+  background: #101c33;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* A soft sheen that sweeps across on hover. */
+.historyFace::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 35%, #ffffff26 50%, transparent 65%);
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+
+.historyLabel {
+  position: relative;
+  display: block;
+  height: 1.3em;
+  overflow: hidden;
+  line-height: 1.3;
+}
+
+.historyText {
+  display: block;
+  transition: transform 0.45s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+
+.historyTextClone {
+  position: absolute;
+  inset: 100% 0 auto;
+  color: #9be8cf;
+}
+
+.historyChip {
+  position: relative;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #fff;
+  color: #101c33;
+  transition:
+    background-color 0.3s ease,
+    transform 0.45s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+
+.historyArrow {
+  display: grid;
+  grid-area: 1 / 1;
+  place-items: center;
+  transition: transform 0.45s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+
+.historyArrowClone {
+  transform: translate(-150%, 150%);
+}
+
+@media (hover: hover) {
+  .historyButton:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 22px 38px -14px #0b182b80;
+  }
+
+  .historyButton:hover .historyText {
+    transform: translateY(-100%);
+  }
+
+  .historyButton:hover .historyChip {
+    background: #9be8cf;
+    transform: rotate(-8deg) scale(1.06);
+  }
+
+  .historyButton:hover .historyArrow:not(.historyArrowClone) {
+    transform: translate(150%, -150%);
+  }
+
+  .historyButton:hover .historyArrowClone {
+    transform: none;
+  }
+
+  .historyButton:hover .historyFace::after {
+    animation: historySheen 0.9s ease-out;
+  }
+}
+
+.historyButton:hover::before,
+.historyButton:focus-visible::before {
+  opacity: 1;
+  animation: historyOrbit 2.6s linear infinite;
+}
+
+.historyButton:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 0.12s;
+}
+
+.historyButton:focus-visible {
+  outline: 2px solid #2852a6;
+  outline-offset: 4px;
+}
+
+@keyframes historyOrbit {
+  to {
+    --history-angle: 360deg;
+  }
+}
+
+@keyframes historySheen {
+  to {
+    transform: translateX(120%);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Captions (rendered by the desk scene under each monitor / in cards) */
+/* ------------------------------------------------------------------ */
+.caption {
+  min-width: 0;
+}
+
+.captionMeta {
+  color: #4e6890;
+  font: 600 11px/1.4 var(--font-geist-mono), monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.captionTitle {
+  margin-top: 8px;
+  color: #101c33;
+  font-size: clamp(20px, 2vw, 25px);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+}
+
+.captionSummary {
+  max-width: 44ch;
+  margin-top: 6px;
+  color: #3f567a;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+/* Explore case study ------------------------------------------------- */
+.caption .case {
+  margin-top: 16px;
+}
+
+.case {
+  --case-bg: #fff;
+  --case-fg: #101c33;
+  --case-muted: #6b7f9d;
+  --case-line: #dde4ef;
+  --case-border: #cfd8e6;
+  --case-fill: #101c33;
+  --case-fg-hover: #fff;
+  --case-muted-hover: #9fb0c8;
+  --case-line-hover: #ffffff2e;
+  --case-chip: #101c33;
+  --case-chip-fg: #fff;
+  --case-chip-hover: #9be8cf;
+  --case-chip-fg-hover: #101c33;
+  --case-ring: #3a86ff;
+  --case-shadow: 0 10px 22px -14px #0b182b66;
+
+  position: relative;
+  display: inline-flex;
+  isolation: isolate;
+  min-height: 52px;
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+  border: 1px solid var(--case-border);
+  border-radius: 999px;
+  padding: 5px 5px 5px 16px;
+  background: var(--case-bg);
+  box-shadow: var(--case-shadow);
+  color: var(--case-fg);
+  text-decoration: none;
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.85, 0.25, 1),
+    box-shadow 0.35s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.caseSolid {
+  --case-bg: #101c33;
+  --case-fg: #fff;
+  --case-muted: #9fb0c8;
+  --case-line: #ffffff2e;
+  --case-border: #ffffff59;
+  --case-fill: #9be8cf;
+  --case-fg-hover: #101c33;
+  --case-muted-hover: #38685a;
+  --case-line-hover: #101c3326;
+  --case-chip: #fff;
+  --case-chip-fg: #101c33;
+  --case-chip-hover: #101c33;
+  --case-chip-fg-hover: #9be8cf;
+  --case-ring: #9be8cf;
+  --case-shadow: 0 12px 26px -12px #0b182b80;
+}
+
+/* The colour that floods the pill, starting from behind the arrow chip. */
+.caseFill {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--case-fill);
+  clip-path: circle(0 at calc(100% - 24px) 50%);
+  transition: clip-path 0.55s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+
+.caseIndex {
+  padding-right: 12px;
+  border-right: 1px solid var(--case-line);
+  color: var(--case-muted);
+  font: 700 11px/1 var(--font-geist-mono), monospace;
+  letter-spacing: 0.08em;
+  transition:
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.caseLabel {
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.caseChip {
+  position: relative;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--case-chip);
+  color: var(--case-chip-fg);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    transform 0.45s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+
+.caseRing {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform: rotate(-90deg);
+}
+
+.caseRing circle {
+  stroke: var(--case-ring);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  transition: stroke-dashoffset 0.7s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+
+/* At rest the arrow points up and right; it straightens as the pill fills. */
+.caseArrow {
+  transform: rotate(-45deg);
+  transition: transform 0.45s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+
+.case:focus-visible,
+.case:active {
+  color: var(--case-fg-hover);
+  border-color: transparent;
+}
+
+.case:focus-visible .caseFill,
+.case:active .caseFill {
+  clip-path: circle(150% at calc(100% - 24px) 50%);
+}
+
+.case:focus-visible .caseIndex,
+.case:active .caseIndex {
+  color: var(--case-muted-hover);
+  border-color: var(--case-line-hover);
+}
+
+.case:focus-visible .caseChip,
+.case:active .caseChip {
+  background: var(--case-chip-hover);
+  color: var(--case-chip-fg-hover);
+}
+
+.case:focus-visible .caseRing circle,
+.case:active .caseRing circle {
+  stroke-dashoffset: 0;
+}
+
+.case:focus-visible .caseArrow,
+.case:active .caseArrow {
+  transform: rotate(0deg);
+}
+
+@media (hover: hover) {
+  .case:hover {
+    color: var(--case-fg-hover);
+    border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 16px 28px -14px #0b182b80;
+  }
+
+  .case:hover .caseFill {
+    clip-path: circle(150% at calc(100% - 24px) 50%);
+  }
+
+  .case:hover .caseIndex {
+    color: var(--case-muted-hover);
+    border-color: var(--case-line-hover);
+  }
+
+  .case:hover .caseChip {
+    background: var(--case-chip-hover);
+    color: var(--case-chip-fg-hover);
+    transform: scale(1.06);
+  }
+
+  .case:hover .caseRing circle {
+    stroke-dashoffset: 0;
+  }
+
+  .case:hover .caseArrow {
+    transform: rotate(0deg);
+  }
+}
+
+.case:active {
+  transform: translateY(0) scale(0.98);
+  transition-duration: 0.12s;
+}
+
+.case:focus-visible {
+  outline: 2px solid #2852a6;
+  outline-offset: 4px;
+}
+
+.caseSolid:focus-visible {
+  outline-color: #fff;
+  box-shadow: 0 0 0 5px #3a86ff;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ */
+/* Focus mode (portal to <body>)                                       */
+/* ------------------------------------------------------------------ */
+.dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: clamp(12px, 3vw, 32px);
+  color: #fff;
+  outline: none;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 28, 51, 0.62);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+}
+
+.panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: min(100%, max(320px, calc((100vh - 230px) * 1.6)));
+  width: min(100%, max(320px, calc((100dvh - 230px) * 1.6)));
+  max-width: 1000px;
+  margin: auto;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+
+.dialogTitle {
+  flex: 1;
+  min-width: 0;
+  color: #fff;
+  font-size: clamp(17px, 2.2vw, 20px);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.dialogTitle:focus {
+  outline: none;
+}
+
+.escChip {
+  flex: none;
+  border: 1px solid #c6d3e4;
+  border-radius: 999px;
+  padding: 7px 13px;
+  background: #fff;
+  color: #26334d;
+  font: 600 13px/1 var(--font-geist-sans), system-ui, sans-serif;
+}
+
+.closeButton {
+  display: inline-flex;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ffffff80;
+  border-radius: 50%;
+  background: #101c33;
+  color: #fff;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.closeButton:hover {
+  background: #26334d;
+  transform: scale(1.06);
+}
+
+.bezel {
+  border-radius: clamp(10px, 1.8vw, 18px);
+  padding: clamp(6px, 1.4vw, 14px);
+  background: #1a2742;
+  box-shadow:
+    0 30px 80px rgba(8, 16, 32, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+  transform-origin: 50% 50%;
+}
+
+.screenFrame {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: clamp(4px, 0.8vw, 8px);
+  background: #f6f9fd;
+}
+
+.crmFrame {
+  background: #f6f9fd;
+}
+
+.marketFrame {
+  background: #eef9f6;
+}
+
+.screenInner {
+  position: absolute;
+  inset: 0;
+}
+
+.foot {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hint {
+  display: none;
+  color: #3f567a;
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.pill {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0 20px;
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.pill:hover {
+  transform: translateY(-1px);
+}
+
+.ghost {
+  border-color: #c4d2c8;
+  background: #fff;
+  color: #26334d;
+}
+
+.ghost:hover {
+  background: #eef4ef;
+}
+
+/* Double ring stays visible on the dim backdrop and on the light sheet. */
+.pill:focus-visible,
+.closeButton:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px #3a86ff;
+}
+
+/* Esc hint only helps people with a hardware keyboard. */
+@media (hover: none), (pointer: coarse) {
+  .escChip {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Responsive                                                          */
+/* ------------------------------------------------------------------ */
+@media (max-width: 720px) {
+  /* Full-bleed sheet. */
+  .dialog {
+    padding: 0;
+    background: #e6efe9;
+    color: #101c33;
+  }
+
+  .panel {
+    width: 100%;
+    max-width: none;
+    min-height: 100vh;
+    min-height: 100dvh;
+    margin: 0;
+    padding: 10px 8px calc(14px + env(safe-area-inset-bottom));
+    gap: 12px;
+  }
+
+  .top {
+    padding-inline: 6px 0;
+  }
+
+  .dialogTitle {
+    color: #101c33;
+  }
+
+  .backdrop {
+    display: none;
+  }
+
+  .hint {
+    display: block;
+  }
+
+  .bezel {
+    margin-block: auto;
+    border-radius: 12px;
+    padding: 6px;
+  }
+
+  .screenFrame {
+    border-radius: 7px;
+  }
+
+  /* A 16:10 slab is only ~220px tall on a phone; a portrait screen gives the
+     kanban columns and the order flow room to breathe. */
+  @media (orientation: portrait) {
+    .screenFrame {
+      aspect-ratio: 4 / 5;
+    }
+  }
+
+  .bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .bottom .casePrimary {
+    grid-column: 1 / -1;
+    order: -1;
+    justify-content: space-between;
+  }
+
+  .pill {
+    padding-inline: 14px;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .pill:focus-visible,
+  .closeButton:focus-visible {
+    outline-color: #2852a6;
+    box-shadow: 0 0 0 5px #fff;
+  }
+}
+
+@media (max-width: 680px) {
+  .stage {
+    border-radius: 20px;
+    padding: 20px 16px 24px;
+  }
+
+  .historyButton {
+    width: min(100%, 360px);
+  }
+
+  .historyFace {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 380px) {
+  .stage {
+    padding-inline: 12px;
+  }
+
+  .captionMeta {
+    font-size: 10px;
+    letter-spacing: 0.04em;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Accessibility                                                       */
+/* ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .historyButton,
+  .historyText,
+  .historyChip,
+  .historyArrow,
+  .case,
+  .caseFill,
+  .caseIndex,
+  .caseChip,
+  .caseArrow,
+  .caseRing circle,
+  .closeButton,
+  .pill {
+    transition: none;
+  }
+
+  .historyButton:hover,
+  .historyButton:hover .historyChip,
+  .case:hover,
+  .case:hover .caseChip,
+  .closeButton:hover,
+  .pill:hover {
+    transform: none;
+  }
+
+  .historyButton:hover::before,
+  .historyButton:focus-visible::before,
+  .historyButton:hover .historyFace::after {
+    animation: none;
+  }
+
+  .historyButton:hover .historyText,
+  .historyButton:hover .historyArrow:not(.historyArrowClone) {
+    transform: none;
+  }
+
+  .historyButton:hover .historyArrowClone {
+    transform: translate(-150%, 150%);
+  }
+
+  .historyTextClone {
+    display: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .stage,
+  .bezel,
+  .screenFrame {
+    border: 1px solid CanvasText;
+  }
+
+  .case {
+    border: 1px solid CanvasText;
+    background: ButtonFace;
+    box-shadow: none;
+    color: LinkText;
+  }
+
+  .caseFill {
+    display: none;
+  }
+
+  .caseChip {
+    background: ButtonText;
+    color: ButtonFace;
+  }
+
+  .caseIndex {
+    border-color: CanvasText;
+    color: ButtonText;
+  }
+
+  .caseRing {
+    display: none;
+  }
+
+  .historyButton,
+  .pill,
+  .closeButton,
+  .escChip {
+    border: 1px solid CanvasText;
+    background: ButtonFace;
+    color: ButtonText;
+  }
+
+  .historyFace {
+    background: ButtonFace;
+  }
+
+  .historyChip {
+    background: ButtonText;
+    color: ButtonFace;
+  }
+
+  .dialog {
+    background: Canvas;
+    color: CanvasText;
+  }
+
+  .dialogTitle {
+    color: CanvasText;
+  }
+}

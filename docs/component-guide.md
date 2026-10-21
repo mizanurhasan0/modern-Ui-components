@@ -1423,6 +1423,76 @@ The gallery also uses the named `GlassOtpThumbnail` export for its static previe
 
 Each thumbnail also accepts an optional `previewStep` number to select a sample frame. It stays static when this prop does not change; the homepage supplies changing frames through its shared playback controller.
 
+## Use Glassy Login Form v3 in your project
+
+1. Open **Glassy Login Form v3 → Code** and copy the complete component into `components/ui/glassy-login-v3.tsx`.
+2. Use React and TypeScript in the receiving project. The exported file includes its scoped stylesheet, icons, the Plus Jakarta Sans latin subset (SIL Open Font License 1.1), and the background scene as embedded data, so there is no icon, animation, or font package and no public folder to copy. Tailwind is not required.
+3. Import the component:
+
+```tsx
+import GlassyLoginV3 from "@/components/ui/glassy-login-v3";
+
+export default function LoginPage() {
+  return <GlassyLoginV3 />;
+}
+```
+
+The component fills the width of its container (at least 600px tall) and centers a 452px card on the chrome-and-neon scene. The card is a frosted-glass panel clipped to a chamfered outline, with a separate glass tab in each cut corner.
+
+### The form switch
+
+Select **Sign Up** or **Sign In** under the form. The content blurs away, both corner tabs turn blue and travel to the centre, merge into one glowing tile, release a ripple that frosts the card, then split apart and return to their corners while the next form fades in row by row. The whole sequence lasts about 1.5 seconds and ignores further input until it finishes. With reduced motion enabled, the forms swap with a short crossfade instead. Focus moves to the new heading and a screen-reader announcement names the form.
+
+### Connect real authentication
+
+Without callbacks the component is a local demo: valid entries succeed after a short delay and nothing leaves the browser. Supply callbacks from a Client Component in Next.js:
+
+```tsx
+"use client";
+
+import GlassyLoginV3 from "@/components/ui/glassy-login-v3";
+
+export default function LoginForm() {
+  return (
+    <GlassyLoginV3
+      onSignIn={async ({ email, password, remember }) => {
+        const response = await fetch("/api/sign-in", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password, remember }),
+        });
+        if (!response.ok) throw new Error("Incorrect email or password.");
+      }}
+      onSignUp={async ({ name, email, password }) => {
+        // Implement this endpoint in your application.
+        await fetch("/api/sign-up", { method: "POST", body: JSON.stringify({ name, email, password }) });
+      }}
+      onSocialSignIn={(provider) => {
+        window.location.href = `/api/auth/${provider}`;
+      }}
+    />
+  );
+}
+```
+
+Rejecting from `onSignIn`, `onSignUp`, or `onSocialSignIn` shows the error message under the form title instead of the subtitle. Inline validation uses the same line: an email address that looks valid, a password for sign-in, and for sign-up a name, a password of at least eight characters, a matching confirmation, and accepted terms.
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `initialMode` | `"signin" \| "signup"` | `"signin"`; the form shown on first render. Later changes are ignored. |
+| `onSignIn` | `(values: GlassyLoginV3SignInValues) => void \| Promise<void>` | Receives `email`, `password`, and `remember`. Reject to show a message. |
+| `onSignUp` | `(values: GlassyLoginV3SignUpValues) => void \| Promise<void>` | Receives `name`, `email`, and `password`. Reject to show a message. |
+| `onSocialSignIn` | `(provider: "google" \| "apple", mode: GlassyLoginV3Mode) => void \| Promise<void>` | Called when a provider button is pressed in either form. |
+| `onForgotPassword` | `(email: string) => void` | Called from **Forgot password?** with the trimmed email field. |
+| `onModeChange` | `(mode: GlassyLoginV3Mode) => void` | Called as soon as the switch to the other form begins. |
+| `className` | `string` | Additional classes for the stage container. |
+
+The email carries over between the two forms; passwords never do. The component does not store credentials and does not send them anywhere on its own.
+
+The named `GlassyLoginV3Thumbnail({ className?, previewStep? })` export is inert artwork for the homepage gallery. It cycles through the sign-in form, the merged-tile moment, the sign-up form, and the merged-tile moment again as the shared playback controller advances `previewStep`.
+
+Background scene extracted from the supplied recording, with the card area softened so it can sit behind the live glass. Typeface: Plus Jakarta Sans by Tokotype, under the SIL Open Font License 1.1.
+
 ## Use Connect Social Bar in your project
 
 Import `ConnectSocialBar` from the standalone source. The component includes its SVG icons, responsive layout, colored hover/focus effects, and reduced-motion handling.
@@ -1513,6 +1583,7 @@ components/
   ui/toon-carousel.tsx               Standalone character carousel
   ui/creative-login.tsx              Standalone animated form
   ui/glass-otp.tsx                   Standalone verification component
+  ui/glassy-login-v3.tsx             Standalone glass sign-in and sign-up form
   showcase/component-playground.tsx Preview/code interface
 lib/
   component-registry.ts              Catalog metadata and usage examples

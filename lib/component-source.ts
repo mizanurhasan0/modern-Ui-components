@@ -137,6 +137,7 @@ const referenceAssetFolders: Record<string, string> = {
   "globe-travel-explorer": "/reference-travel/",
   "classic-microcars": "/classic-microcars/",
   "sapiens-character-builder": "/sapiens-characters/",
+  "glassy-login-v3": "/glassy-login-v3/",
 };
 
 /** Embed local reference artwork on export without putting it in every preview bundle. */
@@ -174,6 +175,8 @@ function includeReferenceAssets(slug: string, source: string): string {
       ? "Reference artwork extracted from the user-supplied recording; terrain obscured by recorded UI restored with imagegen."
       : slug === "sapiens-character-builder"
         ? "Male artwork extracted from the reference recording; female pose artwork generated with imagegen to complement the illustration style."
+      : slug === "glassy-login-v3"
+        ? "Background scene extracted from the user-supplied recording, with the card area softened. Typeface: Plus Jakarta Sans (latin subset) by Tokotype, SIL Open Font License 1.1."
       : "Reference artwork extracted from the user-supplied interaction recording.";
   return `${result}\n\n// ${attribution}\n`;
 }

@@ -15,6 +15,7 @@ const entries = [
   ["orbit-login", "OrbitLoginThumbnail"],
   ["neon-ring-auth", "NeonRingAuthThumbnail"],
   ["glassy-crm-dashboard", "GlassyCrmDashboardThumbnail"],
+  ["glassy-login-v3", "GlassyLoginV3Thumbnail"],
 ];
 
 function compile(source, resolver = requireModule) {

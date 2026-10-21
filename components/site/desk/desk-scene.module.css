@@ -1,0 +1,359 @@
+/*
+ * Desk scene.
+ *
+ * Mobile-first: by default the scene is two stacked white cards (monitor button
+ * on top, caption below, "Tap to try" pill on the monitor's bottom edge).
+ * From 721px up it becomes the desk illustration: an inline SVG backdrop with
+ * the two monitor <button>s laid over it on a grid whose columns follow the
+ * 680-unit drawing, so everything scales with the container width.
+ *
+ * `--u` is "one drawing unit" in container-width terms (680 units across).
+ */
+
+.scene {
+  --u: calc(100cqw / 680);
+  --ring: #3a86ff;
+
+  container-type: inline-size;
+  display: grid;
+  gap: 20px;
+  width: 100%;
+  max-width: var(--desk-max, 1160px);
+  margin-inline: auto;
+  color: #101c33;
+}
+
+/* ---------- card (mobile) ---------- */
+
+.item {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  margin-inline: auto;
+  padding: 12px 12px 16px;
+  background: #fff;
+  border: 1px solid #cdd9d1;
+  border-radius: 16px;
+  box-shadow:
+    0 1px 2px rgba(16, 28, 51, 0.05),
+    0 16px 30px -18px rgba(16, 28, 51, 0.3);
+}
+
+.art {
+  display: none;
+}
+
+/* ---------- lamp light: only the beam's colour cycles, and it holds while the pointer or focus is on the desk ---------- */
+
+@property --lamp-h {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 40;
+}
+
+@keyframes lampHue {
+  from {
+    --lamp-h: 40;
+  }
+
+  to {
+    --lamp-h: 400;
+  }
+}
+
+/* ---------- monitor button ---------- */
+
+.monitor {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 8px;
+  border: 0;
+  border-radius: 10px;
+  background: #1a2742;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  appearance: none;
+  overflow: visible;
+  cursor: pointer;
+  outline: 2px solid transparent;
+  outline-offset: 3px;
+  box-shadow: 0 10px 18px -10px rgba(16, 28, 51, 0.45);
+  transition:
+    transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.22s ease,
+    outline-color 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.monitor:focus-visible {
+  outline-color: var(--ring);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 28px -12px rgba(58, 134, 255, 0.5);
+}
+
+.monitor:active {
+  transform: translateY(-1px);
+}
+
+@media (hover: hover) {
+  .monitor:hover {
+    outline-color: var(--ring);
+    transform: translateY(-2px);
+    box-shadow: 0 16px 28px -12px rgba(58, 134, 255, 0.5);
+  }
+}
+
+/* 16:10 screen slot holding the (decorative) preview */
+.slot {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #f6f9fd;
+  isolation: isolate;
+  forced-color-adjust: none;
+}
+
+.slotInner {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* "Click to open" tooltip (desktop only) */
+.tip {
+  display: none;
+}
+
+/* "Tap to try" pill, straddling the monitor's bottom-right edge */
+.tap {
+  position: absolute;
+  right: 14px;
+  bottom: -12px;
+  padding: 0 12px;
+  border-radius: 12px;
+  background: #101c33;
+  color: #fff;
+  font:
+    500 12px/24px var(--font-geist-sans),
+    system-ui,
+    sans-serif;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 0 0 3px #fff;
+}
+
+.caption {
+  padding: 22px 4px 0;
+  text-align: left;
+  color: inherit;
+}
+
+/* ---------- desk (desktop) ---------- */
+
+@media (min-width: 721px) {
+  .scene {
+    gap: 0;
+    /* 40 | 15 | 270 monitor | 15 | 15 | 270 monitor | 15 | 40  (= 680 units) */
+    grid-template-columns:
+      minmax(0, 40fr) minmax(0, 15fr) minmax(0, 270fr) minmax(0, 15fr)
+      minmax(0, 15fr) minmax(0, 270fr) minmax(0, 15fr) minmax(0, 40fr);
+    grid-template-rows: auto auto;
+  }
+
+  /* the card wrapper disappears; its children sit directly on the scene grid */
+  .item {
+    display: contents;
+  }
+
+  .art {
+    display: block;
+    grid-area: 1 / 1 / 2 / 9;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 680 / 382;
+    forced-color-adjust: none;
+    user-select: none;
+    pointer-events: none;
+    animation: lampHue 18s linear infinite;
+  }
+
+  /* Hovering anywhere on the desk (or tabbing into it) holds the lamp on its current colour. */
+  .scene:hover .art,
+  .scene:focus-within .art {
+    animation-play-state: paused;
+  }
+
+  .monitor {
+    align-self: start;
+    /* drawing y 57.25 (monitor top) minus the viewBox origin y 10 */
+    margin-top: calc(47.25 * var(--u));
+    padding: calc(8 * var(--u));
+    border-radius: calc(8 * var(--u));
+    outline-offset: max(3px, calc(4 * var(--u)));
+    box-shadow: 0 calc(8 * var(--u)) calc(14 * var(--u)) calc(-8 * var(--u)) rgba(16, 28, 51, 0.4);
+  }
+
+  .slot {
+    border-radius: calc(3 * var(--u));
+  }
+
+  .left .monitor {
+    grid-area: 1 / 3 / 2 / 4;
+  }
+
+  .right .monitor {
+    grid-area: 1 / 6 / 2 / 7;
+  }
+
+  /* each caption is centred under its monitor (drawing x 190 and 490) */
+  .caption {
+    align-self: start;
+    padding: calc(4 * var(--u)) calc(10 * var(--u)) 0;
+    text-align: center;
+  }
+
+  .left .caption {
+    grid-area: 2 / 2 / 3 / 5;
+  }
+
+  .right .caption {
+    grid-area: 2 / 5 / 3 / 8;
+  }
+
+  .tap {
+    display: none;
+  }
+
+  .tip {
+    display: block;
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 13px);
+    z-index: 2;
+    padding: 0 12px;
+    border-radius: 6px;
+    background: #101c33;
+    color: #fff;
+    font:
+      500 12px/24px var(--font-geist-sans),
+      system-ui,
+      sans-serif;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translate(-50%, 4px);
+    pointer-events: none;
+    transition:
+      opacity 0.18s ease,
+      transform 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .tip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 10px;
+    height: 5px;
+    margin-left: -5px;
+    background: #101c33;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+
+  .monitor:focus-visible .tip {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@media (min-width: 721px) and (hover: hover) {
+  .monitor:hover .tip {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* ---------- mug steam ---------- */
+
+.steam {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: steam 3.6s ease-in-out infinite;
+}
+
+.steamLate {
+  animation-delay: -1.8s;
+}
+
+@keyframes steam {
+  0% {
+    opacity: 0.15;
+    transform: translateY(2px) scaleY(0.9);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translateY(-2px) scaleY(1.05);
+  }
+  100% {
+    opacity: 0.15;
+    transform: translateY(-5px) scaleY(0.9);
+  }
+}
+
+/* ---------- accessibility modes ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .monitor,
+  .tip {
+    transition: none;
+  }
+
+  .steam {
+    animation: none;
+    opacity: 0.7;
+  }
+
+  .art {
+    animation: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .monitor {
+    outline: 2px solid ButtonText;
+    outline-offset: 0;
+  }
+
+  .monitor:focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 3px;
+  }
+
+  .tip,
+  .tap {
+    border: 1px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+    box-shadow: none;
+  }
+
+  .tip::after {
+    background: CanvasText;
+  }
+}
+
+@media (forced-colors: active) and (hover: hover) {
+  .monitor:hover {
+    outline: 3px solid Highlight;
+    outline-offset: 3px;
+  }
+}

@@ -15,6 +15,70 @@ export type ComponentEntry = {
 /** The catalog drives the gallery, detail pages, and available source files. */
 export const components: ComponentEntry[] = [
   {
+    slug: "glassy-login-v3",
+    title: "Glassy Login Form v3",
+    description:
+      "A frosted-glass sign-in and sign-up card with chamfered corners. Switching forms melts the content away, slides the two corner tabs together, sends out a ripple, and reveals the new form.",
+    category: "Forms",
+    tags: ["Interactive", "Animated", "Customizable", "Accessible"],
+    sourceFile: "glassy-login-v3.tsx",
+    fileName: "glassy-login-v3.tsx",
+    number: "056",
+    demoNote:
+      "Interactive demo · Select Sign Up or Sign In under the form to watch the liquid-glass switch. Fields validate locally and any valid entry succeeds; connect onSignIn and onSignUp to your backend. Reduced motion swaps the forms with a short crossfade.",
+    features: [
+      {
+        title: "A switch you can watch",
+        description:
+          "The form blurs out, both corner tabs light up and travel to the centre, merge into one glowing tile, ripple outward, then settle back as the next form fades in line by line.",
+      },
+      {
+        title: "Glass with a silhouette",
+        description:
+          "Backdrop blur is clipped to a chamfered outline with rounded joins, a gradient edge, and separate glass tabs in the cut corners. The chrome-and-neon scene behind it is drawn in SVG.",
+      },
+      {
+        title: "Forms that work",
+        description:
+          "Labelled inputs, password reveal, inline validation under the title, busy and success states, provider buttons, and focus that lands on the new heading. Plus Jakarta Sans is bundled with the export.",
+      },
+    ],
+    usage:
+      'import GlassyLoginV3 from "@/components/ui/glassy-login-v3";\n\nexport default function LoginPage() {\n  return (\n    <GlassyLoginV3\n      onSignIn={async ({ email, password, remember }) => {\n        await signIn(email, password, remember);\n      }}\n      onSignUp={async ({ name, email, password }) => {\n        await createAccount(name, email, password);\n      }}\n      onSocialSignIn={(provider) => startOAuth(provider)}\n    />\n  );\n}\n\n// Reject from a callback to show its message under the title.\n// Omit the callbacks to try the local demo.',
+  },
+  {
+    slug: "page-mascot",
+    title: "Page Mascot",
+    description:
+      "A character for the top of your page that turns its head toward the reader's cursor and reacts when poked, with the fox drawn in six styles.",
+    category: "Effects",
+    tags: ["Interactive", "Animated", "Customizable", "Accessible"],
+    sourceFile: "page-mascot.tsx",
+    fileName: "page-mascot.tsx",
+    number: "055",
+    demoNote:
+      "Interactive demo · Move your pointer and every mascot turns its head to follow it. Poke one for a reaction; poke four times quickly to make it dizzy. Pick a style below to show it at the top. Head tracking needs a mouse or trackpad.",
+    features: [
+      {
+        title: "Nine directions, one glance",
+        description:
+          "The pointer's angle picks one of nine drawn head poses. A 70px dead zone and a little hysteresis let the head settle instead of flickering between poses.",
+      },
+      {
+        title: "A reaction for every poke",
+        description:
+          "A poke blinks, then pays off with a heart, a sparkle, or a delighted face, with a squash-and-stretch bounce. Four quick pokes make it dizzy. Reduced motion skips the bounce.",
+      },
+      {
+        title: "Two sheets per character",
+        description:
+          "Each character is a 3×3 directions sheet and a 3×3 reactions sheet, served from public/mascots. Original component and fox artwork by Kamran Ahmed under the MIT license.",
+      },
+    ],
+    usage:
+      'import { Mascot } from "@/components/ui/page-mascot";\n\nexport default function Page() {\n  return (\n    <Mascot\n      directions="/mascots/fox-directions.webp"\n      reactions="/mascots/fox-reactions.webp"\n    />\n  );\n}\n\n// Put both sheets in public/mascots.\n// The default export renders the full demo page.',
+  },
+  {
     slug: "clothing-color-customizer",
     title: "Clothing Color Customizer",
     description: "A clothing color studio with smooth front and back views, garment zoom, instant masked recoloring, and preserved fabric detail.",

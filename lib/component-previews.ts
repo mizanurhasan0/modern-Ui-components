@@ -6,6 +6,8 @@ import { lazy, type ComponentType, type LazyExoticComponent } from "react";
 export const componentPreviews: Partial<
   Record<string, LazyExoticComponent<ComponentType>>
 > = {
+  "glassy-login-v3": lazy(() => import("@/components/ui/glassy-login-v3")),
+  "page-mascot": lazy(() => import("@/components/ui/page-mascot")),
   "clothing-color-customizer": lazy(() => import("@/components/ui/clothing-color-customizer")),
   "classic-microcars": lazy(() => import("@/components/ui/classic-microcars")),
   "chrome-profile-carousel": lazy(() => import("@/components/ui/chrome-profile-carousel")),
@@ -65,6 +67,8 @@ export const componentPreviews: Partial<
 export const componentThumbnails: Partial<
   Record<string, LazyExoticComponent<ComponentType<{ className?: string; previewStep?: number }>>>
 > = {
+  "glassy-login-v3": lazy(() => import("@/components/ui/glassy-login-v3").then((module) => ({ default: module.GlassyLoginV3Thumbnail }))),
+  "page-mascot": lazy(() => import("@/components/ui/page-mascot").then((module) => ({ default: module.PageMascotThumbnail }))),
   "clothing-color-customizer": lazy(() => import("@/components/ui/clothing-color-customizer").then((module) => ({ default: module.ClothingColorCustomizerThumbnail }))),
   "classic-microcars": lazy(() => import("@/components/ui/classic-microcars").then((module) => ({ default: module.ClassicMicrocarsThumbnail }))),
   "chrome-profile-carousel": lazy(() => import("@/components/ui/chrome-profile-carousel").then((module) => ({ default: module.ChromeProfileCarouselThumbnail }))),
