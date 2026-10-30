@@ -42,10 +42,9 @@ export function HeroSection({ componentCount }: { componentCount: number }) {
             id="hero-heading"
             className="mt-6 text-[clamp(2.35rem,4.2vw,3.75rem)] leading-[1.02] font-bold tracking-[-0.045em] text-[#0b0d12]"
           >
-            Turning Ideas Into
+            Turning Ideas Into{" "}
             <br />
-            <span className={styles.productTitle}>
-              <span className={styles.productDepth} aria-hidden="true">Real Products.</span>
+            <span className={styles.productTitle} data-text="Real Products.">
               <span className={styles.productFace}>Real Products.</span>
             </span>
           </h1>

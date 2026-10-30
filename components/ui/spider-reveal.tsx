@@ -423,9 +423,9 @@ export default function SpiderReveal({
           }}
           onKeyDown={revealKey}
         >
-          <h1 id={titleId} className={SR_ONLY}>
+          <h2 id={titleId} className={SR_ONLY}>
             {subject.firstName} {subject.lastName}: identity reveal
-          </h1>
+          </h2>
           <p id={instructionsId} className={SR_ONLY}>
             Move your pointer or tap the portrait to reveal its identity. Focus
             this scene and press Enter or Space to toggle the reveal, then use

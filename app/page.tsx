@@ -1,12 +1,39 @@
+import type { Metadata } from "next";
 import { ComponentGallery } from "@/components/showcase/component-gallery";
+import { JsonLd } from "@/components/site/json-ld";
 import { CursorHelicopter } from "@/components/site/hero/cursor-helicopter";
 import { HeroSection } from "@/components/site/hero/hero-section";
 import { FeaturedWork } from "@/components/site/featured-work";
 import { components } from "@/lib/component-registry";
+import { absoluteUrl, pageMetadata, siteDescription, siteTitle } from "@/lib/site";
+import { websiteId } from "@/lib/structured-data";
+
+export const metadata: Metadata = pageMetadata({ description: siteDescription, path: "/" });
+
+const homeGraph = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "@id": absoluteUrl("/#collection-page"),
+  url: absoluteUrl("/"),
+  name: siteTitle,
+  description: siteDescription,
+  isPartOf: { "@id": websiteId },
+  mainEntity: {
+    "@type": "ItemList",
+    numberOfItems: components.length,
+    itemListElement: components.map((component, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: component.title,
+      url: absoluteUrl(`/components/${component.slug}`),
+    })),
+  },
+};
 
 export default function Home() {
   return (
     <main id="main-content" className="w-full">
+      <JsonLd data={homeGraph} />
       <HeroSection componentCount={components.length} />
       <FeaturedWork />
       <div className="site-container pt-16 sm:pt-20">

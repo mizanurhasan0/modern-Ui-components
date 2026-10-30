@@ -1,6 +1,6 @@
 # Component Lab
 
-**54 interactive UI components for React and Next.js**, built with TypeScript and Tailwind CSS 4. A portfolio of animated cards, carousels, forms, dashboards, and immersive navigation—with working demos and reusable source code.
+**57 interactive UI components for React and Next.js**, built with TypeScript and Tailwind CSS 4. A portfolio of animated cards, carousels, forms, dashboards, and immersive navigation—with working demos and reusable source code.
 
 Built by **Mizanur Hasan**, a full-stack developer with a frontend focus. [Email](mailto:eng.mizanur.hasan@gmail.com) · [GitHub](https://github.com/mizanurhasan0) · [LinkedIn](https://www.linkedin.com/in/mizanur-hasan/) · [Full portfolio](https://mizanurhasan404.vercel.app/) · [Résumé](https://mizanurhasan404.vercel.app/resume.pdf)
 
@@ -20,7 +20,7 @@ A five-view CRM workspace covering store metrics, order fulfillment, integration
 
 ![Verification Code component with its live playground and Preview/Code controls](docs/screenshots/verification-code.png)
 
-Selected views captured during development. These show the gallery layout and an individual component’s Preview/Code interface; the catalog below highlights 49 of the 56 components.
+Selected views captured during development. These show the gallery layout and an individual component’s Preview/Code interface; the catalog below highlights 50 of the 57 components.
 
 ### Browse the collection
 
@@ -38,6 +38,7 @@ Try the full interaction in **Preview**, check desktop or mobile sizing, then op
 
 | Component | Type | What it does |
 | --- | --- | --- |
+| [Isometric Cities](docs/component-guide.md#use-isometric-cities-in-your-project) | Effects | Ten glowing isometric city scenes in SVG, each with its own controls, a live status line, and six glow colours. |
 | [Glassy CRM Dashboard](docs/component-guide.md#use-glassy-crm-dashboard-in-your-project) | Dashboards | A dark glass CRM with five views, searchable records, reporting controls, and purple/cyan charts. |
 | [Skill Orbit Hero](docs/component-guide.md#use-skill-orbit-hero-in-your-project) | Portfolio | Skills orbit your portrait on two rings that pause to reveal details on hover or focus. |
 | [Code Profile Hero](docs/component-guide.md#use-code-profile-hero-in-your-project) | Portfolio | An editor types your developer profile while a matching card assembles beside it. |

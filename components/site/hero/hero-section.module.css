@@ -9,8 +9,12 @@
   transition: transform 350ms cubic-bezier(.2,.7,.2,1);
 }
 
-/* A separate extrusion keeps the gradient face crisp and the heading selectable. */
-.productDepth {
+/*
+ * A separate extrusion keeps the gradient face crisp and the heading selectable. It is drawn from
+ * a pseudo-element so the heading's text exists once in the DOM, for crawlers and assistive tech.
+ */
+.productTitle::before {
+  content: attr(data-text);
   position: absolute;
   inset: 0;
   z-index: -1;
@@ -47,6 +51,6 @@
 
 @media (forced-colors: active) {
   .productTitle, .productTitle:hover { transform: none; }
-  .productDepth { display: none; }
+  .productTitle::before { display: none; }
   .productFace { color: CanvasText; background: none; -webkit-text-fill-color: currentColor; -webkit-text-stroke: 0; }
 }

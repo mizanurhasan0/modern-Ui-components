@@ -8,6 +8,9 @@ import "@/components/showcase/component-detail.css";
 import { ComponentPreviewBySlug, ComponentThumbnailBySlug } from "@/components/showcase/component-preview-by-slug";
 import { components, getComponent } from "@/lib/component-registry";
 import { ArrowUpRight } from "@/components/site/icons";
+import { JsonLd } from "@/components/site/json-ld";
+import { pageMetadata } from "@/lib/site";
+import { breadcrumbList, creativeWork, graph } from "@/lib/structured-data";
 
 type ComponentPageProps = {
   params: Promise<{ slug: string }>;
@@ -29,10 +32,12 @@ export async function generateMetadata({
     notFound();
   }
 
-  return {
+  return pageMetadata({
     title: component.title,
     description: component.description,
-  };
+    path: `/components/${slug}`,
+    keywords: [component.title, component.category, ...component.tags, "React component", "Next.js", "Tailwind CSS"],
+  });
 }
 
 export default async function ComponentPage({ params }: ComponentPageProps) {
@@ -52,6 +57,21 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
       id="main-content"
       className="site-container component-detail-page pb-24 pt-5 sm:pt-6"
     >
+      <JsonLd
+        data={graph(
+          creativeWork({
+            name: entry.title,
+            description: entry.description,
+            path: `/components/${slug}`,
+            keywords: [...entry.tags, "React", "Next.js", "Tailwind CSS", "TypeScript"],
+            genre: entry.category,
+          }),
+          breadcrumbList([
+            { name: "Home", path: "/" },
+            { name: entry.title, path: `/components/${slug}` },
+          ]),
+        )}
+      />
       <ComponentBackdrop slug={slug}>
         <ComponentThumbnailBySlug slug={slug} />
       </ComponentBackdrop>

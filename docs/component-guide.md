@@ -4,6 +4,45 @@
 
 Detailed setup, props, interaction notes, and artwork credits for every component.
 
+## Use Isometric Cities in your project
+
+Copy **Isometric Cities → Code** into `components/ui/isometric-cities.tsx`. Every scene is drawn in inline SVG from a small isometric toolkit, and the styles are scoped to the component. DM Mono loads from Google Fonts, with a system monospace fallback when it is offline.
+
+```tsx
+import IsometricCities from "@/components/ui/isometric-cities";
+
+export default function CitiesPage() {
+  return <IsometricCities initialScene="airport" initialAccent="sodium" />;
+}
+```
+
+Ten night-time figures sit on rounded plates: pick one in the list on the left, then use its controls. Keyboard shortcuts start listening once you click or tab into the component, and stop when you click elsewhere on the page.
+
+| Figure | Controls | Status line |
+| --- | --- | --- |
+| Office tower | Click a floor, ↑/↓ and Space, N night shift, O all off | Floors lit and the cursor floor |
+| Apartment block | 1–7 or the call buttons queue the glass lift | Car floor and direction, queue, homes lit |
+| Lighthouse | Click the lantern, ←/→ beam speed, H horn | Beam state, rpm, bearing |
+| Harbor | Space or click the crane to load a container, S to sail | Containers loaded, crane state, queue |
+| Metro station | 1 / 2 or the platform buttons dispatch or call a train | Both trains and the rider count |
+| Power grid | A–D switch districts, X blackout | Districts powered and load in MW |
+| Intersection | Click a signal or Space to switch, A auto-cycle | Which axis is green and cars through |
+| Airport | Space or click the tower to clear a landing, L runway lights | Runway phase, landed and queued flights |
+| Observatory | O or click the dome for the slit, ←/→ rotate, Space expose | Slit, azimuth, frames |
+| Night diner | N or click the sign, 1 / 2 or click a pump, S stop | Open or closed, pump litres and price |
+
+| Prop | Type | Default / purpose |
+| --- | --- | --- |
+| `initialScene` | `IsometricCitiesSceneId` | `"tower"`; also `apartments`, `lighthouse`, `harbor`, `metro`, `grid`, `intersection`, `airport`, `observatory`, `diner`. |
+| `initialAccent` | `IsometricCitiesAccent` | `"sodium"`; also `tungsten`, `neon`, `signal`, `dusk`, `moon`. |
+| `initialTheme` | `"dark" \| "light"` | `"dark"`; the round button in the header switches it. |
+| `syncHash` | `boolean` | `true`; mirrors the open figure in the URL hash (`#airport`) and follows hash changes. |
+| `className` | `string` | Additional root classes. |
+
+Below 760px of container width the figures stack and each one mounts as it scrolls into view. Animation loops run only while a figure is visible, and reduced motion stops the ambient blinking, flowing and sweeping. `IsometricCitiesThumbnail({ className?, previewStep? })` shows a different still figure for each step.
+
+Visual reference: [iso-glow](https://isoglow.dev/demo/cities) by April Zhu. The figures, geometry and logic are redrawn from scratch for this collection; the original artwork belongs to its author, who is credited in the component.
+
 ## Use Glassy CRM Dashboard in your project
 
 Copy **Glassy CRM Dashboard → Code** into `components/ui/glassy-crm-dashboard.tsx`. The exported file includes its glass surfaces, SVG charts, icons, embedded avatar photos, interaction logic, and scoped stylesheet helper. Use React, TypeScript, and Tailwind CSS 4; no dashboard, chart, or icon package is required.

@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { JsonLd } from "@/components/site/json-ld";
 import { caseStudies, getCaseStudy } from "@/lib/case-studies";
+import { pageMetadata } from "@/lib/site";
+import { breadcrumbList, creativeWork, graph } from "@/lib/structured-data";
 
 type WorkPageProps = { params: Promise<{ slug: string }> };
 
@@ -14,15 +17,13 @@ export async function generateMetadata({ params }: WorkPageProps): Promise<Metad
   const study = getCaseStudy(slug);
   if (!study) return {};
 
-  return {
+  return pageMetadata({
     title: `${study.title} case study`,
     description: `${study.summary} Read Mizanur Hasan’s role and engineering approach.`,
-    openGraph: {
-      title: `${study.title} — Mizanur Hasan`,
-      description: study.summary,
-      type: "article",
-    },
-  };
+    path: `/work/${slug}`,
+    type: "article",
+    keywords: [study.title, study.category, ...study.tags, "case study"],
+  });
 }
 
 export default async function WorkPage({ params }: WorkPageProps) {
@@ -33,6 +34,22 @@ export default async function WorkPage({ params }: WorkPageProps) {
 
   return (
     <main id="main-content" className="bg-[#f7f9fc] text-[#172238]">
+      <JsonLd
+        data={graph(
+          creativeWork({
+            name: `${study.title} case study`,
+            description: study.summary,
+            path: `/work/${slug}`,
+            keywords: [...study.tags, "case study"],
+            genre: study.category,
+          }),
+          breadcrumbList([
+            { name: "Home", path: "/" },
+            { name: "Selected work", path: "/#selected-work" },
+            { name: study.title, path: `/work/${slug}` },
+          ]),
+        )}
+      />
       <div className="site-container py-8 sm:py-12">
         <nav aria-label="Breadcrumb" className="text-sm text-[#55637b]">
           <Link href="/#selected-work" className="inline-flex min-h-11 items-center underline underline-offset-4 hover:text-[#244bb0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3152b4]">

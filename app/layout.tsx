@@ -1,8 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { JsonLd } from "@/components/site/json-ld";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteFooter } from "@/components/site/site-footer";
+import { ownerName, siteDescription, siteKeywords, siteName, siteTitle, siteUrl } from "@/lib/site";
+import { siteGraph } from "@/lib/structured-data";
 
 const geistSans = localFont({
   src: "./fonts/geist-latin.woff2",
@@ -17,20 +20,33 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
-    default: "Mizanur Hasan — Component Lab",
-    template: "%s — Component Lab",
+    default: siteTitle,
+    template: `%s — ${siteName}`,
   },
-  description:
-    "Interactive interface work by Mizanur Hasan. Explore React and Next.js component studies, test the live interactions, and inspect reusable source code.",
-  authors: [{ name: "Mizanur Hasan" }],
-  creator: "Mizanur Hasan",
-  openGraph: {
-    title: "Mizanur Hasan — Component Lab",
-    description: "Interactive interface work, live component studies, and reusable source code.",
-    type: "website",
+  description: siteDescription,
+  applicationName: siteName,
+  keywords: siteKeywords,
+  authors: [{ name: ownerName, url: siteUrl }],
+  creator: ownerName,
+  publisher: ownerName,
+  category: "technology",
+  formatDetection: { email: false, address: false, telephone: false },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
   },
-  twitter: { card: "summary_large_image" },
+  // Canonical, Open Graph and Twitter fields are set per page (see `pageMetadata`), because a page's
+  // own values replace these ones entirely.
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#f6f8fb",
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -50,6 +66,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SiteHeader />
         {children}
         <SiteFooter />
+        <JsonLd data={siteGraph} />
       </body>
     </html>
   );

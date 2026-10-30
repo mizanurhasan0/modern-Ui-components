@@ -15,6 +15,38 @@ export type ComponentEntry = {
 /** The catalog drives the gallery, detail pages, and available source files. */
 export const components: ComponentEntry[] = [
   {
+    slug: "isometric-cities",
+    title: "Isometric Cities",
+    description:
+      "Ten glowing isometric city scenes drawn in SVG, from an office tower and a harbour crane to an airport, a power grid and a night diner. Every figure has its own controls, live status line, and six glow colours in dark or light.",
+    category: "Effects",
+    tags: ["Interactive", "Animated", "Customizable", "Accessible"],
+    sourceFile: "isometric-cities.tsx",
+    fileName: "isometric-cities.tsx",
+    number: "057",
+    demoNote:
+      "Interactive demo · Pick a figure on the left, then use the controls under it: click floors, lanterns, cranes, signals or pumps, or press the listed keys. Swatches change the glow colour and the round button switches dark and light. Narrow screens stack all ten figures.",
+    features: [
+      {
+        title: "Ten scenes, one file",
+        description:
+          "Tower, apartment block, lighthouse, harbour, metro, power grid, intersection, airport, observatory and diner are built from a small isometric toolkit: boxes, plates, cylinders, domes and labels laid flat on faces.",
+      },
+      {
+        title: "Every figure does something",
+        description:
+          "Light floors, call the lift, sweep the beam, load the ship, dispatch trains, trip breakers, switch signals, land planes, open the dome or run the pumps. Each figure reports its state in a live status line.",
+      },
+      {
+        title: "Glow you can recolour",
+        description:
+          "Sodium, tungsten, neon, signal, dusk and moon accents drive every lit window through CSS variables, with soft SVG bloom in dark mode and clean line art in light mode. Reduced motion stops the ambient animation.",
+      },
+    ],
+    usage:
+      'import IsometricCities from "@/components/ui/isometric-cities";\n\nexport default function CitiesPage() {\n  return <IsometricCities initialScene="airport" initialAccent="sodium" />;\n}\n\n// The open figure follows the URL hash (#airport).\n// Pass syncHash={false} to keep it in component state only.',
+  },
+  {
     slug: "glassy-login-v3",
     title: "Glassy Login Form v3",
     description:

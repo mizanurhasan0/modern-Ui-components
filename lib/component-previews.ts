@@ -6,6 +6,7 @@ import { lazy, type ComponentType, type LazyExoticComponent } from "react";
 export const componentPreviews: Partial<
   Record<string, LazyExoticComponent<ComponentType>>
 > = {
+  "isometric-cities": lazy(() => import("@/components/ui/isometric-cities")),
   "glassy-login-v3": lazy(() => import("@/components/ui/glassy-login-v3")),
   "page-mascot": lazy(() => import("@/components/ui/page-mascot")),
   "clothing-color-customizer": lazy(() => import("@/components/ui/clothing-color-customizer")),
@@ -67,6 +68,7 @@ export const componentPreviews: Partial<
 export const componentThumbnails: Partial<
   Record<string, LazyExoticComponent<ComponentType<{ className?: string; previewStep?: number }>>>
 > = {
+  "isometric-cities": lazy(() => import("@/components/ui/isometric-cities").then((module) => ({ default: module.IsometricCitiesThumbnail }))),
   "glassy-login-v3": lazy(() => import("@/components/ui/glassy-login-v3").then((module) => ({ default: module.GlassyLoginV3Thumbnail }))),
   "page-mascot": lazy(() => import("@/components/ui/page-mascot").then((module) => ({ default: module.PageMascotThumbnail }))),
   "clothing-color-customizer": lazy(() => import("@/components/ui/clothing-color-customizer").then((module) => ({ default: module.ClothingColorCustomizerThumbnail }))),
