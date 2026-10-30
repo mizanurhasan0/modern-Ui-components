@@ -1,5 +1,5 @@
 /**
- * Pure state machine for the MyPick marketplace demo screen.
+ * Pure state machine for the multi-vendor marketplace demo screen.
  *
  * Flow: idle -> listed -> shared -> ordered -> paid -> (next product) idle.
  * All money is stored as integer cents so commission maths stays exact.

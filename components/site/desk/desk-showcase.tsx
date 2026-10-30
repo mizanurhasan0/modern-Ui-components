@@ -40,13 +40,13 @@ function buildProject(id: DeskProjectId, slug: string, summary: string, hint: st
 const PROJECTS: Record<DeskProjectId, Project> = {
   crm: buildProject(
     "crm",
-    "leadpylot-crm",
+    "sales-crm",
     "Pipeline UI, realtime updates, and admin workflows for sales teams.",
     "Drag a lead card into another column to move it through the pipeline.",
   ),
   marketplace: buildProject(
     "marketplace",
-    "mypick",
+    "multi-vendor-marketplace",
     "Commerce portals, a marketplace API, and the promoter journey.",
     "Choose a product, then follow the order from seller to promoter to shopper.",
   ),

@@ -1,5 +1,5 @@
 /*
- * LeadPylot CRM screen. The root is a size container and everything inside is
+ * Sales CRM screen. The root is a size container and everything inside is
  * measured in cqw, so the same markup works as a ~250px desk preview and as a
  * ~900px interactive screen. Past 700px the type scale is trimmed (with a 13px
  * floor) so text stays readable instead of growing with the screen.

@@ -39,7 +39,7 @@ export function BlueprintProjects() {
   return (
     <section className={styles.section} aria-labelledby="blueprint-projects-heading">
       <div className={styles.sectionHeading}>
-        <h2 id="blueprint-projects-heading">04 <span aria-hidden="true">—</span> Component Lab</h2>
+        <h2 id="blueprint-projects-heading">03 <span aria-hidden="true">—</span> Component Lab</h2>
         <p>Self-initiated component studies</p>
       </div>
 

@@ -1,5 +1,5 @@
 /*
- * MyPick marketplace screen.
+ * Multi-vendor marketplace screen.
  *
  * The root is a size container and everything inside is sized with container
  * units (cqw/cqh), so the same markup reads correctly at ~250px (desk preview)

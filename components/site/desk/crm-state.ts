@@ -1,5 +1,5 @@
 /**
- * Pure pipeline logic for the LeadPylot CRM screen. No React, no clocks, no
+ * Pure pipeline logic for the sales CRM screen. No React, no clocks, no
  * randomness: every function returns a new state (or the very same reference
  * when nothing changed) so the UI can compare by identity.
  */

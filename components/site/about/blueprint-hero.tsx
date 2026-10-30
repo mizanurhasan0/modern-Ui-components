@@ -27,7 +27,7 @@ export function BlueprintHero() {
           </span>
         </a>
         <Link href="#professional-work" className={styles.secondaryAction}>
-          <span>View Product Work</span>
+          <span>View Experience</span>
           <span className={styles.actionIcon} aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none"><path d="M5.5 18.5 18 6m-10.5 0H18v10.5" /></svg>
           </span>

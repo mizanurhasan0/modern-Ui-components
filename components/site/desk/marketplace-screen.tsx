@@ -324,7 +324,7 @@ export function MarketplaceScreen({ mode }: { mode: ScreenMode }) {
       data-mode={mode}
       data-step={state.step}
       role={interactive ? "group" : undefined}
-      aria-label={interactive ? "MyPick marketplace flow demo" : undefined}
+      aria-label={interactive ? "Multi-vendor marketplace flow demo" : undefined}
       aria-hidden={interactive ? undefined : true}
       inert={interactive ? undefined : true}
     >

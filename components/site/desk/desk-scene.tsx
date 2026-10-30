@@ -393,14 +393,14 @@ export function DeskScene({
       <DeskArt />
 
       <div className={`${styles.item} ${styles.left}`}>
-        <Monitor id="crm" label="Open LeadPylot CRM" screen={crm} onOpen={onOpen} inert={busy} />
+        <Monitor id="crm" label="Open Sales CRM" screen={crm} onOpen={onOpen} inert={busy} />
         <div className={styles.caption} inert={busy}>
           {captions.crm}
         </div>
       </div>
 
       <div className={`${styles.item} ${styles.right}`}>
-        <Monitor id="marketplace" label="Open MyPick" screen={marketplace} onOpen={onOpen} inert={busy} />
+        <Monitor id="marketplace" label="Open Multi-Vendor Marketplace" screen={marketplace} onOpen={onOpen} inert={busy} />
         <div className={styles.caption} inert={busy}>
           {captions.marketplace}
         </div>

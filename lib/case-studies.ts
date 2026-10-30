@@ -1,8 +1,8 @@
 export const caseStudies = [
   {
-    slug: "leadpylot-crm",
+    slug: "sales-crm",
     number: "01",
-    title: "LeadPylot CRM",
+    title: "Sales CRM Workspace",
     category: "SaaS · Sales operations",
     role: "Lead frontend engineer",
     period: "Jan 2024 – Present",
@@ -40,11 +40,23 @@ export const caseStudies = [
     availability:
       "Private product. A permitted walkthrough can be discussed during an interview; source code is not public.",
     tags: ["Next.js", "TypeScript", "TanStack Query", "Zustand", "Socket.io"],
+    screenshots: [
+      { src: "/work/sales-crm/01_CRM_Login.png", alt: "Sales CRM sign-in screen", caption: "Sign-in" },
+      { src: "/work/sales-crm/02_Leads_Management.png", alt: "Lead management table with pipeline records", caption: "Lead management" },
+      { src: "/work/sales-crm/03_VoIP_Servers.png", alt: "VoIP server operations dashboard", caption: "VoIP servers" },
+      { src: "/work/sales-crm/04_Security_Monitoring.png", alt: "Security monitoring dashboard", caption: "Security monitoring" },
+      { src: "/work/sales-crm/05_Email_Inbox.png", alt: "CRM email inbox and message view", caption: "Email inbox" },
+      { src: "/work/sales-crm/06_Lead_Details.png", alt: "Lead record details and activity history", caption: "Lead details" },
+      { src: "/work/sales-crm/07_Telegram_Bot.png", alt: "Telegram bot integration settings", caption: "Telegram integration" },
+      { src: "/work/sales-crm/08_Layout_Configuration.png", alt: "Workspace layout configuration controls", caption: "Layout configuration" },
+      { src: "/work/sales-crm/09_User_Management.png", alt: "User and role management screen", caption: "User management" },
+      { src: "/work/sales-crm/10_Server_Management.png", alt: "Server management screen", caption: "Server management" },
+    ],
   },
   {
-    slug: "mypick",
+    slug: "multi-vendor-marketplace",
     number: "02",
-    title: "MyPick",
+    title: "Multi-Vendor Marketplace",
     category: "Marketplace · Social commerce",
     role: "Full-stack product engineer",
     period: "May 2025 – Aug 2026",
@@ -82,6 +94,13 @@ export const caseStudies = [
     availability:
       "Public product demos exist; this page keeps the case study within Component Lab. A walkthrough can be shared during an interview.",
     tags: ["Next.js", "NestJS", "TypeScript", "MongoDB", "Redis"],
+    screenshots: [
+      { src: "/work/multi-vendor-marketplace/warm_marketplace_home_living_homepage.png", alt: "Home and living marketplace storefront homepage", caption: "Storefront" },
+      { src: "/work/multi-vendor-marketplace/modern_creator_shopping_dashboard.png", alt: "Creator shopping feed with product cards and earnings", caption: "Creator shopping" },
+      { src: "/work/multi-vendor-marketplace/modern_e_commerce_products_dashboard.png", alt: "Marketplace product catalog and inventory dashboard", caption: "Product catalog" },
+      { src: "/work/multi-vendor-marketplace/modern_marketplace_admin_dashboard.png", alt: "Marketplace administration analytics dashboard", caption: "Admin overview" },
+      { src: "/work/multi-vendor-marketplace/professional_profile_dashboard.png", alt: "Creator public profile dashboard", caption: "Creator profile" },
+    ],
   },
 ] as const;
 

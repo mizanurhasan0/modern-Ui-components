@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/site/json-ld";
@@ -112,8 +113,29 @@ export default async function WorkPage({ params }: WorkPageProps) {
               </div>
             </section>
 
+            <section aria-labelledby="screens-heading" className="rounded-[1.5rem] border border-[#e0e6f0] bg-white p-6 sm:p-9">
+              <p className="font-mono text-xs font-semibold tracking-[0.13em] text-[#4262a9] uppercase">04 / Screens</p>
+              <h2 id="screens-heading" className="mt-3 text-2xl font-semibold tracking-[-0.035em]">Product screens</h2>
+              <p className="mt-3 text-sm leading-6 text-[#526079]">Selected views from the product interface and its operational workflows.</p>
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                {study.screenshots.map((screenshot) => (
+                  <figure key={screenshot.src} className="overflow-hidden rounded-xl border border-[#dce5f3] bg-[#f7faff]">
+                    <Image
+                      src={screenshot.src}
+                      alt={screenshot.alt}
+                      width={1448}
+                      height={1086}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 40vw"
+                      className="h-auto w-full"
+                    />
+                    <figcaption className="px-4 py-3 text-sm font-semibold text-[#1f3050]">{screenshot.caption}</figcaption>
+                  </figure>
+                ))}
+              </div>
+            </section>
+
             <section aria-labelledby="evidence-heading" className="rounded-[1.5rem] border border-[#e0e6f0] bg-white p-6 sm:p-9">
-              <p className="font-mono text-xs font-semibold tracking-[0.13em] text-[#4262a9] uppercase">04 / Evidence</p>
+              <p className="font-mono text-xs font-semibold tracking-[0.13em] text-[#4262a9] uppercase">05 / Evidence</p>
               <h2 id="evidence-heading" className="mt-3 text-2xl font-semibold tracking-[-0.035em]">What this case demonstrates</h2>
               <p className="mt-4 text-[15px] leading-7 text-[#43516a]">{study.evidence}</p>
               <p className="mt-4 rounded-xl border border-[#dce5f3] bg-[#f7faff] p-4 text-sm leading-6 text-[#445571]">{study.availability}</p>

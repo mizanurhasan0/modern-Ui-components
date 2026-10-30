@@ -688,7 +688,7 @@ export function CrmScreen({ mode }: { mode: ScreenMode }) {
   const rootProps = interactive
     ? ({
         role: "group",
-        "aria-label": "LeadPylot CRM lead pipeline",
+        "aria-label": "Sales CRM lead pipeline",
         onKeyDown: onRootKeyDown,
       } as const)
     : ({ "aria-hidden": true, inert: true } as const);
