@@ -77,7 +77,7 @@ const PRESSED_ON_ACTIVE = "active:shadow-[inset_3px_3px_6px_var(--nn-shadow),ins
 // Shared by every link and button. `!` lets the focus ring beat the site-wide unlayered
 // :focus-visible outline, as the old raw rule did.
 const INTERACTIVE = "[-webkit-tap-highlight-color:transparent] focus-visible:outline-2! focus-visible:outline-[#c44817]! focus-visible:outline-offset-[3px]!";
-const ROOT = "@container/neumorphic-navbar w-full min-w-0 bg-(--nn-surface) font-[family-name:Arial,Helvetica,sans-serif] text-[#202020] [--nn-light:#fff] [--nn-shadow:#bcbcbc] [--nn-surface:#e0e0e0]";
+const ROOT = "@container/neumorphic-navbar w-full min-w-0 font-[family-name:Arial,Helvetica,sans-serif] text-[#202020] [--nn-light:#fff] [--nn-shadow:#bcbcbc] [--nn-surface:#e0e0e0]";
 const NAVBAR = "relative grid items-center bg-(--nn-surface)";
 const BRAND = "inline-flex w-fit min-w-0 max-w-full items-center border-0 bg-transparent p-0 font-bold leading-[1.1] text-[#161616] no-underline";
 const TRACK = `relative isolate min-w-0 items-center rounded-[999px] bg-(--nn-surface) ${PRESSED_SHADOW}`;
@@ -232,7 +232,7 @@ export default function NeumorphicNavbar({
   }
 
   return (
-    <div ref={rootRef} className={`nn-root ${ROOT} ${className}`} style={paletteStyle}>
+    <div ref={rootRef} className={`nn-root ${ROOT} ${embedded ? "bg-transparent" : "bg-(--nn-surface)"} ${className}`} style={paletteStyle}>
       <ComponentStyles css={NEUMORPHIC_NAVBAR_STYLES} />
       <div className={embedded ? "nn-stage relative" : "nn-stage min-h-[460px] px-[18px] pt-[22px] pb-10 in-data-[fullscreen=true]:pt-[72px]"}>
         <nav ref={navRef} className={`nn-navigation relative mx-auto w-full ${embedded ? "" : "max-w-[1100px]"}`} aria-label={ariaLabel}>

@@ -20,6 +20,7 @@ type ComponentPlaygroundProps = {
   slug: string;
   fileName: string;
   title: string;
+  requiresThree: boolean;
   usage: string;
   demoNote: string;
   children: ReactNode;
@@ -266,11 +267,11 @@ export function ComponentPlayground({
   slug,
   fileName,
   title,
+  requiresThree,
   usage,
   demoNote,
   children,
 }: ComponentPlaygroundProps) {
-  const requiresThree = fileName === "creative-login.tsx";
   const [activeTab, setActiveTab] = useState<Tab>("preview");
   const [viewport, setViewport] = useState<Viewport>("desktop");
   const [replay, setReplay] = useState(0);
@@ -585,7 +586,7 @@ export function ComponentPlayground({
             <h2 id={`${id}-usage-heading`} className="mt-2 text-[24px] font-semibold tracking-[-0.045em] text-[#171b24]">Make it yours.</h2>
           </div>
           <p className="max-w-[420px] text-[12px] leading-[1.7] text-[#788291]">
-            Save <code className="rounded bg-[#f2f4f8] px-1.5 py-1 font-mono text-[11px] text-[#536176]">{fileName}</code> in your components folder, then import it below. Requires React and Tailwind CSS{requiresThree ? ", plus Three.js." : "."}
+            Save <code className="rounded bg-[#f2f4f8] px-1.5 py-1 font-mono text-[11px] text-[#536176]">{fileName}</code> in your components folder, then import it below. Use it in a Next.js project with Tailwind CSS{requiresThree ? ", plus Three.js." : "."}
           </p>
         </div>
         {requiresThree && <ThreeDependencies />}

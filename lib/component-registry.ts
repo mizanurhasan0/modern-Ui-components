@@ -6,6 +6,8 @@ export type ComponentEntry = {
   tags: string[];
   sourceFile: string;
   fileName: string;
+  /** Additional packages beyond the shared Next.js, React, Tailwind, and TypeScript stack. */
+  additionalLibraries?: string[];
   number: string;
   demoNote: string;
   features: { title: string; description: string }[];
@@ -1707,6 +1709,7 @@ export default function ShowcasePage() {
     tags: ["Animated", "Multi-step"],
     sourceFile: "creative-login.tsx",
     fileName: "creative-login.tsx",
+    additionalLibraries: ["Three.js"],
     number: "002",
     demoNote:
       "Interactive demo · Enter your name and email to explore the flow. Connect onSubmit to your own service to save submissions.",

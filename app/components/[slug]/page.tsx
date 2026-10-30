@@ -51,6 +51,12 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
     ...components.filter((component) => component.category === entry.category && component.slug !== slug),
     ...components.filter((component) => component.category !== entry.category),
   ].slice(0, 2);
+  const technologyStack = [
+    "Next.js",
+    "Tailwind CSS",
+    "TypeScript",
+    ...(entry.additionalLibraries ?? []),
+  ];
 
   return (
     <main
@@ -119,8 +125,8 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3 lg:shrink-0 lg:flex-col lg:items-end">
-          <ul aria-label="Built with" className="flex flex-wrap gap-2">
-            {["React", "Tailwind CSS", "TypeScript"].map((technology) => (
+          <ul aria-label="Implementation stack" className="flex flex-wrap gap-2">
+            {technologyStack.map((technology) => (
               <li
                 key={technology}
                 className="rounded-lg border border-[#e4e8ee] bg-white px-3 py-1.5 text-[11px] font-medium text-[#667085]"
@@ -137,6 +143,7 @@ export default async function ComponentPage({ params }: ComponentPageProps) {
         slug={slug}
         fileName={entry.fileName}
         title={entry.title}
+        requiresThree={entry.additionalLibraries?.includes("Three.js") ?? false}
         usage={entry.usage}
         demoNote={entry.demoNote}
       >
