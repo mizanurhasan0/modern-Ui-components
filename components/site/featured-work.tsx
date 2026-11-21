@@ -1,5 +1,6 @@
 import { DeskShowcase } from "./desk/desk-showcase";
 import styles from "./featured-work.module.css";
+import { MoreCaseStudies } from "./more-case-studies";
 
 /**
  * "Selected work" home-page section. Server component: it only owns the landmark
@@ -14,6 +15,7 @@ export function FeaturedWork() {
       className={`${styles.section} site-container scroll-mt-28 pt-12 sm:pt-16`}
     >
       <DeskShowcase />
+      <MoreCaseStudies />
     </section>
   );
 }

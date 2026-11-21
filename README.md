@@ -6,7 +6,7 @@ Built by **Mizanur Hasan**, a full-stack developer with a frontend focus. [Email
 
 Browse the homepage’s animated thumbnails, open a component, try **Preview**, then switch to **Code** to copy or download it for your own project.
 
-Product case studies are available here too. The Sales CRM Workspace and Multi-Vendor Marketplace each have a dedicated page in the running site at `/work/sales-crm` and `/work/multi-vendor-marketplace`.
+Product case studies are available here too. The Sales CRM Workspace, Multi-Vendor Marketplace, CartPOS, and Workgrid each have a dedicated page in the running site at `/work/sales-crm`, `/work/multi-vendor-marketplace`, `/work/cartpos`, and `/work/workgrid`.
 
 [Component catalog](#component-catalog) · [Screenshots](#screenshots) · [Run locally](#run-locally) · [Usage & props](docs/component-guide.md)
 

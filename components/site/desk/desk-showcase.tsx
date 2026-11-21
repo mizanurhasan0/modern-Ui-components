@@ -688,7 +688,7 @@ export function DeskShowcase() {
     <div className={styles.showcase}>
       <header className={styles.heading}>
         <h2 id="selected-work-heading" className={styles.title}>
-          Latest two projects
+          Latest projects
         </h2>
         <p className={styles.subtitle}>Open a monitor to try each project.</p>
       </header>

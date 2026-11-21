@@ -31,7 +31,7 @@ export default async function WorkPage({ params }: WorkPageProps) {
   const { slug } = await params;
   const study = getCaseStudy(slug);
   if (!study) notFound();
-  const otherStudy = caseStudies.find((item) => item.slug !== study.slug);
+  const otherStudy = caseStudies[(caseStudies.findIndex((item) => item.slug === study.slug) + 1) % caseStudies.length];
 
   return (
     <main id="main-content" className="bg-[#f7f9fc] text-[#172238]">
@@ -111,6 +111,25 @@ export default async function WorkPage({ params }: WorkPageProps) {
                   </div>
                 ))}
               </div>
+              {"stack" in study && (
+                <div className="mt-8">
+                  <h3 className="text-base font-semibold">Tech stack</h3>
+                  <dl className="mt-3 divide-y divide-[#e9edf4]">
+                    {study.stack.map((group) => (
+                      <div key={group.group} className="grid gap-2 py-4 sm:grid-cols-[140px_minmax(0,1fr)]">
+                        <dt className="text-xs font-semibold tracking-[0.13em] text-[#5b6a85] uppercase">{group.group}</dt>
+                        <dd>
+                          <ul className="flex flex-wrap gap-2">
+                            {group.items.map((item) => (
+                              <li key={item} className="rounded-full border border-[#dce5f3] bg-[#f7faff] px-3 py-1 text-xs font-medium text-[#1f3050]">{item}</li>
+                            ))}
+                          </ul>
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              )}
             </section>
 
             <section aria-labelledby="screens-heading" className="rounded-[1.5rem] border border-[#e0e6f0] bg-white p-6 sm:p-9">
@@ -146,7 +165,9 @@ export default async function WorkPage({ params }: WorkPageProps) {
             <h2 className="text-xs font-semibold tracking-[0.13em] text-[#5b6a85] uppercase">Project facts</h2>
             <dl className="mt-4 divide-y divide-[#e9edf4]">
               <div className="py-3"><dt className="text-xs text-[#65728a]">Role</dt><dd className="mt-1 text-sm font-semibold">{study.role}</dd></div>
-              <div className="py-3"><dt className="text-xs text-[#65728a]">Period</dt><dd className="mt-1 text-sm font-semibold">{study.period}</dd></div>
+              {"period" in study && (
+                <div className="py-3"><dt className="text-xs text-[#65728a]">Period</dt><dd className="mt-1 text-sm font-semibold">{study.period}</dd></div>
+              )}
               <div className="py-3"><dt className="text-xs text-[#65728a]">Product</dt><dd className="mt-1 text-sm font-semibold">{study.category}</dd></div>
             </dl>
             <a href="mailto:eng.mizanur.hasan@gmail.com?subject=Let%27s%20discuss%20your%20project%20work" className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#244bb0] px-4 text-sm font-semibold text-white hover:bg-[#193b92] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#244bb0]">
