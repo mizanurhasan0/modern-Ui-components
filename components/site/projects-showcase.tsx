@@ -151,32 +151,45 @@ export function ProjectsShowcase() {
           ))}
         </ul>
 
-        <section key={project.slug} className={styles.now} aria-live="polite" aria-label="Selected project">
-          <h3 className={styles.nowTitle}>{project.title}</h3>
-          <p className={styles.nowSummary}>{project.summary}</p>
-          <dl className={styles.meta}>
-            <dt>ROLE</dt>
-            <dd>{project.role}</dd>
-            {project.period ? (
-              <>
-                <dt>PERIOD</dt>
-                <dd>{project.period}</dd>
-              </>
-            ) : null}
-          </dl>
-          <ul className={styles.chips} aria-label="Stack">
-            {project.tags.map((tag) => (
-              <li key={tag}>{tag}</li>
-            ))}
-          </ul>
-          <Link href={`/work/${project.slug}`} className={styles.cta}>
-            Read case study
-            <span className={styles.srOnly}> for {project.title}</span>
-            <span className={styles.ctaArrow} aria-hidden="true">
-              <ArrowIcon />
-            </span>
-          </Link>
-        </section>
+        {/* Every project's details sit in the same grid cell and only the active one shows, so the cell is as tall as the
+            tallest project and the section never changes height when the project does. */}
+        <div className={styles.nowStack} aria-live="polite">
+          {PROJECTS.map((item, index) => (
+            <section
+              key={item.slug}
+              className={styles.now}
+              data-active={index === active}
+              aria-hidden={index !== active}
+              inert={index !== active}
+              aria-label={`${item.title} details`}
+            >
+              <h3 className={styles.nowTitle}>{item.title}</h3>
+              <p className={styles.nowSummary}>{item.summary}</p>
+              <dl className={styles.meta}>
+                <dt>ROLE</dt>
+                <dd>{item.role}</dd>
+                {item.period ? (
+                  <>
+                    <dt>PERIOD</dt>
+                    <dd>{item.period}</dd>
+                  </>
+                ) : null}
+              </dl>
+              <ul className={styles.chips} aria-label="Stack">
+                {item.tags.map((tag) => (
+                  <li key={tag}>{tag}</li>
+                ))}
+              </ul>
+              <Link href={`/work/${item.slug}`} className={styles.cta}>
+                Read case study
+                <span className={styles.srOnly}> for {item.title}</span>
+                <span className={styles.ctaArrow} aria-hidden="true">
+                  <ArrowIcon />
+                </span>
+              </Link>
+            </section>
+          ))}
+        </div>
       </div>
 
       <div className={styles.stage} data-cursor-knight-hide>
