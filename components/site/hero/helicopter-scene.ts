@@ -175,6 +175,37 @@ export async function createHelicopterScene(
         }
       });
     }
+    // Seen through the angled camera, the skids only look level at certain headings. Perched, the aircraft turns to the level heading
+    // nearest each facing, so both ends of the skids sit on the surface instead of one end floating above it.
+    const skidNodes: THREE.Mesh[] = [];
+    gltf.scene.traverse((node) => {
+      if (node instanceof THREE.Mesh && node.name.startsWith("LandingSkid_")) skidNodes.push(node);
+    });
+    const skidPoint = new THREE.Vector3();
+    function skidTilt(heading: number) {
+      flightRig.rotation.y = heading;
+      world.updateMatrixWorld(true);
+      let count = 0, sumX = 0, sumY = 0, sumXX = 0, sumXY = 0;
+      for (const node of skidNodes) {
+        const positions = node.geometry.attributes.position;
+        for (let i = 0; i < positions.count; i++) {
+          skidPoint.fromBufferAttribute(positions, i).applyMatrix4(node.matrixWorld).project(camera);
+          count++; sumX += skidPoint.x; sumY += skidPoint.y; sumXX += skidPoint.x * skidPoint.x; sumXY += skidPoint.x * skidPoint.y;
+        }
+      }
+      const spread = count * sumXX - sumX * sumX;
+      return spread > 1e-9 ? Math.abs((count * sumXY - sumX * sumY) / spread) : Infinity;
+    }
+    function levelHeading(near: number) {
+      let best = near, bestTilt = Infinity;
+      for (let heading = near - Math.PI / 2; heading <= near + Math.PI / 2; heading += .01) {
+        const tilt = skidTilt(heading);
+        if (tilt < bestTilt) { best = heading; bestTilt = tilt; }
+      }
+      return best;
+    }
+    const levelRightHeading = skidNodes.length ? levelHeading(0) : 0;
+    const levelLeftHeading = skidNodes.length ? levelHeading(leftHeading) : leftHeading;
     flightRig.rotation.y = 0;
     world.updateMatrixWorld(true);
     const projectedSize = projected.getSize(new THREE.Vector3());
@@ -309,7 +340,8 @@ export async function createHelicopterScene(
         roll = Math.sin(phase) * .13;
       }
       if (state.phase === "taking-off") offsetY += Math.sin(Math.min((elapsed - takeoffStarted) / .45, 1) * Math.PI) * .1;
-      const targetHeading = (input.facing === -1 ? leftHeading : 0) + yaw;
+      const baseHeading = input.facing === -1 ? (grounded ? levelLeftHeading : leftHeading) : grounded ? levelRightHeading : 0;
+      const targetHeading = baseHeading + yaw;
       flightRig.rotation.y = THREE.MathUtils.damp(flightRig.rotation.y, targetHeading, 6, delta);
       flightRig.rotation.z = THREE.MathUtils.lerp(flightRig.rotation.z, docking ? 0 : -input.velocityY * .13 + roll, amount);
       flightRig.rotation.x = THREE.MathUtils.lerp(flightRig.rotation.x, docking ? 0 : input.velocityX * .06, amount);

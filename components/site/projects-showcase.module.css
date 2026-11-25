@@ -288,6 +288,8 @@
 .set {
   position: absolute;
   inset: 0;
+  /* Clicks fall through the empty plane to the screens inside it (otherwise it wins hit-testing against the tilted layers). */
+  pointer-events: none;
   visibility: hidden;
   transition: visibility 0s linear 0.6s;
 }
@@ -298,13 +300,40 @@
 }
 
 /* Each layer drifts by its own amount, so nearer screens move more than farther ones. */
-.layer {
-  position: absolute;
-  transform: translate3d(calc(var(--mx, 0) * var(--dx, 0px)), calc(var(--my, 0) * var(--dy, 0px)), var(--dz, 0px));
-  will-change: transform;
+@property --dx {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
 }
 
-.layer0 {
+@property --dy {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --dz {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+/* A layer's place is its slot (data-slot 0 = front). Clicking a back screen swaps slots, and the geometry below glides. */
+.layer {
+  position: absolute;
+  pointer-events: auto;
+  transform: translate3d(calc(var(--mx, 0) * var(--dx)), calc(var(--my, 0) * var(--dy)), var(--dz));
+  will-change: transform;
+  transition:
+    top 0.8s cubic-bezier(0.2, 0.85, 0.25, 1),
+    left 0.8s cubic-bezier(0.2, 0.85, 0.25, 1),
+    width 0.8s cubic-bezier(0.2, 0.85, 0.25, 1),
+    --dx 0.8s ease,
+    --dy 0.8s ease,
+    --dz 0.8s ease;
+}
+
+.layer[data-slot="0"] {
   --dx: -26px;
   --dy: -16px;
   --dz: 60px;
@@ -315,7 +344,7 @@
   width: 80cqw;
 }
 
-.layer1 {
+.layer[data-slot="1"] {
   --dx: -12px;
   --dy: -8px;
   --dz: 20px;
@@ -326,7 +355,7 @@
   width: 66cqw;
 }
 
-.layer2 {
+.layer[data-slot="2"] {
   --dx: 16px;
   --dy: 10px;
   --dz: -20px;
@@ -359,7 +388,7 @@
 }
 
 /* A soft light that slides across the front screen with the pointer. */
-.layer0 .win::after {
+.layer[data-slot="0"] .win::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -388,6 +417,26 @@
   margin-left: 10px;
   color: #6f7b97;
   font: 500 11px/1 var(--font-geist-mono), monospace;
+}
+
+/* Back screens are clickable: the whole window is the button. */
+.hit {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.hit:hover {
+  background: rgba(36, 89, 237, 0.06);
+}
+
+.hit:focus-visible {
+  outline: 3px solid #4866e9;
+  outline-offset: -3px;
 }
 
 .shot {
@@ -578,19 +627,19 @@
     height: 380px;
   }
 
-  .layer0 {
+  .layer[data-slot="0"] {
     top: 18%;
     left: 6cqw;
     width: 86cqw;
   }
 
-  .layer1 {
+  .layer[data-slot="1"] {
     top: 9%;
     left: 24cqw;
     width: 68cqw;
   }
 
-  .layer2 {
+  .layer[data-slot="2"] {
     top: 36%;
     left: 2cqw;
     width: 66cqw;
@@ -609,6 +658,7 @@
   }
 
   .win,
+  .layer,
   .set,
   .tab,
   .cta,

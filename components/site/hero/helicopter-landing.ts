@@ -100,9 +100,11 @@ export function createHelicopterLanding(options: Options) {
     const space = Math.max(12, rect.top - ceiling - 5);
     const scale = clamp(space / Math.max(footprint.y - footprint.top, 1), .2, kind === "tabs" ? .72 : 1);
     const center = rect.left + perchX(kind, rect);
+    // Other pads leave the skids 1px above the surface. The large stage card is flush: the bottom of the skids sits exactly on its top edge.
+    const sink = kind === "stage" ? 1 : 0;
     return {
       x: clamp(center - footprint.x * scale, 6, innerWidth - 160 * scale - 6),
-      y: rect.top - 1 - footprint.y * scale - (phase === "landing" && !descent ? 12 * scale : 0),
+      y: rect.top - 1 + sink - footprint.y * scale - (phase === "landing" && !descent ? 12 * scale : 0),
       scale,
     };
   }

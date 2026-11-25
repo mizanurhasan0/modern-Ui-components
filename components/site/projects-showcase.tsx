@@ -85,8 +85,21 @@ export function ProjectsShowcase() {
   const [active, setActive] = useState(0);
   // Images mount when a project is first selected (or its tab is hovered/focused) so unused screens are never fetched.
   const [loaded, setLoaded] = useState<readonly number[]>([0]);
+  // Per project: which screen sits in each slot (slot 0 is the front window). Clicking a back screen swaps it with the front one.
+  const [orders, setOrders] = useState<Readonly<Record<string, readonly number[]>>>({});
   const stageRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  const orderOf = (item: Project) => orders[item.slug] ?? item.screens.map((_, index) => index);
+
+  function bringToFront(item: Project, screenIndex: number) {
+    const current = orderOf(item);
+    const slot = current.indexOf(screenIndex);
+    if (slot <= 0) return;
+    const next = [...current];
+    [next[0], next[slot]] = [next[slot], next[0]];
+    setOrders((all) => ({ ...all, [item.slug]: next }));
+  }
 
   const warm = useCallback((index: number) => {
     setLoaded((current) => (current.includes(index) ? current : [...current, index]));
@@ -263,9 +276,11 @@ export function ProjectsShowcase() {
           {PROJECTS.map((item, index) =>
             loaded.includes(index) ? (
               <div key={item.slug} className={styles.set} data-active={index === active} aria-hidden={index !== active}>
-                {item.screens.map((screen, layer) => (
-                  <div key={screen.src} className={`${styles.layer} ${styles[`layer${layer}` as "layer0"]}`}>
-                    <figure className={styles.win} style={{ transitionDelay: index === active ? `${layer * 70}ms` : "0ms" }}>
+                {item.screens.map((screen, screenIndex) => {
+                  const slot = orderOf(item).indexOf(screenIndex);
+                  return (
+                  <div key={screen.src} className={styles.layer} data-slot={slot}>
+                    <figure className={styles.win} style={{ transitionDelay: index === active ? `${screenIndex * 70}ms` : "0ms" }}>
                       <div className={styles.bar} aria-hidden="true">
                         <i />
                         <i />
@@ -281,19 +296,28 @@ export function ProjectsShowcase() {
                         className={styles.shot}
                         draggable={false}
                       />
+                      {slot > 0 && index === active ? (
+                        <button
+                          type="button"
+                          className={styles.hit}
+                          onClick={() => bringToFront(item, screenIndex)}
+                          aria-label={`Bring ${screen.caption} to the front`}
+                        />
+                      ) : null}
                     </figure>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             ) : null,
           )}
         </div>
 
         <ol className={styles.caps} key={`caps-${project.slug}`} aria-label="Screens">
-          {project.screens.map((screen, layer) => (
-            <li key={screen.src}>
-              <b>{layer === 0 ? `${project.number}.1` : ""}</b>
-              {screen.caption}
+          {orderOf(project).map((screenIndex, slot) => (
+            <li key={project.screens[screenIndex].src}>
+              <b>{slot === 0 ? `${project.number}.1` : ""}</b>
+              {project.screens[screenIndex].caption}
             </li>
           ))}
         </ol>
