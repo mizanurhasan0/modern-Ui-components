@@ -1,0 +1,636 @@
+/* "Latest projects": index + facts on the left, a pointer-reactive stack of real screens on the right. */
+.root {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(320px, 40%) minmax(0, 1fr);
+  min-height: 780px;
+  overflow: hidden;
+  border: 1.5px solid #cfd8e6;
+  border-radius: 28px;
+  background: #fff;
+  color: #111318;
+  box-shadow: 0 24px 48px -36px rgba(26, 39, 66, 0.28);
+}
+
+/* The helicopter's landing mark: a small blue bar on the top edge while it is perched there. */
+.root[data-helicopter-perch]::after {
+  content: "";
+  position: absolute;
+  z-index: 8;
+  top: -1px;
+  left: var(--helipad-x, 50%);
+  width: 56px;
+  height: 3px;
+  border-radius: 99px;
+  background: #4866e9;
+  box-shadow: 0 0 8px #4866e965;
+  opacity: 0.6;
+  transform: translateX(-50%);
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+
+.root[data-helicopter-perch="landed"]::after {
+  opacity: 1;
+}
+
+/* Left column ------------------------------------------------------- */
+.left {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 48px 36px 44px 48px;
+  border-right: 1px solid #e4e8ee;
+  background: #fff;
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  color: #667085;
+  font: 500 13px/1.4 var(--font-geist-mono), monospace;
+}
+
+.eyebrow::before {
+  content: "$ ";
+  color: #2459ed;
+}
+
+.title {
+  margin: 0;
+  color: #111318;
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.045em;
+}
+
+.index {
+  display: grid;
+  margin: 32px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.index li {
+  border-top: 1px solid #e4e8ee;
+}
+
+.tab {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 34px 1fr auto;
+  padding: 14px 0;
+  border: 0;
+  background: none;
+  color: #6b7487;
+  font: 600 17px/1.4 var(--font-geist-sans), system-ui, sans-serif;
+  letter-spacing: -0.02em;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    color 0.25s ease,
+    padding-left 0.35s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+
+.tab:hover,
+.tab[aria-pressed="true"] {
+  color: #111318;
+}
+
+.tab:hover {
+  padding-left: 6px;
+}
+
+.tab[aria-pressed="true"]:hover {
+  padding-left: 0;
+}
+
+.tabNum {
+  font: 600 12px/2.1 var(--font-geist-mono), monospace;
+}
+
+.tab[aria-pressed="true"] .tabNum {
+  color: #2459ed;
+}
+
+.tabYear {
+  font: 500 11.5px/2.3 var(--font-geist-mono), monospace;
+}
+
+.tab:focus-visible {
+  outline: 2px solid #4866e9;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.now {
+  margin-top: auto;
+  padding-top: 32px;
+  animation: nowIn 0.55s cubic-bezier(0.2, 0.85, 0.25, 1) both;
+}
+
+@keyframes nowIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.nowTitle {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+
+.nowSummary {
+  margin: 10px 0 0;
+  color: #596273;
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+.meta {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 6px;
+  margin: 16px 0 0;
+  font-size: 13.5px;
+}
+
+.meta dt {
+  color: #667085;
+  font: 500 12px/1.7 var(--font-geist-mono), monospace;
+}
+
+.meta dd {
+  margin: 0;
+  color: #26334d;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chips li {
+  padding: 6px 8px;
+  border: 1px solid #e4e8ee;
+  border-radius: 6px;
+  background: #f7f9fc;
+  color: #26334d;
+  font: 500 11.5px/1 var(--font-geist-mono), monospace;
+}
+
+.cta {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  gap: 14px;
+  align-self: flex-start;
+  margin-top: 22px;
+  padding: 0 6px 0 20px;
+  border-radius: 999px;
+  background: #111318;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background-color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.ctaArrow {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  color: #111318;
+  transition: transform 0.3s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+
+.cta:hover {
+  background: #2459ed;
+}
+
+.cta:hover .ctaArrow {
+  transform: translate(2px, -2px);
+}
+
+.cta:focus-visible,
+.step:focus-visible {
+  outline: 2px solid #4866e9;
+  outline-offset: 3px;
+}
+
+/* Right column: the stack of screens ----------------------------------- */
+.stage {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  background: #f3f5fa;
+  container-type: inline-size;
+  perspective: 1500px;
+}
+
+.counter {
+  position: absolute;
+  z-index: 6;
+  top: 40px;
+  right: 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #667085;
+  font: 600 12px/1 var(--font-geist-mono), monospace;
+}
+
+.step {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 1px solid #cfd8e6;
+  border-radius: 50%;
+  background: #fff;
+  color: #111318;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.step:hover {
+  border-color: #111318;
+  background: #111318;
+  color: #fff;
+}
+
+/* The whole stack tilts a few degrees toward the pointer (--mx / --my are -1..1, eased in JS). */
+.tilt {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(calc(var(--my, 0) * -2.6deg)) rotateY(calc(var(--mx, 0) * 3.4deg));
+  will-change: transform;
+}
+
+.set {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  transition: visibility 0s linear 0.6s;
+}
+
+.set[data-active="true"] {
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+/* Each layer drifts by its own amount, so nearer screens move more than farther ones. */
+.layer {
+  position: absolute;
+  transform: translate3d(calc(var(--mx, 0) * var(--dx, 0px)), calc(var(--my, 0) * var(--dy, 0px)), var(--dz, 0px));
+  will-change: transform;
+}
+
+.layer0 {
+  --dx: -26px;
+  --dy: -16px;
+  --dz: 60px;
+  --rot: 0deg;
+  z-index: 3;
+  top: 21%;
+  left: 8cqw;
+  width: 80cqw;
+}
+
+.layer1 {
+  --dx: -12px;
+  --dy: -8px;
+  --dz: 20px;
+  --rot: 4deg;
+  z-index: 2;
+  top: 9%;
+  left: 27cqw;
+  width: 66cqw;
+}
+
+.layer2 {
+  --dx: 16px;
+  --dy: 10px;
+  --dz: -20px;
+  --rot: -5deg;
+  z-index: 1;
+  top: 42%;
+  left: 3cqw;
+  width: 62cqw;
+}
+
+.win {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow:
+    0 0 0 1px #d6dfec,
+    0 50px 80px -40px rgba(26, 39, 74, 0.65);
+  opacity: 0;
+  transform: rotate(var(--rot)) translateY(34px) scale(0.96);
+  transition:
+    opacity 0.45s ease,
+    transform 0.75s cubic-bezier(0.2, 0.85, 0.25, 1);
+}
+
+.set[data-active="true"] .win {
+  opacity: 1;
+  transform: rotate(var(--rot));
+}
+
+/* A soft light that slides across the front screen with the pointer. */
+.layer0 .win::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(420px circle at var(--gx, 50%) var(--gy, 40%), rgba(255, 255, 255, 0.34), transparent 62%);
+  opacity: var(--glare, 0);
+  pointer-events: none;
+}
+
+.bar {
+  display: flex;
+  height: 32px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  background: #eef1f7;
+}
+
+.bar i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #cfd5e2;
+}
+
+.bar span {
+  margin-left: 10px;
+  color: #6f7b97;
+  font: 500 11px/1 var(--font-geist-mono), monospace;
+}
+
+.shot {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+
+.caps {
+  position: absolute;
+  z-index: 4;
+  bottom: 40px;
+  left: 8cqw;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #667085;
+  font: 500 12px/1 var(--font-geist-mono), monospace;
+  animation: nowIn 0.55s cubic-bezier(0.2, 0.85, 0.25, 1) 0.1s both;
+}
+
+.caps b {
+  margin-right: 6px;
+  color: #111318;
+  font-weight: 600;
+}
+
+.caps b:empty {
+  display: none;
+}
+
+/* The bubble rests in the bottom-right corner and trails the pointer while it is over the stage. */
+.bubble {
+  position: absolute;
+  z-index: 7;
+  right: 48px;
+  bottom: 84px;
+  width: 92px;
+  height: 92px;
+  transform: translate(var(--bx, 0px), var(--by, 0px));
+  text-decoration: none;
+  will-change: transform;
+}
+
+.bubbleFace {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  border-radius: 50%;
+  background: #111318;
+  color: #fff;
+  font: 600 13px/1 var(--font-geist-sans), system-ui, sans-serif;
+  box-shadow: 0 20px 30px -14px rgba(11, 13, 18, 0.55);
+  animation: bob 3s ease-in-out infinite;
+  transition:
+    scale 0.35s cubic-bezier(0.2, 0.85, 0.25, 1),
+    background-color 0.25s ease;
+}
+
+.stage[data-hover="true"] .bubbleFace {
+  scale: 0.85;
+  background: #2459ed;
+  animation-play-state: paused;
+}
+
+@keyframes bob {
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Tablet and phone: heading, project pills, the stack, then the facts. -------- */
+@media (max-width: 1023px) {
+  .root {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    border-radius: 20px;
+  }
+
+  .left {
+    display: contents;
+  }
+
+  .head {
+    order: 1;
+    padding: 28px 24px 0;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .index {
+    order: 2;
+    display: flex;
+    gap: 8px;
+    margin: 18px 0 0;
+    padding: 0 24px 4px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .index li {
+    flex: none;
+    border: 0;
+  }
+
+  .tab {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    width: auto;
+    padding: 9px 14px;
+    border: 1px solid #dfe5ee;
+    border-radius: 999px;
+    white-space: nowrap;
+    font-size: 14px;
+  }
+
+  .tab:hover {
+    padding-left: 14px;
+  }
+
+  .tab[aria-pressed="true"] {
+    border-color: #111318;
+    background: #111318;
+    color: #fff;
+  }
+
+  .tab[aria-pressed="true"] .tabNum {
+    color: #9fb6f5;
+  }
+
+  .tabNum,
+  .tabYear {
+    line-height: 1;
+  }
+
+  .stage {
+    order: 3;
+    height: 460px;
+    margin-top: 20px;
+    border-block: 1px solid #e4e8ee;
+  }
+
+  .now {
+    order: 4;
+    padding: 28px 24px 30px;
+  }
+
+  .counter {
+    top: 16px;
+    right: 16px;
+  }
+
+  .caps {
+    bottom: 16px;
+  }
+
+  .bubble {
+    right: 16px;
+    bottom: 56px;
+    width: 76px;
+    height: 76px;
+  }
+}
+
+@media (max-width: 560px) {
+  .stage {
+    height: 380px;
+  }
+
+  .layer0 {
+    top: 18%;
+    left: 6cqw;
+    width: 86cqw;
+  }
+
+  .layer1 {
+    top: 9%;
+    left: 24cqw;
+    width: 68cqw;
+  }
+
+  .layer2 {
+    top: 36%;
+    left: 2cqw;
+    width: 66cqw;
+  }
+
+  .caps li:not(:first-child) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .now,
+  .caps,
+  .bubbleFace {
+    animation: none;
+  }
+
+  .win,
+  .set,
+  .tab,
+  .cta,
+  .ctaArrow {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .root,
+  .win,
+  .step,
+  .chips li,
+  .tab {
+    border: 1px solid CanvasText;
+  }
+
+  .cta,
+  .bubbleFace {
+    border: 1px solid ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+    forced-color-adjust: none;
+  }
+}

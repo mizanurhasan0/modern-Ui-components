@@ -1,4 +1,4 @@
-/* Landmark wrapper only. The desk, header and focus mode are styled in desk/desk-showcase.module.css. */
+/* Landmark wrapper only. The projects showcase is styled in projects-showcase.module.css. */
 .section {
   position: relative;
 }

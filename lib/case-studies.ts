@@ -108,7 +108,7 @@ export const caseStudies = [
     title: "CartPOS",
     category: "Retail · Multi-store point of sale",
     role: "Full-stack engineer",
-    period: "Nov 2026",
+    period: "2022",
     summary:
       "A multi-store point-of-sale and inventory platform where superadmins manage organizations, admins run a store, and cashiers sell from a POS screen.",
     challenge:
@@ -206,6 +206,7 @@ export const caseStudies = [
     title: "Workgrid",
     category: "SaaS · Project management",
     role: "Full-stack engineer",
+    period: "2023",
     summary:
       "A project-management workspace that combines sprint and task tracking, team chat, video calls, and notifications, with owner, admin, and member roles.",
     challenge:
