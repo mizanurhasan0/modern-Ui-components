@@ -1,4 +1,4 @@
-/* "Latest projects": index + facts on the left, a pointer-reactive stack of real screens on the right. */
+/* "Latest projects": index + facts on the left, one pointer-reactive browser window holding the project on the right. */
 .root {
   position: relative;
   isolation: isolate;
@@ -41,7 +41,6 @@
   min-width: 0;
   flex-direction: column;
   padding: 48px 36px 44px 48px;
-  border-right: 1px solid #e4e8ee;
   background: #fff;
 }
 
@@ -127,10 +126,10 @@
 .now {
   margin-top: auto;
   padding-top: 32px;
-  animation: nowIn 0.55s cubic-bezier(0.2, 0.85, 0.25, 1) both;
+  animation: fadeUp 0.55s cubic-bezier(0.2, 0.85, 0.25, 1) both;
 }
 
-@keyframes nowIn {
+@keyframes fadeUp {
   from {
     opacity: 0;
     transform: translateY(10px);
@@ -227,37 +226,163 @@
 }
 
 .cta:focus-visible,
-.step:focus-visible {
+.step:focus-visible,
+.chromeTab:focus-visible,
+.thumb:focus-visible {
   outline: 2px solid #4866e9;
   outline-offset: 3px;
 }
 
-/* Right column: the stack of screens ----------------------------------- */
+/* Right column: the browser window ------------------------------------- */
 .stage {
   position: relative;
   min-width: 0;
+  padding: 24px 24px 24px 0;
+}
+
+.browser {
+  position: relative;
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
   overflow: hidden;
-  background: #f3f5fa;
-  container-type: inline-size;
-  perspective: 1500px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow:
+    0 0 0 1px #cfd5e2,
+    0 40px 70px -44px rgba(26, 39, 74, 0.8);
+}
+
+.chrome {
+  padding: 10px 14px 0;
+  background: #e9ecf4;
+}
+
+.dots {
+  display: flex;
+  height: 16px;
+  align-items: center;
+  gap: 7px;
+}
+
+.dots i {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+}
+
+.dots i:nth-child(1) {
+  background: #ff6b6b;
+}
+
+.dots i:nth-child(2) {
+  background: #ffc857;
+}
+
+.dots i:nth-child(3) {
+  background: #4cd08a;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.chromeTab {
+  display: flex;
+  min-width: 0;
+  max-width: 200px;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 10px 10px 0 0;
+  background: transparent;
+  color: #596273;
+  font: 600 12.5px/1.2 var(--font-geist-sans), system-ui, sans-serif;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+.chromeTab i {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  border-radius: 3px;
+  background: #aab3c6;
+  transition: background-color 0.25s ease;
+}
+
+.chromeTab:hover {
+  background: #f2f4f9;
+}
+
+.chromeTab[aria-pressed="true"] {
+  background: #fff;
+  color: #111318;
+}
+
+.chromeTab[aria-pressed="true"] i {
+  background: #2459ed;
+}
+
+.urlbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #e4e8ee;
+  background: #fff;
+}
+
+.navIcons {
+  color: #8a93a3;
+  font-size: 14px;
+  letter-spacing: 6px;
+  white-space: nowrap;
+}
+
+.address {
+  display: flex;
+  min-width: 0;
+  height: 32px;
+  flex: 1;
+  align-items: center;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: #f1f4fa;
+  color: #596273;
+  font: 500 12.5px/1 var(--font-geist-mono), monospace;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.address b {
+  color: #111318;
+  font-weight: 600;
 }
 
 .counter {
-  position: absolute;
-  z-index: 6;
-  top: 40px;
-  right: 40px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   color: #667085;
   font: 600 12px/1 var(--font-geist-mono), monospace;
+  white-space: nowrap;
 }
 
 .step {
   display: grid;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   place-items: center;
   border: 1px solid #cfd8e6;
   border-radius: 50%;
@@ -276,241 +401,183 @@
   color: #fff;
 }
 
-/* The whole stack tilts a few degrees toward the pointer (--mx / --my are -1..1, eased in JS). */
-.tilt {
-  position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-  transform: rotateX(calc(var(--my, 0) * -2.6deg)) rotateY(calc(var(--mx, 0) * 3.4deg));
-  will-change: transform;
+/* The page inside the window ---------------------------------------- */
+.page {
+  position: relative;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+  background: #f6f8fc;
 }
 
 .set {
   position: absolute;
   inset: 0;
-  /* Clicks fall through the empty plane to the screens inside it (otherwise it wins hit-testing against the tilted layers). */
   pointer-events: none;
+  opacity: 0;
   visibility: hidden;
-  transition: visibility 0s linear 0.6s;
+  transition:
+    opacity 0.5s ease,
+    visibility 0s linear 0.5s;
 }
 
 .set[data-active="true"] {
+  opacity: 1;
   visibility: visible;
   transition-delay: 0s;
 }
 
-/* Each layer drifts by its own amount, so nearer screens move more than farther ones. */
-@property --dx {
-  syntax: "<length>";
-  inherits: true;
-  initial-value: 0px;
-}
-
-@property --dy {
-  syntax: "<length>";
-  inherits: true;
-  initial-value: 0px;
-}
-
-@property --dz {
-  syntax: "<length>";
-  inherits: true;
-  initial-value: 0px;
-}
-
-/* A layer's place is its slot (data-slot 0 = front). Clicking a back screen swaps slots, and the geometry below glides. */
-.layer {
-  position: absolute;
-  pointer-events: auto;
-  transform: translate3d(calc(var(--mx, 0) * var(--dx)), calc(var(--my, 0) * var(--dy)), var(--dz));
-  will-change: transform;
-  transition:
-    top 0.8s cubic-bezier(0.2, 0.85, 0.25, 1),
-    left 0.8s cubic-bezier(0.2, 0.85, 0.25, 1),
-    width 0.8s cubic-bezier(0.2, 0.85, 0.25, 1),
-    --dx 0.8s ease,
-    --dy 0.8s ease,
-    --dz 0.8s ease;
-}
-
-.layer[data-slot="0"] {
-  --dx: -26px;
-  --dy: -16px;
-  --dz: 60px;
-  --rot: 0deg;
-  z-index: 3;
-  top: 21%;
-  left: 8cqw;
-  width: 80cqw;
-}
-
-.layer[data-slot="1"] {
-  --dx: -12px;
-  --dy: -8px;
-  --dz: 20px;
-  --rot: 4deg;
-  z-index: 2;
-  top: 9%;
-  left: 27cqw;
-  width: 66cqw;
-}
-
-.layer[data-slot="2"] {
-  --dx: 16px;
-  --dy: 10px;
-  --dz: -20px;
-  --rot: -5deg;
-  z-index: 1;
-  top: 42%;
-  left: 3cqw;
-  width: 62cqw;
-}
-
-.win {
+/* The large screen: every screen is stacked, the picked one fades in. */
+.view {
   position: relative;
-  margin: 0;
-  overflow: hidden;
-  border-radius: 14px;
-  background: #fff;
-  box-shadow:
-    0 0 0 1px #d6dfec,
-    0 50px 80px -40px rgba(26, 39, 74, 0.65);
-  opacity: 0;
-  transform: rotate(var(--rot)) translateY(34px) scale(0.96);
-  transition:
-    opacity 0.45s ease,
-    transform 0.75s cubic-bezier(0.2, 0.85, 0.25, 1);
-}
-
-.set[data-active="true"] .win {
-  opacity: 1;
-  transform: rotate(var(--rot));
-}
-
-/* A soft light that slides across the front screen with the pointer. */
-.layer[data-slot="0"] .win::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(420px circle at var(--gx, 50%) var(--gy, 40%), rgba(255, 255, 255, 0.34), transparent 62%);
-  opacity: var(--glare, 0);
-  pointer-events: none;
-}
-
-.bar {
-  display: flex;
-  height: 32px;
-  align-items: center;
-  gap: 6px;
-  padding: 0 12px;
-  background: #eef1f7;
-}
-
-.bar i {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #cfd5e2;
-}
-
-.bar span {
-  margin-left: 10px;
-  color: #6f7b97;
-  font: 500 11px/1 var(--font-geist-mono), monospace;
-}
-
-/* Back screens are clickable: the whole window is the button. */
-.hit {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-
-.hit:hover {
-  background: rgba(36, 89, 237, 0.06);
-}
-
-.hit:focus-visible {
-  outline: 3px solid #4866e9;
-  outline-offset: -3px;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #f6f8fc;
 }
 
 .shot {
-  display: block;
-  width: 100%;
-  height: auto;
+  object-fit: cover;
+  object-position: top;
+  opacity: 0;
+  transition: opacity 0.45s ease;
   user-select: none;
 }
 
-.caps {
+.shot[data-selected="true"] {
+  opacity: 1;
+}
+
+/* The project's own page at phone width. */
+.pip {
   position: absolute;
-  z-index: 4;
-  bottom: 40px;
-  left: 8cqw;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 22px;
+  right: 24px;
+  bottom: 24px;
   margin: 0;
-  padding: 0;
-  list-style: none;
-  color: #667085;
-  font: 500 12px/1 var(--font-geist-mono), monospace;
-  animation: nowIn 0.55s cubic-bezier(0.2, 0.85, 0.25, 1) 0.1s both;
 }
 
-.caps b {
-  margin-right: 6px;
-  color: #111318;
-  font-weight: 600;
-}
-
-.caps b:empty {
-  display: none;
-}
-
-/* The bubble rests in the bottom-right corner and trails the pointer while it is over the stage. */
-.bubble {
+.pipLabel {
   position: absolute;
-  z-index: 7;
-  right: 48px;
-  bottom: 84px;
-  width: 92px;
-  height: 92px;
-  transform: translate(var(--bx, 0px), var(--by, 0px));
-  text-decoration: none;
-  will-change: transform;
-}
-
-.bubbleFace {
-  display: grid;
-  width: 100%;
-  height: 100%;
-  place-items: center;
-  border-radius: 50%;
+  top: -30px;
+  right: 0;
+  padding: 7px 10px;
+  border-radius: 999px;
   background: #111318;
   color: #fff;
-  font: 600 13px/1 var(--font-geist-sans), system-ui, sans-serif;
-  box-shadow: 0 20px 30px -14px rgba(11, 13, 18, 0.55);
-  animation: bob 3s ease-in-out infinite;
+  font: 600 10.5px/1 var(--font-geist-mono), monospace;
+  white-space: nowrap;
+}
+
+.phone {
+  width: 156px;
+  padding: 7px;
+  border-radius: 29px;
+  background: #0d1017;
+  box-shadow:
+    0 0 0 1px #2a3040,
+    0 40px 50px -24px rgba(26, 39, 74, 0.85);
+}
+
+.phoneScreen {
+  position: relative;
+  aspect-ratio: 375 / 812;
+  overflow: hidden;
+  border-radius: 22px;
+  background: #f6f8fc;
+}
+
+.phoneScreen::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: 7px;
+  left: 50%;
+  width: 42px;
+  height: 12px;
+  margin-left: -21px;
+  border-radius: 99px;
+  background: #0d1017;
+}
+
+.phoneScreen img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.thumbs {
+  position: absolute;
+  z-index: 3;
+  right: 196px;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 28px 12px 14px 16px;
+  list-style: none;
+  background: linear-gradient(rgba(246, 248, 252, 0), #f6f8fc 42%);
+  pointer-events: none;
+  animation: fadeUp 0.55s cubic-bezier(0.2, 0.85, 0.25, 1) 0.1s both;
+}
+
+.thumbs li {
+  min-width: 0;
+  max-width: 118px;
+  flex: 1 1 0;
+  pointer-events: auto;
+}
+
+.thumb {
+  display: block;
+  width: 100%;
+  padding: 3px;
+  border: 1px solid #dfe5ee;
+  border-radius: 9px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
   transition:
-    scale 0.35s cubic-bezier(0.2, 0.85, 0.25, 1),
-    background-color 0.25s ease;
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.3s cubic-bezier(0.2, 0.85, 0.25, 1);
 }
 
-.stage[data-hover="true"] .bubbleFace {
-  scale: 0.85;
-  background: #2459ed;
-  animation-play-state: paused;
+.thumb:hover {
+  transform: translateY(-2px);
 }
 
-@keyframes bob {
-  50% {
-    transform: translateY(-8px);
-  }
+.thumb[aria-pressed="true"] {
+  border-color: #2459ed;
+  box-shadow: 0 0 0 3px #e4ecff;
+}
+
+.thumbImage {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+.thumbImage img {
+  object-fit: cover;
+  object-position: top;
+}
+
+.thumbCaption {
+  display: block;
+  margin: 4px 2px 1px;
+  overflow: hidden;
+  color: #596273;
+  font: 500 9.5px/1.25 var(--font-geist-mono), monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.thumb[aria-pressed="true"] .thumbCaption {
+  color: #111318;
 }
 
 .srOnly {
@@ -525,7 +592,7 @@
   white-space: nowrap;
 }
 
-/* Tablet and phone: heading, project pills, the stack, then the facts. -------- */
+/* Tablet and phone: heading, project pills, the browser, then the facts. -------- */
 @media (max-width: 1023px) {
   .root {
     display: flex;
@@ -595,9 +662,22 @@
 
   .stage {
     order: 3;
-    height: 460px;
     margin-top: 20px;
-    border-block: 1px solid #e4e8ee;
+    padding: 0 16px;
+  }
+
+  .browser {
+    height: auto;
+  }
+
+  /* The pills above already switch projects, so the window keeps only its dots. */
+  .tabs {
+    display: none;
+  }
+
+  .page {
+    flex: none;
+    height: 470px;
   }
 
   .now {
@@ -605,79 +685,78 @@
     padding: 28px 24px 30px;
   }
 
-  .counter {
-    top: 16px;
-    right: 16px;
-  }
-
-  .caps {
-    bottom: 16px;
-  }
-
-  .bubble {
-    right: 16px;
-    bottom: 56px;
-    width: 76px;
-    height: 76px;
-  }
 }
 
 @media (max-width: 560px) {
-  .stage {
-    height: 380px;
+  .page {
+    height: 400px;
   }
 
-  .layer[data-slot="0"] {
-    top: 18%;
-    left: 6cqw;
-    width: 86cqw;
+  .navIcons {
+    display: none;
   }
 
-  .layer[data-slot="1"] {
-    top: 9%;
-    left: 24cqw;
-    width: 68cqw;
+  .thumbs {
+    right: 0;
+    gap: 8px;
+    padding: 28px 12px 12px;
   }
 
-  .layer[data-slot="2"] {
-    top: 36%;
-    left: 2cqw;
-    width: 66cqw;
+  .thumb {
+    padding: 3px;
   }
 
-  .caps li:not(:first-child) {
+  .thumbCaption {
+    display: none;
+  }
+
+  .phone {
+    width: 104px;
+    padding: 5px;
+    border-radius: 21px;
+  }
+
+  .phoneScreen {
+    border-radius: 16px;
+  }
+
+  .pip {
+    right: 12px;
+    bottom: 96px;
+  }
+
+  .pipLabel {
     display: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .now,
-  .caps,
-  .bubbleFace {
+  .thumbs {
     animation: none;
   }
 
-  .win,
-  .layer,
   .set,
+  .shot,
   .tab,
   .cta,
-  .ctaArrow {
+  .ctaArrow,
+  .thumb {
     transition: none;
   }
 }
 
 @media (forced-colors: active) {
   .root,
-  .win,
+  .browser,
   .step,
   .chips li,
-  .tab {
+  .tab,
+  .thumb {
     border: 1px solid CanvasText;
   }
 
-  .cta,
-  .bubbleFace {
+  .cta {
     border: 1px solid ButtonText;
     background: ButtonFace;
     color: ButtonText;

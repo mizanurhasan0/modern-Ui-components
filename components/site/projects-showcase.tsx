@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useRef, useState, type KeyboardEvent } from "react";
 import { caseStudies } from "@/lib/case-studies";
+import { siteUrl } from "@/lib/site";
 import styles from "./projects-showcase.module.css";
 
 type Screen = { src: string; alt: string; caption: string };
@@ -18,9 +19,11 @@ type Project = {
   summary: string;
   tags: readonly string[];
   screens: readonly Screen[];
+  /** The project's own case-study page captured at 375px wide (public/work/<slug>/mobile-page.jpg). */
+  mobile: string;
 };
 
-/** Which three screenshots (front, back-right, back-left) represent each case study. */
+/** Which screenshots (first is the one shown large) represent each case study. */
 const SCREEN_PICKS: Readonly<Record<string, readonly number[]>> = {
   "sales-crm": [1, 5, 4],
   "multi-vendor-marketplace": [0, 2, 3],
@@ -29,6 +32,7 @@ const SCREEN_PICKS: Readonly<Record<string, readonly number[]>> = {
 };
 
 const startYear = (project: Project) => Number(project.year ?? 0);
+const siteHost = new URL(siteUrl).host;
 
 /** Newest first by start year (ties keep case-study order), numbered by position so the index always reads 01, 02, 03... */
 const PROJECTS: readonly Project[] = caseStudies
@@ -46,12 +50,11 @@ const PROJECTS: readonly Project[] = caseStudies
       summary: study.summary,
       tags: study.tags,
       screens: picks.map((index) => shots[index]).filter(Boolean),
+      mobile: `/work/${study.slug}/mobile-page.jpg`,
     };
   })
   .sort((a, b) => startYear(b) - startYear(a))
   .map((project, index) => ({ ...project, number: String(index + 1).padStart(2, "0") }));
-
-const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
 function ArrowIcon() {
   return (
@@ -76,30 +79,17 @@ function StepIcon({ direction }: { direction: "prev" | "next" }) {
 }
 
 /**
- * "Latest projects": a numbered project index and the selected project's facts on the left, and its real screens on
- * the right as a stack of browser windows. On a mouse the stack follows the pointer with eased, depth-based parallax,
- * a slight 3D tilt and a glare, and the "Open" bubble trails the cursor. Touch and reduced-motion users get the
- * still composition.
+ * "Latest projects": a numbered project index and the selected project's facts on the left, and on the right one
+ * browser window that holds the project: its projects as tabs, its real screens (pick one from the strip), and
+ * its own page at phone width floating in the corner. Nothing moves with the pointer.
  */
 export function ProjectsShowcase() {
   const [active, setActive] = useState(0);
   // Images mount when a project is first selected (or its tab is hovered/focused) so unused screens are never fetched.
   const [loaded, setLoaded] = useState<readonly number[]>([0]);
-  // Per project: which screen sits in each slot (slot 0 is the front window). Clicking a back screen swaps it with the front one.
-  const [orders, setOrders] = useState<Readonly<Record<string, readonly number[]>>>({});
-  const stageRef = useRef<HTMLDivElement>(null);
+  // Per project: which screen is shown large.
+  const [shown, setShown] = useState<Readonly<Record<string, number>>>({});
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
-
-  const orderOf = (item: Project) => orders[item.slug] ?? item.screens.map((_, index) => index);
-
-  function bringToFront(item: Project, screenIndex: number) {
-    const current = orderOf(item);
-    const slot = current.indexOf(screenIndex);
-    if (slot <= 0) return;
-    const next = [...current];
-    [next[0], next[slot]] = [next[slot], next[0]];
-    setOrders((all) => ({ ...all, [item.slug]: next }));
-  }
 
   const warm = useCallback((index: number) => {
     setLoaded((current) => (current.includes(index) ? current : [...current, index]));
@@ -124,78 +114,8 @@ export function ProjectsShowcase() {
     tabRefs.current[next]?.focus();
   }
 
-  // Pointer parallax: the pointer sets a target, a rAF loop eases the current values toward it and writes CSS variables.
-  useEffect(() => {
-    const stage = stageRef.current;
-    if (!stage) return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
-    if (reduced.matches || !finePointer.matches) return;
-
-    const target = { x: 0, y: 0, bx: 0, by: 0, glare: 0 };
-    const current = { x: 0, y: 0, bx: 0, by: 0, glare: 0 };
-    let frame = 0;
-    let hovering = false;
-
-    function render() {
-      frame = 0;
-      for (const key of ["x", "y", "bx", "by", "glare"] as const) {
-        current[key] += (target[key] - current[key]) * 0.085;
-      }
-      stage!.style.setProperty("--mx", current.x.toFixed(4));
-      stage!.style.setProperty("--my", current.y.toFixed(4));
-      stage!.style.setProperty("--bx", `${current.bx.toFixed(2)}px`);
-      stage!.style.setProperty("--by", `${current.by.toFixed(2)}px`);
-      stage!.style.setProperty("--glare", current.glare.toFixed(3));
-      const settled = (["x", "y", "bx", "by", "glare"] as const).every((key) => Math.abs(target[key] - current[key]) < 0.002);
-      if (hovering || !settled) frame = requestAnimationFrame(render);
-    }
-
-    function start() {
-      if (!frame) frame = requestAnimationFrame(render);
-    }
-
-    function onMove(event: PointerEvent) {
-      if (event.pointerType !== "mouse" && event.pointerType !== "pen") return;
-      const rect = stage!.getBoundingClientRect();
-      const px = event.clientX - rect.left;
-      const py = event.clientY - rect.top;
-      hovering = true;
-      target.x = clamp((px / rect.width) * 2 - 1, -1, 1);
-      target.y = clamp((py / rect.height) * 2 - 1, -1, 1);
-      target.glare = 1;
-      // The "Open" bubble trails the cursor from its resting corner (offsets are relative to that corner).
-      const restX = rect.width - 48 - 46;
-      const restY = rect.height - 84 - 46;
-      target.bx = clamp(px + 56, 56, rect.width - 56) - restX;
-      target.by = clamp(py + 56, 56, rect.height - 56) - restY;
-      stage!.style.setProperty("--gx", `${((px / rect.width) * 100).toFixed(1)}%`);
-      stage!.style.setProperty("--gy", `${((py / rect.height) * 100).toFixed(1)}%`);
-      stage!.dataset.hover = "true";
-      start();
-    }
-
-    function onLeave() {
-      hovering = false;
-      target.x = 0;
-      target.y = 0;
-      target.bx = 0;
-      target.by = 0;
-      target.glare = 0;
-      delete stage!.dataset.hover;
-      start();
-    }
-
-    stage.addEventListener("pointermove", onMove);
-    stage.addEventListener("pointerleave", onLeave);
-    return () => {
-      stage.removeEventListener("pointermove", onMove);
-      stage.removeEventListener("pointerleave", onLeave);
-      if (frame) cancelAnimationFrame(frame);
-    };
-  }, []);
-
   const project = PROJECTS[active];
+  const shownIndex = shown[project.slug] ?? 0;
 
   return (
     <div className={styles.root} data-helicopter-pad="stage">
@@ -259,72 +179,104 @@ export function ProjectsShowcase() {
         </section>
       </div>
 
-      <div ref={stageRef} className={styles.stage} data-cursor-knight-hide>
-        <div className={styles.counter}>
-          <span aria-hidden="true">
-            {String(active + 1).padStart(2, "0")} / {String(PROJECTS.length).padStart(2, "0")}
-          </span>
-          <button type="button" className={styles.step} onClick={() => step(-1)} aria-label="Previous project">
-            <StepIcon direction="prev" />
-          </button>
-          <button type="button" className={styles.step} onClick={() => step(1)} aria-label="Next project">
-            <StepIcon direction="next" />
-          </button>
-        </div>
+      <div className={styles.stage} data-cursor-knight-hide>
+        <div className={styles.browser}>
+          <div className={styles.chrome}>
+            <div className={styles.dots} aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </div>
+            <div className={styles.tabs}>
+              {PROJECTS.map((item, index) => (
+                <button
+                  key={item.slug}
+                  type="button"
+                  className={styles.chromeTab}
+                  aria-pressed={index === active}
+                  onClick={() => select(index)}
+                  onPointerEnter={() => warm(index)}
+                  onFocus={() => warm(index)}
+                >
+                  <i aria-hidden="true" />
+                  {item.title}
+                </button>
+              ))}
+            </div>
+          </div>
 
-        <div className={styles.tilt}>
-          {PROJECTS.map((item, index) =>
-            loaded.includes(index) ? (
-              <div key={item.slug} className={styles.set} data-active={index === active} aria-hidden={index !== active}>
-                {item.screens.map((screen, screenIndex) => {
-                  const slot = orderOf(item).indexOf(screenIndex);
-                  return (
-                  <div key={screen.src} className={styles.layer} data-slot={slot}>
-                    <figure className={styles.win} style={{ transitionDelay: index === active ? `${screenIndex * 70}ms` : "0ms" }}>
-                      <div className={styles.bar} aria-hidden="true">
-                        <i />
-                        <i />
-                        <i />
-                        <span>{screen.caption.toLowerCase()}</span>
-                      </div>
+          <div className={styles.urlbar}>
+            <span className={styles.navIcons} aria-hidden="true">
+              ‹ › ↻
+            </span>
+            <span className={styles.address}>
+              {siteHost}/work/<b>{project.slug}</b>
+            </span>
+            <span className={styles.counter}>
+              <span aria-hidden="true">
+                {String(active + 1).padStart(2, "0")} / {String(PROJECTS.length).padStart(2, "0")}
+              </span>
+              <button type="button" className={styles.step} onClick={() => step(-1)} aria-label="Previous project">
+                <StepIcon direction="prev" />
+              </button>
+              <button type="button" className={styles.step} onClick={() => step(1)} aria-label="Next project">
+                <StepIcon direction="next" />
+              </button>
+            </span>
+          </div>
+
+          <div className={styles.page}>
+            {PROJECTS.map((item, index) =>
+              loaded.includes(index) ? (
+                <div key={item.slug} className={styles.set} data-active={index === active} aria-hidden={index !== active}>
+                  <div className={styles.view}>
+                    {item.screens.map((screen, screenIndex) => (
                       <Image
+                        key={screen.src}
                         src={screen.src}
                         alt={screen.alt}
-                        width={1448}
-                        height={1086}
+                        fill
                         sizes="(min-width: 1024px) 52vw, 92vw"
                         className={styles.shot}
+                        data-selected={screenIndex === (shown[item.slug] ?? 0)}
                         draggable={false}
                       />
-                      {slot > 0 && index === active ? (
-                        <button
-                          type="button"
-                          className={styles.hit}
-                          onClick={() => bringToFront(item, screenIndex)}
-                          aria-label={`Bring ${screen.caption} to the front`}
-                        />
-                      ) : null}
-                    </figure>
+                    ))}
                   </div>
-                  );
-                })}
-              </div>
-            ) : null,
-          )}
+                  <figure className={styles.pip}>
+                    <figcaption className={styles.pipLabel}>Mobile · 375px</figcaption>
+                    <div className={styles.phone}>
+                      <div className={styles.phoneScreen}>
+                        <Image src={item.mobile} alt={`The ${item.title} case study page at phone width`} width={750} height={1624} sizes="200px" />
+                      </div>
+                    </div>
+                  </figure>
+                </div>
+              ) : null,
+            )}
+
+            <ol key={`thumbs-${project.slug}`} className={styles.thumbs} aria-label="Screens">
+              {project.screens.map((screen, screenIndex) => (
+                <li key={screen.src}>
+                  <button
+                    type="button"
+                    className={styles.thumb}
+                    aria-pressed={screenIndex === shownIndex}
+                    onClick={() => setShown((all) => ({ ...all, [project.slug]: screenIndex }))}
+                  >
+                    <span className={styles.thumbImage}>
+                      <Image src={screen.src} alt="" fill sizes="160px" />
+                    </span>
+                    <span className={styles.thumbCaption}>
+                      {project.number}.{screenIndex + 1} {screen.caption}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </div>
         </div>
 
-        <ol className={styles.caps} key={`caps-${project.slug}`} aria-label="Screens">
-          {orderOf(project).map((screenIndex, slot) => (
-            <li key={project.screens[screenIndex].src}>
-              <b>{slot === 0 ? `${project.number}.1` : ""}</b>
-              {project.screens[screenIndex].caption}
-            </li>
-          ))}
-        </ol>
-
-        <Link href={`/work/${project.slug}`} className={styles.bubble} tabIndex={-1} aria-hidden="true">
-          <span className={styles.bubbleFace}>Open ↗</span>
-        </Link>
       </div>
     </div>
   );
