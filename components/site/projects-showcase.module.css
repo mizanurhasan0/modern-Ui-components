@@ -78,7 +78,8 @@
 .tab {
   display: grid;
   width: 100%;
-  grid-template-columns: 34px 1fr auto;
+  grid-template-columns: 64px 1fr auto;
+  align-items: center;
   padding: 14px 0;
   border: 0;
   background: none;
@@ -106,15 +107,21 @@
 }
 
 .tabNum {
-  font: 600 12px/2.1 var(--font-geist-mono), monospace;
+  padding-left: 2px;
+  font: 600 12px/1 var(--font-geist-mono), monospace;
+  transition: font-size 0.3s cubic-bezier(0.2, 0.85, 0.25, 1);
 }
 
+/* The selected project's number grows large and blue. */
 .tab[aria-pressed="true"] .tabNum {
+  padding-left: 0;
   color: #2459ed;
+  font: 650 40px/1 var(--font-geist-sans), system-ui, sans-serif;
+  letter-spacing: -0.05em;
 }
 
 .tabYear {
-  font: 500 11.5px/2.3 var(--font-geist-mono), monospace;
+  font: 500 11.5px/1 var(--font-geist-mono), monospace;
 }
 
 .tab:focus-visible {
@@ -651,13 +658,16 @@
     color: #fff;
   }
 
+  /* The pills stay compact: the big number is for the vertical list only. */
+  .tabNum,
   .tab[aria-pressed="true"] .tabNum {
-    color: #9fb6f5;
+    padding-left: 0;
+    font: 600 12px/1 var(--font-geist-mono), monospace;
+    letter-spacing: 0;
   }
 
-  .tabNum,
-  .tabYear {
-    line-height: 1;
+  .tab[aria-pressed="true"] .tabNum {
+    color: #9fb6f5;
   }
 
   .stage {
